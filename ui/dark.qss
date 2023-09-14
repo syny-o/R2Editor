@@ -1,0 +1,382 @@
+QWidget
+{
+    border: 0px transparent black;
+    outline: 0;
+}
+
+
+/* SCROLLBAR */
+
+QAbstractScrollArea
+{
+    border-radius: 0.2ex;
+    border: 0.1ex solid #76797c;
+    background-color: transparent;
+}
+
+QScrollBar:horizontal
+{
+    height: 2.5ex;
+    margin: 0.3ex 1.5ex 0.3ex 1.5ex;
+    border: 0.1ex transparent #2A2929;
+    border-radius: 0.4ex;
+    background-color: #2A2929;
+    background-color: rgb(50, 50, 50);
+}
+
+QScrollBar::handle:horizontal
+{
+    background-color: #3daee9;
+    min-width: 0.5ex;
+    border-radius: 0.4ex;
+    background-color: rgb(50, 50, 250);
+    height: 7px;
+}
+
+QScrollBar::handle:horizontal:hover
+{
+    background-color: rgb(58, 89, 245);
+}
+
+QScrollBar::sub-line:horizontal:hover,
+QScrollBar::sub-line:horizontal:on
+{
+    border-image: url(./ui/svg/left_arrow.svg);
+    width: 1ex;
+    height: 1ex;
+    subcontrol-position: left;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal,
+QScrollBar::up-arrow:horizontal,
+QScrollBar::down-arrow:horizontal
+{
+    background: none;
+}
+
+
+QScrollBar:vertical
+{
+    background-color: #2A2929;
+    width: 7px;
+    margin: 1.5ex 0.3ex 1.5ex 0.3ex;
+    border: 0.1ex transparent #2A2929;
+    border-radius: 0.4ex;
+}
+
+QScrollBar::handle:vertical
+{
+    background-color: #3daee9;
+    min-height: 0.5ex;
+    border-radius: 0.4ex;
+    width: 7px;
+    background-color: rgb(58, 89, 245);
+    /* background-color: rgb(50, 50, 50); */
+}
+
+QScrollBar::handle:vertical:hover
+{
+    background-color: rgb(58, 89, 245);
+}
+
+QScrollBar::sub-line:horizontal,
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:vertical,
+QScrollBar::add-line:vertical
+{
+    height: 0ex;
+    width: 0ex;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical,
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical
+{
+    background: none;
+}
+
+
+
+
+/* PUSHBUTTON */
+
+
+
+QDialog QPushButton
+{
+    color: #eff0f1;
+    /* background-color: qlineargradient(x1: 0.5, y1: 0.5, x2: 0.5, y2: 1, stop: 0 #3b4045, stop: 0.5 #31363b); */
+    border-width: 0.2ex;
+    border-color: #76797c;
+    border-style: solid;
+    padding: 0.5ex;
+    border-radius: 0.2ex;
+    outline: none;
+    width: 25ex;
+    height: 8ex;
+}
+
+QDialog QLabel
+{
+    color: rgb(200, 200, 200);
+}
+
+
+
+
+/* TABS */
+
+
+QTabWidget::pane
+{
+    padding: 0.5ex;
+    margin: 0.1ex;
+}
+
+QTabWidget::pane:top
+{
+    border: 0.1ex solid #76797c;
+    top: 0ex;
+}
+
+
+
+
+QTabBar
+{
+    qproperty-drawBase: 0;
+    left: 0.5ex; /* move to the right by 0.5ex */
+    border-radius: 0.3ex;
+}
+
+QTabBar:focus
+{
+    border: 0ex transparent black;
+}
+
+QTabBar::close-button
+{
+    border-image: url(./ui/icons/svg/close.svg);
+    border-image: url(./ui/icons/24x24/cil-x.png);   
+    background: transparent;
+}
+
+QTabBar::close-button:hover
+{
+    background: rgb(100,100,100);
+}
+
+
+QTabBar::tab:top
+{
+    color: #eff0f1;
+    border: 0.1ex transparent black;
+    border-left: 0.1ex solid #76797c;
+    border-top: 0.1ex solid #76797c;
+    background-color: #31363b;
+    padding: 1.5ex;
+    padding: 2.5ex;
+    min-width: 50px;
+    border-top-left-radius: 0.2ex;
+    border-top-right-radius: 0.2ex;
+    border-bottom: 3px solid #31363b;
+    background-color: rgb(39, 44, 54);
+}
+
+QTabBar::tab:top:selected
+{
+    color: #eff0f1;
+    background-color: #54575B;
+    border: 0.1ex transparent black;
+    border-left: 0.1ex solid #76797c;
+    border-top-left-radius: 0.2ex;
+    border-top-right-radius: 0.2ex;
+    border-bottom: 3px solid #31363b;
+
+}
+
+
+
+
+
+
+
+
+/* TABLE */
+
+
+
+
+QTableView
+{
+    border: 0.1ex solid #76797c;
+    border: 0.5ex solid rgb(33, 37, 43);
+    gridline-color: rgb(33, 37, 43);
+    /*background-color: #232629;*/
+}
+
+/*
+QTableView::item:selected:active,
+QTreeView::item:selected:active,
+QListView::item:selected:active
+{
+    background: #3daee9;
+    color: #eff0f1;
+}
+
+QTableView::item:selected:hover,
+QListView::item:selected:hover,
+QTreeView::item:selected:hover
+{
+    background-color: #47b8f3;
+    color: #eff0f1;
+
+}
+*/
+
+
+QHeaderView
+{
+    background-color: rgb(39, 44, 54);
+    border: 0.1ex transparent;
+    border-radius: 0px;
+    margin: 0px;
+    padding: 0px;
+
+}
+
+QHeaderView::section
+{
+
+    background: transparent;
+    background-color: rgb(39, 44, 54);
+    color: #eff0f1;
+    padding: 5px;
+    /*border: 0.1ex solid #76797c;*/
+    border-radius: 0px;
+    text-align: center;
+}
+
+
+/*QHeaderView::section:checked
+{
+    color: white;
+    background-color: #334e5e;
+}
+*/
+
+
+QTableCornerButton::section
+{
+
+    background: transparent;
+    background-color: rgb(39, 44, 54);
+    border: 0.1ex transparent;
+    border-radius: 0px;
+}
+
+QTableView QTableCornerButton::section, QHeaderView::section:horizontal, QHeaderView{
+    background-color: rgb(39, 44, 54);
+    border-right: 0ex solid #31363b;
+}
+
+QTableView::item{
+    background-color: rgb(39, 44, 54);
+    border-top: 10px solid rgb(33, 37, 43);
+    padding: 5px;
+}
+
+QHeaderView::section:vertical{
+    border-top: 10px solid rgb(33, 37, 43);
+   }
+
+
+
+
+
+
+/* TOOLTIP */
+
+QToolTip{
+    padding: 10px;
+    border: 0.5px solid gray;
+    background-color: #3b4045;
+    color: rgb(200, 200, 200);
+}
+
+
+
+
+/* POPUP COMPLETION */
+QListView{
+    border: 0.5px solid gray;
+    background-color: #31363b;
+    alternate-background-color: #3b4045;
+    color: #eff0f1;
+    padding: 0.5ex;
+    opacity: 200;
+
+}
+
+
+QListView::item{
+    padding-right: 1px;
+    color: rgb(200, 200, 200);
+}
+
+
+
+QDialog{
+    border: 0.5px solid gray;
+    background-color: #31363b;
+}
+
+QLineEdit{
+    border: 1px solid rgb(39, 44, 54);
+    background-color: #3b4045;
+}
+
+
+
+QTreeView, QPlainTextEdit, QLineEdit{
+    border: 1px solid rgb(49, 54, 64);
+}
+
+
+QMenu{
+
+    background-color: #31363b;
+    background-color: #21262b;
+    alternate-background-color: #3b4045;
+    color: #eff0f1;
+    padding: 0.5ex;
+    padding-left: 1ex;
+
+    opacity: 200;
+
+}
+
+QMenu QPixmap{
+    padding: 2ex 5ex;
+}
+
+
+QMenu::item{
+    padding: 4ex 10ex;
+    color: rgb(200, 200, 200);
+    font-style: bold;
+}
+
+QMenu::item:selected{
+    background-color: rgba(0,50,150,100);
+}
+
+QMenu::item:disabled{
+    color: rgb(100,100,100);
+}
+
+
+
+
+

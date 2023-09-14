@@ -1,0 +1,20 @@
+tooltips_req = {
+    "ENUM_CODE0" : "ENUM_CODE0 = 5",
+    "ENUM_CODE1" : "ENUM_CODE1 = 27",
+    "ENUM_CODE2" : "ENUM_CODE2 = 40",
+    "ENUM_CODE3" : "ENUM_CODE3 = 54",
+    "ENUM_CODE4" : "ENUM_CODE4 = 66",
+    "ENUM_CODE5" : "ENUM_CODE5 = 92",
+    "ENUM_CODE6" : "ENUM_CODE6 = 111",
+    "ENUM_CODE7" : "ENUM_CODE7 = 113",
+    "ENUM_CODE8" : "ENUM_CODE8 = 142",
+    "ENUM_CODE9" : "ENUM_CODE9 = 144",
+    "ENUM_CODE10" : "ENUM_CODE10 = 163",
+    "ENUM_CODE11" : "ENUM_CODE11 = 189",
+    "ENUM_CODE12" : "ENUM_CODE12 = 201",
+    "ENUM_CODE13" : "ENUM_CODE13 = 215",
+    "ENUM_CODE14" : "ENUM_CODE14 = 228",
+    "ENUM_CODE15" : "ENUM_CODE15 = 250",        
+}
+
+
