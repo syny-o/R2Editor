@@ -16,7 +16,7 @@ from dialogs.form_add_req_module import AddRequirementsModule
 from dialogs.form_req_filter import RequirementFilter
 from progress_bar.widget_modern_progress_bar import ModernProgressBar
 from text_editor.completer import Completer
-from data_manager.droppable_tree_view import DroppableTreeView
+from components.droppable_tree_view import DroppableTreeView
 from data_manager.req_text_edit import RequirementTextEdit
 from text_editor.tooltips import tooltips
 
