@@ -1,2 +1,5 @@
 official_projects
 main.spec
+__pycache__/
+build/
+dist/
