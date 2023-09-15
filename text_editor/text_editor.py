@@ -12,85 +12,14 @@ from text_editor.syntax_highlighter import Highlighter
 from config.font import font
 
 from text_editor.completer import Completer
+from text_editor.text_edit_tooltip_widget import TextEditTooltipWidget
 
 from text_editor.tooltips import tooltips
-
-class MyWidget(QWidget):
-    selected_word = None
-    is_visible = False
-    
-
-    def __init__(self, parent, text):
-        super().__init__()
-        MyWidget.is_visible = True
-
-        TextEdit.shift_pressed = False
-
-
-        self.setWindowFlags(Qt.Popup)
-        
-        # self.setWindowOpacity(0.95)
-        self.setMaximumSize(1024, 768)
-        self.setMinimumSize(640, 480)
-
-        self.resize(*self.calculate_size(text))
-
-        
-        
-
-        self.setStyleSheet("color: #edf; background-color: #222; font-size: 14px;")
-
-        btn = QPushButton(QIcon(u"ui/icons/check.png"), "Back")
-        btn.setCursor(Qt.PointingHandCursor)
-        btn.clicked.connect(self.close)
-
-        toolbar = QToolBar()
-        toolbar.addWidget(btn)
-
-
-        # self.te = QTextEdit()
-        self.te = QTextEdit()
-        self.te.setReadOnly(True)
-        l = QVBoxLayout()
-        l.addWidget(self.te)
-        l.addWidget(toolbar)
-
-        l.setSpacing(20)
-        l.setContentsMargins(20, 20, 20, 20)
-        
-        self.setLayout(l)
-
-        # print(QDesktopWidget.primaryScreen())
-
-        centerPoint = QScreen.availableGeometry(QApplication.primaryScreen()).center()
-        fg = self.frameGeometry()
-        fg.moveCenter(centerPoint)
-        self.move(fg.topLeft())
-        self.te.append(text)
-        self.show()    
-
-
-    def calculate_size(self, text):
-        lines = text.splitlines()
-        longest_line = 0
-        for line in lines:
-            if len(line) > longest_line:
-                longest_line = len(line)
-        
-        if len(lines) < 5:
-            return longest_line*5, len(lines) * 300
-
-        return longest_line*5, len(lines) * 30
-
-
-    def closeEvent(self, e):
-        MyWidget.is_visible = False
-        return super().closeEvent(e)
 
 
 class TextEdit(QCodeEditor):
 
-    shift_pressed = False
+    ctrl_pressed = False
 
     font = font
 
@@ -109,6 +38,10 @@ class TextEdit(QCodeEditor):
     def set_font_to_all_children(cls):
         for ch in cls.children:
             ch.setFont(cls.font)
+
+    @classmethod
+    def update_ctrl_pressed(cls, is_pressed):
+        cls.ctrl_pressed = is_pressed
 
 
     def __init__(self, main_window=None, text=None, file_path=None):
@@ -161,19 +94,9 @@ class TextEdit(QCodeEditor):
 
         
         self.tooltips = Completer.cond_tooltips
-        # if  d:= self.completer.cond_dict:
-        #     for k, v in d.items():
-        #         model_to_unpack = d[k]
-        #         values = [model_to_unpack.item(i).text().split()[0] for i in range(model_to_unpack.rowCount())]
-                
-        #         self.tooltips.update({k: "\n".join(values)})
-        #         # print(f"{k} : {v}")
         
         self.scroll_bar = self.verticalScrollBar()
-        QToolTip.setFont(font)
-        
-
-
+        # QToolTip.setFont(font)
 
         self.remember_special_char = False
 
@@ -183,62 +106,46 @@ class TextEdit(QCodeEditor):
         # self.timer.start(1000)
         # self.timer.timeout.connect(self.check_file_content_on_disk)
 
-    def check_file_content_on_disk(self):
-        if self.main_window.actual_text_edit is self and self.file_path:
-            # print(f"Hello from timer: {self.file_path}")
-            try:
-                with open(self.file_path, 'r') as file_to_open:
-                    text_on_disk = file_to_open.read()            
-                    if text_on_disk != self.original_file_content:
-                        popup = QMessageBox(self)
-                        popup.setIcon(QMessageBox.Question)
-                        popup.setWindowTitle("R2 Editor")
-                        popup.setText("The file has been modified from external source.")
-                        popup.setInformativeText("Do you want to reload file?")
-                        popup.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-                        popup.setDefaultButton(QMessageBox.Yes)
-                        answer = popup.exec_()
+    # def check_file_content_on_disk(self):
+    #     if self.main_window.actual_text_edit is self and self.file_path:
+    #         # print(f"Hello from timer: {self.file_path}")
+    #         try:
+    #             with open(self.file_path, 'r') as file_to_open:
+    #                 text_on_disk = file_to_open.read()            
+    #                 if text_on_disk != self.original_file_content:
+    #                     popup = QMessageBox(self)
+    #                     popup.setIcon(QMessageBox.Question)
+    #                     popup.setWindowTitle("R2 Editor")
+    #                     popup.setText("The file has been modified from external source.")
+    #                     popup.setInformativeText("Do you want to reload file?")
+    #                     popup.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+    #                     popup.setDefaultButton(QMessageBox.Yes)
+    #                     answer = popup.exec_()
 
-                        if answer == QMessageBox.Yes:
-                            self.setPlainText(text_on_disk)
-                            self.original_file_content = text_on_disk
-                            self.file_was_modified = False
-                            self.signal_modified_file_content.emit(self.file_was_modified)
+    #                     if answer == QMessageBox.Yes:
+    #                         self.setPlainText(text_on_disk)
+    #                         self.original_file_content = text_on_disk
+    #                         self.file_was_modified = False
+    #                         self.signal_modified_file_content.emit(self.file_was_modified)
 
-                        elif answer == QMessageBox.No:
-                            self.timer.stop()
+    #                     elif answer == QMessageBox.No:
+    #                         self.timer.stop()
                             
 
-            except Exception as e:
-                print(str(e))        
+    #         except Exception as e:
+    #             print(str(e))        
         
 
-
-    # def textUnderCursor(self):
-    #     tc = self.textCursor()
-    #     isStartOfWord = False
-    #     if tc.atStart() or (tc.positionInBlock() == 0):
-    #         isStartOfWord = True
-    #     while not isStartOfWord:
-    #         tc.movePosition(QTextCursor.PreviousCharacter, QTextCursor.KeepAnchor)
-    #         if tc.atStart() or (tc.positionInBlock() == 0):
-    #             isStartOfWord = True
-    #         elif (tc.selectedText()[0]).isSpace():
-    #             isStartOfWord = True
-    #     return tc.selectedText()
-
-
-
     def mouseMoveEvent(self, event):
-        # self.viewport().setCursor(Qt.ArrowCursor)
-        # SAVE CURRENT SCROLLBAR POSITION
-        scroll_pos = self.scroll_bar.value()
         # CREATE INSTANCE OF TEXT CURSOR
+        self.viewport().setCursor(Qt.IBeamCursor)
         tc = self.textCursor()
-        # IF THERE IS NO SELECTED TEXT
-        isStartOfWord = False
+        if tc.selectedText() == '' and TextEdit.ctrl_pressed:
+            # SAVE CURRENT SCROLLBAR POSITION
+            scroll_pos = self.scroll_bar.value()
 
-        if tc.selectedText() == '':
+            # IF THERE IS NO SELECTED TEXT
+            isStartOfWord = False
             tc_original_pos = tc.position()
             text_cursor = self.cursorForPosition(event.pos())
             text_cursor.select(QTextCursor.WordUnderCursor)
@@ -260,14 +167,14 @@ class TextEdit(QCodeEditor):
 
             # print(f"***{word}***")
 
-            if word in self.tooltips and TextEdit.shift_pressed:
+            if word in self.tooltips and TextEdit.ctrl_pressed:
                 content = ""
                 
                 values_dict = self.tooltips[word]
 
                 if type(values_dict) == str:
                     # self.show_tooltip(values_dict)
-                    MyWidget.selected_word = values_dict
+                    TextEditTooltipWidget.selected_word = values_dict
 
                 else:
                     
@@ -282,11 +189,11 @@ class TextEdit(QCodeEditor):
                     self.viewport().setCursor(Qt.PointingHandCursor)
                     # self.show_tooltip(content)
                     
-                    MyWidget.selected_word = content
+                    TextEditTooltipWidget.selected_word = content
             else:
                 QToolTip.hideText()
                 self.viewport().setCursor(Qt.IBeamCursor)
-                MyWidget.selected_word = None
+                TextEditTooltipWidget.selected_word = None
             # SET BACK THE TEXT CURSOR POSITION AND SCROLLBAR POSITION
             tc.setPosition(tc_original_pos)
             self.setTextCursor(tc)
@@ -294,79 +201,32 @@ class TextEdit(QCodeEditor):
 
         super().mouseMoveEvent(event)
 
+
+
+    def mousePressEvent(self, event):
+        self.signal_clicked_on_text_edit.emit(self)        
+        return super().mousePressEvent(event)
+
+
     def mouseReleaseEvent(self, event):
-        if MyWidget.selected_word and TextEdit.shift_pressed:
-            self.show_tooltip(MyWidget.selected_word)
-            print(TextEdit.shift_pressed)
+        if TextEditTooltipWidget.selected_word and TextEdit.ctrl_pressed:
+            self.show_tooltip(TextEditTooltipWidget.selected_word)
+            print(TextEdit.ctrl_pressed)
 
         return super().mouseReleaseEvent(event)        
 
 
     def show_tooltip(self, tooltip_text):
         if self.tooltips:
-            # pos = self.cursorRect(self.textCursor()).bottomRight()
-            # pos = self.mapToGlobal(pos)
-            # # formated_tooltip_text = f'<html>\n<div style=\"max-width: 1000px;\">{tooltip_text}</div></html>'
-            # pos.setX(pos.x()+50)
-            # QToolTip.showText(pos, tooltip_text)
-            self.w = MyWidget(self, tooltip_text)
+            self.w = TextEditTooltipWidget(self.main_window, self, tooltip_text)
+
 
     def show_conditions_in_tooltip(self):
-        # content = '<div style="width: 2000px;">'
-        # content += ", ".join(self.tooltips.keys())
-        # content += '</div>'
-
-
-        # centerPoint = QScreen.availableGeometry(QApplication.primaryScreen()).center()
-        # fg = self.frameGeometry()
-        # fg.moveCenter(centerPoint)
-        # # self.move(fg.topLeft())
-
-        # my_point_x = centerPoint.x()
-        # my_point_y = centerPoint.y()
-
-        # tooltip_width = self.main_window.width() - 20
-        # tooltip_y_position = self.main_window.height() // 2
-        # tool_tip_q_point = self.main_window.pos()
-        # tool_tip_q_point.setY(tool_tip_q_point.y() + tooltip_y_position)
-        # tool_tip_q_point.setX(tool_tip_q_point.x())
-        # content = f"""
-        # <html>
-        # <table width="{tooltip_width}">
-        # <tr>
-        #     <td></td>
-        # </tr>
-        # <tr>
-        #     <td>{"<font color=blue> - </font>".join(sorted(self.tooltips.keys()))}</td>
-        # </tr>
-        # </table>
-        # </html>
-        # """
         new_list = [k for k, v in self.tooltips.items() if type(v) is dict]
-        content = '<html><body><p style="text-align: center" align="center">'
-        content += f'{"<font color=blue> - </font>".join(sorted(new_list))}'
+        content = '<html><body><p align="center">'
+        content += f'{"<font size=12 color=lightblue> - </font>".join(sorted(new_list))}'
         content += '</p></body></html>'
-        # QToolTip.showText(QPoint(my_point_x-tooltip_width, my_point_y), content)
-        # self.show_tooltip(content)
-
-
-            
-
-
-    def mousePressEvent(self, event):
-        self.signal_clicked_on_text_edit.emit(self)
-        # print(self.viewport().cursor().shape())
-        if self.completer.popup.isVisible():
-            self.completer.insert_text.emit(self.completer.get_selected())
-            return super().mouseReleaseEvent(event)
-        
-        return super().mousePressEvent(event)
-
-
-    def mouseReleaseEvent(self, event) -> None:
-        if self.completer.popup.isVisible():
-            self.completer.insert_text.emit(self.completer.get_selected())
-        return super().mouseReleaseEvent(event)
+        self.show_tooltip(content)
 
 
     def is_modified(self):
@@ -393,7 +253,7 @@ class TextEdit(QCodeEditor):
 
     def keyReleaseEvent(self, event):
         if event.key() == Qt.Key_Control:
-            TextEdit.shift_pressed = False
+            TextEdit.ctrl_pressed = False
             # QToolTip.hideText()
         return super().keyReleaseEvent(event)
     
@@ -401,12 +261,12 @@ class TextEdit(QCodeEditor):
         QToolTip.hideText()
 
         if event.key() == Qt.Key_Control:
-            TextEdit.shift_pressed = True
+            TextEdit.ctrl_pressed = True
             return
 
-        # if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Q:
-        #     self.show_conditions_in_tooltip()
-        #     return
+        if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Q:
+            self.show_conditions_in_tooltip()
+            return
 
         # "ENTER" AFTER POPUP IS VISIBLE
         if event.key() == Qt.Key_Return and self.completer.popup.isVisible():
@@ -450,9 +310,6 @@ class TextEdit(QCodeEditor):
 
             tc = self.textCursor()
             tc.select(QTextCursor.WordUnderCursor)
-
-
-
 
             if tc.selectedText() == "" and tc.block().text().strip() == "" \
             or tc.selectedText() == "" and self.current_model == "values":

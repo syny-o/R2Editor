@@ -50,6 +50,8 @@ class Dashboard(QWidget, Ui_Form):
     def open_project(self):
         project_path = self.ui_lw_projects.currentItem().data(Qt.DisplayRole)
         self.main_window.open_project.emit(project_path)
+        self.main_window.opened_project_path = project_path
+        self.main_window.update_title()
         self.main_window.manage_right_menu(self.main_window.data_manager, self.main_window.ui_btn_data_manager)
 
     def remove_project(self):

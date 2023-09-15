@@ -167,7 +167,7 @@ class DataManager(QWidget, Ui_Form):
 
 
         # REQUIREMENT TEXT IMPROVEMENT
-        self.ui_requirement_text = RequirementTextEdit(self)
+        self.ui_requirement_text = RequirementTextEdit(self.main_window)
         self.ui_layout_req_text.addWidget(self.ui_requirement_text)
 
     def lock_line_edits(self):
@@ -781,7 +781,7 @@ class DataManager(QWidget, Ui_Form):
             self.ui_requirement_covered.setText(str(selected_item.is_covered))
             text_to_display = ''
             columns_data = selected_item.columns_data
-            columns_names = selected_item.parent().columns_names
+            columns_names = selected_item.parent().columns_names_backup
 
 
             for i in range(len(columns_names)):

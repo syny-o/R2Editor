@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QTextEdit, QToolTip, QWhatsThis, QWidget, QApplication, QVBoxLayout, QPushButton, QToolBar, QDesktopWidget
 from PyQt5.QtGui import QTextCursor, QScreen, QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 
 
 from data_manager.tooltips_req import tooltips_req as tooltips
@@ -15,10 +15,10 @@ class RequirementTextEdit(QTextEdit):
     widgets = []
 
 
-    def __init__(self, data_manager=None):
+    def __init__(self, main_window):
         super().__init__()
         self.scroll_bar = self.verticalScrollBar()
-        self.data_manager = data_manager
+        self.main_window = main_window
         # self.main_window = data_manager.main_window
         self.setReadOnly(True)
 
@@ -62,16 +62,18 @@ class RequirementTextEdit(QTextEdit):
 
     def show_tooltip(self, tooltip_text):
         if tooltips:            
-            self.w = MyWidget(self, tooltip_text)
+            self.w = MyWidget(self.main_window, tooltip_text)
 
 
 
 class MyWidget(QWidget):
-    def __init__(self, parent, text):
+    def __init__(self, main_window, text):
         super().__init__()
 
+        self.main_window = main_window
+
         RequirementTextEdit.widgets.append(self)
-        print(len(RequirementTextEdit.widgets))
+        # print(len(RequirementTextEdit.widgets))
 
         if len(RequirementTextEdit.widgets) == 1:
             RequirementTextEdit.tooltip_size = self.calculate_size(text)
@@ -95,7 +97,7 @@ class MyWidget(QWidget):
 
 
         # self.te = QTextEdit()
-        self.te = RequirementTextEdit()
+        self.te = RequirementTextEdit(self.main_window)
         self.te.setReadOnly(True)
         l = QVBoxLayout()
         l.addWidget(self.te)
@@ -106,12 +108,6 @@ class MyWidget(QWidget):
         
         self.setLayout(l)
 
-        # print(QDesktopWidget.primaryScreen())
-
-        centerPoint = QScreen.availableGeometry(QApplication.primaryScreen()).center()
-        fg = self.frameGeometry()
-        fg.moveCenter(centerPoint)
-        self.move(fg.topLeft())
         self.te.setPlainText(text)
         self.show()    
 
@@ -125,9 +121,19 @@ class MyWidget(QWidget):
         return longest_line*10, len(lines) * 30
 
 
-    def closeEvent(self, e):
+    def showEvent(self, event):
+        if not event.spontaneous() and self.parent:
+            geo = self.geometry()
+            geo.moveCenter(self.main_window.geometry().center())
+            QTimer.singleShot(0, lambda: self.setGeometry(geo))
 
-        
+
+    def closeEvent(self, e):
+        RequirementTextEdit.is_visible = False
+        return super().closeEvent(e)
+
+
+    def closeEvent(self, e):        
         RequirementTextEdit.widgets.remove(self)
         print(len(RequirementTextEdit.widgets))
         return super().closeEvent(e)

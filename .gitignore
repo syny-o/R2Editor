@@ -3,3 +3,4 @@ main.spec
 __pycache__/
 build/
 dist/
+*.txt

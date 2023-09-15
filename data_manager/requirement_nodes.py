@@ -8,7 +8,9 @@ import time
 from data_manager.tooltips_req import tooltips_req
 
 
-PATTERN_REQ_REFERENCE = re.compile(r'EPB[\d\w_-]+(?:syDesign|funcDesign|techDesign|syRS)[_-]\d+', re.IGNORECASE)
+# PATTERN_REQ_REFERENCE = re.compile(r'EPB[\d\w_-]+(?:syDesign|funcDesign|techDesign|syRS)[_-]\d+', re.IGNORECASE)
+
+PATTERN_REQ_REFERENCE = re.compile(r'\$REF:\s*"(?P<req_reference>[\w\d,\s\(\)-]+)"\s*\$', re.IGNORECASE)
 
 # PATTERN_REQ_DETERMINE = re.compile(r"\d\d\d\d - Determine \w*'(?P<keyword>[\w]+)'.[^\s]+", re.IGNORECASE)
 PATTERN_REQ_DETERMINE = re.compile(r"the (component|safety mechanism) shall determine '(?P<keyword>[\w]+)'", re.IGNORECASE)
@@ -58,6 +60,8 @@ class RequirementFileNode(QStandardItem):
         # print(root_node.data(Qt.UserRole))
         self.path = path
         self.columns_names = columns_names
+        # backup original column names, when column names are edited, these backuped columns are used for displying until new Updtate Req is performed
+        self.columns_names_backup = [*columns_names]  
         self.coverage_check = coverage_check
 
         self.timestamp = None
@@ -128,6 +132,8 @@ class RequirementFileNode(QStandardItem):
         self.removeRows(0, self.rowCount())
         # create new children from received data
         self.create_tree_from_requirements_data(req_list, timestamp)
+        # once succefull update is performed, update backup columns
+        self.columns_names_backup = [*self.columns_names]
 
 
     def tree_2_file(self):
@@ -199,6 +205,30 @@ class RequirementFileNode(QStandardItem):
                     self.setIcon(QIcon(u"ui/icons/cross.png"))
 
 
+    # def check_coverage_with_file_pointers(self, project_path):
+    #     time_start = time.time()
+    #     reference_dict = {}
+    #     if project_path and self.coverage_check:
+
+    #         for root, dirs, files in os.walk(project_path):
+    #             for filename in files:
+    #                 if filename.endswith((".par", ".txt")):
+    #                     full_path = (root + '\\' + filename)
+    #                     full_path = full_path.replace("\\", "/")
+    #                     with open(full_path, 'r') as f:
+    #                         text = f.read()
+    #                         reference_list = PATTERN_REQ_REFERENCE.findall(text)
+    #                         # UPDATE
+    #                         print(reference_list)
+    #                         # END UPDATE
+    #                         for ref in reference_list:
+    #                             ref = ref.lower()
+    #                             if ref in reference_dict:
+    #                                 reference_dict[ref].add(full_path)
+    #                             else:
+    #                                 reference_dict.update({ref: set([full_path,])})
+            # print(reference_dict)
+
     def check_coverage_with_file_pointers(self, project_path):
         time_start = time.time()
         reference_dict = {}
@@ -212,13 +242,20 @@ class RequirementFileNode(QStandardItem):
                         with open(full_path, 'r') as f:
                             text = f.read()
                             reference_list = PATTERN_REQ_REFERENCE.findall(text)
-                            for ref in reference_list:
-                                ref = ref.lower()
-                                if ref in reference_dict:
-                                    reference_dict[ref].add(full_path)
-                                else:
-                                    reference_dict.update({ref: set([full_path,])})
-            # print(reference_dict)
+
+                            for ref_string in reference_list: # ref string is in following form: 
+                                references = ref_string.split(",")
+                                for ref in references:
+                                    ref = ref.lower().strip()
+
+                                    if ref in reference_dict:
+                                        reference_dict[ref].add(full_path)
+                                    else:
+                                        reference_dict.update({ref: set([full_path,])})            
+
+
+                # with open(r"test_req.txt", 'w', encoding='utf8') as f:
+                #     f.write(str(reference_dict.keys()))
 
 
 
@@ -274,7 +311,7 @@ class RequirementFileNode(QStandardItem):
 
 
         req_list.append({
-            self.path: [req_node_data, self.columns_names, self.timestamp, self.coverage_check]
+            self.path: [req_node_data, self.columns_names_backup, self.timestamp, self.coverage_check]
         })
 
         data.update(

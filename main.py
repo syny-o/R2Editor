@@ -7,8 +7,6 @@ from ui.main_ui import Ui_MainWindow
 
 from dialogs.dialog_message import dialog_message
 
-import re
-
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QMessageBox, QTabWidget, \
      QAction, QFileDialog, QSplitter, QToolTip, QMenu, QShortcut, QPushButton
 
@@ -40,6 +38,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.setupUi(self)
+
         self.resize(1600, 800)
 
         self.setWindowIcon(QIcon('R2Editor.ico'))
@@ -51,7 +50,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.setAttribute(Qt.WA_TranslucentBackground)
         QSizeGrip(self.frame_size_grip)
 
+        ## HIDE NOT-WORKING UI COMPONENTS
+        self.btn_project_recent.setVisible(False)
+        # self.btn_undo.setVisible(False)
+        # self.btn_redo.setVisible(False) 
+        self.frame_11.setVisible(False)       
+        
         ## CONNECT BUTTONS
+        
         self.btn_app_exit.clicked.connect(self.close)
 
         self.btn_project_open.clicked.connect(self.project_open)

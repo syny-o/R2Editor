@@ -31,6 +31,9 @@ class FileSystemView(QWidget, Ui_Form):
         super().__init__()
         self.setupUi(self)
 
+        ## HIDE NOT-WORKING UI COMPONENTS
+        self.ui_le_filter.setVisible(False)
+
         self.main_window = main_window
 
         self.send_file_path.connect(main_window.file_open_from_tree)
