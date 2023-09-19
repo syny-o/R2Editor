@@ -758,6 +758,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     event.ignore()
 
+        if not self.data_manager.is_project_saved:
+            close = QMessageBox.question(self,
+                                        "R2ScriptEditor",
+                                        "Current project is not saved.\n\nDo you want to discard changes?",
+                                        QMessageBox.Yes | QMessageBox.No)
+            if close == QMessageBox.Yes:
+                event.accept()
+            else:
+                event.ignore()
+
+
 
 
 

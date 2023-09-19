@@ -2,7 +2,7 @@ from pathlib import Path
 from ui.model_editor_ui import Ui_Form
 from config.font import font
 import json
-from PyQt5.QtWidgets import QWidget, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QTextEdit
+from PyQt5.QtWidgets import QWidget, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QTextEdit, QMessageBox
 from PyQt5.Qt import QStandardItemModel
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QSettings
@@ -47,6 +47,7 @@ class DataManager(QWidget, Ui_Form):
         self.ROOT.setData(self, Qt.UserRole)  # add pointer to DataManager instance to be accesseble from child nodes (ReqNode, CondNode, ...)
         # print(self.ROOT.data(Qt.UserRole))
         self._disk_project_path = None
+        self.is_project_saved = True
 
 
         # VIEW PART:
@@ -202,6 +203,7 @@ class DataManager(QWidget, Ui_Form):
         condition_nodes.initialise(data, self.ROOT)
         dspace_nodes.initialise(data, self.ROOT)
         a2l_nodes.initialise(data, self.ROOT)
+        self.is_project_saved = False
 
 
 
@@ -213,11 +215,13 @@ class DataManager(QWidget, Ui_Form):
     def receive_data_from_add_req_module_dialog(self, module_path, columns_names, coverage_check):
         r = RequirementFileNode(self.ROOT, module_path, columns_names, coverage_check)
         r.file_2_tree()
+        self.is_project_saved = False
 
 
     def add_req_node(self):
         self.form_add_req_module = AddRequirementsModule(self)
         self.form_add_req_module.show()
+        
 
 
     @pyqtSlot(bool, str)
@@ -533,6 +537,7 @@ class DataManager(QWidget, Ui_Form):
             if ok and passwd_from_input_dlg:
                 selected_item.send_request_2_doors(passwd_from_input_dlg)
                 self.update_progress_status(True, 'Preparing ...')
+                self.is_project_saved = False
 
 
 
@@ -565,6 +570,21 @@ class DataManager(QWidget, Ui_Form):
     #  PROJECT HANDLING
     ################################################################################################
 
+    def check_if_project_is_saved(self):
+        if not self.is_project_saved:
+            question = QMessageBox.question(self,
+                            "R2ScriptEditor",
+                            "Current project is not saved.\n\nDo you want to discard changes?",
+                            QMessageBox.Yes | QMessageBox.No)
+            if question == QMessageBox.Yes:
+                return True
+            else:
+                return False
+        
+        else:
+            return True
+
+
     @pyqtSlot(str)
     def save_project(self, path):
 
@@ -588,10 +608,18 @@ class DataManager(QWidget, Ui_Form):
 
         # HANDLE RECENT PROJECTS FILE
         self.update_recent_projects(path)
+        self.is_project_saved = True
+
 
 
     @pyqtSlot(str)
     def open_project(self, path):
+
+
+        if not self.check_if_project_is_saved():
+            return
+
+
 
         self.erase_model()
 
@@ -615,6 +643,7 @@ class DataManager(QWidget, Ui_Form):
 
             # HANDLE RECENT PROJECTS FILE
             self.update_recent_projects(path)
+            self.is_project_saved = True
         
         except FileNotFoundError:
             print('File Not Found')
@@ -624,6 +653,9 @@ class DataManager(QWidget, Ui_Form):
 
     @pyqtSlot(object)
     def new_project(self, data):
+
+        if not self.check_if_project_is_saved():
+            return
 
         self.erase_model()
 
@@ -635,6 +667,8 @@ class DataManager(QWidget, Ui_Form):
         dspace_nodes.initialise(data, self.ROOT)
         a2l_nodes.initialise(data, self.ROOT)
         requirement_nodes.initialise(data, self.ROOT)
+
+        self.is_project_saved = False
 
         # self.update_data_summary()
         # self.send_data_2_completer()

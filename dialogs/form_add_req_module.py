@@ -20,6 +20,7 @@ class AddRequirementsModule(QWidget, Ui_Form):
 
         self.ui_btn_cancel.clicked.connect(self.close)
         self.ui_btn_ok.clicked.connect(self.ok_clicked)
+        self.btn_close.clicked.connect(self.close)
 
 
     def ok_clicked(self):
