@@ -1,1 +1,1 @@
-pyinstaller -w --icon=R2Editor.ico main.py
+pyinstaller -w --icon=R2Editor.ico --name=R2Editor main.py

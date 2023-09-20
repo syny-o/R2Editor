@@ -27,8 +27,10 @@ from dialogs.dialog_recent_projects import RecentProjects
 
 from components.pyqt_find_text_widget.findTextWidget import FindTextWidget
 from components.pyqt_find_text_widget.findReplaceTextWidget import FindReplaceTextWidget
+from components.template_test_case import TemplateTestCase
 
 # pyinstaller -w --icon=R2Editor.ico main.py
+# pyinstaller -w --icon=R2Editor.ico --name=R2Editor main.py
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 
@@ -54,7 +56,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_project_recent.setVisible(False)
         # self.btn_undo.setVisible(False)
         # self.btn_redo.setVisible(False) 
-        self.frame_11.setVisible(False)       
+        # self.frame_11.setVisible(False)       
         
         ## CONNECT BUTTONS
         
@@ -533,10 +535,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def file_new(self):
-        text = ''
+        template = TemplateTestCase()
+        text = template.generate_tc_template()
         file_path = None
         tab_name = 'Untitled'
-        self.left_tabs.addTab(TextEdit(self, text, file_path), QIcon(u"ui/icons/16x16/cil-file.png"), tab_name)
+        self.left_tabs.addTab(TextEdit(self, text, file_path), QIcon(u"ui/icons/16x16/cil-description.png"), tab_name)
         self.actual_text_edit.setFocus()
 
 

@@ -185,11 +185,13 @@ class TextEdit(QCodeEditor):
                                 <li><font size=3 color=white>{ts}</font></li>
                             """
                         content += f"<font size=4 color=lightblue>{k:}</font><ol>{ts_content}</ol>"
-
-                    self.viewport().setCursor(Qt.PointingHandCursor)
+                    
                     # self.show_tooltip(content)
                     
                     TextEditTooltipWidget.selected_word = content
+
+                self.viewport().setCursor(Qt.PointingHandCursor)
+
             else:
                 QToolTip.hideText()
                 self.viewport().setCursor(Qt.IBeamCursor)
@@ -267,6 +269,13 @@ class TextEdit(QCodeEditor):
         if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Q:
             self.show_conditions_in_tooltip()
             return
+
+        # "ESC" Cancel Selection
+        if event.key() == Qt.Key_Escape:
+            tc = self.textCursor()
+            tc.clearSelection()
+            self.setTextCursor(tc)            
+
 
         # "ENTER" AFTER POPUP IS VISIBLE
         if event.key() == Qt.Key_Return and self.completer.popup.isVisible():
@@ -521,7 +530,7 @@ class TextEdit(QCodeEditor):
 
             # SHOW TOOLTIP / HINT IN CONSOLE
             self.completer.popup.hide()
-            self.show_tooltip(self.tooltips['MonitorVariablesCANape'])
+            # self.show_tooltip(self.tooltips['MonitorVariablesCANape'])
 
 
 
@@ -536,7 +545,7 @@ class TextEdit(QCodeEditor):
 
             # SHOW TOOLTIP / HINT IN CONSOLE
             self.completer.popup.hide()
-            self.show_tooltip(self.tooltips['GraphVariables'])
+            # self.show_tooltip(self.tooltips['GraphVariables'])
 
 
         elif line_text.strip() == 'VariableRisingInRange' \
@@ -555,7 +564,7 @@ class TextEdit(QCodeEditor):
 
             # SHOW TOOLTIP / HINT IN CONSOLE
             self.completer.popup.hide()
-            self.show_tooltip(self.tooltips[command])
+            # self.show_tooltip(self.tooltips[command])
 
 
 
@@ -571,7 +580,7 @@ class TextEdit(QCodeEditor):
 
             # SHOW TOOLTIP / HINT IN CONSOLE
             self.completer.popup.hide()
-            self.show_tooltip(self.tooltips['CANape_GetObjectValue'])
+            # self.show_tooltip(self.tooltips['CANape_GetObjectValue'])
 
 
         elif line_text.strip() == 'VariableSequence':
@@ -584,7 +593,7 @@ class TextEdit(QCodeEditor):
 
             # SHOW TOOLTIP / HINT IN CONSOLE
             self.completer.popup.hide()
-            self.show_tooltip(self.tooltips['VariableSequence'])
+            # self.show_tooltip(self.tooltips['VariableSequence'])
 
 
 

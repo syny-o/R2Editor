@@ -2,7 +2,7 @@ from pathlib import Path
 from ui.model_editor_ui import Ui_Form
 from config.font import font
 import json
-from PyQt5.QtWidgets import QWidget, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QTextEdit, QMessageBox
+from PyQt5.QtWidgets import QWidget, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QTextEdit, QMessageBox, QStyle, QPushButton
 from PyQt5.Qt import QStandardItemModel
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QSettings
@@ -19,6 +19,8 @@ from text_editor.completer import Completer
 from components.droppable_tree_view import DroppableTreeView
 from data_manager.req_text_edit import RequirementTextEdit
 from text_editor.tooltips import tooltips
+from text_editor.text_editor import TextEdit
+from components.template_test_case import TemplateTestCase
 
 
 
@@ -66,6 +68,12 @@ class DataManager(QWidget, Ui_Form):
         self.ui_tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
         self.ui_tree_view.customContextMenuRequested.connect(self._context_menu)  
         # CONTEXT MENU ACTIONS:  
+
+        self.action_create_testable_tc_template_with_req_reference = QAction("Create Testable Test Script")
+        self.action_create_testable_tc_template_with_req_reference.triggered.connect(lambda: self.create_tc_template_with_req_reference(True))
+        self.action_create_not_testable_tc_template_with_req_reference = QAction("Create NOT Testable Test Script")
+        self.action_create_not_testable_tc_template_with_req_reference.triggered.connect(lambda: self.create_tc_template_with_req_reference(False))        
+
         self.action_update_requirements = QAction('Update Requirements')
         self.action_update_requirements.setIcon(QIcon(u"ui/icons/16x16/cil-cloud-download.png"))
         self.action_update_requirements.triggered.connect(self.update_requirements)
@@ -114,6 +122,7 @@ class DataManager(QWidget, Ui_Form):
         ################## TreeView Shortcuts START ##########################
         QShortcut( 'Ctrl+d', self.ui_tree_view ).activated.connect(lambda: self.move(direction='down'))
         QShortcut( 'Ctrl+u', self.ui_tree_view ).activated.connect(lambda: self.move(direction='up'))
+        QShortcut( 'Del', self.ui_tree_view ).activated.connect(self.remove_node)
 
         ################## TreeView Shortcuts END ##########################
 
@@ -160,7 +169,7 @@ class DataManager(QWidget, Ui_Form):
         # SENDING REQUIREMENT LIST WIDGET ITEM TO MAIN WINDOW
         # signal for sending file path from requirement listwidget
         self.send_file_path.connect(main_window.file_open_from_tree)
-        self.ui_lw_file_paths_coverage.itemDoubleClicked.connect(lambda item: self.send_file_path.emit(item.text()))
+        self.ui_lw_file_paths_coverage.itemDoubleClicked.connect(self.doubleclick_on_tc_reference)
 
         # Update of NODE EDITTING, just switch read only --> not enabling/disabling whole group box
         self.node_line_edits = self.ui_group_box_all_frames.findChildren(QLineEdit)
@@ -187,6 +196,26 @@ class DataManager(QWidget, Ui_Form):
     def disk_project_path(self, path):
         self._disk_project_path = path
         self.ui_lab_project_path.setText(path)
+
+
+    def doubleclick_on_tc_reference(self, list_item_text):
+        self.send_file_path.emit(list_item_text.text())
+        self.main_window.manage_right_menu(self.main_window.tabs_splitter, self.main_window.ui_btn_text_editor)
+
+
+    def create_tc_template_with_req_reference(self, is_testable):
+        selected_item_index = self.ui_tree_view.currentIndex()
+        selected_item = self.model.itemFromIndex(selected_item_index)
+
+        if isinstance(selected_item, RequirementNode):
+            template = TemplateTestCase(req_id=selected_item.columns_data[0], req_text=selected_item.columns_data[-1], is_testable=is_testable)
+            # print(template.generate_tc_template())
+            text = template.generate_tc_template()
+            file_path = None
+            tab_name = 'Untitled'
+            self.main_window.left_tabs.addTab(TextEdit(self.main_window, text, file_path), QIcon(u"ui/icons/16x16/cil-description.png"), tab_name)
+            self.main_window.actual_text_edit.setFocus()
+            self.main_window.manage_right_menu(self.main_window.tabs_splitter, self.main_window.ui_btn_text_editor)
 
       
 
@@ -338,6 +367,10 @@ class DataManager(QWidget, Ui_Form):
             if hasattr(selected_item, 'get_file_node'):
                 selected_item.get_file_node().set_modified(True)
             self.model.removeRow(selected_item_row, parent_item_index)
+
+        if isinstance(selected_item, RequirementNode):
+            self.is_project_saved = False
+
 
         else:
             print('Not Possible to remove last item, remove whole parent!')
@@ -543,11 +576,12 @@ class DataManager(QWidget, Ui_Form):
 
     def check_coverage(self):
         if self.disk_project_path:
+            # self.ui_check_coverage.setEnabled(False)
             for row in range(self.ROOT.rowCount()):
                 current_item = self.ROOT.child(row)
                 if isinstance(current_item, RequirementFileNode):
                     current_item.check_coverage_with_file_pointers(self.disk_project_path)
-            self.update_data_summary()
+            # self.update_data_summary()
 
 
     def update_data_summary(self):
@@ -559,6 +593,16 @@ class DataManager(QWidget, Ui_Form):
             if isinstance(current_node, RequirementFileNode) and current_node.coverage_check:                
                     requirements_number += current_node.rowCount()
                     covered_number += current_node.is_covered
+                    if current_node.is_covered < current_node.rowCount():
+                        current_node.setIcon(QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton))
+                    else:
+                        current_node.setIcon(QIcon(u"ui/icons/check.png"))
+                    for row in range(current_node.rowCount()):
+                        req_node = current_node.child(row)
+                        req_node.setIcon(QIcon(u"ui/icons/check.png")) if req_node.is_covered \
+                            else req_node.setIcon(QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton))
+                    
+
 
         self.progress_bars[0].update_value(requirements_number, covered_number)
         self.ui_lab_req_total.setText(str(requirements_number))
@@ -860,6 +904,11 @@ class DataManager(QWidget, Ui_Form):
 
         if not isinstance(selected_item, (DspaceDefinitionNode, A2lNode)):
             menu.addAction(self.action_remove)
+
+        if isinstance(selected_item, RequirementNode):
+            menu.addAction(self.action_create_testable_tc_template_with_req_reference)
+            menu.addAction(self.action_create_not_testable_tc_template_with_req_reference)
+            menu.addSeparator()            
         
         if hasattr(selected_item, 'get_node_copy'):
             menu.addSeparator()

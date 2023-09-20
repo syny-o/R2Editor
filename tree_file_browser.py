@@ -47,9 +47,9 @@ class FileSystemView(QWidget, Ui_Form):
 
 
         # self._dir_path = QDir.rootPath()
-        self._dir_path = r'c:/!!! Projects'
+        self._dir_path = r'j:/!!! Projects'
 
-        self.current_path = None
+        self.current_path = self._dir_path
 
 
 
@@ -73,6 +73,7 @@ class FileSystemView(QWidget, Ui_Form):
 
         # self.tree.clicked.connect(self.update_index)
         self.tree.doubleClicked.connect(self.double_click_on_item)
+        self.tree.clicked.connect(self.update_current_path)
 
         # hide header and all columns except file name
         self.tree.setColumnHidden(1, True)
@@ -93,6 +94,7 @@ class FileSystemView(QWidget, Ui_Form):
         self.model.setRootPath(path)
         self.tree.setRootIndex(self.model.index(path))
         self.main_window.data_manager.disk_project_path = path
+        self.current_path = path
 
 
     def disconnect_project_folder(self):
@@ -268,6 +270,9 @@ class FileSystemView(QWidget, Ui_Form):
         if not is_directory:
             self.send_file_path.emit(file_path)
 
+    def update_current_path(self, index):
+        file_path = index.model().filePath(index)
+        self.current_path = file_path
 
 
     def normalise_script(self):
