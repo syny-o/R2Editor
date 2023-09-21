@@ -13,6 +13,7 @@ from config.font import font
 
 from text_editor.completer import Completer
 from text_editor.text_edit_tooltip_widget import TextEditTooltipWidget
+from text_editor.data_manager_widget import DataManagerWidget
 
 from text_editor.tooltips import tooltips
 
@@ -99,6 +100,8 @@ class TextEdit(QCodeEditor):
         # QToolTip.setFont(font)
 
         self.remember_special_char = False
+
+        self.data_manager_widget = DataManagerWidget(self.main_window, self)
 
         # self.setReadOnly(True)
 
@@ -267,7 +270,8 @@ class TextEdit(QCodeEditor):
             return
 
         if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Q:
-            self.show_conditions_in_tooltip()
+            # self.show_conditions_in_tooltip()
+            self.data_manager_widget.show()
             return
 
         # "ESC" Cancel Selection
@@ -365,6 +369,11 @@ class TextEdit(QCodeEditor):
 
         if event.key() not in (Qt.Key_Up, Qt.Key_Down, Qt.Key_Return):
             self.completer.popup.hide()
+
+        # # "CTRL" + "s" --> Forwar Save File to Main Window Handler but cancel CTRL Pressed
+        if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_S:
+            self.update_ctrl_pressed(False)
+            
 
         # # "CTRL" + "1" --> INSERT CHAPTER
         # if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_1:

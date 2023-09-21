@@ -6,6 +6,8 @@ from .pbc_patterns import patterns
 from dialogs.dialog_message import dialog_message
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QSettings, QRunnable, QThreadPool
 import time
+from components.reduce_path_string import reduce_path_string
+
 
 def initialise(data: dict, root_node):
     paths = data.get('A2L Files')
@@ -86,11 +88,12 @@ class A2lFileNode(QStandardItem):
         self.root_node = root_node
         self.data_manager = self.root_node.data(Qt.UserRole)
         self.path = path
+        
 
 
         
         
-        self.setText(path)
+        self.setText(reduce_path_string(self.path))
 
         # self.setIcon(QIcon(u"ui/icons/16x16/cil-folder.png"))
         self.setIcon(QIcon(u"ui/icons/a2l.png"))

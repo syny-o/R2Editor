@@ -1,4 +1,4 @@
-import sys, os, stat
+import sys, os, stat, re
 from pathlib import Path
 from PyQt5.QtWidgets import QSizeGrip
 from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QTimer, QEvent
@@ -28,6 +28,8 @@ from dialogs.dialog_recent_projects import RecentProjects
 from components.pyqt_find_text_widget.findTextWidget import FindTextWidget
 from components.pyqt_find_text_widget.findReplaceTextWidget import FindReplaceTextWidget
 from components.template_test_case import TemplateTestCase
+
+from data_manager.requirement_nodes import RequirementFileNode
 
 # pyinstaller -w --icon=R2Editor.ico main.py
 # pyinstaller -w --icon=R2Editor.ico --name=R2Editor main.py
@@ -217,6 +219,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.stackedWidget.addWidget(self.app_settings)
         self.stackedWidget.addWidget(self.dashboard)
         self.stackedWidget.setCurrentWidget(self.dashboard)
+
 
         self.ui_btn_text_editor.clicked.connect(lambda: self.manage_right_menu(self.tabs_splitter, self.ui_btn_text_editor))
         self.ui_btn_data_manager.clicked.connect(lambda: self.manage_right_menu(self.data_manager, self.ui_btn_data_manager))
@@ -481,12 +484,71 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.update_actual_information()
 
 
+    
+    def find_reference_in_string(self, string):
+        PATTERN_REQ_REFERENCE = re.compile(r'\$REF:\s*"(?P<req_reference>[\w\d,\s\(\)-]+)"\s*\$', re.IGNORECASE)
+        match_list = PATTERN_REQ_REFERENCE.findall(string)
+        # print(match_list)
+        references = set()
+        for match_string in match_list:
+            matches = match_string.split(",")
+            matches = [match.strip().lower() for match in matches]
+            references.update(set(matches))
+
+        return references
+
+
+
+
+    def update_coverage(self, text_to_save, original_text, file_path):
+        ################ TEST CHECK COVERAGE IN DATAMANAGER TREE:
+        references_original_text = self.find_reference_in_string(original_text)
+        references_text_to_save = self.find_reference_in_string(text_to_save)
+
+        missing_references = references_original_text.difference(references_text_to_save)
+        new_references = references_text_to_save.difference(references_original_text)
+
+        print("MISSING: ", missing_references)
+        print("NEW: ", new_references)
+
+        if self.data_manager._disk_project_path:
+
+            is_subfolder = self.data_manager._disk_project_path in file_path
+            root = self.data_manager.ROOT
+
+            if is_subfolder:
+                for root_row in range(root.rowCount()):
+                    current_file_node = root.child(root_row, 0)
+                    if isinstance(current_file_node, RequirementFileNode) and current_file_node.coverage_check:
+                        for req_row in range(current_file_node.rowCount()):
+                            req_item = current_file_node.child(req_row)
+                            if req_item.text().lower() in new_references:
+                                req_item.update_coverage(True)
+                                req_item.file_references.add(file_path)
+                            
+                            if req_item.text().lower() in missing_references:
+                                if file_path in req_item.file_references:
+                                    req_item.file_references.remove(file_path)
+                                    if not req_item.file_references:
+                                        req_item.update_coverage(False)
+                
+                self.data_manager.update_data_summary()
+                                
+
+
+
+
+
+        
+        
+
 
 
     def file_save(self):
         if self.actual_text_edit:
             self.format_code()
             if self.actual_text_edit.file_path == None:
+
                 self.file_save_as()
             else:
                 try:
@@ -494,14 +556,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     with open(self.actual_text_edit.file_path, 'w') as file_to_save:
                         file_to_save.write(text_to_save)
                         file_to_save.close()
+
+                        self.update_coverage(self.actual_text_edit.toPlainText(), self.actual_text_edit.original_file_content, self.actual_text_edit.file_path)
+
                         self.actual_text_edit.original_file_content = text_to_save
                         self.actual_text_edit.file_was_modified = False
                         self.set_actual_tab_icon(False)
+
+
+
+
 
                 except Exception as exception_to_show:
                     dialog_message(self, str(exception_to_show))
 
         self.update_actual_information()
+
+
 
 
     def file_save_as(self):
@@ -520,12 +591,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 with open(path, 'w') as file_to_save:
                     file_to_save.write(text_to_save)
                     file_to_save.close()
+
+                    self.update_coverage(self.actual_text_edit.toPlainText(), self.actual_text_edit.original_file_content, path)
+
                     self.actual_text_edit.original_file_content = text_to_save
                     self.actual_text_edit.file_was_modified = False
                     self.set_actual_tab_icon(False)
                     self.actual_text_edit.file_path = path
                     current_tab_index = self.actual_tabs.indexOf(self.actual_text_edit)
-                    self.actual_tabs.setTabText(current_tab_index, path.split('/')[-1])
+                    self.actual_tabs.setTabText(current_tab_index, path.split('/')[-1])                    
 
             except Exception as exception_to_show:
                 dialog_message(self, str(exception_to_show))

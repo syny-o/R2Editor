@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2452</width>
-    <height>1255</height>
+    <width>2043</width>
+    <height>1153</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -349,7 +349,7 @@ background-color: rgb(39, 44, 54);
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>400</height>
+       <height>250</height>
       </size>
      </property>
      <property name="styleSheet">
@@ -363,6 +363,15 @@ background-color: rgb(39, 44, 54);
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_12">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>5</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item alignment="Qt::AlignHCenter">
        <widget class="QLabel" name="lab_requirements">
         <property name="sizePolicy">
@@ -403,8 +412,11 @@ background-color: rgb(39, 44, 54);
          <enum>QFrame::Raised</enum>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_32">
+         <property name="spacing">
+          <number>15</number>
+         </property>
          <property name="bottomMargin">
-          <number>20</number>
+          <number>0</number>
          </property>
          <item alignment="Qt::AlignVCenter">
           <widget class="QFrame" name="frame_33">
@@ -710,7 +722,7 @@ background-color: rgb(39, 44, 54);
        </widget>
       </item>
       <item alignment="Qt::AlignHCenter">
-       <widget class="QLabel" name="lab_requirements_2">
+       <widget class="QLabel" name="lab_project_files">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -774,6 +786,12 @@ background-color: rgb(39, 44, 54);
       </property>
       <item>
        <widget class="QFrame" name="frame_31">
+        <property name="maximumSize">
+         <size>
+          <width>650</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="styleSheet">
          <string notr="true">QLineEdit, QPushButton{
 	padding: 5;
@@ -903,12 +921,6 @@ padding-left: 20px;</string>
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>800</width>
-            <height>16777215</height>
-           </size>
           </property>
           <property name="styleSheet">
            <string notr="true"/>

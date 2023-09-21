@@ -8,7 +8,7 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5 import QtTest
 
-from progress_bar.ui_modern_progress_bar import Ui_Form
+from progress_bar.modern_progress_bar_ui import Ui_Form
 
 # GLOBALS
 counter = 0

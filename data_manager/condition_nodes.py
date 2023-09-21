@@ -5,7 +5,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QStyle, QPushButton
 import re
 from dialogs.dialog_message import dialog_message
-
+from components.reduce_path_string import reduce_path_string
 
 
 def initialise(data: dict, root_node):
@@ -23,7 +23,7 @@ class ConditionFileNode(QStandardItem):
         self.path = path
         self.header = ''
 
-        self.setText(path)
+        self.setText(reduce_path_string(self.path))
 
         self.setIcon(QIcon(u"ui/icons/xml.png"))
         

@@ -34,7 +34,7 @@ class AddRequirementsModule(QWidget, Ui_Form):
         if self.ui_le_module_path.text() == '':
             self.ui_le_module_path.setStyleSheet('border: 1px solid red')
 
-        if self.ui_le_module_columns.text() == '':
+        elif self.ui_le_module_columns.text() == '':
             self.ui_le_module_columns.setStyleSheet('border: 1px solid red')
 
         else:

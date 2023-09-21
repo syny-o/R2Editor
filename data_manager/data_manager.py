@@ -36,6 +36,9 @@ class DataManager(QWidget, Ui_Form):
 
         self.main_window = main_window
 
+        self.lab_project_files.setVisible(False)
+        self.lab_requirements.setVisible(False)
+
         # SETTINGS FROM DISK
         self.settings = QSettings(r'.\config\configuration.ini', QSettings.IniFormat)
 
@@ -61,6 +64,7 @@ class DataManager(QWidget, Ui_Form):
         self.ui_tree_view.setModel(self.model)
         self.ui_tree_view.setExpandsOnDoubleClick(True)
         self._hide_all_frames()
+
 
 
 
@@ -136,6 +140,7 @@ class DataManager(QWidget, Ui_Form):
 
         for progress_bar in self.progress_bars:
             self.ui_layout_data_summary.addWidget(progress_bar)
+            
 
 
         # FUNCTIONAL PART:
@@ -370,6 +375,7 @@ class DataManager(QWidget, Ui_Form):
 
         if isinstance(selected_item, RequirementNode):
             self.is_project_saved = False
+            self.update_data_summary()
 
 
         else:
@@ -591,16 +597,24 @@ class DataManager(QWidget, Ui_Form):
         for row in range(self.ROOT.rowCount()):
             current_node = self.ROOT.child(row)
             if isinstance(current_node, RequirementFileNode) and current_node.coverage_check:                
-                    requirements_number += current_node.rowCount()
-                    covered_number += current_node.is_covered
-                    if current_node.is_covered < current_node.rowCount():
-                        current_node.setIcon(QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton))
+                requirements_number += current_node.rowCount()
+
+                current_node.is_covered = 0
+
+                for row in range(current_node.rowCount()):
+                    req_node = current_node.child(row)
+                    if req_node.is_covered:
+                        current_node.is_covered += 1
+                        req_node.setIcon(QIcon(u"ui/icons/check.png"))
                     else:
-                        current_node.setIcon(QIcon(u"ui/icons/check.png"))
-                    for row in range(current_node.rowCount()):
-                        req_node = current_node.child(row)
-                        req_node.setIcon(QIcon(u"ui/icons/check.png")) if req_node.is_covered \
-                            else req_node.setIcon(QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton))
+                        req_node.setIcon(QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton))
+
+                if current_node.is_covered < current_node.rowCount():
+                    current_node.setIcon(QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton))
+                else:
+                    current_node.setIcon(QIcon(u"ui/icons/check.png"))                            
+
+                covered_number += current_node.is_covered                        
                     
 
 
@@ -609,6 +623,9 @@ class DataManager(QWidget, Ui_Form):
         self.ui_lab_req_covered.setText(str(covered_number))
         self.ui_lab_req_not_covered.setText(str(requirements_number-covered_number))
         self.ui_lab_project_path.setText(self.disk_project_path)
+
+        self._display_values()
+
 
     ################################################################################################
     #  PROJECT HANDLING
@@ -745,6 +762,8 @@ class DataManager(QWidget, Ui_Form):
     def _hide_all_frames(self):
         # Common Area
         self.ui_frame_file.setVisible(False)
+        self.frame_10.setVisible(False)
+        self.frame_40.setVisible(False)
         # Condition Area
         self.ui_frame_cond.setVisible(False)
         self.ui_frame_cond.setFont(font)
@@ -790,6 +809,8 @@ class DataManager(QWidget, Ui_Form):
             self.ui_file_note.clear()
             if isinstance(selected_item, RequirementFileNode):
                 self.ui_file_note.setText(str(selected_item.timestamp))
+                self.frame_10.setVisible(True)
+                self.frame_40.setVisible(True)
                 self.ui_file_note_columns.setText(",".join(selected_item.columns_names))
                 # Buttons:
                 self.ui_update_requirements.setEnabled(True)
@@ -873,7 +894,7 @@ class DataManager(QWidget, Ui_Form):
 
             # print(selected_item.files_which_cover_this_requirement)
             self.ui_lw_file_paths_coverage.clear()
-            self.ui_lw_file_paths_coverage.addItems(selected_item.files_which_cover_this_requirement)
+            self.ui_lw_file_paths_coverage.addItems(selected_item.file_references)
 
 
 

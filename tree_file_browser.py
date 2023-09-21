@@ -47,7 +47,7 @@ class FileSystemView(QWidget, Ui_Form):
 
 
         # self._dir_path = QDir.rootPath()
-        self._dir_path = r'j:/!!! Projects'
+        self._dir_path = r'c:/!!! Projects'
 
         self.current_path = self._dir_path
 

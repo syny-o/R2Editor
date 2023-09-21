@@ -6,6 +6,7 @@ import re, os
 from doors.doors_connection import DoorsConnection
 import time
 from data_manager.tooltips_req import tooltips_req
+from components.reduce_path_string import reduce_path_string
 
 
 # PATTERN_REQ_REFERENCE = re.compile(r'EPB[\d\w_-]+(?:syDesign|funcDesign|techDesign|syRS)[_-]\d+', re.IGNORECASE)
@@ -43,6 +44,7 @@ def initialise(data: dict, root_node):
                     r = RequirementFileNode(root_node, req_path, columns_names, coverage_check)
                     r.create_tree_from_requirements_data(data, timestamp)
                     r.file_2_tree()
+                    
                     # r.check_coverage(self.disk_project_path)
                 elif not data:
                     r = RequirementFileNode(root_node, req_path, columns_names, coverage_check)
@@ -68,7 +70,7 @@ class RequirementFileNode(QStandardItem):
 
         self.setIcon(QIcon(u"ui/icons/doors.png"))
 
-        self.setText(path)
+        self.setText(reduce_path_string(self.path))
 
         self.setEditable(False)
 
@@ -86,12 +88,37 @@ class RequirementFileNode(QStandardItem):
         self.root_node.appendRow(self)  # APPEND NODE AS A CHILD
 
 
+        
+
+
+
 
 
     def create_tree_from_requirements_data(self, req_list, timestamp):
         self.timestamp = timestamp
+        
+
         for req_values in req_list:
+            
+            is_covered = False
+            file_references = None
+            if type(req_values) is dict:
+                is_covered = req_values.get("is_covered")
+                file_references = req_values.get("file_references")
+                req_values = req_values.get("columns_data")
+                
+                
+
+            
             req_node = RequirementNode(req_values)
+            req_node.is_covered = is_covered
+            
+            if req_node.is_covered:
+                self.is_covered += 1
+
+            if file_references:
+                req_node.file_references = set([*file_references])
+
             self.appendRow(req_node)  # APPEND NODE AS A CHILD
 
             ### PRASARNA - NACIST DO TOOLTIPU NEKTERA DATA --> NAPR ZE SYDESIGN: 2022 - Determine 'DriverControlsTheVehicle'.True:
@@ -127,6 +154,8 @@ class RequirementFileNode(QStandardItem):
         # print(tooltips_req)
 
         # self.sortChildren(0)
+
+        
 
 
     # @pyqtSlot(object)
@@ -228,12 +257,22 @@ class RequirementFileNode(QStandardItem):
         req_list = data.get('Requirements')
 
         req_node_data = []
+        
+
 
         for i in range(self.rowCount()):  # iterate through all req nodes
-
+            req_node_subdata = {}
             req_node = self.child(i)  # get object on <i=index> row
+            req_node_subdata.update({
+                "columns_data" : req_node.columns_data,
+                "is_covered" : req_node.is_covered,
+                "file_references" : list(req_node.file_references),
+                })
 
-            req_node_data.append(req_node.columns_data)
+            req_node_data.append(req_node_subdata)
+            
+            
+
 
 
 
@@ -262,7 +301,7 @@ class RequirementNode(QStandardItem):
 
         self.is_covered = False
 
-        self.files_which_cover_this_requirement = []
+        self.file_references = set()
 
 
         self.setText(columns_data[0])
@@ -347,11 +386,11 @@ class Worker(QRunnable):
 
                     if current_req_node.columns_data[0].lower() in reference_dict: 
                         current_req_node.update_coverage(True)
-                        current_req_node.files_which_cover_this_requirement = reference_dict.get(current_req_node.columns_data[0].lower())
+                        current_req_node.file_references = reference_dict.get(current_req_node.columns_data[0].lower())
                         self.requirement_file_node.is_covered += 1
                     elif stepanova_picovina.lower() in reference_dict:
                         current_req_node.update_coverage(True)
-                        current_req_node.files_which_cover_this_requirement = reference_dict.get(stepanova_picovina.lower())
+                        current_req_node.file_references = reference_dict.get(stepanova_picovina.lower())
                         self.requirement_file_node.is_covered += 1
                         stepanova_picovina_count += 1
                         # print("Stepanova_picovina", stepanova_picovina_count, stepanova_picovina_count)
