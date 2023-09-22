@@ -112,11 +112,11 @@ class DataManager(QWidget, Ui_Form):
         self.action_move_up = QAction('Move Up')
         self.action_move_up.setIcon(QIcon(u"ui/icons/16x16/cil-level-up.png"))
         # self.action_move_up.setShortcut('Ctrl+u')
-        self.action_move_up.triggered.connect(lambda: self.move(direction='up')) 
+        self.action_move_up.triggered.connect(lambda: self.move_node(direction='up')) 
 
         self.action_move_down = QAction(QIcon(u"ui/icons/16x16/cil-level-down.png"), 'Move Down')
         # self.action_move_down.setShortcut(QKeySequence("Ctrl+d"))
-        self.action_move_down.triggered.connect(lambda: self.move(direction='down')) 
+        self.action_move_down.triggered.connect(lambda: self.move_node(direction='down')) 
 
         self.action_normalise_a2l_file = QAction('Normalise (VDA spec.)')
         self.action_normalise_a2l_file.setIcon(QIcon(u"ui/icons/16x16/cil-chart-line.png"))
@@ -124,8 +124,8 @@ class DataManager(QWidget, Ui_Form):
         ################## CONTEXT MENU END ###########################
 
         ################## TreeView Shortcuts START ##########################
-        QShortcut( 'Ctrl+d', self.ui_tree_view ).activated.connect(lambda: self.move(direction='down'))
-        QShortcut( 'Ctrl+u', self.ui_tree_view ).activated.connect(lambda: self.move(direction='up'))
+        QShortcut( 'Ctrl+d', self.ui_tree_view ).activated.connect(lambda: self.move_node(direction='down'))
+        QShortcut( 'Ctrl+u', self.ui_tree_view ).activated.connect(lambda: self.move_node(direction='up'))
         QShortcut( 'Del', self.ui_tree_view ).activated.connect(self.remove_node)
 
         ################## TreeView Shortcuts END ##########################
@@ -534,7 +534,7 @@ class DataManager(QWidget, Ui_Form):
 
 
 
-    def move(self, direction):
+    def move_node(self, direction):
         selected_item_index = self.ui_tree_view.currentIndex()
         selected_item = self.model.itemFromIndex(selected_item_index)
         

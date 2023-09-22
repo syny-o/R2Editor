@@ -1,135 +1,327 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <diagram program="umlet" version="15.1">
-  <zoom_level>10</zoom_level>
+  <zoom_level>9</zoom_level>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>280</x>
-      <y>180</y>
-      <w>210</w>
-      <h>120</h>
-    </coordinates>
-    <panel_attributes>CodeEditor
---
-- is_saved: Boolean
-- original_content
---
-+ save_me()
-+ load_me()</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>280</x>
-      <y>440</y>
-      <w>210</w>
-      <h>120</h>
-    </coordinates>
-    <panel_attributes>TextEdit
---
-- is_saved: Boolean
-- original_content
---
-+ save_me()
-+ load_me()</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>360</x>
-      <y>290</y>
-      <w>30</w>
-      <h>170</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;150.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>670</x>
-      <y>440</y>
-      <w>300</w>
-      <h>130</h>
+      <x>657</x>
+      <y>18</y>
+      <w>648</w>
+      <h>504</h>
     </coordinates>
     <panel_attributes>DataManager
 --
-- is_saved: Boolean
-- original_content
+erase_model(self)
+receive_data_from_drop_or_file_manager(self, data)
+send_data_2_completer(self)
+normalise_a2l_file(self)
+tree_2_file(self)
 --
-+ save_me()
-+ load_me()</panel_attributes>
+add_req_node()
+receive_data_from_add_req_module_dialog(self, module_path, columns_names, coverage_check)
+add_node()
+remove_node()
+duplicate_node()
+copy_node()
+paste_node()
+edit_node()
+receive_data_from_add_node_dialog(self, data: dict)
+move_node(self, direction)
+--
+update_requirements(self)
+check_coverage(self)
+update_data_summary(self)
+--
+heck_if_project_is_saved(self)
+save_project(self, path)
+open_project(self, path)
+new_project(self, data)
+update_recent_projects(self, path)
+--
+_hide_all_frames(self)
+_disable_all_buttons(self)
+_display_values(self)
+_context_menu(self, point)
+_filter_items(self, filtered_text)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>585</x>
+      <y>666</y>
+      <w>189</w>
+      <h>153</h>
+    </coordinates>
+    <panel_attributes>DSpaceFileNode
+--
+
+--
+set_modified(self, modified)
+file_2_tree(self)
+tree_2_file(self)
+data_4_project(self, data)
+data_4_completer(self)
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>171</x>
+      <y>18</y>
+      <w>387</w>
+      <h>504</h>
+    </coordinates>
+    <panel_attributes>MainWindow
+--
+
+--
+manage_right_menu(self, widget, button):None
+mousePressEvent(self, event): None
+toggle_menu(self, toggled_frame, min_width, max_width): None
+update_actual_information(self):None
+update_title(self): None
+show_tooltip(self, tooltip_text): None
+clicked_on_text_edit(self, edit_text): None
+left_tab_was_changed(self, tab_index)
+left_tab_close_request(self, tab_index)
+right_tab_was_changed(self, tab_index)
+right_tab_close_without_saving(self, tab_index)
+right_tab_close_request(self, tab_index)
+set_actual_tab_icon(self, file_was_modified)
+file_open_from_tree(self, file_path)
+find_reference_in_string(self, string)
+update_coverage(self, text_to_save, original_text, file_path)
+get_all_opened_files(self)
+file_save(self)
+file_save_as(self)
+file_new(self)
+file_lock_unlock(self)
+project_new(self)
+project_save(self)
+project_save_as(self)
+project_open(self)
+show_recent_projects(self)
+find_replace(self, is_checked)
+format_code(self)
+font_increase(self)
+font_decrease(self)
+font_reset(self)
+closeEvent(self, event)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1422</x>
+      <y>18</y>
+      <w>387</w>
+      <h>504</h>
+    </coordinates>
+    <panel_attributes>TextEdit
+--
+
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>585</x>
+      <y>900</y>
+      <w>189</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>DspaceDefinitionNode
+--
+name
+--</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>480</x>
-      <y>480</y>
-      <w>210</w>
-      <h>50</h>
+      <x>666</x>
+      <y>810</y>
+      <w>36</w>
+      <h>108</h>
     </coordinates>
-    <panel_attributes>m1=*
-m2=1
-</panel_attributes>
-    <additional_attributes>10.0;20.0;190.0;20.0</additional_attributes>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=1
+m2=*</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;100.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>580</x>
-      <y>560</y>
-      <w>170</w>
-      <h>160</h>
+      <x>666</x>
+      <y>954</y>
+      <w>36</w>
+      <h>90</h>
     </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>150.0;10.0;10.0;140.0</additional_attributes>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=1
+m2=*</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>480</x>
-      <y>700</y>
-      <w>210</w>
-      <h>120</h>
+      <x>585</x>
+      <y>1026</y>
+      <w>189</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>DspaceVariableNode
+--
+name
+value
+path
+--
+get_file_node(self)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>657</x>
+      <y>513</y>
+      <w>45</w>
+      <h>171</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1
+has</panel_attributes>
+    <additional_attributes>10.0;170.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>792</x>
+      <y>666</y>
+      <w>189</w>
+      <h>153</h>
     </coordinates>
     <panel_attributes>ConditionFileNode
 --
-- path
-- name
+
 --
-+ file_2_tree()
-+ tree_2_file()</panel_attributes>
+set_modified(self, modified)
+file_2_tree(self)
+tree_2_file(self)
+data_4_project(self, data)
+data_4_completer(self)
+</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>710</x>
-      <y>700</y>
-      <w>210</w>
-      <h>120</h>
+      <x>792</x>
+      <y>891</y>
+      <w>189</w>
+      <h>108</h>
     </coordinates>
-    <panel_attributes>DspaceFileNode
+    <panel_attributes>ConditionNode
 --
-- path
-- name
+name
+category
 --
-+ file_2_tree()
-+ tree_2_file()</panel_attributes>
+get_file_node()
+get_node_copy()</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>770</x>
-      <y>560</y>
-      <w>50</w>
-      <h>160</h>
+      <x>873</x>
+      <y>810</y>
+      <w>36</w>
+      <h>99</h>
     </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;30.0;140.0</additional_attributes>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=1
+m2=*</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>873</x>
+      <y>990</y>
+      <w>36</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=1
+m2=*</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>792</x>
+      <y>1062</y>
+      <w>189</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>ValueNode
+--
+name
+category
+--
+my_test_step_nodes(self)
+get_file_node(self)
+get_node_copy(self)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>864</x>
+      <y>513</y>
+      <w>45</w>
+      <h>171</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1
+has</panel_attributes>
+    <additional_attributes>10.0;170.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>873</x>
+      <y>1152</y>
+      <w>36</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=1
+m2=*</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>792</x>
+      <y>1206</y>
+      <w>189</w>
+      <h>117</h>
+    </coordinates>
+    <panel_attributes>TestStepNode
+--
+name
+action
+comment
+nominal
+--
+get_file_node(self)
+get_node_copy(self)</panel_attributes>
+    <additional_attributes/>
   </element>
 </diagram>

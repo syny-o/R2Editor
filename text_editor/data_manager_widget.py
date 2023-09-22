@@ -31,44 +31,8 @@ class DataManagerWidget(QWidget):
 
 
 
-    def create_layout(self):
-        # self.ui_tree_view = QTreeView()
-        # self.ui_tree_view.setModel(self.main_window.data_manager.model)
-        # self.ui_tree_view.setExpandsOnDoubleClick(True)
-        # self.ui_tree_view.setHeaderHidden(True)
-
-        # self.le_filter = QLineEdit()
-        
-        # btn_close = QPushButton(QIcon(u"ui/icons/check.png"), "Back")
-        # btn_close.setCursor(Qt.PointingHandCursor)
-        # btn_close.clicked.connect(self.close)
-
-        # toolbar = QToolBar()
-        # toolbar.addWidget(btn_close)  
-
-
-        # layout_left = QVBoxLayout()
-        
-        # layout_left.addWidget(self.le_filter)
-        # layout_left.addWidget(self.ui_tree_view)
-
-        # layout_right = QVBoxLayout()
-        # layout_right.addWidget(QLineEdit())
-        # layout_right.addWidget(QLineEdit())
-        # layout_right.addWidget(QLineEdit())
-        # layout_right.addWidget(QLineEdit())
-        # layout_right.addWidget(QTextEdit())
-        
-
-        self.layout_global = QHBoxLayout()
-        # layout_global.setSpacing(20)
-        # layout_global.setContentsMargins(20, 20, 20, 20)
-        # layout_global.addLayout(layout_left)
-        # layout_global.addLayout(layout_right)
-        # layout_global.addWidget(toolbar)
-        
-        
-        # self.setLayout(self.layout_global)     
+    def create_layout(self):        
+        self.layout_global = QHBoxLayout()  
         
 
 
@@ -83,20 +47,20 @@ class DataManagerWidget(QWidget):
     def showEvent(self, event):
 
         if not event.spontaneous():
+
+            self.main_window.stackedWidget.removeWidget(self.main_window.data_manager)
+            self.layout_global.addWidget(self.main_window.data_manager)
+            self.main_window.data_manager.frame_17.setVisible(False)  
+            # self.main_window.data_manager.frame_2.setVisible(False)      
+            self.main_window.data_manager.show()
+
             self.resize(self.main_window.width()-int(self.main_window.width()/5), self.main_window.height()-200)
             geo = self.geometry()
             geo.moveCenter(self.main_window.geometry().center())
             QTimer.singleShot(0, lambda: self.setGeometry(geo))
 
-        self.main_window.stackedWidget.removeWidget(self.main_window.data_manager)
-        self.layout_global.addWidget(self.main_window.data_manager)
-        self.main_window.data_manager.frame_17.setVisible(False)  
-        # self.main_window.data_manager.frame_2.setVisible(False)      
-        self.main_window.data_manager.show()
 
-            # # HANDLE SCROLLBAR
-            # scroll_bar = self.te.verticalScrollBar()
-            # scroll_bar.setSliderPosition(0)
+
 
 
             

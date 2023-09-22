@@ -755,25 +755,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 
-    def find_text(self, text_to_find):
-        if self.actual_text_edit:
-            tc = self.actual_text_edit.textCursor()
-            self.find_from_index = tc.position()
-            text = self.actual_text_edit.toPlainText()
-            index = text.lower().find(text_to_find.lower(), self.find_from_index)
+    # def find_text(self, text_to_find):
+    #     if self.actual_text_edit:
+    #         tc = self.actual_text_edit.textCursor()
+    #         self.find_from_index = tc.position()
+    #         text = self.actual_text_edit.toPlainText()
+    #         index = text.lower().find(text_to_find.lower(), self.find_from_index)
 
-            if index == -1:
-                self.find_from_index = 0
-                index = text.lower().find(text_to_find.lower(), self.find_from_index)
+    #         if index == -1:
+    #             self.find_from_index = 0
+    #             index = text.lower().find(text_to_find.lower(), self.find_from_index)
 
 
-            if index != -1:                
-                tc.setPosition(index)
-                tc.setPosition(index + len(text_to_find), QTextCursor.KeepAnchor)
-                self.actual_text_edit.setTextCursor(tc)
-                # self.find_from_index = index
-            else:
-                dialog_message(self, '\nYou have reached end of Document!', 'Find Text')
+    #         if index != -1:                
+    #             tc.setPosition(index)
+    #             tc.setPosition(index + len(text_to_find), QTextCursor.KeepAnchor)
+    #             self.actual_text_edit.setTextCursor(tc)
+    #             # self.find_from_index = index
+    #         else:
+    #             dialog_message(self, '\nYou have reached end of Document!', 'Find Text')
 
 
                 
