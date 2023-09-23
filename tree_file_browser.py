@@ -163,30 +163,30 @@ class FileSystemView(QWidget, Ui_Form):
             self.is_data_manager_connected = True
 
 
-        window_position = self.main_window.pos()
-        window_height = self.main_window.height()
-        window_width = self.main_window.width()
+        # window_position = self.main_window.pos()
+        # window_height = self.main_window.height()
+        # window_width = self.main_window.width()
 
-        tooltip_position = window_position
+        # tooltip_position = window_position
 
-        tooltip_position.setX(tooltip_position.x() + 10)
-        tooltip_position.setY(tooltip_position.y() + window_height -200)
-        tooltip_width = len(path)*10
-        tooltip_content = f"""
-                <html>
-                <table height="30" width="{tooltip_width}">
-                <tr>
-                <center><img src="ui/icons/info.png"</center>
-                </tr>
-                <tr>
-                    <td><center>File <font color=lightblue>{path}</font> has been sent to model.</center></td>
-                </tr>
-                </table>
-                </html>
-        """    
+        # tooltip_position.setX(tooltip_position.x() + 10)
+        # tooltip_position.setY(tooltip_position.y() + window_height -200)
+        # tooltip_width = len(path)*10
+        # tooltip_content = f"""
+        #         <html>
+        #         <table height="30" width="{tooltip_width}">
+        #         <tr>
+        #         <center><img src="ui/icons/info.png"</center>
+        #         </tr>
+        #         <tr>
+        #             <td><center>File <font color=lightblue>{path}</font> has been sent to model.</center></td>
+        #         </tr>
+        #         </table>
+        #         </html>
+        # """    
 
-        # self.main_window.show_tooltip(tooltip_content)
-        QToolTip.showText(tooltip_position, tooltip_content)
+        # # self.main_window.show_tooltip(tooltip_content)
+        # QToolTip.showText(tooltip_position, tooltip_content)
 
         data = {}
 
@@ -201,6 +201,7 @@ class FileSystemView(QWidget, Ui_Form):
             data.update({'A2L Files': [path]})
         
         self.send_data_to_model.emit(data)
+
 
     
     def create_folder(self, index):

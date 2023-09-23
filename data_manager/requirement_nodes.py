@@ -178,79 +178,81 @@ class RequirementFileNode(QStandardItem):
 
     def check_coverage_with_file_pointers(self, project_path):
         if project_path and self.coverage_check:
-            # COUPLING !!!!
-            self.data_manager.ui_check_coverage.setEnabled(False)
-            # COUPLING !!!!
-            worker = Worker(self, project_path)
-            self.threadpool.start(worker)
-
-        # time_start = time.time()
-        # reference_dict = {}
-        # if project_path and self.coverage_check:
-
-        #     for root, dirs, files in os.walk(project_path):
-        #         for filename in files:
-        #             if filename.endswith((".par", ".txt")):
-        #                 full_path = (root + '\\' + filename)
-        #                 full_path = full_path.replace("\\", "/")
-        #                 with open(full_path, 'r') as f:
-        #                     text = f.read()
-        #                     reference_list = PATTERN_REQ_REFERENCE.findall(text)
-
-        #                     for ref_string in reference_list: # ref string is in following form: 
-        #                         references = ref_string.split(",")
-        #                         for ref in references:
-        #                             ref = ref.lower().strip()
-
-        #                             if ref in reference_dict:
-        #                                 reference_dict[ref].add(full_path)
-        #                             else:
-        #                                 reference_dict.update({ref: set([full_path,])})            
+            # # COUPLING !!!!
+            # self.data_manager.ui_check_coverage.setEnabled(False)
+            # # COUPLING !!!!
+            # worker = Worker(self, project_path)
+            # self.threadpool.start(worker)
 
 
-        #         # with open(r"test_req.txt", 'w', encoding='utf8') as f:
-        #         #     f.write(str(reference_dict.keys()))
+            if project_path and self.coverage_check:
+                time_start = time.time()
+                reference_dict = {}
+
+                for root, dirs, files in os.walk(project_path):
+                    for filename in files:
+                        if filename.endswith((".par", ".txt")):
+                            full_path = (root + '\\' + filename)
+                            full_path = full_path.replace("\\", "/")
+                            with open(full_path, 'r') as f:
+                                text = f.read()
+                                reference_list = PATTERN_REQ_REFERENCE.findall(text)
+
+                                for ref_string in reference_list: # ref string is in following form: 
+                                    references = ref_string.split(",")
+                                    for ref in references:
+                                        ref = ref.lower().strip()
+
+                                        if ref in reference_dict:
+                                            reference_dict[ref].add(full_path)
+                                        else:
+                                            reference_dict.update({ref: set([full_path,])})            
 
 
-
-
-        #     # browse all children (req nodes) and update its coverage
-        #     self.is_covered = 0
-        #     for row in range(self.rowCount()):
-        #         current_req_node = self.child(row)
-        #         stepanova_picovina = current_req_node.text().replace("DTSyDesign", "DT-SyDesign")
-        #         stepanova_picovina_count = 0
-        #         # print(stepanova_picovina.lower())
-        #         # print(stepanova_picovina, "---->", current_req_node.text())
-
-        #         #  in dict is: epb_chrysler_my24_dt-sydesign_6724
-
-        #         if current_req_node.text().lower() in reference_dict:
-        #             current_req_node.update_coverage(True)
-        #             current_req_node.files_which_cover_this_requirement = reference_dict.get(current_req_node.text().lower())
-        #             self.is_covered += 1
-        #         elif stepanova_picovina.lower() in reference_dict:
-        #             current_req_node.update_coverage(True)
-        #             current_req_node.files_which_cover_this_requirement = reference_dict.get(stepanova_picovina.lower())
-        #             self.is_covered += 1
-        #             stepanova_picovina_count += 1
-        #             # print("Stepanova_picovina", stepanova_picovina_count, stepanova_picovina_count)
-        #         else:
-        #             current_req_node.update_coverage(False)
-        #             self.setIcon(QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton))
-        # time_end = time.time()
-        # time_delta = time_end - time_start
-        # print(f'Coverage Check took {time_delta} seconds')       
+                    # with open(r"test_req.txt", 'w', encoding='utf8') as f:
+                    #     f.write(str(reference_dict.keys()))
 
 
 
 
+                # browse all children (req nodes) and update its coverage
+                self.is_covered = 0
+                for row in range(self.rowCount()):
+                    current_req_node = self.child(row)
+                    stepanova_picovina = current_req_node.text().replace("DTSyDesign", "DT-SyDesign")
+                    stepanova_picovina_count = 0
+                    # print(stepanova_picovina.lower())
+                    # print(stepanova_picovina, "---->", current_req_node.text())
+
+                    #  in dict is: epb_chrysler_my24_dt-sydesign_6724
+
+                    if current_req_node.text().lower() in reference_dict:
+                        current_req_node.update_coverage(True)
+                        current_req_node.file_references = reference_dict.get(current_req_node.text().lower())
+                        self.is_covered += 1
+                    elif stepanova_picovina.lower() in reference_dict:
+                        current_req_node.update_coverage(True)
+                        current_req_node.file_references = reference_dict.get(stepanova_picovina.lower())
+                        self.is_covered += 1
+                        stepanova_picovina_count += 1
+                        # print("Stepanova_picovina", stepanova_picovina_count, stepanova_picovina_count)
+                    else:
+                        current_req_node.update_coverage(False)
+                        # self.setIcon(QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton))
+                time_end = time.time()
+                time_delta = time_end - time_start
+                print(f'Coverage Check took {time_delta} seconds')     
+                self.data_manager.update_data_summary()  
 
 
 
-        # time_end = time.time()
-        # time_delta = time_end - time_start
-        # print(f'Coverage Check took {time_delta} seconds')
+
+
+
+
+            time_end = time.time()
+            time_delta = time_end - time_start
+            print(f'Coverage Check took {time_delta} seconds')
 
 
     def data_4_project(self, data):
@@ -325,92 +327,92 @@ class RequirementNode(QStandardItem):
 
 
 
-class Worker(QRunnable):
+# class Worker(QRunnable):
 
-    def __init__(self, requirement_file_node, project_path):
-        super().__init__()
-        self.requirement_file_node = requirement_file_node
-        self.project_path = project_path
+#     def __init__(self, requirement_file_node, project_path):
+#         super().__init__()
+#         self.requirement_file_node = requirement_file_node
+#         self.project_path = project_path
 
-    @pyqtSlot()
-    def run(self):
+#     @pyqtSlot()
+#     def run(self):
 
-        try:
-            # !!! START COUPLING
-            # self.requirement_file_node.data_manager.ui_check_coverage.setEnabled(False) NEJDE
-            # !!! END COUPLING
+#         try:
+#             # !!! START COUPLING
+#             # self.requirement_file_node.data_manager.ui_check_coverage.setEnabled(False) NEJDE
+#             # !!! END COUPLING
 
-            if self.project_path and self.requirement_file_node.coverage_check:
+#             if self.project_path and self.requirement_file_node.coverage_check:
 
-                print(self.requirement_file_node)
-                print(self.project_path)
-                time_start = time.time()
-                reference_dict = {}
+#                 print(self.requirement_file_node)
+#                 print(self.project_path)
+#                 time_start = time.time()
+#                 reference_dict = {}
 
-                for root, dirs, files in os.walk(self.project_path):
-                    for filename in files:
-                        if filename.endswith((".par", ".txt")):
-                            full_path = (root + '\\' + filename)
-                            full_path = full_path.replace("\\", "/")
-                            with open(full_path, 'r') as f:
-                                text = f.read()
-                                reference_list = PATTERN_REQ_REFERENCE.findall(text)
+#                 for root, dirs, files in os.walk(self.project_path):
+#                     for filename in files:
+#                         if filename.endswith((".par", ".txt")):
+#                             full_path = (root + '\\' + filename)
+#                             full_path = full_path.replace("\\", "/")
+#                             with open(full_path, 'r') as f:
+#                                 text = f.read()
+#                                 reference_list = PATTERN_REQ_REFERENCE.findall(text)
 
-                                for ref_string in reference_list: # ref string is in following form: 
-                                    references = ref_string.split(",")
-                                    for ref in references:
-                                        ref = ref.lower().strip()
+#                                 for ref_string in reference_list: # ref string is in following form: 
+#                                     references = ref_string.split(",")
+#                                     for ref in references:
+#                                         ref = ref.lower().strip()
 
-                                        if ref in reference_dict:
-                                            reference_dict[ref].add(full_path)
-                                        else:
-                                            reference_dict.update({ref: set([full_path,])})            
-
-
-                #     # with open(r"test_req.txt", 'w', encoding='utf8') as f:
-                #     #     f.write(str(reference_dict.keys()))
+#                                         if ref in reference_dict:
+#                                             reference_dict[ref].add(full_path)
+#                                         else:
+#                                             reference_dict.update({ref: set([full_path,])})            
 
 
+#                 #     # with open(r"test_req.txt", 'w', encoding='utf8') as f:
+#                 #     #     f.write(str(reference_dict.keys()))
 
 
-                # browse all children (req nodes) and update its coverage
-                self.requirement_file_node.is_covered = 0
-                for row in range(self.requirement_file_node.rowCount()):
-                    current_req_node = self.requirement_file_node.child(row)
-                    stepanova_picovina = current_req_node.text().replace("DTSyDesign", "DT-SyDesign")
-                    stepanova_picovina_count = 0
-                    # print(stepanova_picovina.lower())
-                    # print(stepanova_picovina, "---->", current_req_node.text())
 
-                #     #  in dict is: epb_chrysler_my24_dt-sydesign_6724
 
-                    if current_req_node.columns_data[0].lower() in reference_dict: 
-                        current_req_node.update_coverage(True)
-                        current_req_node.file_references = reference_dict.get(current_req_node.columns_data[0].lower())
-                        self.requirement_file_node.is_covered += 1
-                    elif stepanova_picovina.lower() in reference_dict:
-                        current_req_node.update_coverage(True)
-                        current_req_node.file_references = reference_dict.get(stepanova_picovina.lower())
-                        self.requirement_file_node.is_covered += 1
-                        stepanova_picovina_count += 1
-                        # print("Stepanova_picovina", stepanova_picovina_count, stepanova_picovina_count)
-                    else:
-                        current_req_node.update_coverage(False)
-                        # self.requirement_file_node.setIcon(QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton))
+#                 # browse all children (req nodes) and update its coverage
+#                 self.requirement_file_node.is_covered = 0
+#                 for row in range(self.requirement_file_node.rowCount()):
+#                     current_req_node = self.requirement_file_node.child(row)
+#                     stepanova_picovina = current_req_node.text().replace("DTSyDesign", "DT-SyDesign")
+#                     stepanova_picovina_count = 0
+#                     # print(stepanova_picovina.lower())
+#                     # print(stepanova_picovina, "---->", current_req_node.text())
 
-                time_end = time.time()
-                time_delta = time_end - time_start
-                print(f'Coverage Check took {time_delta} seconds')      
+#                 #     #  in dict is: epb_chrysler_my24_dt-sydesign_6724
+
+#                     if current_req_node.columns_data[0].lower() in reference_dict: 
+#                         current_req_node.update_coverage(True)
+#                         current_req_node.file_references = reference_dict.get(current_req_node.columns_data[0].lower())
+#                         self.requirement_file_node.is_covered += 1
+#                     elif stepanova_picovina.lower() in reference_dict:
+#                         current_req_node.update_coverage(True)
+#                         current_req_node.file_references = reference_dict.get(stepanova_picovina.lower())
+#                         self.requirement_file_node.is_covered += 1
+#                         stepanova_picovina_count += 1
+#                         # print("Stepanova_picovina", stepanova_picovina_count, stepanova_picovina_count)
+#                     else:
+#                         current_req_node.update_coverage(False)
+#                         # self.requirement_file_node.setIcon(QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton))
+
+#                 time_end = time.time()
+#                 time_delta = time_end - time_start
+#                 print(f'Coverage Check took {time_delta} seconds')      
 
 
             
-        except Exception as e:
+#         except Exception as e:
             
-            print(e)
+#             print(e)
 
-        finally:
-            # !!! START COUPLING
-            self.requirement_file_node.data_manager.ui_check_coverage.setEnabled(True)
-            self.requirement_file_node.data_manager.update_data_summary()
-            # !!! END COUPLING
+#         finally:
+#             # !!! START COUPLING
+#             self.requirement_file_node.data_manager.ui_check_coverage.setEnabled(True)
+#             self.requirement_file_node.data_manager.update_data_summary()
+#             # !!! END COUPLING
 
