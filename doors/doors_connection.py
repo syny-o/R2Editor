@@ -84,10 +84,10 @@ class DoorsConnection(QObject):
         self.send_downloaded_requirements.connect(requirement_node.receive_data_from_doors)
         self.send_progress_status.connect(data_manager.update_progress_status)
 
-        self.settings_doors = QSettings(r'.\doors\doors.ini', QSettings.IniFormat)
-        self.app_path = self.settings_doors.value('doors_app_path')
-        self.database_path = self.settings_doors.value('doors_database_path')
-        self.user_name = self.settings_doors.value('doors_user_name')
+        self.settings = QSettings(r'.\app_config.ini', QSettings.IniFormat)
+        self.app_path = self.settings.value('doors/doors_app_path')
+        self.database_path = self.settings.value('doors/doors_database_path')
+        self.user_name = self.settings.value('doors/doors_user_name')
         # self.user_passwd = self.settings_doors.value('doors_user_passwd')
         self.user_passwd = password
 

@@ -2,7 +2,7 @@ from pathlib import Path
 from ui.model_editor_ui import Ui_Form
 from config.font import font
 import json
-from PyQt5.QtWidgets import QWidget, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QTextEdit, QMessageBox, QStyle, QPushButton
+from PyQt5.QtWidgets import QWidget, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QTextEdit, QMessageBox, QStyle, QPushButton, QApplication
 from PyQt5.Qt import QStandardItemModel
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QSettings
@@ -40,7 +40,8 @@ class DataManager(QWidget, Ui_Form):
         self.lab_requirements.setVisible(False)
 
         # SETTINGS FROM DISK
-        self.settings = QSettings(r'.\config\configuration.ini', QSettings.IniFormat)
+        # self.settings = QSettings(r'.\config\configuration.ini', QSettings.IniFormat)
+        self.settings = main_window.app_settings
 
         # MODEL PART:
         self.model = QStandardItemModel()
@@ -185,6 +186,18 @@ class DataManager(QWidget, Ui_Form):
         self.ui_requirement_text = RequirementTextEdit(self.main_window)
         self.ui_layout_req_text.addWidget(self.ui_requirement_text)
 
+
+        # COPY TO CLIPBOAR FEATURE
+        self.ui_btnCopyReqRef.clicked.connect(self.copy_to_clipboard)
+
+    def copy_to_clipboard(self):
+        cb = QApplication.clipboard()
+        cb.clear(mode=cb.Clipboard)
+        cb.setText(self.ui_requirement_id.text(), mode=cb.Clipboard)
+        self.main_window.show_notification(f"Item {self.ui_requirement_id.text()} copied to Clipboard.")  
+
+
+
     def lock_line_edits(self):
         for le in self.node_line_edits:
             le.setReadOnly(True)
@@ -238,6 +251,7 @@ class DataManager(QWidget, Ui_Form):
         dspace_nodes.initialise(data, self.ROOT)
         a2l_nodes.initialise(data, self.ROOT)
         self.is_project_saved = False
+        self.main_window.show_notification(f"Model has been updated.")    
 
 
 
@@ -369,17 +383,19 @@ class DataManager(QWidget, Ui_Form):
         parent_item_index = selected_item_index.parent()
 
         if self.model.rowCount(parent_item_index) > 1:
+            
             if hasattr(selected_item, 'get_file_node'):
                 selected_item.get_file_node().set_modified(True)
-            self.model.removeRow(selected_item_row, parent_item_index)
 
-        if isinstance(selected_item, RequirementNode):
-            self.is_project_saved = False
-            self.update_data_summary()
+            self.main_window.show_notification(f"Item {selected_item.text()} has been removed.")  
+            self.model.removeRow(selected_item_row, parent_item_index)                
 
+            if isinstance(selected_item, RequirementNode):
+                self.is_project_saved = False
+                self.update_data_summary()            
 
         else:
-            print('Not Possible to remove last item, remove whole parent!')
+            self.main_window.show_notification(f"Can not remove last item.")  
             
     
     def add_node(self):
@@ -572,7 +588,10 @@ class DataManager(QWidget, Ui_Form):
         selected_item_index = self.ui_tree_view.currentIndex()
         selected_item = self.model.itemFromIndex(selected_item_index)
         if isinstance(selected_item, RequirementFileNode):
-            passwd_from_input_dlg, ok = QInputDialog.getText(None, "Enter your Password", "Password:", QLineEdit.Password)
+            passwd_from_input_dlg, ok = QInputDialog.getText(
+                None, 
+                "Enter your Password", 
+                f"Database: {self.main_window.app_settings.doors_database_path}\nUsername: {self.main_window.app_settings.doors_user_name}\nPassword:", QLineEdit.Password)
             if ok and passwd_from_input_dlg:
                 selected_item.send_request_2_doors(passwd_from_input_dlg)
                 self.update_progress_status(True, 'Preparing ...')
@@ -664,12 +683,18 @@ class DataManager(QWidget, Ui_Form):
 
             data.update(received_data)
 
-        with open(path, 'w', encoding='utf8') as f:
-            f.write(json.dumps(data, indent=2))
+        try:
+            with open(path, 'w', encoding='utf8') as f:
+                f.write(json.dumps(data, indent=2))
+                # HANDLE RECENT PROJECTS FILE
+                self.update_recent_projects(path)
+                self.is_project_saved = True
+                self.main_window.show_notification(f"Project {path} has been saved.")    
 
-        # HANDLE RECENT PROJECTS FILE
-        self.update_recent_projects(path)
-        self.is_project_saved = True
+        except Exception as e:
+            self.main_window.dialog_message(self.main_window, "Unable to Save Project, error:" + str(e))
+
+
 
 
 
@@ -695,7 +720,7 @@ class DataManager(QWidget, Ui_Form):
                 if Path(self.disk_project_path).exists():
                     self.send_project_path.emit(self.disk_project_path)
                 else:
-                    print(f'Unable to Set Disk Project Path, {self.disk_project_path} does not exist!')
+                    self.main_window.dialog_message(self.main_window, f'Unable to Set Disk Project Path, {self.disk_project_path} does not exist!')
             # Handle project files
             condition_nodes.initialise(data, self.ROOT)
             dspace_nodes.initialise(data, self.ROOT)
@@ -705,9 +730,11 @@ class DataManager(QWidget, Ui_Form):
             # HANDLE RECENT PROJECTS FILE
             self.update_recent_projects(path)
             self.is_project_saved = True
+
+            self.main_window.show_notification(f"Project {path} has been loaded.") 
         
         except FileNotFoundError:
-            print('File Not Found')
+            self.main_window.dialog_message(self.main_window, "Unable to Load Project, file not found.")
         
 
 
@@ -731,22 +758,20 @@ class DataManager(QWidget, Ui_Form):
 
         self.is_project_saved = False
 
+
         # self.update_data_summary()
         # self.send_data_2_completer()
 
     
     def update_recent_projects(self, path):
-        recent_projects = self.settings.value('RECENT_PROJECTS')
-        if recent_projects:
-            if path not in recent_projects:
-                recent_projects.insert(0, path)
+        if self.settings.recent_projects:
+            if path not in self.settings.recent_projects:
+                self.settings.recent_projects.insert(0, path)
             else:
-                recent_projects.remove(path)
-                recent_projects.insert(0, path)
-            self.settings.setValue('RECENT_PROJECTS', recent_projects[:10])
+                self.settings.recent_projects.remove(path)
+                self.settings.recent_projects.insert(0, path)
         else:
-            recent_projects = [path,]          
-            self.settings.setValue('RECENT_PROJECTS', recent_projects)
+            self.settings.recent_projects = [path,]          
 
 
     def erase_model(self):
@@ -904,6 +929,10 @@ class DataManager(QWidget, Ui_Form):
 
         if not selected_item_index.isValid():
             return
+
+        # TEST:
+        selected_item_index = self.ui_tree_view.currentIndex()
+        selected_item = self.model.itemFromIndex(selected_item_index)
 
         menu = QMenu()
         if isinstance(selected_item, A2lFileNode):

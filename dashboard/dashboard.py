@@ -19,10 +19,12 @@ class Dashboard(QWidget, Ui_Form):
 
         self.main_window = main_window
 
+        self.recent_projects = main_window.app_settings.recent_projects
+
 
         # self.settings = {}
-        self.settings = QSettings(r'.\config\configuration.ini', QSettings.IniFormat)
-        self.recent_projects = self.settings.value('RECENT_PROJECTS')
+        # self.settings = QSettings(r'.\app-config.ini', QSettings.IniFormat)
+        # self.recent_projects = self.settings.value('RECENT_PROJECTS')
 
 
         if self.recent_projects: 

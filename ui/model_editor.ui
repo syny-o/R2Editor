@@ -779,10 +779,10 @@ background-color: rgb(39, 44, 54);
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <property name="leftMargin">
-       <number>50</number>
+       <number>20</number>
       </property>
       <property name="rightMargin">
-       <number>50</number>
+       <number>20</number>
       </property>
       <item>
        <widget class="QFrame" name="frame_31">
@@ -1682,6 +1682,23 @@ padding-left: 20px;</string>
                    </property>
                    <property name="readOnly">
                     <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="ui_btnCopyReqRef">
+                   <property name="cursor">
+                    <cursorShape>PointingHandCursor</cursorShape>
+                   </property>
+                   <property name="toolTip">
+                    <string>Copy to Clipboard</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="files.qrc">
+                     <normaloff>:/20x20/icons/20x20/cil-copy.png</normaloff>:/20x20/icons/20x20/cil-copy.png</iconset>
                    </property>
                   </widget>
                  </item>

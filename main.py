@@ -3,6 +3,7 @@ from pathlib import Path
 from PyQt5.QtWidgets import QSizeGrip
 from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QTimer, QEvent
 from config.font import font
+
 from ui.main_ui import Ui_MainWindow
 
 from dialogs.dialog_message import dialog_message
@@ -28,6 +29,7 @@ from dialogs.dialog_recent_projects import RecentProjects
 from components.pyqt_find_text_widget.findTextWidget import FindTextWidget
 from components.pyqt_find_text_widget.findReplaceTextWidget import FindReplaceTextWidget
 from components.template_test_case import TemplateTestCase
+from components.notification_widget import NotificationWidget
 
 from data_manager.requirement_nodes import RequirementFileNode
 
@@ -159,6 +161,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.filter_project = 'RapitTwo Editor Project (*.json)'
 
         ################################################################################################################
+        # APP SETTINGS CONFIGURATION
+        ################################################################################################################
+        self.app_settings = AppSettings(self)        
+
+        ################################################################################################################
         # POINTER TO ACTUAL TEXTEDIT, ACTUAL TABS
         ################################################################################################################
         self.actual_text_edit = None
@@ -205,10 +212,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tabs_splitter.setStretchFactor(2, 1)
         self.tabs_splitter.setStyleSheet('background-color: rgb(33, 37, 43); border:None;')
 
-        ################################################################################################################
-        # APP SETTINGS CONFIGURATION
-        ################################################################################################################
-        self.app_settings = AppSettings(self)
 
         ################################################################################################################
         # STACKEDWIDGET CONFIGURATION
@@ -233,6 +236,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     #     # Close FindNReplace Widget if it is Visible
     #     self.find_replace(False)
     #     self.btn_find_replace.setChecked(False)
+
+        self.notification_widget = NotificationWidget(self)
 
 
     def keyPressEvent(self, e) -> None:
@@ -309,11 +314,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.actual_tabs.setStyleSheet(' QTabBar::tab:selected {border-bottom: 3px solid rgb(0, 128, 255)}')
    
     
-    def show_tooltip(self, tooltip_text):
-        # tooltip_text = tooltip_text.replace(" ","&nbsp;")
-        # formated_tooltip_text = f'<html><center><img src="ui/icons/info.png"><br><div style="color: white;">{tooltip_text}</div></center></html>'
-        # pos_x, pos_y = self.pos().x(), self.pos().y()
-        QToolTip.showText(QPoint(self.width()-len(tooltip_text), self.height()-50), tooltip_text)
+    def show_notification(self, notification_text):
+        self.notification_widget.show_text(notification_text)
+
+
 
 
 
@@ -546,9 +550,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def file_save(self):
         if self.actual_text_edit:
-            self.format_code()
+            if self.app_settings.format_code_when_save:
+                self.format_code()
             if self.actual_text_edit.file_path == None:
-
                 self.file_save_as()
             else:
                 try:
@@ -822,6 +826,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.settings.setValue('position', self.pos())
         # self.settings.setValue('last_opened_project', self.opened_project_path)
 
+        self.app_settings.save_settings()
         opened_files = self.get_all_opened_files()
         for path, val in opened_files.items():
             text_edit = val[0]
