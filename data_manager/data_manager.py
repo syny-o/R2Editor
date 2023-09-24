@@ -2,7 +2,7 @@ from pathlib import Path
 from ui.model_editor_ui import Ui_Form
 from config.font import font
 import json
-from PyQt5.QtWidgets import QWidget, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QTextEdit, QMessageBox, QStyle, QPushButton, QApplication
+from PyQt5.QtWidgets import QWidget, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QTextEdit, QMessageBox, QStyle, QPushButton, QApplication, QListWidgetItem
 from PyQt5.Qt import QStandardItemModel
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QSettings
@@ -21,7 +21,7 @@ from data_manager.req_text_edit import RequirementTextEdit
 from text_editor.tooltips import tooltips
 from text_editor.text_editor import TextEdit
 from components.template_test_case import TemplateTestCase
-
+from components.reduce_path_string import reduce_path_string
 
 
 class DataManager(QWidget, Ui_Form):
@@ -85,6 +85,7 @@ class DataManager(QWidget, Ui_Form):
 
         self.action_remove = QAction(QIcon(u"ui/icons/16x16/cil-x.png"), 'Remove')
         self.action_remove.triggered.connect(self.remove_node)
+        self.action_remove.setShortcut('Del')
 
         self.action_edit = QAction('Edit')
         self.action_edit.setIcon(QIcon(u"ui/icons/16x16/cil-pencil.png"))
@@ -93,18 +94,23 @@ class DataManager(QWidget, Ui_Form):
         self.action_duplicate = QAction('Duplicate')
         self.action_duplicate.setIcon(QIcon(u"ui/icons/16x16/cil-clone.png"))
         self.action_duplicate.triggered.connect(self.duplicate_node)
+        self.action_duplicate.setShortcut(QKeySequence("Ctrl+D"))
+        
         
         self.action_add = QAction('Add')
         self.action_add.setIcon(QIcon(u"ui/icons/16x16/cil-plus.png"))
-        self.action_add.triggered.connect(self.add_node)  
+        self.action_add.triggered.connect(self.add_node) 
+        self.action_add.setShortcut(QKeySequence("Insert")) 
 
         self.action_copy = QAction('Copy')
-        self.action_copy.setIcon(QIcon(u"ui/icons/16x16/cil-plus.png"))
-        self.action_copy.triggered.connect(self.copy_node)          
+        self.action_copy.setIcon(QIcon(u"ui/icons/20x20/cil-copy.png"))
+        self.action_copy.triggered.connect(self.copy_node)
+        self.action_copy.setShortcut(QKeySequence("Ctrl+C"))
 
         self.action_paste = QAction('Paste')
-        self.action_paste.setIcon(QIcon(u"ui/icons/16x16/cil-plus.png"))
-        self.action_paste.triggered.connect(self.paste_node)          
+        self.action_paste.setIcon(QIcon(u"ui/icons/16x16/cil-share.png"))
+        self.action_paste.triggered.connect(self.paste_node)
+        self.action_paste.setShortcut(QKeySequence("Ctrl+V"))          
 
         self.action_save = QAction('Export')
         self.action_save.setIcon(QIcon(u"ui/icons/16x16/cil-save.png"))
@@ -112,11 +118,11 @@ class DataManager(QWidget, Ui_Form):
 
         self.action_move_up = QAction('Move Up')
         self.action_move_up.setIcon(QIcon(u"ui/icons/16x16/cil-level-up.png"))
-        # self.action_move_up.setShortcut('Ctrl+u')
+        self.action_move_up.setShortcut('Ctrl+Up')
         self.action_move_up.triggered.connect(lambda: self.move_node(direction='up')) 
 
         self.action_move_down = QAction(QIcon(u"ui/icons/16x16/cil-level-down.png"), 'Move Down')
-        # self.action_move_down.setShortcut(QKeySequence("Ctrl+d"))
+        self.action_move_down.setShortcut(QKeySequence("Ctrl+Down"))
         self.action_move_down.triggered.connect(lambda: self.move_node(direction='down')) 
 
         self.action_normalise_a2l_file = QAction('Normalise (VDA spec.)')
@@ -125,9 +131,13 @@ class DataManager(QWidget, Ui_Form):
         ################## CONTEXT MENU END ###########################
 
         ################## TreeView Shortcuts START ##########################
-        QShortcut( 'Ctrl+d', self.ui_tree_view ).activated.connect(lambda: self.move_node(direction='down'))
-        QShortcut( 'Ctrl+u', self.ui_tree_view ).activated.connect(lambda: self.move_node(direction='up'))
+        QShortcut( 'Ctrl+Down', self.ui_tree_view ).activated.connect(lambda: self.move_node(direction='down'))
+        QShortcut( 'Ctrl+Up', self.ui_tree_view ).activated.connect(lambda: self.move_node(direction='up'))
         QShortcut( 'Del', self.ui_tree_view ).activated.connect(self.remove_node)
+        QShortcut( 'Ctrl+D', self.ui_tree_view ).activated.connect(self.duplicate_node)
+        QShortcut( 'Ctrl+C', self.ui_tree_view ).activated.connect(self.copy_node)
+        QShortcut( 'Ctrl+V', self.ui_tree_view ).activated.connect(self.paste_node)
+        QShortcut( 'Insert', self.ui_tree_view ).activated.connect(self.add_node)
 
         ################## TreeView Shortcuts END ##########################
 
@@ -217,7 +227,7 @@ class DataManager(QWidget, Ui_Form):
 
 
     def doubleclick_on_tc_reference(self, list_item_text):
-        self.send_file_path.emit(list_item_text.text())
+        self.send_file_path.emit(list_item_text.data(Qt.UserRole))
         self.main_window.manage_right_menu(self.main_window.tabs_splitter, self.main_window.ui_btn_text_editor)
 
 
@@ -426,14 +436,19 @@ class DataManager(QWidget, Ui_Form):
     def duplicate_node(self):
         selected_item_index = self.ui_tree_view.currentIndex()
         selected_item = self.model.itemFromIndex(selected_item_index)
-        selected_item.parent().insertRow(selected_item_index.row() + 1, selected_item.get_node_copy())        
-        if hasattr(selected_item, 'get_file_node'):
-            selected_item.get_file_node().set_modified(True)
+        if isinstance(selected_item, (ConditionNode, ValueNode, TestStepNode)):            
+            selected_item.parent().insertRow(selected_item_index.row() + 1, selected_item.get_node_copy())        
+            if hasattr(selected_item, 'get_file_node'):
+                selected_item.get_file_node().set_modified(True)
+            self.main_window.show_notification(f"Item {selected_item.text()} has been duplicated.")  
 
     def copy_node(self):
         selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)        
-        self.node_to_paste = selected_item.get_node_copy()        
+        selected_item = self.model.itemFromIndex(selected_item_index)    
+        if isinstance(selected_item, (ConditionNode, ValueNode, TestStepNode)):         
+            self.node_to_paste = selected_item.get_node_copy() 
+            self.main_window.show_notification(f"Item {selected_item.text()} has been copied to Clipboard.")  
+
 
     def paste_node(self):
         selected_item_index = self.ui_tree_view.currentIndex()
@@ -442,8 +457,9 @@ class DataManager(QWidget, Ui_Form):
         if self.node_to_paste and type(self.node_to_paste) == type(selected_item):
             new_item_row = selected_item_index.row() + 1
             selected_item.parent().insertRow(new_item_row, self.node_to_paste)
+            self.main_window.show_notification(f"Item {self.node_to_paste.text()} has been inserted to Tree.") 
             self.node_to_paste = None
-            selected_item.get_file_node().set_modified(True)
+            selected_item.get_file_node().set_modified(True) 
 
 
     def edit_node(self, button_is_checked):
@@ -493,6 +509,7 @@ class DataManager(QWidget, Ui_Form):
                 selected_item.get_file_node().set_modified(True)
 
             self.send_data_2_completer()
+            self.main_window.show_notification(f"Item {selected_item.text()} has been updated.")  
 
 
 
@@ -548,6 +565,8 @@ class DataManager(QWidget, Ui_Form):
             selected_item.parent().insertRow(new_item_row, new_item)
             print("DSPACE VAR NODE ADDED")
 
+        self.main_window.show_notification(f"Item has been inserted to Tree.") 
+
 
 
     def move_node(self, direction):
@@ -590,8 +609,8 @@ class DataManager(QWidget, Ui_Form):
         if isinstance(selected_item, RequirementFileNode):
             passwd_from_input_dlg, ok = QInputDialog.getText(
                 None, 
-                "Enter your Password", 
-                f"Database: {self.main_window.app_settings.doors_database_path}\nUsername: {self.main_window.app_settings.doors_user_name}\nPassword:", QLineEdit.Password)
+                "Doors Connection", 
+                f"Database: {self.main_window.app_settings.doors_database_path}\nUsername: {self.main_window.app_settings.doors_user_name}\n\nEnter your password:", QLineEdit.Password)
             if ok and passwd_from_input_dlg:
                 selected_item.send_request_2_doors(passwd_from_input_dlg)
                 self.update_progress_status(True, 'Preparing ...')
@@ -917,9 +936,13 @@ class DataManager(QWidget, Ui_Form):
             # Frame
             self.ui_frame_requirement.setEnabled(True)
 
-            # print(selected_item.files_which_cover_this_requirement)
             self.ui_lw_file_paths_coverage.clear()
-            self.ui_lw_file_paths_coverage.addItems(selected_item.file_references)
+            # self.ui_lw_file_paths_coverage.addItems(selected_item.file_references)
+            for file_reference in selected_item.file_references:
+                ref_lw_item = QListWidgetItem()
+                ref_lw_item.setData(Qt.DisplayRole, reduce_path_string(file_reference))
+                ref_lw_item.setData(Qt.UserRole ,file_reference)
+                self.ui_lw_file_paths_coverage.addItem(ref_lw_item)
 
 
 
@@ -943,21 +966,19 @@ class DataManager(QWidget, Ui_Form):
             menu.addAction(self.action_save)
         elif isinstance(selected_item, (ConditionNode, ValueNode, TestStepNode, DspaceVariableNode)):
             menu.addActions([self.action_add,])
-        if isinstance(selected_item, (TestStepNode, ValueNode, ConditionNode)):
-            menu.addAction(self.action_duplicate)
-            menu.addSeparator()
 
         if selected_item.parent(): 
             menu.addAction(self.action_move_up)
             menu.addAction(self.action_move_down)
             menu.addSeparator()
 
-        if not isinstance(selected_item, (DspaceDefinitionNode, A2lNode)):
-            menu.addAction(self.action_remove)
-
         if isinstance(selected_item, RequirementNode):
             menu.addAction(self.action_create_testable_tc_template_with_req_reference)
             menu.addAction(self.action_create_not_testable_tc_template_with_req_reference)
+            menu.addSeparator()            
+
+        if isinstance(selected_item, (TestStepNode, ValueNode, ConditionNode)):
+            menu.addAction(self.action_duplicate)
             menu.addSeparator()            
         
         if hasattr(selected_item, 'get_node_copy'):
@@ -967,6 +988,9 @@ class DataManager(QWidget, Ui_Form):
         if self.node_to_paste and type(self.node_to_paste) == type(selected_item):
             menu.addAction(self.action_paste)
 
+        if not isinstance(selected_item, (DspaceDefinitionNode, A2lNode)):
+            menu.addSeparator()
+            menu.addAction(self.action_remove)
 
         menu.exec_(QCursor().pos())
 
