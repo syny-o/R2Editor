@@ -158,11 +158,8 @@ class A2lFileNode(QStandardItem):
 
             new_a2l_node.setData(str(f'{a2l_node.name : <40}{self.path : >40}'), Qt.DisplayRole)
 
-            # TODO: change it
-            if self.instances < 2:
-                new_a2l_node.setData(a2l_node.name, Qt.ToolTipRole)
-            else:
-                new_a2l_node.setData('Xpeng_E28A_Slave:' + a2l_node.name, Qt.ToolTipRole)
+            new_a2l_node.setData(a2l_node.name, Qt.ToolTipRole)
+
 
             if len(new_a2l_node.data(Qt.ToolTipRole)) < 45:
                 a2l_list.append(new_a2l_node)  # add QStandardItem to List

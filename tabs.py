@@ -1,6 +1,8 @@
 from PyQt5.QtGui import QRegion, QDrag, QPixmap, QCursor
-from PyQt5.QtWidgets import QTabWidget
+from PyQt5.QtWidgets import QTabWidget, QTabBar, QTextEdit
 from PyQt5.QtCore import Qt, QPoint, QMimeData
+
+from text_editor.text_editor import TextEdit
 
 class Tabs(QTabWidget):
 
@@ -100,18 +102,26 @@ class Tabs(QTabWidget):
 
 
     def dropEvent(self, e):
-        #print(self.parent.TABINDEX)
-        if e.source().parentWidget() == self:
-            return
 
-        e.setDropAction(Qt.MoveAction)
-        e.accept()
-        counter = self.count()
+        try:
+            #print(self.parent.TABINDEX)
+            # if e.source().parentWidget() == self:
+            #     return
 
-        if counter == 0:
-            self.addTab(e.source().parentWidget().widget(self.parent.TABINDEX),e.source().tabIcon(self.parent.TABINDEX), e.source().tabText(self.parent.TABINDEX))
-        else:
-            self.insertTab(counter + 1 ,e.source().parentWidget().widget(self.parent.TABINDEX),e.source().tabIcon(self.parent.TABINDEX), e.source().tabText(self.parent.TABINDEX))
+            e.setDropAction(Qt.MoveAction)
+            e.accept()
+            counter = self.count()
 
-        # self.parent.right_tabs.setStyleSheet('') # NOT NECESSARY CAUSE THE STYLESHEET IS SET VIA PARENT --> UPDATE TITLE
+            # if type(e.source().parentWidget()) is TextEdit:
+            #     return
+
+            if counter == 0:
+                self.addTab(e.source().parentWidget().widget(self.parent.TABINDEX),e.source().tabIcon(self.parent.TABINDEX), e.source().tabText(self.parent.TABINDEX))
+            else:
+                self.insertTab(counter + 1 ,e.source().parentWidget().widget(self.parent.TABINDEX),e.source().tabIcon(self.parent.TABINDEX), e.source().tabText(self.parent.TABINDEX))
+
+            # self.parent.right_tabs.setStyleSheet('') # NOT NECESSARY CAUSE THE STYLESHEET IS SET VIA PARENT --> UPDATE TITLE
+
+        except Exception as e:
+            print(e)
 

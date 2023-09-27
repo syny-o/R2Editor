@@ -31,11 +31,11 @@ class AppSettings(QWidget, Ui_Form):
         self.recent_projects = self.settings.value('project/recent')
         
         # 4. Print All Data --> CHECK IF OK
-        print(self.doors_app_path)
-        print(self.doors_database_path)
-        print(self.doors_user_name)
-        print(self.format_code_when_save)
-        print(self.recent_projects)
+        # print(self.doors_app_path)
+        # print(self.doors_database_path)
+        # print(self.doors_user_name)
+        # print(self.format_code_when_save)
+        # print(self.recent_projects)
 
         # 5. Display loaded data to GUI components
         self.fill_line_edits_with_saved_settings()

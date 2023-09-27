@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QToolBar, QVBoxLayout, QTextEdit
-from PyQt5.QtGui import QIcon, QScreen
+from PyQt5.QtGui import QIcon, QScreen, QPalette, QColor
 from PyQt5.QtCore import Qt, QTimer
 
 
@@ -20,10 +20,17 @@ class TextEditTooltipWidget(QWidget):
         self.setWindowOpacity(0.9)
         self.setMaximumSize(1024, 768)
         self.setMinimumSize(640, 480)
+        self.palette = QPalette()
+        self.palette.setColor(QPalette.Window, QColor(58,89,245))
+        self.palette.setColor(QPalette.Text, QColor(200, 200, 200))
+        self.palette.setColor(QPalette.WindowText, QColor(200, 200, 200))
+        self.setPalette(self.palette)
 
         self.resize(*self.calculate_size(text))
 
         self.setStyleSheet("color: #edf; background-color: #222; font-size: 12px;")
+
+
 
 
         

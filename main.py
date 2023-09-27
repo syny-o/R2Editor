@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QVB
      QAction, QFileDialog, QSplitter, QToolTip, QMenu, QShortcut, QPushButton
 
 from PyQt5.QtCore import Qt, QSize, QFile, QTextStream, pyqtSignal, pyqtSlot, QSettings, QPoint, QRect
-from PyQt5.QtGui import QTextCursor, QKeySequence, QIcon, QFontDatabase
+from PyQt5.QtGui import QTextCursor, QKeySequence, QIcon, QFontDatabase, QPalette, QColor
 
 from text_editor.text_editor import TextEdit
 from text_editor import text_management
@@ -31,7 +31,9 @@ from components.pyqt_find_text_widget.findReplaceTextWidget import FindReplaceTe
 from components.template_test_case import TemplateTestCase
 from components.notification_widget import NotificationWidget
 
+import pywinstyles
 from data_manager.requirement_nodes import RequirementFileNode
+
 
 # pyinstaller -w --icon=R2Editor.ico main.py
 # pyinstaller -w --icon=R2Editor.ico --name=R2Editor main.py
@@ -52,12 +54,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.splitter.setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:horizontal:hover {background-color:rgb(58,89,245);}")
         
-        self.setWindowFlags(Qt.FramelessWindowHint)
+        # self.setWindowFlags(Qt.FramelessWindowHint)
         # self.setAttribute(Qt.WA_TranslucentBackground)
+        self.frame_top.setVisible(False)
+
+        self.palette = QPalette()
+        self.palette.setColor(QPalette.Window, QColor(58,89,245))
+        self.palette.setColor(QPalette.Text, QColor(200, 200, 200))
+        self.palette.setColor(QPalette.WindowText, QColor(200, 200, 200))
+        self.setPalette(self.palette)
+        
         QSizeGrip(self.frame_size_grip)
 
         ## HIDE NOT-WORKING UI COMPONENTS
-        self.btn_project_recent.setVisible(False)
+        # self.btn_project_recent.setVisible(False)
         # self.btn_undo.setVisible(False)
         # self.btn_redo.setVisible(False) 
         # self.frame_11.setVisible(False)       
@@ -70,7 +80,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_project_new.clicked.connect(self.project_new)
         self.btn_project_save.clicked.connect(self.project_save)
         self.btn_project_save_as.clicked.connect(self.project_save_as)
-        self.btn_project_recent.clicked.connect(self.show_recent_projects)
+        # self.btn_project_recent.clicked.connect(self.show_recent_projects)
 
 
         self.btn_script_new.clicked.connect(self.file_new)
@@ -288,6 +298,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.animation.setEndValue(extended_width)
         self.animation.setEasingCurve(QEasingCurve.InOutQuart)
         self.animation.start()
+        if self.btn_toggle_menu.isChecked():
+            self.btn_toggle_menu.setStyleSheet("background-image: url(:/20x20/icons/20x20/cil-x.png);")
+        else:
+            self.btn_toggle_menu.setStyleSheet("background-image: url(:/20x20/icons/20x20/cil-menu.png);")
 
 
     def update_actual_information(self):
@@ -855,7 +869,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+
+    app = QApplication([])
+    
+
+    
+    
 
     # app.setFont(font)
 
@@ -865,9 +884,15 @@ if __name__ == "__main__":
     file.open(QFile.ReadOnly | QFile.Text)
     stream = QTextStream(file)
     app.setStyleSheet(stream.readAll())
+    
 
-
+    
     window = MainWindow()
+
+    pywinstyles.apply_style(window,"dark")
+
+
     window.show()
+
     sys.exit(app.exec_())
 

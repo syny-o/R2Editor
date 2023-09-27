@@ -4,8 +4,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>657</x>
-      <y>18</y>
+      <x>648</x>
+      <y>0</y>
       <w>648</w>
       <h>504</h>
     </coordinates>
@@ -32,7 +32,7 @@ update_requirements(self)
 check_coverage(self)
 update_data_summary(self)
 --
-heck_if_project_is_saved(self)
+check_if_project_is_saved(self)
 save_project(self, path)
 open_project(self, path)
 new_project(self, data)
@@ -48,8 +48,8 @@ _filter_items(self, filtered_text)</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>585</x>
-      <y>666</y>
+      <x>576</x>
+      <y>648</y>
       <w>189</w>
       <h>153</h>
     </coordinates>
@@ -68,8 +68,8 @@ data_4_completer(self)
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>171</x>
-      <y>18</y>
+      <x>162</x>
+      <y>0</y>
       <w>387</w>
       <h>504</h>
     </coordinates>
@@ -114,8 +114,8 @@ closeEvent(self, event)</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1422</x>
-      <y>18</y>
+      <x>1413</x>
+      <y>0</y>
       <w>387</w>
       <h>504</h>
     </coordinates>
@@ -129,8 +129,8 @@ closeEvent(self, event)</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>585</x>
-      <y>900</y>
+      <x>576</x>
+      <y>882</y>
       <w>189</w>
       <h>63</h>
     </coordinates>
@@ -143,8 +143,8 @@ name
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>666</x>
-      <y>810</y>
+      <x>657</x>
+      <y>792</y>
       <w>36</w>
       <h>108</h>
     </coordinates>
@@ -156,8 +156,8 @@ m2=*</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>666</x>
-      <y>954</y>
+      <x>657</x>
+      <y>936</y>
       <w>36</w>
       <h>90</h>
     </coordinates>
@@ -169,8 +169,8 @@ m2=*</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>585</x>
-      <y>1026</y>
+      <x>576</x>
+      <y>1008</y>
       <w>189</w>
       <h>99</h>
     </coordinates>
@@ -186,8 +186,8 @@ get_file_node(self)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>657</x>
-      <y>513</y>
+      <x>648</x>
+      <y>495</y>
       <w>45</w>
       <h>171</h>
     </coordinates>
@@ -200,8 +200,8 @@ has</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>792</x>
-      <y>666</y>
+      <x>783</x>
+      <y>648</y>
       <w>189</w>
       <h>153</h>
     </coordinates>
@@ -220,8 +220,8 @@ data_4_completer(self)
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>792</x>
-      <y>891</y>
+      <x>783</x>
+      <y>873</y>
       <w>189</w>
       <h>108</h>
     </coordinates>
@@ -237,8 +237,8 @@ get_node_copy()</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>873</x>
-      <y>810</y>
+      <x>864</x>
+      <y>792</y>
       <w>36</w>
       <h>99</h>
     </coordinates>
@@ -250,8 +250,8 @@ m2=*</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>873</x>
-      <y>990</y>
+      <x>864</x>
+      <y>972</y>
       <w>36</w>
       <h>90</h>
     </coordinates>
@@ -263,8 +263,8 @@ m2=*</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>792</x>
-      <y>1062</y>
+      <x>783</x>
+      <y>1044</y>
       <w>189</w>
       <h>99</h>
     </coordinates>
@@ -281,8 +281,8 @@ get_node_copy(self)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>864</x>
-      <y>513</y>
+      <x>855</x>
+      <y>495</y>
       <w>45</w>
       <h>171</h>
     </coordinates>
@@ -295,8 +295,8 @@ has</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>873</x>
-      <y>1152</y>
+      <x>864</x>
+      <y>1134</y>
       <w>36</w>
       <h>72</h>
     </coordinates>
@@ -308,8 +308,8 @@ m2=*</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>792</x>
-      <y>1206</y>
+      <x>783</x>
+      <y>1188</y>
       <w>189</w>
       <h>117</h>
     </coordinates>

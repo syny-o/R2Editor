@@ -22,6 +22,7 @@ from text_editor.tooltips import tooltips
 from text_editor.text_editor import TextEdit
 from components.template_test_case import TemplateTestCase
 from components.reduce_path_string import reduce_path_string
+from dialogs.dialog_message import dialog_message
 
 
 class DataManager(QWidget, Ui_Form):
@@ -64,6 +65,7 @@ class DataManager(QWidget, Ui_Form):
         self.ui_group_box_all_frames.setEnabled(True)
         self.ui_tree_view.setModel(self.model)
         self.ui_tree_view.setExpandsOnDoubleClick(True)
+        self.ui_tree_view.setAnimated(True)
         self._hide_all_frames()
 
 
@@ -711,7 +713,7 @@ class DataManager(QWidget, Ui_Form):
                 self.main_window.show_notification(f"Project {path} has been saved.")    
 
         except Exception as e:
-            self.main_window.dialog_message(self.main_window, "Unable to Save Project, error:" + str(e))
+            dialog_message(self, "Unable to Save Project, error:" + str(e))
 
 
 
@@ -739,7 +741,7 @@ class DataManager(QWidget, Ui_Form):
                 if Path(self.disk_project_path).exists():
                     self.send_project_path.emit(self.disk_project_path)
                 else:
-                    self.main_window.dialog_message(self.main_window, f'Unable to Set Disk Project Path, {self.disk_project_path} does not exist!')
+                    dialog_message(self, f'Unable to Set Disk Project Path, {self.disk_project_path} does not exist!')
             # Handle project files
             condition_nodes.initialise(data, self.ROOT)
             dspace_nodes.initialise(data, self.ROOT)
@@ -753,7 +755,7 @@ class DataManager(QWidget, Ui_Form):
             self.main_window.show_notification(f"Project {path} has been loaded.") 
         
         except FileNotFoundError:
-            self.main_window.dialog_message(self.main_window, "Unable to Load Project, file not found.")
+            dialog_message(self, "Unable to Load Project, file not found.")
         
 
 

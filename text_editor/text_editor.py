@@ -17,6 +17,8 @@ from text_editor.data_manager_widget import DataManagerWidget
 
 from text_editor.tooltips import tooltips
 
+from components.text_functions import get_word_under_cursor
+
 
 class TextEdit(QCodeEditor):
 
@@ -216,7 +218,7 @@ class TextEdit(QCodeEditor):
     def mouseReleaseEvent(self, event):
         if TextEditTooltipWidget.selected_word and TextEdit.ctrl_pressed:
             self.show_tooltip(TextEditTooltipWidget.selected_word)
-            print(TextEdit.ctrl_pressed)
+            # print(TextEdit.ctrl_pressed)
 
         return super().mouseReleaseEvent(event)        
 
@@ -322,7 +324,8 @@ class TextEdit(QCodeEditor):
         if event.key() == Qt.Key_Alt:
 
             tc = self.textCursor()
-            tc.select(QTextCursor.WordUnderCursor)
+            # tc.select(QTextCursor.WordUnderCursor)
+            get_word_under_cursor(tc)
 
             if tc.selectedText() == "" and tc.block().text().strip() == "" \
             or tc.selectedText() == "" and self.current_model == "values":
@@ -433,8 +436,9 @@ class TextEdit(QCodeEditor):
     def insert_completion(self, completion):
         tc = self.textCursor()
         # print(f'***{completion}***')
-        tc.movePosition(QTextCursor.StartOfWord)
-        tc.movePosition(QTextCursor.EndOfWord, QTextCursor.KeepAnchor)
+        # tc.movePosition(QTextCursor.StartOfWord)
+        # tc.movePosition(QTextCursor.EndOfWord, QTextCursor.KeepAnchor)
+        get_word_under_cursor(tc)
         tc.insertText(completion)
 
         if self.remember_special_char:
@@ -615,7 +619,7 @@ class TextEdit(QCodeEditor):
         if self.completer.cond_model:
             self.current_model = 'values'
             key = self.actual_text
-            print("key==="+key+"===")
+            # print("key==="+key+"===")
             self.completer.setModel(self.completer.cond_dict.get(key))
         else:
             self.completer.setModel(QStandardItemModel())
