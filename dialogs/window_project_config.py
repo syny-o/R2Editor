@@ -16,6 +16,7 @@ def find_files(project_path, target_file):
     """
     cond_files = []
     a2l_files = []
+    dspace_file = None
 
     for root, dirs, files in os.walk(project_path):
         for filename in files:
