@@ -168,6 +168,8 @@ class DataManager(QWidget, Ui_Form):
         self.ui_add.setShortcut('Ctrl+n')
         self.ui_duplicate.clicked.connect(self.duplicate_node)
         self.ui_edit.clicked.connect(self.edit_node)
+        self.ui_edit.setShortcut('F4')
+        self.ui_edit.setToolTip("F4")
         self.ui_export.clicked.connect(self.tree_2_file)
         self.ui_update_requirements.clicked.connect(self.update_requirements)
         self.ui_new_requirements.clicked.connect(self.add_req_node)

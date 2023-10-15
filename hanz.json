@@ -1,0 +1,4631 @@
+{
+  "disk_project_path": null,
+  "Conditions Files": [],
+  "DSpace Files": [],
+  "A2L Files": [],
+  "Requirements": [
+    {
+      "/EPB Chrysler MY24 DT Tailor/02 System Specifications/02 System Design/SyDesign": [
+        [
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_661",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6092",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7265",
+              "Requirement",
+              "n/a",
+              "2 EPB SE",
+              "The component shall be developed according to ASIL B(D).\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4258",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1",
+              "",
+              "The component shall prioritize user initiated functions over automatically initiated functions.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4260",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall not impair service brake functions. This includes the slip- control abilities to retard the vehicle, maintain stability or assist the driver to follow the intended path.\n\nNote: \nThe component must not request hydraulic deceleration and electromechanical deceleration in parallel.\nAvoid hydraulic- and electromechanical control functions will impair eachother. \n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4261",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall be able to enable and disable automatic functions via vehicle configuration (Anpasskanal).\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4264",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "The component shall not inhibit any actuation request on the interface SsmPbOutApplyReleaseRequest due to the received actuator status via the interfaces SsmPbInActuatorStateLeft or SsmPbInActuatorStateRight. \n\nNote:\nNo component may degrade the other component.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4259",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "In case of several concurrent valid apply/release demands the component shall perform the latest valid apply/release demand in accordance to the functional arbitration (refer to EPBi-Core-SyDesign_3660).\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4262",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "If there is no functional degradation of the hydraulic actuator, a dynamic braking request by the park brake control must be executed via the hydraulic actuator.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4267",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4270",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "The component shall receive and process signals from other system components according SSM_PB-CT (input signals).\nReference to: 025 System Component Interfaces/SSM_PB-CT\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4271",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "The component shall provide signals to other system components according SSM_PB-CT (output signals).\nReference to: 025 System Component Interfaces/SSM_PB-CT\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4265",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide the signal SsmPbOutApplyReleaseRequest for at least two calculation cycles of the PBC.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13694",
+              "Heading",
+              "n/a",
+              "TBD",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13544",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInBrakeLightSwitch according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13545",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInDoorClosed according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13546",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInEngineSpeed according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13547",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInEngineStatus according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13548",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInEngineTorque according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13549",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInWheelTorque according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13550",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInGearTorqueRatio according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13551",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInGear according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13552",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInTargetGear according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13553",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInSeatbeltStatus according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13554",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInAcceleratorPedalPosition according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_14384",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_34] according its definition in the SSM_PB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13557",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInHydraulicDecelerationAvailable according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13558",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInHydraulicDecelerationFallback according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13559",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInExternalRequest according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13560",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInDriveCycleStatus according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13561",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInMasterCylinderPressure according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13562",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInSwitchState according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13563",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInWheelSpeedFL according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13564",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInWheelSpeedFR according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13565",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInWheelSpeedRL according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13566",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInWheelSpeedRR according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13567",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInWheelSpinDirectionFL according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13568",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInWheelSpinDirectionFR according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13569",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInWheelSpinDirectionRL according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13570",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInWheelSpinDirectionRR according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13571",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInAbsBrakingActive according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13572",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInActuatorStateRL according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13573",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInActuatorStateRR according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13574",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInGValueFiltered according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13575",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInRollerBenchDetected according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13576",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInPowerTransEstablishment according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13577",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInClutchInterlock according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13578",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInAdditiveDriverAvailability according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13579",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInRwuPSSD according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13580",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInEcdPSSD according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13581",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInPwaPSSD according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13582",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInDaaPSSD according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13583",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInEarPSSD according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13584",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInP2XPSSD according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13585",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInX2PPSSD according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13586",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInHuConditionsPSSD according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13587",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInSdApplyPSSD according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13588",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInSdReleasePSSD according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13589",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInEngineStallApplyPSSD according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13590",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInIgnitionOffApplyPSSD according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13592",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInSwitchFaultApplyPSSD according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13594",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_0] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13595",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_1] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13596",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_2] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13597",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_3] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13598",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_4] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13599",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_5] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13600",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_6] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13601",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_7] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13602",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_8] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13603",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_9] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13604",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_10] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13605",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_11] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13606",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_12] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13607",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_13] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13608",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_14] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13609",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_15] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13610",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_16] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13611",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_17] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13612",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_18] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13613",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_19] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13614",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_20] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13615",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_21] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13619",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_25] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13621",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_27] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13623",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_29] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13627",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInVariantItem[SSM_PB_VARIANT_ITEM_33] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13629",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInStoredDataValid according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13630",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInStoredDataRead[0] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13631",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInStoredDataRead[1] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13632",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInStoredDataRead[6...9] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13633",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInStoredDataRead[10...13] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13634",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInStoredDataRead[14...17] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13635",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInStoredDataRead[18...21] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13636",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInStoredDataRead[22...23] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13637",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInStoredDataRead[24...25] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13638",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInStoredDataRead[26..27] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13639",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInStoredDataRead[28...29] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13640",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInStoredDataRead[30...31] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13641",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInStoredDataRead[32...35] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13642",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInCepResetRequest according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13643",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInStatisticDataResetRequest according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13645",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInPadAdjustmentRequest according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13649",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive SsmPbInReleaseInhibit according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13695",
+              "Heading",
+              "n/a",
+              "TBD",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13650",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutSoftwareVersion[SSM_PB_MAX_NUMBER_SW_VERSION] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13651",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutHydraulicDecelerationRequest according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13652",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutHydraulicDecelerationValue according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13653",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutHydraulicDecelerationMonitor according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13654",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutApplyReleaseRequest according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13656",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutCommunicationLatchRequest according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13657",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutEcuPowerLatchRequest according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13658",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStoredDataWrite[0] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13659",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStoredDataWrite[1] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13660",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStoredDataWrite[6...9] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13661",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStoredDataWrite[10...13] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13662",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStoredDataWrite[14...17] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13663",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStoredDataWrite[18...21] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13664",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStoredDataWrite[22...23] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13665",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStoredDataWrite[24...25] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13666",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStoredDataWrite[26...27] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13667",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStoredDataWrite[28...29] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13668",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStoredDataWrite[30...31] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13669",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStoredDataWrite[32...35] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13670",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutDevelopmentMessages[SSM_PB_MAX_NUMBER_DEVELOP] according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13671",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutClutchEngagementPoint according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13672",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutCepResetAcknowledge according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13673",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutRollerBenchDetected according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13674",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutPowerTrainProtection according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13675",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutDriveAwayIntentionIndication according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13676",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutInitialClutchEngagementPoint according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13677",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutParameterPlausibilityCheck according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13678",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutDaaWheelTorqueReleaseThreshold according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13679",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutDaaFilteredWheelTorque according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13680",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutDaaConditionsFulfilled according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13682",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutRefSpeed according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13683",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStatisticDataSwitchApplyCounter according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13684",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStatisticDataSwitchReleaseCounter according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13685",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStatisticDataAutomaticApplyCounter according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13686",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStatisticDataAutomaticReleaseCounter according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13687",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStatisticDataExternalApplyCounter according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13688",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStatisticDataExternalReleaseCounter according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13689",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStatisticDataRollerBenchApplyCounter according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13690",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStatisticDataEcdCounter according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13691",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStatisticDataDynDecelCounter according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13692",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide SsmPbOutStatisticOperationTime according its definition in the SSM_PB-CT.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4129",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6767",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3463",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7526",
+              "Requirement",
+              "n/a",
+              "2 EPB TV4",
+              "The component shall monitor the variant and parameter information and detect failures.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3700",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3701",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "The component shall read in necessary variant information to provide variant management for the SSM_PB.\n\nNote: All necessary variant items are defined in the SSM_PB-CT module.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3735",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3736",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "The component shall read and evaluate parameter file to provide parameter information SSM_PB internally in each ignitinon cycle.\n\n<<Customer dependent>>\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3447",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3659",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "The component shall ensure that all functional requests are provided for arbitration and that the arbitration is performed in the following defined order.\n",
+              "The component shall ensure that all functional requests are provided for arbitration and that the arbitration is performed in the defined order.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3665",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "The component shall provide the switch demanded functional requests (demanded via SsmPbInSwitchState) as long as requested from the concerning function via SsmPbOutApplyReleaseRequest / SsmPbOutHydraulicDecelerationRequest.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3471",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3799",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "The component shall determine statistic data counters based on the defined events as long as the counter value is in the specified range. \n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4977",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6870",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "263 - SsmPbOutDataStorageWrite[SSM_PB_MAX_NUMBER_EEDATA]:\n\nThe component shall provide data for storage at SsmPbOutDataStorageWrite[SSM_PB_MAX_NUMBER_EEDATA].\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8367",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall determine SsmPbOutStoredDataWrite[6...9] as 'SwitchApplyCounter'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8368",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall determine SsmPbOutStoredDataWrite[10...13] as 'SwitchReleaseCounter'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8369",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall determine SsmPbOutStoredDataWrite[14...17] as 'AutomaticApplyCounter'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8370",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall determine SsmPbOutStoredDataWrite[18...21] as 'AutomaticReleaseCounter'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8371",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall determine SsmPbOutStoredDataWrite[22...23] as 'ExternalApplyCounter'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8372",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall determine SsmPbOutStoredDataWrite[24...25] as 'ExternalReleaseCounter'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8373",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall determine SsmPbOutStoredDataWrite[26...27] as 'RollerBenchApplyCounter'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8374",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall determine SsmPbOutStoredDataWrite[28...29] as 'DynDecelByHydraulicCounter'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8376",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall determine SsmPbOutStoredDataWrite[30...31] as 'DynDecelByEPBCounter'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8375",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall determine SsmPbOutStoredDataWrite[32...35] as 'OperatingTimeCounter'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3739",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3740",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "The component shall determine the signal SsmPbOutPowertrainProtection as 'NotActive' as default.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3741",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "265 - SsmPbOutPowertrainProtection.Active:\n\nIF\n\tSsmPbInActuatorStateLeft = 'ParkApplied'\nAND\n\tSsmPbInActuatorStateRight = 'ParkApplied'\nAND\n \t'DriverControlsTheVehicle' = True\nAND\n\t(\n\t\tNOT 'DaaPossible' = True\n\tOR\n\t\t'EcdPowertrainProtectionPostConditions' = True\n\tOR\n\t\tSsmPbInSwitchState = Apply\n\t)\nAND\n\tabove conditions are continuously present for 120 ms,\n\nthe component shall determine SsmPbOutPowertrainProtection as Active.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3473",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3811",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "266 - SsmPbOutEcuPowerLatchRequest.True:\n\nIF\n\t'PadWearAdjustmentObservation' = Active \nOR\n\t'IgnitionOffApplyObservation' = Active \nOR\n \t'SwitchFailureApplyObservation' = Active \nOR \n\t'EngineStallApplyObservation' = Active \nOR \n\tCustomer specific conditions for PowerLatch,\n\nthe component shall determine SsmPbOutEcuPowerLatchRequest as Requested.\n",
+              "266 - SsmPbOutEcuPowerLatchRequest.True:\n\nIF\n\t'PadWearAdjustmentObservation' = Active \nOR\n           'Ecd' = Active \nOR \n\tCustomer specific conditions for PowerLatch\n\nOR\n\n \t transition of SsmPbOutApplyReleaseRequest\u00a0from None to any other value was detected in the last 5 sec \n  \tAND actuation was not yet started caused by this transition (no Actuator State changed to applying or releasing)\n\n\t\n\nthe component shall determine SsmPbOutEcuPowerLatchRequest as Requested.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3812",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "266 - SsmPbOutEcuCommunicationLatchRequest.True:\n\nIF\n\t'PadWearAdjustmentObservation' = Active \nOR\n\t'IgnitionOffApplyObservation' = Active \nOR\n \t'SwitchFailureApplyObservation' = Active \nOR \n\t'EngineStallApplyObservation' = Active \nOR \n\tCustomer specific conditions for CommunicationLatch,\n\nthe component shall determine SsmPbOutEcuCommunicationLatchRequest as Requested.\n",
+              "266 - SsmPbOutEcuCommunicationLatchRequest.True:\n\nIF\n\t'PadWearAdjustmentObservation' = Active \nOR\n\n\t'Ecd' = Active \n\nthe component shall determine SsmPbOutEcuCommunicationLatchRequest as Requested.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6900",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7527",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7539",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "The component shall determine SsmPbOutParameterPlausibilityCheck as 'NoResult' as long as no check has been performed.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_9767",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_9769",
+              "Requirement",
+              "n/a",
+              "2 EPB SE",
+              "The safety mechanism shall achieve or maintain the safe state within t <= 'FTTI_SG'.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_9771",
+              "Requirement",
+              "n/a",
+              "2 EPB TV4",
+              "The safety mechanism shall ensure to qualify single point faults within t <= 'Fault_Detection_Time_SPF'.\n\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_9773",
+              "Requirement",
+              "n/a",
+              "2 EPB SE",
+              "The safety mechanism shall ensure to reach the safe state after fault qualification within t <= 'Fault_Reaction_Time_SPF'.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7528",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7534",
+              "Requirement",
+              "n/a",
+              "2 EPB TV4",
+              "If a failure in the vehicle configuration is detected, the component shall determine SsmPbOutParameterPlausibilityCheck as Invalid.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7532",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7538",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "N/A for SSM_PB component. (The actuator state remains unchanged.)\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7533",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7540",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "If the vehicle configuration is valid, the component shall determine SsmPbOutParameterPlausibilityCheck as Valid.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8379",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7083",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "268 - SsmPbInStoredDataRead[SSM_PB_MAX_NUMBER_EEDATA]:\n\nDuring initialization phase, the component shall read data of SsmPbInStoredDataRead[SSM_PB_MAX_NUMBER_EEDATA].\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3390",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3537",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3538",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF201 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\tSsmPbInSwitchState = Apply\nAND \n\t'RefSpeedSsmPb' <= V_VEHICLE_STATIC_THRESHOLD\nAND\n\tSsmPbInSdApplyPSSD = Normal,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'ParkApply'.\n",
+              "TF201 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\tSsmPbInSwitchState = Apply\nAND \n\t'VehicleStateSsmPb' = Static\nAND\n\tSsmPbInSdApplyPSSD = Normal\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'ParkApply'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3392",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF201 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\tNOT SsmPbInSwitchState = Apply,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as 'ParkApply'.\n\nNote:\nThis requirement is only valid for TF201. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3409",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3555",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3556",
+              "Requirement",
+              "06 Rejected",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF202 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\t\t'SsmPbVariantItem0' = Enabled\n\tAND\n\t\t'DriverIntentionToParkX2P' = True\n\tAND\n\t\t'RefSpeedSsmPb' <= V_VEHICLE_STATIC_THRESHOLD\n\tAND\n\t\tSsmPbInX2PPSSD = Normal\n\tAND\n\t\tNOT 'AutomaticApplyInhibit' = True,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'ParkApply'.\n",
+              "TF202 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\t'SsmPbVariantItem0' = Enabled\nAND\n\t'DriverIntentionToParkX2P' = True\nAND\n\t'VehicleStateSsmPb' = Static\nAND\n\tSsmPbInX2PPSSD = Normal\nAND\n\tNOT 'AutomaticApplyInhibit' = True,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'ParkApply'.\n\t\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3417",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF202 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\tNOT SsmPbInGear changes to Park,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as 'ParkApply'.\n\nNote:\nThis requirement is only valid for TF202. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4957",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6341",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4962",
+              "Requirement",
+              "06 Rejected",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF203 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\t'SsmPbVariantItem0' = Enabled\nAND\n\t'DriverIntentionToParkIgnOff' = True\nAND\t\n\t'RefSpeedSsmPb' <= V_VEHICLE_STATIC_THRESHOLD\nAND\t\n\tSsmPbInIgnitionOffApplyPSSD = Normal\nAND\n\tNOT 'AutomaticApplyInhibit' = True,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'ParkApply'.\n",
+              "TF203 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\t'SsmPbVariantItem0' = Enabled\nAND\n\t'DriverIntentionToParkIgnOff' = True\nAND\t\n\t'VehicleStateSsmPb' = Static\nAND\n\tSsmPbInIgnitionOffApplyPSSD = Normal\nAND\n\tNOT 'AutomaticApplyInhibit' = True,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'ParkApply'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7272",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF203 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\tNOT SsmPbInDriveCycleStatus changes from Active to Finished,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as 'ParkApply'.\n\nNote:\nThis requirement is only valid for TF203. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4958",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6347",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4963",
+              "Requirement",
+              "06 Rejected",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF204 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\t'SsmPbVariantItem0' = Enabled\nAND\n\t'DriverIntentionToParkDriverExit' = True\nAND\n\t'RefSpeedSsmPb' <= V_VEHICLE_STATIC_THRESHOLD\nAND\n\tSsmPbInDriverExitApplyPSSD = Normal\nAND\n\tNOT 'AutomaticApplyInhibit' = True,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'ParkApply'.\n",
+              "TF204 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\t'SsmPbVariantItem0' = Enabled\nAND\n\t'DriverIntentionToParkDriverExit' = True\nAND\n\t'VehicleStateSsmPb' = Static\nAND\n\tSsmPbInDriverExitApplyPSSD = Normal\nAND\n\tNOT 'AutomaticApplyInhibit' = True,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'ParkApply'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7273",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF204 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\tSsmPbInSeatbeltStatus = Closed\nOR\n\tSsmPbInDoorClosed = Closed,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as 'ParkApply'.\n\nNote:\nThis requirement is only valid for TF204. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4959",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6353",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4964",
+              "Requirement",
+              "06 Rejected",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF205 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\t'SsmPbVariantItem0' = Enabled\nAND\n\t'DriverIntentionToParkSwitchFailure' = True\nAND\n\t'RefSpeedSsmPb' <= V_VEHICLE_STATIC_THRESHOLD\nAND\n\tSsmPbInSwitchFaultApplyPSSD = Normal,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'ParkApply'.\n",
+              "TF205 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\t'SsmPbVariantItem0' = Enabled\nAND\n\t'DriverIntentionToParkSwitchFailure' = True\nAND\n\t'VehicleStateSsmPb' = Static\nAND\n\tSsmPbInSwitchFaultApplyPSSD = Normal,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'ParkApply'.\n\t\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7274",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF205 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\tNOT SsmPbInDriveCycleStatus changes from Active to Finished,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as 'ParkApply'.\n\nNote:\nThis requirement is only valid for TF205. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4961",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6358",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4966",
+              "Requirement",
+              "06 Rejected",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF207 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\t'SsmPbVariantItem0' = Enabled\nAND\n\t'DriverIntentionToParkESA' = True\nAND\n\t'RefSpeedSsmPb' <= V_VEHICLE_STATIC_THRESHOLD\nAND\n\tSsmPbInEngineStallApplyPSSD = Normal\nAND\n\tNOT 'AutomaticApplyInhibit' = True,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'ParkApply'.\n",
+              "TF207 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\t'SsmPbVariantItem0' = Enabled\nAND\n\t'DriverIntentionToParkESA' = True\nAND\n\t'VehicleStateSsmPb' = Static\nAND\n\tSsmPbInEngineStallApplyPSSD = Normal\nAND\n\tNOT 'AutomaticApplyInhibit' = True,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'ParkApply'.\n\t\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7275",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF207 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\tNOT SsmPbInEngineStatus changes from 'Running' to 'Stopped',\n\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as 'ParkApply'.\n\nNote:\nThis requirement is only valid for TF207. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3400",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6364",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3546",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF208 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n \tSsmPbInExternalRequest = Apply\nAND\n \t'RefSpeedSsmPb'  \u2264 V_MAX_STATIC_SPEED_EXTENDED\nAND\n\tNOT SsmPbInSwitchState = Apply\nAND\n\tNOT SsmPbInSwitchState = Release\nAND\n\tSsmPbInEarPSSD = Normal,\n\n- Project Configuration - \nAND \n\t'ReleaseAbility' = True,\n\nthe component determine SsmPbOutApplyReleaseRequest as 'ParkApply'.\n\nNote: If in project scope the external apply request can be triggered by a safety relevant, none comfort function (e.g. emergency stop), it shall be considered to remove the 'ReleaseAbility' check or to do further safety analysis related to this precondition check involved signals.\n",
+              "TF208 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n \tSsmPbInExternalRequest = Apply\nAND\n \t'RefSpeedSsmPb'  \u2264 V_MAX_STATIC_SPEED_EXTENDED\nAND\n\tNOT SsmPbInSwitchState = Apply\nAND\n\tNOT SsmPbInSwitchState = Release\nAND\n\tSsmPbInEarPSSD = Normal\n\n- Project Configuration - \nAND \n\t'ReleaseAbility' = True,\n\nthe component determine SsmPbOutApplyReleaseRequest as 'ParkApply'.\n\nNote: If in project scope the external apply request can be triggered by a safety relevant, none comfort function (e.g. emergency stop), it shall be considered to remove the 'ReleaseAbility' check or to do further safety analysis related to this precondition check involved signals.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3547",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF208 - SsmPbOutApplyReleaseRequest.HoldApply:\n\nIF\n \tSsmPbInExternalRequest = Hold\nAND\n \t'RefSpeedSsmPb'  \u2264 V_MAX_STATIC_SPEED_EXTENDED\nAND\n\tNOT SsmPbInSwitchState = Apply\nAND\n\tNOT SsmPbInSwitchState = Release\nAND\n\tSsmPbInEarPSSD = Normal,\n\n- Project Configuration - \nAND \n\t'ReleaseAbility' = True,\n\nthe component determine SsmPbOutApplyReleaseRequest as 'HoldApply'.\n\nNote: If in project scope the external apply request can be triggered by a safety relevant, none comfort function (e.g. emergency stop), it shall be considered to remove the 'ReleaseAbility' check or to do further safety analysis related to this precondition check involved signals.\n",
+              "TF208 - SsmPbOutApplyReleaseRequest.HoldApply:\n\nIF\n \tSsmPbInExternalRequest = Hold\nAND\n \t'RefSpeedSsmPb'  \u2264 V_MAX_STATIC_SPEED_EXTENDED\nAND\n\tNOT SsmPbInSwitchState = Apply\nAND\n\tNOT SsmPbInSwitchState = Release\nAND\n\tSsmPbInEarPSSD = Normal\n\n- Project Configuration - \nAND \n\t'ReleaseAbility' = True,\n\nthe component determine SsmPbOutApplyReleaseRequest as 'HoldApply'.\n\nNote: If in project scope the external apply request can be triggered by a safety relevant, none comfort function (e.g. emergency stop), it shall be considered to remove the 'ReleaseAbility' check or to do further safety analysis related to this precondition check involved signals.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7276",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF208 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\tNOT SsmPbInExternalRequest = Apply,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as 'ParkApply'.\n\nNote:\nThis requirement is only valid for TF208. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7544",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF208 - SsmPbOutApplyReleaseRequest.HoldApply:\n\nIF\n\tNOT SsmPbInExternalRequest = Hold,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as 'HoldApply'.\n\nNote:\nThis requirement is only valid for TF208. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3395",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6370",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3543",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "TF210 - SsmPbOutApplyReleaseRequest.Release:\n\nIF\n \tSsmPbInSwitchState = Release\nAND \n \t(\n \t\tSsmPbInDriveCycleStatus = Active\n \tOR\n \t\tSsmPbInDriveCycleStatus = ActiveFallback\n \t)\nAND\n \t'AdditionalReleaseConditions' = True\nAND\n\t'ReleaseInhibit' = 'NotInhibited' || 'DAAonly'\nAND\n\tSsmPbInSdReleasePSSD = Normal,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as Release.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7277",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF210 - SsmPbOutApplyReleaseRequest.Release:\n\nIF\n\tNOT SsmPbInSwitchState = Release,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as Release.\n\nNote:\nThis requirement is only valid for TF210. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8617",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF210 - SsmPbOutApplyReleaseRequest.Release:\n\nIF\n\tNOT 'AdditionalReleaseConditions' = True,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as Release.\n\nNote:\nThis requirement is only valid for TF210. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3426",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6375",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3604",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6379",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "TF211 - SsmPbOutApplyReleaseRequest.Release:\n\nIF\n\t'AutomaticReleaseNecessaryDaa' = True\nAND\n\t'ReleaseInhibit' = 'NotInhibited' || 'DAAonly'\nAND\n\tSsmPbInDaaPSSD = Normal,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as Release.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3608",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "TF211 - SsmPbOutDriveAwayIntentionIndication.True:\n\nIF\n\tSsmPbInAcceleratorPedalPosition > ACCELERATOR_PEDAL_POSITION_DAA_MIN \nAND\n\tSsmPbInGear != Park or Neutral or Invalid\nAND\n\t\tSsmPbInEngineStatus = 'EngineRunning'\n\t\n\tOR\n\t\tSsmPbInDriveCycleStatus = Active\n\t\tAND\n\t\tSsmPbInEngineStatus = 'EngineInvalid',\n\nthe component shall determine SsmPbOutDriveAwayIntentionIndication as Indicated.\n\nNote: \nSsmPbOutDriveAwayIntentionIndication provides the information for PBC that the driver controls the vehicle and a RollAwayReclamp is not necessary.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3642",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "TF211 - SsmPbOutDaaConditionsFulfilled.Fulfilled:\n\nIF\n\t'DriverControlsTheVehicle' = True\nAND\n\t'VehicleIsReadyToDrive' = True\nAND\n\t'DriverPresent' = Present,\n\nthe component shall determine SsmPbOutDaaConditionsFulfilled as Fulfilled.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3643",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "TF211 - SsmPbOutDaaConditionsFulfilled.NotFulfilled:\n\nIF\n\tNOT 'DriverControlsTheVehicle' = True\nOR\n\tNOT 'VehicleIsReadyToDrive' = True\nOR\n\tNOT 'DriverPresent' = Present,\n\nthe component shall determine SsmPbOutDaaConditionsFulfilled as 'NotFulfilled'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7278",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF211 - SsmPbOutApplyReleaseRequest.Release:\n\nIF\n\tNOT SsmPbInSeatbeltStatus = Closed\nOR\n\tNOT SsmPbInDoorClosed = Closed,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as Release.\n\nNote:\nThis requirement is only valid for TF211 and TF212. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8612",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF211 - SsmPbOutApplyReleaseRequest.Release:\n\nIF\n\tNOT SsmPbInSeatbeltStatus = Closed\nOR\n\tNOT SsmPbInDoorClosed = Closed\nOR\n\tNOT \t(\n \t\t\tOPTION_ADDITIVE_DRIVER_AVAILABILITY = Disabled\n \t\tOR \n \t\t\tSsmPbInAdditiveDriverAvailability received with 'DriverAvailable'\n \t\t),\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as Release.\n\nNote:\nThis requirement is only valid for TF211 and TF212. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3607",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "IF\n\t'DriverPresent' condition is fulfilled before the 'DriverControlsTheVehicle' and 'VehicleThrustPreventsRollback' conditions are fulfilled,\n\nthe component shall request actuation.\n\nELSE\n\nIF\nDriveAwayIntention=TRUE\nAND\n{\nSeatbeltStatus==SsmPbSeatBeltStatus_t.eSsmPbSeatBeltOpen\nOR\nbrakelightswitch==SsmPbBrakeLightSwitch_t.eSsmPbBrakeLightSwitchOn\n}\nThen SsmPbOut.DaaTextMessageRequired=eSsmPbDaaTextMessageRequired;\n\nNote:\nRequest actuation as described in EPBi-Core-SyDesign_6379.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4972",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6384",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6645",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "TF212 - SsmPbOutApplyReleaseRequest.Release:\n\nIF\n\t'AutomaticReleaseNecessaryP2X' = True\nAND\n\t'ReleaseInhibit' = 'NotInhibited' || 'DAAonly'\nAND\n\tSsmPbInP2XPSSD = Normal,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as Release.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7279",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF212 - SsmPbOutApplyReleaseRequest.Release:\n\nIF\n\tNOT SsmPbInSeatbeltStatus = Closed\nOR\n\tNOT SsmPbInDoorClosed = Closed,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as Release.\n\nNote:\nThis requirement is only valid for TF211 and TF212. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8613",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF212 - SsmPbOutApplyReleaseRequest.Release:\n\nIF\n\tNOT SsmPbInSeatbeltStatus = Closed\nOR\n\tNOT SsmPbInDoorClosed = Closed\nOR\n\tNOT \t(\n \t\t\tOPTION_ADDITIVE_DRIVER_AVAILABILITY = Disabled\n \t\tOR \n \t\t\tSsmPbInAdditiveDriverAvailability received with 'DriverAvailable'\n \t\t),\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as Release.\n\nNote:\nThis requirement is only valid for TF211 and TF212. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3404",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6391",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3552",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "TF213 - SsmPbOutApplyReleaseRequest.Release:\n\nIF\n \tSsmPbInExternalRequest = 'ExternalRequestRelease'\nAND\n \tSsmPbInDriveCycleStatus = Active\nAND\n \t'DriverPresent' = True\nAND\n\tNOT SsmPbInSwitchState = Apply\nAND\n\tNOT SsmPbInSwitchState = Release\nAND\n\t'ReleaseInhibit' = 'InhibitFully'\nAND\n\tSsmPbInEarPSSD = Normal,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as Release.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7280",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF213 - SsmPbOutApplyReleaseRequest.Release:\n\nIF\n\tNOT SsmPbInExternalRequest = Release,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as Release.\n\nNote:\nThis requirement is only valid for TF213. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4929",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6396",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6399",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6400",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "TF220 - SsmPbOutHydraulicDecelerationRequest.Requested:\n\nIF\n\t'HydraulicDecelerationNecessary' = True\nAND\n\tSsmPbInEcdPSSD = Normal,\n\nthe component shall determine SsmPbOutHydraulicDecelerationRequest as Requested\nAND\nSsmPbOutHydraulicDecelerationValue as 5m/s2.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13172",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF220 - SsmPbOutHydraulicDecelerationRequest.Requested:\n\nIF\n\tSsmPbInSwitchState = Apply\nAND\t\n\t'RefSpeedSsmPb' > V_VEHICLE_STATIC_THRESHOLD\nAND\t\n\t'EcdPossible' = True\nAND\t\n\tNOT 'DecelerationCancelled' = True\nAND\n\tNOT 'RollerbenchDetected' = True,\n\nthe component shall determine SsmPbOutHydraulicDecelerationRequest as Requested\nAND\nSsmPbOutHydraulicDecelerationValue as 'SsmPbVariantItem25' .\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7282",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF220 - SsmPbOutHydraulicDecelerationRequest.Requested:\n\nIF\n\tNOT SsmPbInSwitchState = Apply,\n\nthe component shall ensure that SsmPbOutHydraulicDecelerationRequest is not determined as Requested and SsmPbOutHydraulicDecelerationValue is not determined as 0.\n\nNote:\nThis requirement is only valid for TF220. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3504",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "The component shall increase the requested deceleration value SsmPbOutHydraulicDecelerationValue from zero to target deceleration value with a ramp.\n\nNote: Customer specific thresholds shall be considered.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6404",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6403",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "TF220 - SsmPbOutHydraulicDecelerationRequest.NotRequested:\n\nIF\n\t'HydraulicDecelerationCancelled' = True,\n\nthe component shall determine SsmPbOutHydraulicDecelerationRequest as 'NotRequested'\nAND\nSsmPbOutHydraulicDecelerationValue as 0 m/s\u00b2.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3506",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "TF220 - SsmPbOutHydraulicDecelerationValue:\n\nIF\n \t(\n \t\tSsmPbInSwitchState = Neutral\n \tAND \n \t\t'VehicleStateSsmPb' = Dynamic\n \t)\nOR\n\t(\n\tSsmPbInActuatorStateLeft = 'ParkApplied\u2019\n\tAND\n\tSsmPbInActuatorStateRight = 'ParkApplied\u2019\n\t),\n\nthe component shall ramp down SsmPbOutHydraulicDecelerationValue until 0 m/s\u00b2\nAND\nafterwards determine SsmPbOutHydraulicDecelerationRequest as 'NotRequested'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3523",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3524",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "TF220 - SsmPbOutHydraulicDecelerationMonitor:\n\nIF\n\t'EcdDecelerationMonitoringActive' = True,\n\nthe component shall determine SsmPbOutHydraulicDecelerationMonitor as Fulfilled.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6398",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3502",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "TF220 - Target Deceleration:\n\nIF\n \t'HydraulicDecelerationNecessary' = True \nAND\n \t(\n \t\tSsmPbInHydraulicDecelerationFallback = Normal\n \tOR\n \t\tSsmPbInHydraulicDecelerationFallback = Invalid\n\t),\n\nthe component shall ensure that SsmPbOutHydraulicDecelerationValue is determined as 5m/s2after ramp up.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3503",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "TF220 - Target Deceleration Fallback:\n\nIF\n\t'HydraulicDecelerationNecessary' = True \nAND\n\tSsmPbInHydraulicDecelerationFallback = Fallback,\n\nthe component shall ensure that SsmPbOutHydraulicDecelerationValue is determined as 5m/s2 after ramp up.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4930",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6267",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3517",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF221 - SsmPbOutApplyReleaseRequest.DynamicApply:\n\nIF\n\tSsmPbInSwitchState = Apply\nAND\t\n\t'EcdFallbackConditionsActive' = True\nAND\t\n\tNOT 'DecelerationCancelled' = True\nAND\t\n\tNOT 'HydraulicDecelerationActive' = Active\nAND\t\n\t(\n\t\tSsmPbInActuatorStateLeft = Released\n\t\tAND\n\t\tSsmPbInActuatorStateRight = Released\n\tOR\n\t\tSsmPbInActuatorStateLeft = Released\n\t\tAND\n\t\tSsmPbInActuatorStateRight = Unknown\n\tOR\n\t\tSsmPbInActuatorStateLeft = Unknown\n\t\tAND\n\t\tSsmPbInActuatorStateRight = Released\n\t)\nAND\t\n\t(\n\t\tSsmPbInDriveCycleStatus = Active\t\t\n\t\tAND\n\t\t'RefSpeedSsmPb' > V_VEHICLE_STATIC_THRESHOLD\n\tOR\n\t\tNOT SsmPbInDriveCycleStatus = Active\n\t\tAND\n\t\t'RefSpeedSsmPb' >= V_MAX_SAFETY_STATIC_SPEED\n\t)\nAND\n\tSsmPbInRwuPSSD = Normal,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'DynamicApply' as long as switch is in apply position.\n",
+              "TF221 - SsmPbOutApplyReleaseRequest.DynamicApply:\n\nIF\n\tSsmPbInSwitchState = Apply\nAND\t\n\t'EcdFallbackConditionsActive' = True\nAND\t\n\tNOT 'DecelerationCancelled' = True\nAND\t\n\tNOT 'HydraulicDecelerationActive' = Active\nAND\t\n\t(\n\t\tSsmPbInActuatorStateLeft = Released\n\t\tAND\n\t\tSsmPbInActuatorStateRight = Released\n\tOR\n\t\tSsmPbInActuatorStateLeft = Released\n\t\tAND\n\t\tSsmPbInActuatorStateRight = Unknown\n\tOR\n\t\tSsmPbInActuatorStateLeft = Unknown\n\t\tAND\n\t\tSsmPbInActuatorStateRight = Released\n\t)\nAND\t\n\t(\n\t\tSsmPbInDriveCycleStatus = Active\t\t\n\t\tAND\n\t\t'VehicleStateSsmPb' = Dynamic\n\tOR\n\t\tNOT SsmPbInDriveCycleStatus = Active\n\t\tAND\n\t\t'RefSpeedSsmPb' >= V_MAX_SAFETY_STATIC_SPEED\n\t)\nAND\n\tSsmPbInRwuPSSD = Normal,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'DynamicApply' as long as the switch is in apply position.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3518",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "TF221 - SsmPbOutApplyReleaseRequest.ParkApply:\n\nIF\n\tSsmPbInSwitchState = Apply\nAND\t\n\t'EcdFallbackConditionsActive' = True\nAND\t\n\tNOT 'DecelerationCancelled' = True\nAND\n\tNOT SsmPbInDriveCycleStatus = Active\nAND\n\t'RefSpeedSsmPb' < V_MAX_SAFETY_STATIC_SPEED,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'ParkApply'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7286",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF221 - NOT SsmPbOutApplyReleaseRequest.DynamicApply:\n\nIF\n\tNOT SsmPbInSwitchState = Apply,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as 'DynamicApply'.\n\nNote:\nThis requirement is only valid for TF221. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7288",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF221 - SsmPbOutApplyReleaseRequest.DynamicApply:\n\nIF\n\t'RefSpeedSsmPb' > V_VEHICLE_STATIC_THRESHOLD,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as 'ParkApply' OR 'HoldApply'.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6248",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6251",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6255",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF222 - SsmPbOutApplyReleaseRequest.DynamicApply:\n\nIF\n\tSsmPbInExternalDynamicRequest = 'DynamicApply'\nAND\n\tSsmPbInRwuPSSD = Normal,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'DynamicApply'.\n",
+              "TF222 - SsmPbOutApplyReleaseRequest.DynamicApply:\n\nIF\n\tSsmPbInExternalDynamicRequest = 'DynamicApply'\nAND\n\tSsmPbInRwuPSSD = Normal,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'DynamicApply'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7287",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF222 - NOT SsmPbOutApplyReleaseRequest.DynamicApply:\n\nIF\n\tNOT SsmPbInExternalDynamicRequest = 'DynamicApply',\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as 'DynamicApply'.\n\nNote:\nThis requirement is only valid for TF222. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3382",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6408",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4824",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "TF230 - SsmPbOutApplyReleaseRequest.RollerbenchApply:\n\nIF\n\t\tSsmPbInSwitchState = Apply\n\tAND\n\t\t'RollerbenchDetected' = True\n\tAND\t\n\t\t\tNOT SsmPbInActuatorStateLeft = 'ParkApplied'\n\t\tOR\n\t\t\tNOT SsmPbInActuatorStateLeft = 'HoldApplied'\n\tAND\t\n\t\t\tNOT SsmPbInActuatorStateRight = 'ParkApplied'\n\t\tOR\n\t\t\tNOT SsmPbInActuatorStateRight = 'HoldApplied'\n\tAND\t\n\t\tSsmPbInHuConditionsPSSD = Normal (Rollerbench Apply PSSD)\n\t\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'RollerbenchApply'.\n\nNote:\n(The component shall request 'RollerbenchApply' if 'RollerbenchDetected' = True as long as switch is in apply position)\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4825",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "TF230 - SsmPbOutApplyReleaseRequest.Release:\n\nIF\n\t'RollerbenchDetected' = True\nAND\n\tSsmPbInSwitchState = Release\nOR\t\n\tSsmPbInSwitchState = 'FaultNeutral'\nOR\t\n\tSsmPbInSwitchState = 'FaultApply'\nOR\t\n\tSsmPbInSwitchState = 'FaultRelease',\n\nthe component shall determine SsmPbOutApplyReleaseRequest as Release.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7291",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF230 - SsmPbOutApplyReleaseRequest.RollerbenchApply:\n\nIF\n\tNOT SsmPbInSwitchState = Apply\nOR\n\tNOT SsmPbOutRollerBenchDetected = Detected,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as 'RollerbenchApply'.\n\nNote:\nThis requirement is only valid for TF230. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7543",
+              "Requirement",
+              "n/a",
+              "2 EPB SE",
+              "IF\n\tSsmPbInActuatorStateLeft = 'ParkApplied'\n\tAND\n\tSsmPbInActuatorStateRight = 'ParkApplied'\nOR\n\tSsmPbInActuatorStateLeft = 'HoldApplied'\n\tAND\n\tSsmPbInActuatorStateRight = 'HoldApplied',\n\nthe component shall prevent that SsmPbOutApplyReleaseRequest is determined as Release.\n\nNote:\nThis requirement is only valid for TF230. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3431",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6414",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3653",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF231 - SsmPbOutApplyReleaseRequest.PadAdjustment:\n\nIF\n\tSsmPbInPadAdjustmentRequest = Requested\nAND\t\n\t'DriverAbsent' = True\nAND\n\ta transition of SsmPbInDriveCycleStatus from Active to Finished\n\toccured at 'RefSpeedSsmPb' <\n\tV_MIN_ALLOW_PAD_WEAR_ADJUSTMENT_REQUEST\t\nAND\n\t'SsmPbVariantItem8' = Enabled\nAND\n\tSsmPbInPwaPSSD = Normal,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'PadAdjustment'.\n",
+              "TF231 - SsmPbOutApplyReleaseRequest.PadAdjustment:\n\nIF\n\tSsmPbInPadAdjustmentRequest = Requested\nAND\t\n\t'DriverAbsent' = True\nAND\n\ta transition of SsmPbInDriveCycleStatus from Active to Finished\n\toccured at 'RefSpeedSsmPb' <\n\tV_MIN_ALLOW_PAD_WEAR_ADJUSTMENT_REQUEST\t\n\nAND\n\tSsmPbInPwaPSSD = Normal,\n\nthe component shall determine SsmPbOutApplyReleaseRequest as 'PadAdjustment'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7290",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "TF231 - SsmPbOutApplyReleaseRequest.PadAdjustment:\n\nIF\n\tNOT SsmPbInDriveCycleStatus changes from Active to Finished,\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as 'PadAdjustment'.\n\nNote:\nThis requirement is only valid for TF231. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13443",
+              "Heading",
+              "n/a",
+              "TBD",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13528",
+              "Requirement",
+              "n/a",
+              "TBD",
+              "TF237 - SsmPbOutApplyReleaseRequest.ReferenceDrive:\n\nIF\n\tNOT SsmPbInActuatorStateLeft = 'ParkApplied'\nOR\n\tNOT SsmPbInActuatorStateRight = 'ParkApplied',\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as 'ReferenceDriveLeft' or 'ReferenceDriveRight'.\n\nNote:\nThis requirement is only valid for TF237. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13977",
+              "Requirement",
+              "n/a",
+              "TBD",
+              "TF237 - SsmPbOutApplyReleaseRequest.ReferenceDrive:\n\nIF\n\tNOT (SsmPbInGear = Drive (forward or reverse) for manual transmission\n\tOR\n\tSsmPbInGear = Park for automatic transmission),\n\nthe component shall ensure that SsmPbOutApplyReleaseRequest is not determined as 'ReferenceDriveLeft' or 'ReferenceDriveRight'.\n\nNote:\nThis requirement is only valid for TF237. All other TFs are not affected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3459",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3695",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "The component shall determine 'DriverPresent' as 'NotPresent' as default condition. (e.g. after wake up,...)\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3466",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3748",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3749",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "2004 - SsmPbOutRollerbenchDetected.Detected:\n\nIF\n\t'RollerbenchDetected' = True,\n\nthe component shall determine SsmPbOutRollerBenchDetected as Detected.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3753",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3754",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "2004 - SsmPbOutRollerbenchDetected.NotDetected:\n\nIF\n\t'RollerbenchDetected' = False,\n\nthe component shall determine SsmPbOutRollerBenchDetected as 'NotDetected'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7541",
+              "Requirement",
+              "n/a",
+              "TBD",
+              "2004 - SsmPbOutRollerbenchDetected.Detected:\n\nIF\n\tOne or more wheel speeds become invalid for longer than\n\tTIME_EXIT_HU_MODE\nOR\n\tOne or more Front wheel speeds become greater than\n\tV_EXIT_HU_MODE for longer than TIME_EXIT_HU_MODE\nOR\n\t(\n\tOne or more Rear wheel speeds not in range of\n\t\tV_DETECT_ROLLERBENCH_SPEED_MIN\n\t\tto\n\t\tV_DETECT_ROLLERBENCH_SPEED_MAX\n\tfor longer than TIME_EXIT_HU_MODE\n\t)\nOR\n\tSsmPbInDriveCycleStatus = Finished\nOR\n\tSsmPbInDriveCycleStatus = Invalid\nOR\n\tSsmPbInDriveCycleStatus = Undefined\nOR\n\tSsmPbInDriveCycleStatus = 'ActiveFallback'\nOR\n\tSsmPbInHuConditionsPSSD = Inhibit\nOR\t\n\tSsmPbInAcceleratorPedalPosition >= HU_ACCELERATOR_PEDAL_THRESHOLD\nOR\n\tSsmPbInGear = Park\nOR\n\tSsmPbInGear = Drive\nOR\n\tSsmPbInGear = Reverse,\n\nthe component shall ensure that SsmPbOutRollerBenchDetected is not determined as Detected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7542",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "<<customer dependent>>\n2004 - SsmPbOutRollerbenchDetected.Detected:\n\nIF\n\tNOT SsmPbInRollerBenchDetected = Detected,\n\nthe component shall ensure that SsmPbOutRollerBenchDetected is not determined as Detected.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3765",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3771",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "The step between the last 'RefSpeedSsmPb' and the actual 'RefSpeedSsmPb' shall be limited by a deceleration straight line of -1.3g.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3773",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "The component shall determine SsmPbOutRefSpeed as 'RefSpeedSsmPb'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_5106",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6084",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6450",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "The component shall be unique identificable.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6778",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6779",
+              "Requirement",
+              "04 Approved",
+              "2 EPB SE",
+              "",
+              "The component shall be authorised to delivery (released / approved).\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6788",
+              "Requirement",
+              "04 Approved",
+              "2 EPB SE",
+              "",
+              "The component shall have a documentation to describe the part and its delivery authorization.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_663",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6096",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7292",
+              "Requirement",
+              "n/a",
+              "2 EPB SE",
+              "The component shall be developed according to ASIL B(D).\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4324",
+              "Requirement",
+              "04 Approved",
+              "2 EPB SE",
+              "",
+              "Approval of park brake actuation for the specific direction shall be given via an additional instance in the HOST (host safety barrier).\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4325",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "Approval of park brake actuation shall be switched via the host safety barrier in accordance with table Definition of the Host Safety Barrier States.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4326",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "In addition to the table Definition of the Host Safety Barrier States, approval of park brake actuation shall be switched in apply direction via the host safety barrier for 30 s after the actuation request changes to HsbInApplyReleaseRequest = ParkApply/HoldApply/PadAdjustment/DynamicApply.\n\nNote: Refer to 'ApplyTimer'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4327",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "In addition to the table Definition of the Host Safety Barrier States, approval of park brake actuation shall be switched in release direction via the host safety barrier for 5 s after the actuation request changes to HsbInApplyReleaseRequest = Release.\n\nNote: Refer to 'ReleaseTimer'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4328",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "In addition to the table Definition of the Host Safety Barrier States, approval of park brake actuation shall be switched in release direction via the host safety barrier for 35 s after the actuation request changes to HsbInApplyReleaseRequest = 'PadAdjustment'.\n\nNote: Refer to 'ReleaseTimer'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4329",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "In addition to the table Definition of the Host Safety Barrier States, approval of park brake actuation shall be switched in release and apply direction via the host safety barrier during an actuation request HsbInApplyReleaseRequest =\n'DynamicApply'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4330",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "In addition to the table Definition of the Host Safety Barrier States, approval of park brake actuation shall be switched in release direction via the host safety barrier for 35 s, if the actuation request HsbInApplyReleaseRequest changes from 'DynamicApply' to None OR HsbInRollerbenchActive changes to Inactive. (VehicleOperationalMode leaves 'HU-Mode')\n\nNote: Refer to 'ReleaseTimer'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4331",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "In addition to the table Definition of the Host Safety Barrier States, approval of park brake actuation shall be switched in release and apply direction via the host safety barrier during an active factory diagnostic session.\n\nNote: Refer to 'ApplyTimer' and 'ReleaseTimer'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4332",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "In addition to the table Definition of the Host Safety Barrier States, approval of park brake actuation shall be switched in release and apply direction via the host safety barrier for 35 s after the diagnostic actuation request HsbInDiagRequest.\n\nNote: Refer to 'ApplyTimer' and 'ReleaseTimer'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4336",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4339",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "The component shall receive and process the signals from the other components, that are listed in HSB-CT (HSB Input signals).\nReference to: 025 System Interfaces/HSB-CT\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4340",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "The component shall provide the signals to the other components, that are listed in HSB-CT (HSB Output signals).\nReference to: 025 System Interfaces/HSB-CT\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4341",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "The component shall shall provide all signals for at least two task-cycles.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13697",
+              "Heading",
+              "n/a",
+              "TBD",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13699",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive HsbInHostSoftwareVersion[HSB_MAX_NUMBER_SW_VERSION] according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13701",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive HsbInWheelSpeedFL according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13700",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive HsbInWheelSpeedFR according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13702",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive HsbInWheelSpeedRL according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13703",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive HsbInWheelSpeedRR according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13704",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive HsbInDriveCycleStatus2 according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13705",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive HsbInSwitchState according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13706",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive HsbInApplyReleaseRequest according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13707",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive HsbInDiagRequest according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13708",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive HsbInRollerbenchActive according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13709",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive HsbInDiagSessionActive according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13710",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive HsbInExternalDynamicRequest according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13711",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive HsbInAutonomousReleaseEnable according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_14090",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall receive HsbInGValueFiltered according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13698",
+              "Heading",
+              "n/a",
+              "TBD",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13712",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide HsbOutSoftwareVersion[HSB_MAX_NUMBER_SW_VERSION] according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13713",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide HsbOutApplyEnableLineRequest according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13714",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide HsbOutReleaseEnableLineRequest according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13715",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide HsbOutDevelopmentMessages[HSB_MAX_NUMBER_DEVELOP] according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_13716",
+              "Requirement",
+              "04 Approved",
+              "TBD",
+              "",
+              "The component shall provide HsbOutHydraulicPressureApplyEnable according its definition in the HSB-CT.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_4131",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7300",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "IF\n\tNOT'VehicleOperationalMode' = Static\nAND\n\tNOT HsbInSwitchState = Apply\nAND\n\tNOT HsbInExternalDynamicRequest = 'DynamicApply'\nAND\n\tNOT'ApplyTimer' = Running,\n\nthe component shall ensure that HsbOutApplyEnableLineRequest is not determined as 'EnableLineActive'.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7303",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "IF\n\tNOT 'DriverAvailability' = True\nAND\n\tNOT 'VehicleOperationalMode' = Dynamic\nAND\n\tNOT 'ReleaseTimer' = Running\nAND\n\tNOT ('VehicleOperationalMode' = Unknown\n\tAND\n\tHsbInSwitchState = Apply),\n\nthe component shall ensure that HsbOutReleaseEnableLineRequeset is not determined as 'EnableLineActive'.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3814",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6243",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3817",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "SG-01, HZ-01 ASIL B EF401\n\nIF\n\t'VehicleOperationalMode' = Static\nOR\n\t'ApplyTimer' = Running,\n\nthe component shall ensure that HsbOutApplyEnableLineRequest is determined as 'EnableLineActive'.\n",
+              "EF401 - HsbOutApplyEnableLineRequest.EnableLineActive:\n\nIF\n\t'VehicleOperationalMode' = Static\nOR\n\t'ApplyTimer' = Running,\n\nthe component shall determine HsbOutApplyEnableLineRequest as 'EnableLineActive'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3820",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "The component shall transmit HsbOutApplyEnableLineRequest = 'EnableLineActive' for minimum two operation cycles of 10 ms.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_5003",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6671",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3827",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "SG-04, HZ-06 ASIL B EF402\n\nIF\n\t'DriverAvailability' = True\nOR\n\t'VehicleOperationalMode' = Dynamic\nOR\n\t'ReleaseTimer' = Running,\n\nthe component shall ensure that HsbOutReleaseEnableLineRequest is determined as 'EnableLineActive'.\n",
+              "EF402 - HsbOutReleaseEnableLineRequest.ReleaseLineActive:\n\nIF\n\t'DriverAvailability' = True\nOR\n\t'VehicleOperationalMode' = Dynamic\nOR\n\t'ReleaseTimer' = Running,\n\nthe component shall determine HsbOutReleaseEnableLineRequest as 'EnableLineActive'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3829",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "The component shall transmit HsbOutReleaseEnableLineRequest = 'EnableLineActive' for minimum two operation cycles of 10 ms.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3835",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "The component shall determine HsbInApplyReleaseRequest = 'ProgDownRelease' as HsbInApplyReleaseRequest = Release.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_5011",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6658",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6991",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "SG-05, HZ-08 ASIL A EF403\n\nIF\n\tHsbInSwitchState = Apply\nOR\n\tHsbInExternalDynamicRequest = 'DynamicApply'\nOR\n\t'ApplyTimer' = Running,\n\nthe component shall ensure that the value 'EnableLineActive' in signal HsbOutApplyEnableLineRequest is active.\n",
+              "EF403 - HsbOutApplyEnableLineRequest.EnableLineActive:\n\nIF\n\tHsbInSwitchState = Apply\nOR\n\tHsbInExternalDynamicRequest = 'DynamicApply'\nOR\n\t'ApplyTimer' = Running,\n\nthe component shall determine HsbOutApplyEnableLineRequest as 'EnableLineActive'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6997",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "SG-06, HZ-09 ASIL B EF403\n\nIF\n\t'DriverAvailability' = True\nOR\n\t'VehicleOperationalMode' = Dynamic\nOR\n\t('VehicleOperationalMode' = Unknown\n\tAND\n\tHsbInSwitchState = Apply)\nOR\n\t'ReleaseTimer' = Running,\n\nthe component shall ensure that HsbOutReleaseEnableLineRequest is determined as 'EnableLineActive'.\n",
+              "EF403 - HsbOutReleaseEnableLineRequest.EnableLineActive:\n\nIF\n\t'DriverAvailability' = True\nOR\n\t'VehicleOperationalMode' = Dynamic\nOR\n\t('VehicleOperationalMode' = Unknown\n\tAND\n\tHsbInSwitchState = Apply)\nOR\n\t'ReleaseTimer' = Running,\n\nthe component shall ensure that HsbOutReleaseEnableLineRequest is determined as 'EnableLineActive'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_5012",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6664",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7336",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "EF404 - HsbOutApplyEnableLineRequest.EnableLineActive:\n\nIF\n\t'VehicleOperationalMode' = Static\nOR\n\t'ApplyTimer' = Running,\n\nthe component shall determine HsbOutApplyEnableLineRequest as 'EnableLineActive'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8541",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "SG-04, HZ-06 ASIL B EF404\n\nIF\n\t'ReleaseTimer' = Running,\n\nthe component shall determine HsbOutReleaseEnableLineRequeset as 'EnableLineActive'.\n",
+              "SG-04, HZ-06 ASIL B EF404\n\nIF\n\t'ReleaseTimer' = Running,\n\nthe component shall determine HsbOutReleaseEnableLineRequeset as 'LineActive'.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_1011",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_1023",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV4",
+              "",
+              "The component shall limit the deceleration of the VehicleReferenceSpeed in a straight line of -1.3g between the step of the last 'RefSpeedHsb' and the actual 'RefSpeedHsb' .\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7341",
+              "Requirement",
+              "n/a",
+              "2 EPB TV4",
+              "The component shall prevent to provide 'VehicleOperationalMode' which indicates Static erroneously.\n ",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7342",
+              "Requirement",
+              "n/a",
+              "2 EPB TV4",
+              "The component shall prevent to provide 'VehicleOperationalMode' which indicates Dynamic erroneously.\n ",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7343",
+              "Requirement",
+              "n/a",
+              "2 EPB TV4",
+              "The providing component shall provide 'VehicleOperationalMode' as 'HU-Mode' if the conditions for 'HU-Mode' are given.\n\nNote:\nGiven means that the conditions for 'HU-Mode' are fulfilled in the component.\n ",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7347",
+              "Requirement",
+              "n/a",
+              "2 EPB TV4",
+              "The providing component shall provide 'VehicleOperationalMode' as Unknown if the conditions for Unknown are given.\n\nNote:\nGiven means that the conditions for Unknown are fulfilled in the component.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3836",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7322",
+              "Requirement",
+              "n/a",
+              "2 EPB TV4",
+              "451 - Determine 'DriverAvailability'.NotTrue:\n\nIF\n\tNOT HsbInDriveCycleStatus2 = Active\nAND\n\t(NOT HsbInDriveCycleStatus2 = 'ActiveFallback'\n\tOR\n\tNOT HsbInSwitchState = Release)\nAND\n\tNOT HsbInAutonomousReleaseEnable = Enabled,\n\nthe component shall prevent that 'DriverAvailability' is determined as True.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3862",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3864",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "IF\n\t'VehicleOperationalMode' = Static,\n\nthe component shall determine HsbOutHydraulicPressureApplyEnable as Enabled.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_7351",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "IF\n\tNOT 'VehicleOperationalMode' = Static\nAND\n\tNOT 'VehicleOperationalMode' = 'HU-Mode',\n\nthe component shall ensure that HsbOutHydraulicPressureApplyEnable is determined as Disabled.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8516",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8537",
+              "Requirement",
+              "n/a",
+              "2 EPB TV1\n2 EPB TV4",
+              "IF\n\t(\n\t(NOT 'VehicleOperationalMode' = Static\n\tAND\n\tNOT HsbInDiagSessionActive = 'SessionActive') \n\tOR\n\t\tNOT HsbInApplyReleaseRequest = 'ParkApply'\n\t\tAND\n\t\tNOT HsbInApplyReleaseRequest = 'HoldApply'\n\t\tAND\n\t\tNOT HsbInApplyReleaseRequest = 'RollerbenchApply'\n\t\tAND\n\t\tNOT HsbInApplyReleaseRequest = 'PadAdjustment'\n\t\tAND\n\t\tNOT HsbInApplyReleaseRequest = 'DynamicApply'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'CloseBrakeRearLeft'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'CloseBrakeRearRight'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'CloseBrakeBoth'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'TouchBrakeRearLeft'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'TouchBrakeRearRight'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'TouchBrakeBoth'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'StepCloseRearLeft'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'StepCloseRearRight'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'StepCloseBoth'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'AssemblyCheck'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'ExitMaintenanceMode'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'OpenBrakeRearLeft'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'OpenBrakeRearRight'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'OpenBrakeBoth'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'EnterMaintenanceMode'\n\t\t)\nAND\n\tNOT HsbInSwitchState changes to Apply\nAND\n\tNOT HsbInExternalDynamicRequest changes to 'DynamicApply'\nAND\n\tNOT HsbInSwitchState changes from Apply to NOT Apply\nAND\n\tNOT HsbInExternalDynamicRequest changes from 'DynamicApply' to None,\n\nthe component shall prevent to determine (a currently not running) 'ApplyTimer' as Running.\n\nNote:\nA running timer shall not be aborted until the defined time has elapsed. There can be more than one timer running at once.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8523",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_8540",
+              "Requirement",
+              "n/a",
+              "2 EPB TV4",
+              "IF\n\tNOT HsbInApplyReleaseRequest = 'PadAdjustment'\n\tOR\n\tNOT 'DriverAvailability' changes from True to False\n\tOR\n\tNOT 'VehicleOperationalMode' = Static\nAND\n\tNOT HsbInApplyReleaseRequest changes from 'DynamicApply' to NOT 'DynamicApply'\n\tOR\n\tNOT 'DriverAvailability' = True\nAND\n\tNOT 'DriverAvailability' changes from True to False\nAND\n\tNOT 'VehicleOperationalMode' changes from Dynamic to NOT Dynamic\nAND\n\tNOT HsbInSwitchState changes from Apply to NOT Apply\n\tOR\n\t(NOT 'VehicleOperationalMode'  = Unknown\n\tAND\n\tNOT 'VehicleOperationalMode'  = Dynamic)\nAND\n\tNOT HsbInSwitchState changes from NOT Apply to Apply\n\tOR\n\t(NOT 'VehicleOperationalMode'  = Unknown\n\tAND\n\tNOT 'VehicleOperationalMode'  = Dynamic)\nAND\n\tNOT HsbInExternalDynamicRequest changes from 'DynamicApply' to None\n\tOR\n\t(NOT 'VehicleOperationalMode'  = Unknown\n\tAND\n\tNOT 'VehicleOperationalMode'  = Dynamic)\nAND\n\tNOT HsbInExternalDynamicRequest changes from None to 'DynamicApply'\n\tOR\n\t(NOT 'VehicleOperationalMode'  = Unknown\n\tAND\n\tNOT 'VehicleOperationalMode'  = Dynamic)\nAND\n\t((NOT HsbInDiagSessionActive = 'SessionActive'\n\tAND\n\tNOT 'DriverAvailability' = True)\n\tOR\n\t\tNOT HsbInApplyReleaseRequest = 'ParkApply'\n\t\tAND\n\t\tNOT HsbInApplyReleaseRequest = 'HoldApply'\n\t\tAND\n\t\tNOT HsbInApplyReleaseRequest = 'RollerbenchApply'\n\t\tAND\n\t\tNOT HsbInApplyReleaseRequest = 'PadAdjustment'\n\t\tAND\n\t\tNOT HsbInApplyReleaseRequest = 'DynamicApply'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'CloseBrakeRearLeft'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'CloseBrakeRearRight'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'CloseBrakeBoth'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'TouchBrakeRearLeft'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'TouchBrakeRearRight'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'TouchBrakeBoth'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'StepCloseRearLeft'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'StepCloseRearRight'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'StepCloseBoth'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'AssemblyCheck'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'ExitMaintenanceMode'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'OpenBrakeRearLeft'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'OpenBrakeRearRight'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'OpenBrakeBoth'\n\t\tAND\n\t\tNOT HsbInDiagRequest = 'EnterMaintenanceMode'\n\t\t)\nAND\n\tNOT 'DriverAvailability' changes from True to False\n\tOR\n\tNOT 'VehicleOperationalMode'  = 'HU-Mode'\nAND\n\t(\n\tNOT HsbInGValueFiltered <= G_PWI_THRESHOLD\n\tOR\n\tNOT 'VehicleOperationalMode' = Static\n\tOR\n\t(\n\tNOT HsbInApplyReleaseRequest = 'ReferenceDriveLeft'\n\tAND\n\tNOT HsbInApplyReleaseRequest = 'ReferenceDriveRight'\n\t)\n\t),\n\nthe component shall prevent to determine (a currently not running) 'ReleaseTimer' as Running.\n\nNote:\nA running timer shall not be aborted until the defined time has elapsed. There can be more than one timer running at once.\n",
+              "Safety Requirement - See Attribute 'Object Text_DXL'\n\nFor 011_Object State -> 011_DXL_Object State\nFor 013_Functional Safety Category -> 013_DXL_Functional Safety Category\nFor 881_Safety Goal -> 881_DXL_Safety Goal\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3866",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_3867",
+              "Requirement",
+              "04 Approved",
+              "2 EPB SE",
+              "",
+              "The development messages shall be agreed between the OEM and the OES.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6909",
+              "Requirement",
+              "04 Approved",
+              "2 EPB TV1\n2 EPB TV4",
+              "",
+              "The component shall provide the development messages on interface HsbOutDevelopmentMessages[xx].\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_5104",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6086",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6452",
+              "Requirement",
+              "04 Approved",
+              "2 EPB SE",
+              "",
+              "The component shall be unique identificable.\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6910",
+              "Requirement",
+              "04 Approved",
+              "2 EPB SE",
+              "",
+              "The component shall be independend of component SSM_PB and component PBC.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6782",
+              "Heading",
+              "n/a",
+              "n/a",
+              "",
+              "\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6783",
+              "Requirement",
+              "04 Approved",
+              "2 EPB SE",
+              "",
+              "The component shall be authorised to delivery (released / approved).\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          },
+          {
+            "columns_data": [
+              "EPB_Chrysler_MY24_DTSyDesign_6790",
+              "Requirement",
+              "04 Approved",
+              "2 EPB SE",
+              "",
+              "The component shall have a documentation to describe the part and its delivery authorization.\n\n"
+            ],
+            "is_covered": false,
+            "file_references": []
+          }
+        ],
+        [
+          "010_Object Type",
+          "011_Object State",
+          "050_Test Department",
+          "Object Text_DXL",
+          "Object Text"
+        ],
+        "13 October 2023 13:50",
+        true
+      ]
+    }
+  ]
+}
