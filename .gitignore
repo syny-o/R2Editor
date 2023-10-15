@@ -6,3 +6,5 @@ build/
 dist/
 *.txt
 *.ini
+ui/files_rc.py
+files_rc.py
