@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QToolBar, QVBoxLayout, QHBoxLayout, QTextEdit, QTreeView, QLineEdit, QLabel
 from PyQt5.QtGui import QIcon, QScreen, QPalette, QColor, QPixmap
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, QRunnable, QThreadPool, pyqtSlot
 
 
 class NotificationWidget(QWidget):    
@@ -20,9 +20,10 @@ class NotificationWidget(QWidget):
         self.palette.setColor(QPalette.WindowText, QColor(200, 200, 200))
         self.setPalette(self.palette)
 
-
-
         self.create_layout()
+
+
+
 
 
     def create_layout(self):        
@@ -66,5 +67,22 @@ class NotificationWidget(QWidget):
     def show_text(self, text):
         self.ui_notification_text.setText(text)
         self.show()
+        # self.threadpool = QThreadPool()
+        # self.threadpool.setMaxThreadCount(1)
+        # self.worker = Worker(self)
+        
+        # self.threadpool.start(self.worker)
+
+
+
+# class Worker(QRunnable):
+#     def __init__(self, notification_widget):
+#         super().__init__()
+#         self.notification_widget = notification_widget
+
+#     @pyqtSlot()
+#     def run(self):
+#         self.notification_widget.show()
+
 
 

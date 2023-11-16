@@ -105,6 +105,15 @@ class TextEdit(QCodeEditor):
 
         self.data_manager_widget = DataManagerWidget(self.main_window, self)
 
+        # from components.pyqt_find_text_widget.findReplaceTextWidget import FindReplaceTextWidget
+        # try:
+        #     w = self.main_window.ui_hLayout_findReplace.itemAt(0)
+        #     self.main_window.ui_hLayout_findReplace.removeItem(w)
+        #     self.new_find_box = FindReplaceTextWidget(self)
+        #     self.main_window.ui_hLayout_findReplace.addWidget(self.new_find_box)
+        # except Exception as e:
+        #     print(e)
+
         # self.setReadOnly(True)
 
         # self.timer = QTimer()
@@ -320,17 +329,85 @@ class TextEdit(QCodeEditor):
             self.show_popup('')
             return
 
+
+        if self.completer.popup.isVisible() and event.key() not in (Qt.Key_Return, Qt.Key_Equal, Qt.Key_Alt):
+            tc = self.textCursor()
+            # tc.select(QTextCursor.WordUnderCursor)
+            
+            # pressed_key = event.key()
+            # tc.insertText(pressed_key)
+            super().keyPressEvent(event)
+            get_word_under_cursor(tc)
+            if tc.selectedText() == "" and tc.block().text().strip() == "" \
+            or tc.selectedText() == "" and (self.current_model == "values" or self.current_model == "pbc_variables"):
+                self.show_popup("")
+                return
+
+            if tc.selectedText().startswith('"'):
+                self.remember_special_char = True
+                tc.insertText(' "')
+                tc.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, 2)
+                self.setTextCursor(tc)
+                tc.select(QTextCursor.WordUnderCursor)
+                self.show_popup(tc.selectedText())
+                return
+
+            elif tc.selectedText().startswith(','):
+                self.remember_special_char = True
+                tc.insertText(' ,')
+                tc.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, 2)
+                self.setTextCursor(tc)
+                tc.select(QTextCursor.WordUnderCursor)
+                self.show_popup(tc.selectedText())
+                return
+
+            elif tc.selectedText().startswith(')'):
+                self.remember_special_char = True
+                tc.insertText(' )"')
+                tc.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, 3)
+                self.setTextCursor(tc)
+                tc.select(QTextCursor.WordUnderCursor)
+                self.show_popup(tc.selectedText())
+                return
+
+
+            elif len(tc.selectedText()) > 0:
+                self.show_popup(tc.selectedText())
+                return
+            elif len(tc.selectedText()) == '':
+                self.show_popup('')
+                return
+            else:
+                self.completer.popup.hide()
+                return            
+
+
+        
+        elif event.key() == Qt.Key_Alt and self.completer.popup.isVisible():
+            self.completer.popup.hide()
+
         # "ALT" ONLY
-        if event.key() == Qt.Key_Alt:
+        elif event.key() == Qt.Key_Alt:
 
             tc = self.textCursor()
             # tc.select(QTextCursor.WordUnderCursor)
             get_word_under_cursor(tc)
 
             if tc.selectedText() == "" and tc.block().text().strip() == "" \
-            or tc.selectedText() == "" and self.current_model == "values":
+            or tc.selectedText() == "" and (self.current_model == "values" or self.current_model == "pbc_variables" or self.current_model == "dspace_variables"):
                 self.show_popup("")
                 return
+
+            # elif tc.selectedText() == " " and tc.block().text().strip() == "" \
+            #     or tc.selectedText() == "" and (self.current_model == "values" or self.current_model == "pbc_variables"):
+            #         tc.movePosition(QTextCursor.Left, QTextCursor.KeepAnchor)
+            #         tc.insertText("\n")
+            #         print("tvl")
+                    
+
+            #         self.setTextCursor(tc)
+            #         self.show_popup("")                    
+            #         return                
 
             if tc.selectedText().startswith('"'):
                 self.remember_special_char = True

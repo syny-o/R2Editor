@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1281</width>
-    <height>837</height>
+    <width>1870</width>
+    <height>1244</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -1843,6 +1843,86 @@ background-color: rgb(39, 44, 54);
                               <number>0</number>
                              </property>
                              <item>
+                              <widget class="QPushButton" name="btn_insert_chapter">
+                               <property name="text">
+                                <string>Chapter</string>
+                               </property>
+                               <property name="icon">
+                                <iconset resource="files.qrc">
+                                 <normaloff>:/16x16/icons/16x16/cil-notes.png</normaloff>:/16x16/icons/16x16/cil-notes.png</iconset>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QPushButton" name="btn_insert_testcase">
+                               <property name="text">
+                                <string>Testcase</string>
+                               </property>
+                               <property name="icon">
+                                <iconset resource="files.qrc">
+                                 <normaloff>:/16x16/icons/16x16/cil-task.png</normaloff>:/16x16/icons/16x16/cil-task.png</iconset>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_6">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>0</width>
+                                 <height>0</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>0</width>
+                                 <height>16777215</height>
+                                </size>
+                               </property>
+                               <property name="styleSheet">
+                                <string notr="true">margin-right: 5px;
+background-image: url(:/16x16/icons/16x16/cil-transfer.png);
+background-position: left center;
+background-repeat: no-repeat;</string>
+                               </property>
+                               <property name="placeholderText">
+                                <string>Replace</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QPushButton" name="btn_insert_command">
+                               <property name="text">
+                                <string>Command</string>
+                               </property>
+                               <property name="icon">
+                                <iconset resource="files.qrc">
+                                 <normaloff>:/16x16/icons/16x16/cil-code.png</normaloff>:/16x16/icons/16x16/cil-code.png</iconset>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QPushButton" name="btn_comment_uncomment">
+                               <property name="text">
+                                <string>(Un)comment</string>
+                               </property>
+                               <property name="icon">
+                                <iconset resource="files.qrc">
+                                 <normaloff>:/16x16/icons/16x16/cil-comment-bubble.png</normaloff>:/16x16/icons/16x16/cil-comment-bubble.png</iconset>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QPushButton" name="btn_format_code">
+                               <property name="text">
+                                <string>Format</string>
+                               </property>
+                               <property name="icon">
+                                <iconset resource="files.qrc">
+                                 <normaloff>:/16x16/icons/16x16/cil-align-right.png</normaloff>:/16x16/icons/16x16/cil-align-right.png</iconset>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
                               <widget class="QPushButton" name="btn_zoom_in">
                                <property name="toolTip">
                                 <string>Zoom In</string>
@@ -1884,31 +1964,6 @@ background-color: rgb(39, 44, 54);
                                <property name="icon">
                                 <iconset resource="files.qrc">
                                  <normaloff>:/20x20/icons/20x20/cil-monitor.png</normaloff>:/20x20/icons/20x20/cil-monitor.png</iconset>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QLineEdit" name="lineEdit_6">
-                               <property name="minimumSize">
-                                <size>
-                                 <width>0</width>
-                                 <height>0</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>0</width>
-                                 <height>16777215</height>
-                                </size>
-                               </property>
-                               <property name="styleSheet">
-                                <string notr="true">margin-right: 5px;
-background-image: url(:/16x16/icons/16x16/cil-transfer.png);
-background-position: left center;
-background-repeat: no-repeat;</string>
-                               </property>
-                               <property name="placeholderText">
-                                <string>Replace</string>
                                </property>
                               </widget>
                              </item>
@@ -2033,6 +2088,12 @@ border-bottom: 2px solid rgb(33, 37, 43);;
                              </property>
                              <item alignment="Qt::AlignRight">
                               <widget class="QFrame" name="frame_11">
+                               <property name="maximumSize">
+                                <size>
+                                 <width>16777215</width>
+                                 <height>0</height>
+                                </size>
+                               </property>
                                <property name="styleSheet">
                                 <string notr="true"/>
                                </property>
@@ -2082,6 +2143,12 @@ border-bottom: 2px solid rgb(33, 37, 43);;
                                 </item>
                                 <item>
                                  <widget class="QPushButton" name="btn_find_replace">
+                                  <property name="maximumSize">
+                                   <size>
+                                    <width>0</width>
+                                    <height>16777215</height>
+                                   </size>
+                                  </property>
                                   <property name="text">
                                    <string>Find and Replace</string>
                                   </property>
@@ -2124,61 +2191,6 @@ border-bottom: 2px solid rgb(33, 37, 43);;
                                 <property name="bottomMargin">
                                  <number>0</number>
                                 </property>
-                                <item>
-                                 <widget class="QPushButton" name="btn_insert_chapter">
-                                  <property name="text">
-                                   <string>Chapter</string>
-                                  </property>
-                                  <property name="icon">
-                                   <iconset resource="files.qrc">
-                                    <normaloff>:/16x16/icons/16x16/cil-notes.png</normaloff>:/16x16/icons/16x16/cil-notes.png</iconset>
-                                  </property>
-                                 </widget>
-                                </item>
-                                <item>
-                                 <widget class="QPushButton" name="btn_insert_testcase">
-                                  <property name="text">
-                                   <string>Testcase</string>
-                                  </property>
-                                  <property name="icon">
-                                   <iconset resource="files.qrc">
-                                    <normaloff>:/16x16/icons/16x16/cil-task.png</normaloff>:/16x16/icons/16x16/cil-task.png</iconset>
-                                  </property>
-                                 </widget>
-                                </item>
-                                <item>
-                                 <widget class="QPushButton" name="btn_insert_command">
-                                  <property name="text">
-                                   <string>Command</string>
-                                  </property>
-                                  <property name="icon">
-                                   <iconset resource="files.qrc">
-                                    <normaloff>:/16x16/icons/16x16/cil-code.png</normaloff>:/16x16/icons/16x16/cil-code.png</iconset>
-                                  </property>
-                                 </widget>
-                                </item>
-                                <item>
-                                 <widget class="QPushButton" name="btn_comment_uncomment">
-                                  <property name="text">
-                                   <string>(Un)comment</string>
-                                  </property>
-                                  <property name="icon">
-                                   <iconset resource="files.qrc">
-                                    <normaloff>:/16x16/icons/16x16/cil-comment-bubble.png</normaloff>:/16x16/icons/16x16/cil-comment-bubble.png</iconset>
-                                  </property>
-                                 </widget>
-                                </item>
-                                <item>
-                                 <widget class="QPushButton" name="btn_format_code">
-                                  <property name="text">
-                                   <string>Format</string>
-                                  </property>
-                                  <property name="icon">
-                                   <iconset resource="files.qrc">
-                                    <normaloff>:/16x16/icons/16x16/cil-align-right.png</normaloff>:/16x16/icons/16x16/cil-align-right.png</iconset>
-                                  </property>
-                                 </widget>
-                                </item>
                                </layout>
                               </widget>
                              </item>

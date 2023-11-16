@@ -5,34 +5,12 @@ import subprocess
 import os
 
 
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QSettings, QRunnable, QThreadPool
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QSettings, QRunnable, QThreadPool, QTimer
 
 SW_MINIMIZE = 6
 SW_HIDE = 0
 
-
-
-def create_dxl_command(sys_module_path, columns_names):
-    """
-    COMMAND FOR XPENG/LIXIANG SYDESIGN, SYRS
-    """
-
-    dxl_columns_string = b''
-    for c in columns_names:
-        dxl_columns_string += b'''"<ATTRIBUTE>" o."''' + bytes(c, 'utf-8') + b'''"'''
-
-    sys_dxl_command = b'''
-                Object o
-                string s = ""
-                Module m = read("''' + bytes(sys_module_path, 'utf-8') + b'''", false)
-                for o in all(m) do {
-                  s = s "<REQUIREMENT>" identifier(o)''' + dxl_columns_string + b'''"\n"
-                }
-                return_ s
-                '''
-    return sys_dxl_command
-
-
+dxl_file = "doors_downloader.dxl"
 
 
 def create_time_stamp():
@@ -40,26 +18,114 @@ def create_time_stamp():
     return time.strftime("%d %B %Y %H:%M", t)
 
 
-def create_req_list(sys_string):
+def _create_dxl_columns_string(module_columns: list) -> str:
+    return ''.join(['"<<<COLUMN>>>"o."' + column + '"' for column in module_columns])
+
+
+
+def _create_dxl_query(
+    module_path: str,
+    module_columns: list[str],):
+    dxl_query = r'''
+    
+    m = read("''' + str(module_path) + r'''",true)
+
+    b = getMostRecentBaseline(m)
+
+    module_name = name m
+    module_path = path m
+    out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
+    out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
+
+    for as in m do
+    { 
+        out << "<<<ATTRIBUTE>>>" as 
+    }
+
+    for o in entire(m) do {
+        out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading"''' + _create_dxl_columns_string(module_columns) + r'''""
+        for outLink in (o -> "*") do {
+            out << "<<<OUTLINK>>>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) ""         
+        }
+        for lrIn in each (o <- "*") do {            
+            out << "<<<INLINK>>>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "" 
+        }        
+    }
+
+    '''
+    return dxl_query
+
+
+
+# def _create_dxl_query(
+#     module_path: str,
+#     module_columns: list[str],):
+#     dxl_query = r'''
+    
+#     m = read("''' + str(module_path) + r'''",true)
+
+#     b = getMostRecentBaseline(m)
+
+#     module_name = name m
+#     module_path = path m
+#     out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
+#     out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
+
+#     Module mBaseline = load (m, getMostRecentBaseline(m, false), false)
+
+#     for as in m do
+#     { 
+#         out << "<<<ATTRIBUTE>>>" as 
+#     }
+
+#     for o in entire(mBaseline) do {
+#         out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading"''' + _create_dxl_columns_string(module_columns) + r'''""
+#         for outLink in (o -> "*") do {
+#             out << "<<<OUTLINK>>>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) ""         
+#         }
+#         for lrIn in each (o <- "*") do {            
+#             out << "<<<INLINK>>>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "" 
+#         }        
+#     }
+
+#     '''
+#     return dxl_query
+
+
+
+def _create_dxl_script(module_paths:list[str], module_columns:list[list]):
+    dxl_header = r"""
+    // Turn off runlimit for timing
+    pragma encoding,"utf-8"
+    pragma runLim,0
+
+    string file_location = "doors/doors_output.txt"
+
+    // Open stream
+    Stream out = write file_location
+    Object o
+    Link outLink
+    LinkRef lrIn
+    Module m
+    Baseline b
+    string module_name
+    AttrDef ad
+    string as 
     """
-    extract data from STRING which is received from DOORS
-    :return: sys_rs(ad_func)(ad_tech)_dictionary according to input parameter
 
-    format: [ [r_ID, Text, ... , ... ], ... ]
-    """
+    content = ""
 
-    # SPLIT TEXT ACCORDING TO WORD <REQUIREMENT>
-    sys_requirements = sys_string.split('<REQUIREMENT>')
+    for i in range(len(module_paths)):
+        content += _create_dxl_query(module_paths[i], module_columns[i])
+        content += "\n"
 
-    # CREATE LIST
-    sys_list = []
 
-    # FILL LIST WITH SUBLISTS WHERE SUBLIST HAS FORMAT [Object_Identifier, Object_Text, Custom_Column2, Custom_Column3, ...]
-    for r in sys_requirements[1:]:
-        r_list = r.split('<ATTRIBUTE>')
-        sys_list.append(r_list)
 
-    return sys_list
+    return dxl_header + content
+
+
+
+
 
 
 
@@ -70,18 +136,18 @@ class DoorsConnection(QObject):
     send_progress_status = pyqtSignal(bool, str)
 
     # SET PATH TO BATCH SERVER
-    my_app_directory = os.getcwd()
-    batchserver_path = str(my_app_directory) + r'\doors\batchserver.dxl'
+    # my_app_directory = os.getcwd()
+    # batchserver_path = str(my_app_directory) + r'\doors\batchserver.dxl'
 
-    def __init__(self, requirement_node, req_path, columns_names, data_manager, password):
+    def __init__(self, requirement_node, paths: list, columns_names: list, data_manager, password):
         super().__init__()
 
         self.data_manager = data_manager
 
-        self.req_path = req_path
+        self.paths = paths
         self.columns_names = columns_names
 
-        self.send_downloaded_requirements.connect(requirement_node.receive_data_from_doors)
+        self.send_downloaded_requirements.connect(data_manager.receive_data_from_doors)
         self.send_progress_status.connect(data_manager.update_progress_status)
 
         self.settings = QSettings(r'.\app_config.ini', QSettings.IniFormat)
@@ -91,7 +157,7 @@ class DoorsConnection(QObject):
         # self.user_passwd = self.settings_doors.value('doors_user_passwd')
         self.user_passwd = password
 
-        self.cmd = fr'{self.app_path} -data "{self.database_path}" -u "{self.user_name}" -P "{self.user_passwd}" -batch "{self.batchserver_path}" '
+        self.cmd = fr'{self.app_path} -data "{self.database_path}" -u "{self.user_name}" -P "{self.user_passwd}" -batch "{dxl_file}"'
 
         # self.start_doors()
 
@@ -102,87 +168,71 @@ class DoorsConnection(QObject):
         # THREADS CONFIGURATION
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(1)
-        worker = Worker(self)
+        worker = Worker(self, paths, columns_names)
         self.threadpool.start(worker)
 
         print(self.database_path)
-        print(self.req_path)
+        print(self.paths)
+
+        self.percentage = 0
+
+        self.timer = QTimer()
+        if len(self.paths) > 1:
+            self.timer.start(3500)
+        else:
+            self.timer.start(3000)
+        
+
+        self.timer.timeout.connect(self.update_percentage)
+
+
+
+    # def __del__(self):
+    #     self.process.
+    #     subprocess
 
 
 
 
-    def start_doors_client(self):
-        info = subprocess.STARTUPINFO()
-        info.dwFlags = subprocess.STARTF_USESHOWWINDOW
-        info.wShowWindow = SW_HIDE
-        self.my_process = subprocess.Popen(self.cmd, startupinfo=info)
+
+    def update_percentage(self):
+        if self.percentage < 100:
+            self.percentage += 1
+            self.send_progress_status.emit(True,f"Downloading requirements: {self.percentage}%")
+        else:
+            self.send_progress_status.emit(True,f"Downloading requirements: {self.percentage}%, updating data...")
 
 
-    def establish_connection(self):
-        for i in range(5, 0, -1):
-            try:
-                time.sleep(15)
-                self.send_progress_status.emit(True, f'Connecting to {self.database_path}...')
-                print(' Connecting to IBM Rational Doors...')
-                self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self.socket.connect(("127.0.0.1", 5093))
-                break
-            except:
-                if i > 1:
-                    print(f' Connecting failed, waiting for another attempt ({i-1} remaining)...')
-                    self.send_progress_status.emit(True, f' Connecting failed, waiting for another attempt ({i-1} remaining)...')
-                else:
-                    print("Licensed number of Doors users already reached!")
-                    self.send_progress_status.emit(True, "Licensed number of Doors users already reached!")
-                    time.sleep(10)
-                    self.send_progress_status.emit(False,"")
+
+    def create_and_run_dxl_script(
+        self,
+        module_paths: list[str],
+        module_columns: list[list[str]],):
+
+
+
+        file_content = _create_dxl_script(module_paths, module_columns)
+        # print(file_content)
+
+        with open(dxl_file, 'w', encoding='utf8') as new_dxl_file:
+            new_dxl_file.write(file_content)
             
-
-
-    def download_requirements(self, dxl_command, text):
-
-        self.socket.send(dxl_command)
-        print(f' Downloading requirements: {text}...')
-        self.send_progress_status.emit(True, f' Downloading requirements: {text}...')
-        result = self.socket.recv(9999999)
-        # print(result.decode("utf-8"))
-
-        print(f' Updating requirements: {text} ...')
-        self.send_progress_status.emit(True, f' Updating requirements: {text}...')
-
-        f = open(f"doors/{text}.txt", "w", encoding='utf-8')
-        f.write(result.decode("utf-8"))
-        f.close()
-
-        if result.decode("utf-8") == "":
-            self.send_progress_status.emit(True, 'No Data received, please check Module Path / Column Names.')
-            time.sleep(20)
-            self.send_progress_status.emit(False,"")
-        return result.decode("utf-8")
-
-
-    def close_connection(self):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect(("127.0.0.1", 5093))
-        self.socket.send(b"quit_")
-        self.socket.close()
-        self.send_progress_status.emit(True, 'Requirements data have been updated.')
-        time.sleep(15)
-        self.send_progress_status.emit(False,"")
-
-    def kill_doors_client(self):
-        self.my_process.kill()
-
-
-    def run(self):
-
-        dxl_cmd = create_dxl_command(self.req_path, self.columns_names)
-        self.establish_connection()
-        received_string = self.download_requirements(dxl_cmd, self.req_path.split('/')[-1])
-        req_list = create_req_list(received_string)
+        self.process = subprocess.call(self.cmd, shell=False)  
 
         timestamp = create_time_stamp()
-        self.send_downloaded_requirements.emit(req_list, timestamp)
+        try:
+            with open("doors/doors_output.txt") as f:
+                doors_string = f.read()
+            self.send_downloaded_requirements.emit(doors_string, timestamp)
+
+            self.send_progress_status.emit(False,"")
+        except Exception as e:
+            with open(f"error_{timestamp}.log", "w") as log:
+                log.write("create_and_run_dxl_script ERROR:  " + str(e))
+                
+
+
+
 
 
 
@@ -190,23 +240,25 @@ class DoorsConnection(QObject):
 
 
 class Worker(QRunnable):
-    def __init__(self, doors_connection):
+    def __init__(self, doors_connection, paths, columns):
         super().__init__()
         self.doors_connection = doors_connection
+        self.paths = paths
+        self.columns = columns
 
     @pyqtSlot()
     def run(self):
         print("Thread start - Connecting to Doors")
         try:
-            self.doors_connection.start_doors_client()
-            self.doors_connection.run()
-            self.doors_connection.close_connection()
+
+            self.doors_connection.create_and_run_dxl_script(self.paths, self.columns)
+
             
         except Exception as e:
             print(e)
 
-        finally:
-            self.doors_connection.kill_doors_client()
+        # finally:
+        #     self.doors_connection.kill_doors_client()
 
             
 

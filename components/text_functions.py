@@ -25,21 +25,21 @@ def get_word_under_cursor(text_cursor):
     while not is_start_of_word:
         if text_cursor.atStart() or text_cursor.atBlockStart():
             is_start_of_word = True
-            print("prdel")
+            # print("prdel")
         
         
         text_cursor.movePosition(QTextCursor.PreviousCharacter, QTextCursor.KeepAnchor)
 
         if text_cursor.atStart() or text_cursor.atBlockStart():
             is_start_of_word = True
-            print("prdel2")
+            # print("prdel2")
 
-        if text_cursor.selectedText().startswith((" ", "\n", "\t", "=", ",", '"', "(", ")")):
+        if text_cursor.selectedText().startswith((" ", "\n", "\t", "=", ",", '"', "(", ")", " ")):
             is_start_of_word = True
             text_cursor.movePosition(QTextCursor.NextCharacter, QTextCursor.KeepAnchor)
-            print("prdel3")
+            # print("prdel3")
             break
 
-    print("SelectedText:::" ,text_cursor.selectedText())
+    # print("SelectedText:::" ,text_cursor.selectedText())
 
     return text_cursor.selectedText()

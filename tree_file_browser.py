@@ -12,11 +12,11 @@ from vda_normaliser.vda_normaliser import normalise_file
 
 
 
-class IconProvider(QFileIconProvider):
-    def icon(self, file_info):
-        if file_info.isDir():
-            return (QIcon(u"ui/icons/16x16/cil-folder.png"))
-        return QFileIconProvider.icon(self, file_info)
+# class IconProvider(QFileIconProvider):
+#     def icon(self, file_info):
+#         if file_info.isDir():
+#             return (QIcon(u"ui/icons/16x16/cil-folder.png"))
+#         return QFileIconProvider.icon(self, file_info)
 
 
 
@@ -62,7 +62,7 @@ class FileSystemView(QWidget, Ui_Form):
 
         self.model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot | QDir.Files | QDir.AllEntries)
 
-        self.model.setNameFilters(['*.par','*.a2l', '*.con', '*.py', '*.xml', '*.map'])
+        self.model.setNameFilters(['*.par','*.a2l', '*.con', '*.py', '*.xml', '*.map', '*.txt'])
         self.model.setNameFilterDisables(False)
 
         ################## UI TREEVIEW ###########################
@@ -162,31 +162,6 @@ class FileSystemView(QWidget, Ui_Form):
             self.send_data_to_model.connect(self.main_window.data_manager.receive_data_from_drop_or_file_manager)
             self.is_data_manager_connected = True
 
-
-        # window_position = self.main_window.pos()
-        # window_height = self.main_window.height()
-        # window_width = self.main_window.width()
-
-        # tooltip_position = window_position
-
-        # tooltip_position.setX(tooltip_position.x() + 10)
-        # tooltip_position.setY(tooltip_position.y() + window_height -200)
-        # tooltip_width = len(path)*10
-        # tooltip_content = f"""
-        #         <html>
-        #         <table height="30" width="{tooltip_width}">
-        #         <tr>
-        #         <center><img src="ui/icons/info.png"</center>
-        #         </tr>
-        #         <tr>
-        #             <td><center>File <font color=lightblue>{path}</font> has been sent to model.</center></td>
-        #         </tr>
-        #         </table>
-        #         </html>
-        # """    
-
-        # # self.main_window.show_tooltip(tooltip_content)
-        # QToolTip.showText(tooltip_position, tooltip_content)
 
         data = {}
 

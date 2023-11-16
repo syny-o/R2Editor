@@ -82,7 +82,7 @@ class HandleTestcaseNumbers:
                 if tc_object["start"] > for_object["start"] and tc_object["end"] < for_object["end"]:
                     tc_object["dimension"] *= for_object["dimension"]
 
-        print("TC objects: ", self.testcase_objects)
+        # print("TC objects: ", self.testcase_objects)
 
 
 
@@ -189,7 +189,7 @@ class TextFormatter:
                     continue
                 else:
                     skipped_header = True
-                    print(current_line)
+                    # print(current_line)
 
             # skip empty lines
             if current_line == "": 
@@ -346,7 +346,7 @@ def add_new_line_indent(text_edit):
     stripped_line_text = line_text.lstrip()
     difference = len(line_text) - len(stripped_line_text)
     whitespace = line_text[:difference]
-    print(whitespace)
+    # print(whitespace)
     tc.insertText('\r')
     line_text = tc.block().text()
     if line_text.strip() == '':

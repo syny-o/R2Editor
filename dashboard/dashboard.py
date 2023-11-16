@@ -1,5 +1,7 @@
+from pathlib import Path
+
 from PyQt5.QtWidgets import QWidget, QFileDialog, QListWidget, QInputDialog, QListWidgetItem
-from PyQt5.QtCore import Qt, pyqtSignal, QSettings
+from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QIcon
 from ui.ui_dashboard import Ui_Form
 
@@ -50,11 +52,19 @@ class Dashboard(QWidget, Ui_Form):
 
 
     def open_project(self):
-        project_path = self.ui_lw_projects.currentItem().data(Qt.DisplayRole)
+        project_path = Path(self.ui_lw_projects.currentItem().data(Qt.DisplayRole))
+        project_name = project_path.name
+        
+        self.main_window.show_notification(f"Loading {project_name}...")  
+        QTimer.singleShot(500, lambda: self.trigger_opening_project())
+             
+        
+
+
+    def trigger_opening_project(self):
+        project_path = self.ui_lw_projects.currentItem().data(Qt.DisplayRole) 
         self.main_window.open_project.emit(project_path)
-        self.main_window.opened_project_path = project_path
-        self.main_window.update_title()
-        self.main_window.manage_right_menu(self.main_window.data_manager, self.main_window.ui_btn_data_manager)
+        self.main_window.manage_right_menu(self.main_window.data_manager, self.main_window.ui_btn_data_manager)        
 
     def remove_project(self):
         project_path = self.ui_lw_projects.currentItem().data(Qt.DisplayRole)

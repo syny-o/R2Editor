@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>701</width>
-    <height>347</height>
+    <width>941</width>
+    <height>886</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,11 +35,16 @@
    <item>
     <widget class="QFrame" name="frame_global">
      <property name="styleSheet">
-      <string notr="true">
+      <string notr="true">QWidget{
+font-size: 16px;
+background-color: rgb(58, 89, 245);
+border-color: rgb(200, 200, 200);
+}
 
 QFrame, QPushButton, QLineEdit, QComboBox, QCheckBox{
-	background-color: rgb(27, 29, 35);
+	background-color: rgb(58, 89, 245);
 	color: rgb(200, 200, 200);
+
 }
 
 QPushButton {	
@@ -65,8 +70,7 @@ QPushButton:checked {
 
 QLineEdit, QListWidget, QComboBox{
 	padding: 5;
-	background-color: rgb(39, 44, 54);
-	border: 1px solid rgb(100, 100, 100);
+
 }
  QCheckBox{
 	padding: 5;
@@ -83,8 +87,23 @@ QLineEdit, QListWidget, QComboBox{
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_5">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
-       <widget class="QFrame" name="frame_heading">
+       <widget class="QFrame" name="uiFrameTitleBar">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -92,46 +111,16 @@ QLineEdit, QListWidget, QComboBox{
          </sizepolicy>
         </property>
         <property name="styleSheet">
-         <string notr="true">QFrame, QPushButton, QLineEdit{
-	background-color: rgb(27, 29, 35);
-	color: rgb(200, 200, 200);
-}
-
-QPushButton {	
-	border: none;
-	padding: 5;
-	width: 50px;
-	background-color: rgb(39, 44, 54);
-
-}
-QPushButton:hover {
-	background-color: rgb(33, 37, 43);
-
-}
-QPushButton:pressed {	
-	background-color: rgb(85, 170, 255);
-
-}
-
-QPushButton:checked {	
-	background-color: rgb(85, 170, 255);
-
-}
-
-QLineEdit, QListWidget{
-	padding: 5;
-	background-color: rgb(39, 44, 54);
-	border: 1px solid rgb(100, 100, 100);
-}
-
-
-</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
+        </property>
+        <property name="lineWidth">
+         <number>0</number>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <property name="spacing">
@@ -157,10 +146,10 @@ QLineEdit, QListWidget{
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="maximumSize">
+           <property name="minimumSize">
             <size>
-             <width>16777215</width>
-             <height>20</height>
+             <width>0</width>
+             <height>40</height>
             </size>
            </property>
            <property name="styleSheet">
@@ -180,6 +169,9 @@ QPushButton:pressed {
            </property>
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
+           </property>
+           <property name="lineWidth">
+            <number>0</number>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <property name="spacing">
@@ -231,18 +223,19 @@ QPushButton:pressed {
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>30</width>
+                   <width>0</width>
                    <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>0</width>
+                   <height>16777215</height>
                   </size>
                  </property>
                  <property name="font">
                   <font>
-                   <family>ZF Serif</family>
-                   <pointsize>12</pointsize>
-                   <weight>75</weight>
-                   <italic>true</italic>
-                   <bold>true</bold>
-                   <strikeout>false</strikeout>
+                   <pointsize>-1</pointsize>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -275,7 +268,7 @@ QPushButton:pressed {
                 <number>0</number>
                </property>
                <property name="leftMargin">
-                <number>0</number>
+                <number>15</number>
                </property>
                <property name="topMargin">
                 <number>0</number>
@@ -296,8 +289,7 @@ QPushButton:pressed {
                  </property>
                  <property name="font">
                   <font>
-                   <weight>75</weight>
-                   <bold>true</bold>
+                   <pointsize>-1</pointsize>
                   </font>
                  </property>
                  <property name="text">
@@ -311,16 +303,25 @@ QPushButton:pressed {
             <item alignment="Qt::AlignRight">
              <widget class="QFrame" name="frame_close">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>45</width>
+                <height>16777215</height>
+               </size>
               </property>
               <property name="frameShape">
                <enum>QFrame::StyledPanel</enum>
               </property>
               <property name="frameShadow">
                <enum>QFrame::Raised</enum>
+              </property>
+              <property name="lineWidth">
+               <number>0</number>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_5">
                <property name="spacing">
@@ -348,14 +349,8 @@ QPushButton:pressed {
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>20</width>
-                   <height>16777215</height>
+                   <width>45</width>
+                   <height>45</height>
                   </size>
                  </property>
                  <property name="toolTip">
@@ -369,7 +364,13 @@ QPushButton:pressed {
                  </property>
                  <property name="icon">
                   <iconset resource="files.qrc">
-                   <normaloff>:/16x16/icons/16x16/cil-x.png</normaloff>:/16x16/icons/16x16/cil-x.png</iconset>
+                   <normaloff>:/20x20/icons/20x20/cil-x.png</normaloff>:/20x20/icons/20x20/cil-x.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -397,7 +398,22 @@ QPushButton:pressed {
          <enum>QFrame::Raised</enum>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item alignment="Qt::AlignTop">
           <widget class="QFrame" name="frame_subcontent">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -430,7 +446,7 @@ QPushButton:pressed {
                   </size>
                  </property>
                  <property name="text">
-                  <string>Find:</string>
+                  <string/>
                  </property>
                  <property name="pixmap">
                   <pixmap resource="files.qrc">:/16x16/icons/16x16/cil-magnifying-glass.png</pixmap>
@@ -441,7 +457,11 @@ QPushButton:pressed {
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="ui_le_original_string"/>
+                <widget class="QLineEdit" name="ui_le_original_string">
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                </widget>
                </item>
               </layout>
              </widget>
@@ -469,7 +489,11 @@ QPushButton:pressed {
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="ui_le_new_string"/>
+                <widget class="QLineEdit" name="ui_le_new_string">
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                </widget>
                </item>
               </layout>
              </widget>
@@ -495,6 +519,9 @@ QPushButton:pressed {
                  <property name="text">
                   <string>Whole Words</string>
                  </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
                 </widget>
                </item>
               </layout>
@@ -503,10 +530,16 @@ QPushButton:pressed {
             <item>
              <widget class="QFrame" name="frame">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>300</height>
+               </size>
               </property>
               <property name="frameShape">
                <enum>QFrame::StyledPanel</enum>
@@ -533,8 +566,8 @@ QPushButton:pressed {
                   <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:16px; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8.25pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                 </widget>
                </item>
@@ -548,7 +581,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item alignment="Qt::AlignRight">
-       <widget class="QFrame" name="frame_bottom_buttons_2">
+       <widget class="QFrame" name="uiFrameStatusBar">
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
         </property>
@@ -557,14 +590,20 @@ p, li { white-space: pre-wrap; }
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_12">
          <item>
-          <widget class="QPushButton" name="ui_btn_run">
+          <widget class="QPushButton" name="uiBtnOK">
            <property name="text">
             <string>Run</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="ui_btn_close">
+          <widget class="QPushButton" name="uiBtnClose">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Close</string>
            </property>

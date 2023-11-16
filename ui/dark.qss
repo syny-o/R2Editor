@@ -60,7 +60,7 @@ QScrollBar::down-arrow:horizontal
 QScrollBar:vertical
 {
     background-color: #2A2929;
-    width: 7px;
+    width: 10px;
     margin: 1.5ex 0.3ex 1.5ex 0.3ex;
     border: 0.1ex transparent #2A2929;
     border-radius: 0.4ex;
@@ -71,7 +71,7 @@ QScrollBar::handle:vertical
     background-color: #3daee9;
     min-height: 0.5ex;
     border-radius: 0.4ex;
-    width: 7px;
+    width: 10px;
     background-color: rgb(58, 89, 245);
     /* background-color: rgb(50, 50, 50); */
 }

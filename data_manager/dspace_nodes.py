@@ -29,8 +29,11 @@ class DspaceFileNode(QStandardItem):
 
         self.file_2_tree()
 
+        self.is_modified = False
+
 
     def set_modified(self, modified):
+        self.is_modified = modified
         if modified:
             self.setIcon(QIcon(u"ui/icons/modified_file.png"))
         else:

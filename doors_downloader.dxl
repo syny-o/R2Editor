@@ -1,0 +1,314 @@
+
+    // Turn off runlimit for timing
+    pragma encoding,"utf-8"
+    pragma runLim,0
+
+    string file_location = "doors/doors_output.txt"
+
+    // Open stream
+    Stream out = write file_location
+    Object o
+    Link outLink
+    LinkRef lrIn
+    Module m
+    Baseline b
+    string module_name
+    AttrDef ad
+    string as 
+    
+    
+    m = read("/EPB Chrysler MY24 DT Tailor/02 System Specifications/01 System Requirements/SyRS",true)
+
+    b = getMostRecentBaseline(m)
+
+    module_name = name m
+    module_path = path m
+    out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
+    out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
+
+    for as in m do
+    { 
+        out << "<<<ATTRIBUTE>>>" as 
+    }
+
+    for o in entire(m) do {
+        out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading""<<<COLUMN>>>"o."Object Text_DXL""<<<COLUMN>>>"o."Object Text""<<<COLUMN>>>"o."010_Object Type""<<<COLUMN>>>"o."011_Object State""<<<COLUMN>>>"o."050_Test Department"""
+        for outLink in (o -> "*") do {
+            out << "<<<OUTLINK>>>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) ""         
+        }
+        for lrIn in each (o <- "*") do {            
+            out << "<<<INLINK>>>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "" 
+        }        
+    }
+
+    
+
+    
+    m = read("/EPB Chrysler MY24 DT Tailor/023 System Diagnostic Tables/DMT - PBC",true)
+
+    b = getMostRecentBaseline(m)
+
+    module_name = name m
+    module_path = path m
+    out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
+    out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
+
+    for as in m do
+    { 
+        out << "<<<ATTRIBUTE>>>" as 
+    }
+
+    for o in entire(m) do {
+        out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading""<<<COLUMN>>>"o."TRW DTC Name""<<<COLUMN>>>"o."TRW Func Actuator Apply Left""<<<COLUMN>>>"o."TRW Func Actuator Apply Right""<<<COLUMN>>>"o."TRW Func Actuator Release Left""<<<COLUMN>>>"o."TRW Func Actuator Release Right""<<<COLUMN>>>"o."TRW Func Dynamic Apply RWU""<<<COLUMN>>>"o."TRW Func Auto Adjust""<<<COLUMN>>>"o."TRW Func GDA""<<<COLUMN>>>"o."TRW Func RAR""<<<COLUMN>>>"o."TRW Func HTR""<<<COLUMN>>>"o."TRW Func Rollerbench Apply"""
+        for outLink in (o -> "*") do {
+            out << "<<<OUTLINK>>>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) ""         
+        }
+        for lrIn in each (o <- "*") do {            
+            out << "<<<INLINK>>>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "" 
+        }        
+    }
+
+    
+
+    
+    m = read("/EPB Chrysler MY24 DT Tailor/02 System Specifications/01 System Requirements/VC-EPBi",true)
+
+    b = getMostRecentBaseline(m)
+
+    module_name = name m
+    module_path = path m
+    out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
+    out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
+
+    for as in m do
+    { 
+        out << "<<<ATTRIBUTE>>>" as 
+    }
+
+    for o in entire(m) do {
+        out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading""<<<COLUMN>>>"o."000_Core_Veh-Var""<<<COLUMN>>>"o."Object Text"""
+        for outLink in (o -> "*") do {
+            out << "<<<OUTLINK>>>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) ""         
+        }
+        for lrIn in each (o <- "*") do {            
+            out << "<<<INLINK>>>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "" 
+        }        
+    }
+
+    
+
+    
+    m = read("/EPB Chrysler MY24 DT Tailor/025 System Component Interfaces/PBC-CT",true)
+
+    b = getMostRecentBaseline(m)
+
+    module_name = name m
+    module_path = path m
+    out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
+    out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
+
+    for as in m do
+    { 
+        out << "<<<ATTRIBUTE>>>" as 
+    }
+
+    for o in entire(m) do {
+        out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading""<<<COLUMN>>>"o."011_Object State""<<<COLUMN>>>"o."Object Text"""
+        for outLink in (o -> "*") do {
+            out << "<<<OUTLINK>>>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) ""         
+        }
+        for lrIn in each (o <- "*") do {            
+            out << "<<<INLINK>>>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "" 
+        }        
+    }
+
+    
+
+    
+    m = read("/EPB Chrysler MY24 DT Tailor/025 System Component Interfaces/CT_Datatypes",true)
+
+    b = getMostRecentBaseline(m)
+
+    module_name = name m
+    module_path = path m
+    out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
+    out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
+
+    for as in m do
+    { 
+        out << "<<<ATTRIBUTE>>>" as 
+    }
+
+    for o in entire(m) do {
+        out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading""<<<COLUMN>>>"o."011_Object State""<<<COLUMN>>>"o."100_Minimal Value""<<<COLUMN>>>"o."102_Maximal Value""<<<COLUMN>>>"o."110_Technical Comment""<<<COLUMN>>>"o."Object Text"""
+        for outLink in (o -> "*") do {
+            out << "<<<OUTLINK>>>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) ""         
+        }
+        for lrIn in each (o <- "*") do {            
+            out << "<<<INLINK>>>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "" 
+        }        
+    }
+
+    
+
+    
+    m = read("/EPB Chrysler MY24 DT Tailor/025 System Component Interfaces/SSM_PB-CT",true)
+
+    b = getMostRecentBaseline(m)
+
+    module_name = name m
+    module_path = path m
+    out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
+    out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
+
+    for as in m do
+    { 
+        out << "<<<ATTRIBUTE>>>" as 
+    }
+
+    for o in entire(m) do {
+        out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading""<<<COLUMN>>>"o."011_Object State""<<<COLUMN>>>"o."Object Text"""
+        for outLink in (o -> "*") do {
+            out << "<<<OUTLINK>>>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) ""         
+        }
+        for lrIn in each (o <- "*") do {            
+            out << "<<<INLINK>>>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "" 
+        }        
+    }
+
+    
+
+    
+    m = read("/EPB Chrysler MY24 DT Tailor/02 System Specifications/01 System Requirements/FSC",true)
+
+    b = getMostRecentBaseline(m)
+
+    module_name = name m
+    module_path = path m
+    out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
+    out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
+
+    for as in m do
+    { 
+        out << "<<<ATTRIBUTE>>>" as 
+    }
+
+    for o in entire(m) do {
+        out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading""<<<COLUMN>>>"o."010_Object Type""<<<COLUMN>>>"o."011_Object State""<<<COLUMN>>>"o."Object Text"""
+        for outLink in (o -> "*") do {
+            out << "<<<OUTLINK>>>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) ""         
+        }
+        for lrIn in each (o <- "*") do {            
+            out << "<<<INLINK>>>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "" 
+        }        
+    }
+
+    
+
+    
+    m = read("/EPB Chrysler MY24 DT Tailor/021 System Interface Table/SIT",true)
+
+    b = getMostRecentBaseline(m)
+
+    module_name = name m
+    module_path = path m
+    out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
+    out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
+
+    for as in m do
+    { 
+        out << "<<<ATTRIBUTE>>>" as 
+    }
+
+    for o in entire(m) do {
+        out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading""<<<COLUMN>>>"o."Object Text"""
+        for outLink in (o -> "*") do {
+            out << "<<<OUTLINK>>>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) ""         
+        }
+        for lrIn in each (o <- "*") do {            
+            out << "<<<INLINK>>>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "" 
+        }        
+    }
+
+    
+
+    
+    m = read("/EPB Chrysler MY24 DT Tailor/02 System Specifications/02 System Design/TSC",true)
+
+    b = getMostRecentBaseline(m)
+
+    module_name = name m
+    module_path = path m
+    out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
+    out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
+
+    for as in m do
+    { 
+        out << "<<<ATTRIBUTE>>>" as 
+    }
+
+    for o in entire(m) do {
+        out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading""<<<COLUMN>>>"o."010_Object Type""<<<COLUMN>>>"o."011_Object State""<<<COLUMN>>>"o."Object Text"""
+        for outLink in (o -> "*") do {
+            out << "<<<OUTLINK>>>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) ""         
+        }
+        for lrIn in each (o <- "*") do {            
+            out << "<<<INLINK>>>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "" 
+        }        
+    }
+
+    
+
+    
+    m = read("/EPB Chrysler MY24 DT Tailor/025 System Component Interfaces/ESS-CT",true)
+
+    b = getMostRecentBaseline(m)
+
+    module_name = name m
+    module_path = path m
+    out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
+    out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
+
+    for as in m do
+    { 
+        out << "<<<ATTRIBUTE>>>" as 
+    }
+
+    for o in entire(m) do {
+        out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading""<<<COLUMN>>>"o."Object Text"""
+        for outLink in (o -> "*") do {
+            out << "<<<OUTLINK>>>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) ""         
+        }
+        for lrIn in each (o <- "*") do {            
+            out << "<<<INLINK>>>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "" 
+        }        
+    }
+
+    
+
+    
+    m = read("/EPB Chrysler MY24 DT Tailor/02 System Specifications/02 System Design/SyDesign",true)
+
+    b = getMostRecentBaseline(m)
+
+    module_name = name m
+    module_path = path m
+    out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
+    out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
+
+    for as in m do
+    { 
+        out << "<<<ATTRIBUTE>>>" as 
+    }
+
+    for o in entire(m) do {
+        out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading""<<<COLUMN>>>"o."050_Test Department""<<<COLUMN>>>"o."840_Responsible Stakeholder""<<<COLUMN>>>"o."011_DXL_Object State""<<<COLUMN>>>"o."011_Object State""<<<COLUMN>>>"o."010_Object Type""<<<COLUMN>>>"o."820_EPBi Variant""<<<COLUMN>>>"o."Object Text""<<<COLUMN>>>"o."Object Text_DXL"""
+        for outLink in (o -> "*") do {
+            out << "<<<OUTLINK>>>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) ""         
+        }
+        for lrIn in each (o <- "*") do {            
+            out << "<<<INLINK>>>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "" 
+        }        
+    }
+
+    

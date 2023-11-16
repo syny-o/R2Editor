@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QToolBar, QVBoxLayout, QHBoxLayout, QTextEdit, QTreeView, QLineEdit
 from PyQt5.QtGui import QIcon, QScreen, QPalette, QColor
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, QSize
 
 
 class DataManagerWidget(QWidget):
@@ -42,8 +42,16 @@ class DataManagerWidget(QWidget):
 
 
 
-    def create_layout(self):        
-        self.layout_global = QHBoxLayout()  
+    def create_layout(self):  
+        btn = QPushButton(QIcon(u"ui/icons/20x20/cil-x.png"), "")
+        btn.setCursor(Qt.PointingHandCursor)
+        btn.clicked.connect(self.close)
+        btn.setStyleSheet("color: rgb(200, 200, 200); font-size: 16px; margin-top: 5px; margin-left: 5px;")
+
+        toolbar = QToolBar()
+        toolbar.addWidget(btn)      
+        self.layout_global = QVBoxLayout()  
+        self.layout_global.addWidget(toolbar)
         self.layout_global.setContentsMargins(1,1,1,1)
 
 

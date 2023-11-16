@@ -24,7 +24,7 @@ from dashboard.dashboard import Dashboard
 from dialogs.window_project_config import ProjectConfig
 from dialogs.window_settings import AppSettings
 from dialogs.form_find_replace import FindAndReplace
-from dialogs.dialog_recent_projects import RecentProjects
+# from dialogs.dialog_recent_projects import RecentProjects
 
 from components.pyqt_find_text_widget.findTextWidget import FindTextWidget
 from components.pyqt_find_text_widget.findReplaceTextWidget import FindReplaceTextWidget
@@ -47,7 +47,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QMainWindow.__init__(self)
         self.setupUi(self)
 
-        self.resize(1600, 800)
+        self.resize(1920, 1080)
 
         self.setWindowIcon(QIcon('R2Editor.ico'))
         self.setWindowTitle("R2Editor")
@@ -64,7 +64,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.palette.setColor(QPalette.WindowText, QColor(200, 200, 200))
         self.setPalette(self.palette)
         
-        QSizeGrip(self.frame_size_grip)
+        # QSizeGrip(self.frame_size_grip)
 
         ## HIDE NOT-WORKING UI COMPONENTS
         # self.btn_project_recent.setVisible(False)
@@ -88,19 +88,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_script_save.clicked.connect(self.file_save)
         self.btn_script_save.setShortcut('Ctrl+s')
         self.btn_script_save_as.clicked.connect(self.file_save_as)
+        self.btn_script_open.clicked.connect(self.file_open_from_dialog)
         self.btn_insert_chapter.clicked.connect(self.insert_chapter)
-        self.btn_insert_chapter.setShortcut('Ctrl+Shift+c')
+        self.btn_insert_chapter.setShortcut('Ctrl+Shift+a')
+        self.btn_insert_chapter.setToolTip('Ctrl + Shift + "A"')
         self.btn_insert_testcase.clicked.connect(self.insert_testcase)
         self.btn_insert_testcase.setShortcut('Ctrl+Shift+t')
+        self.btn_insert_testcase.setToolTip('Ctrl + Shift + "T"')
         self.btn_insert_command.clicked.connect(self.insert_command)
-        self.btn_insert_command.setShortcut('Ctrl+Shift+o')
+        self.btn_insert_command.setShortcut('Ctrl+Shift+c')
+        self.btn_insert_command.setToolTip('Ctrl + Shift + "C"')
         self.btn_comment_uncomment.clicked.connect(self.comment_uncomment)
         self.btn_comment_uncomment.setShortcut('Ctrl+/')
+        self.btn_comment_uncomment.setToolTip('Ctrl + "/"')
         self.btn_format_code.clicked.connect(self.format_code)
         self.btn_format_code.setShortcut(('Ctrl+Shift+f'))
         self.btn_lock_unlock.clicked.connect(self.file_lock_unlock)
-        self.btn_find_replace.clicked.connect(self.find_replace)
-        self.btn_find_replace.setShortcut('Ctrl+f')
+        # self.btn_find_replace.clicked.connect(lambda is_pressed: self.find_replace(is_pressed, only_find=False))
+        # self.btn_find_replace.setShortcut('Ctrl+h')
+        # self.btn_find_replace.setToolTip('Ctrl + "H"')
         self.btn_undo.clicked.connect(self.perform_undo)
         self.btn_redo.clicked.connect(self.perform_redo)
         self.btn_zoom_in.clicked.connect(self.font_increase)
@@ -108,55 +114,62 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_zoom_out.clicked.connect(self.font_decrease)
         self.btn_zoom_out.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Minus))        
         self.btn_zoom_default.clicked.connect(self.font_reset)
-        self.btn_zoom_default.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_0))                
+        self.btn_zoom_default.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_0))    
+
+        QShortcut( 'Ctrl+f', self ).activated.connect((lambda: self.find_replace(only_find=True)))            
+        QShortcut( 'Ctrl+h', self ).activated.connect((lambda: self.find_replace(only_find=False)))   
+               
 
         self.frame_file_manager.setVisible(False)
         self.frame_2.setVisible(False)
         self.actual_find_box = None
 
 
+
+
+
         
 
-        def maximize_restore():
-            if self.isMaximized():
-                self.showNormal()
-                self.btn_maximize_restore.setIcon(QIcon(u"ui/icons/16x16/cil-window-maximize.png"))
-            else:
-                self.showMaximized()
-                self.btn_maximize_restore.setIcon(QIcon(u"ui/icons/16x16/cil-window-restore.png"))
+        # def maximize_restore():
+        #     if self.isMaximized():
+        #         self.showNormal()
+        #         self.btn_maximize_restore.setIcon(QIcon(u"ui/icons/16x16/cil-window-maximize.png"))
+        #     else:
+        #         self.showMaximized()
+        #         self.btn_maximize_restore.setIcon(QIcon(u"ui/icons/16x16/cil-window-restore.png"))
 
-        def doubleClickMaximizeRestore(event):
-            # IF DOUBLE CLICK CHANGE STATUS
-            if event.type() == QEvent.MouseButtonDblClick:
-                QTimer.singleShot(50, maximize_restore)                
+        # def doubleClickMaximizeRestore(event):
+        #     # IF DOUBLE CLICK CHANGE STATUS
+        #     if event.type() == QEvent.MouseButtonDblClick:
+        #         QTimer.singleShot(50, maximize_restore)                
 
-        def moveWindow(e):
-            # Detect if the window is  normal size
-            # ###############################################
-            if self.isMaximized() == False: #Not maximized
-                # Move window only when window is normal size
-                # ###############################################
-                #if left mouse button is clicked (Only accept left mouse button clicks)
-                if e.buttons() == Qt.LeftButton:
-                    #Move window
-                    self.move(self.pos() + e.globalPos() - self.clickPosition)
-                    self.clickPosition = e.globalPos()
-                    e.accept()
+        # def moveWindow(e):
+        #     # Detect if the window is  normal size
+        #     # ###############################################
+        #     if self.isMaximized() == False: #Not maximized
+        #         # Move window only when window is normal size
+        #         # ###############################################
+        #         #if left mouse button is clicked (Only accept left mouse button clicks)
+        #         if e.buttons() == Qt.LeftButton:
+        #             #Move window
+        #             self.move(self.pos() + e.globalPos() - self.clickPosition)
+        #             self.clickPosition = e.globalPos()
+        #             e.accept()
 
-        #######################################################################
-        # Add click event/Mouse move event/drag event to the top header to move the window
-        #######################################################################
-        self.frame_top_btns.mouseMoveEvent = moveWindow
-        self.frame_top_btns.mouseDoubleClickEvent = doubleClickMaximizeRestore
-        #######################################################################                
+        # #######################################################################
+        # # Add click event/Mouse move event/drag event to the top header to move the window
+        # #######################################################################
+        # self.frame_top_btns.mouseMoveEvent = moveWindow
+        # self.frame_top_btns.mouseDoubleClickEvent = doubleClickMaximizeRestore
+        # #######################################################################                
 
         ## TOGGLE/BURGUER MENU
         ########################################################################
         self.btn_toggle_menu.clicked.connect(lambda: self.toggle_menu(self.frame_left_menu, 70, 210))
         # self.btn_show_hide_file_manager.clicked.connect(lambda: self.toggleMenu(self.frame_file_manager, 0, 350))
         self.btn_close.clicked.connect(self.close)
-        self.btn_maximize_restore.clicked.connect(maximize_restore)
-        self.btn_minimize.clicked.connect(lambda: self.showMinimized())
+        # self.btn_maximize_restore.clicked.connect(maximize_restore)
+        # self.btn_minimize.clicked.connect(lambda: self.showMinimized())
 
 
 
@@ -178,7 +191,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ################################################################################################################
         # POINTER TO ACTUAL TEXTEDIT, ACTUAL TABS
         ################################################################################################################
-        self.actual_text_edit = None
+        self._actual_text_edit = None
         self.actual_tabs = None
 
         self.opened_project_path = None
@@ -210,11 +223,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.left_tabs.tabCloseRequested.connect(self.left_tab_close_request)
         self.left_tabs.currentChanged.connect(self.left_tab_was_changed)
         self.left_tabs.tabBarClicked.connect(self.left_tab_was_changed)
+        self.left_tabs.currentChanged.connect(self.update_find_replace)
 
         self.right_tabs = Tabs(self, False, 'RIGHT_TABS')
         self.right_tabs.tabCloseRequested.connect(self.right_tab_close_request)
         self.right_tabs.currentChanged.connect(self.right_tab_was_changed)
         self.right_tabs.tabBarClicked.connect(self.right_tab_was_changed)
+        self.right_tabs.currentChanged.connect(self.update_find_replace)
 
         self.tabs_splitter = QSplitter()
         self.tabs_splitter.addWidget(self.left_tabs)
@@ -249,11 +264,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.notification_widget = NotificationWidget(self)
 
+    @property
+    def actual_text_edit(self):
+        return self._actual_text_edit
+
+
+    @actual_text_edit.setter
+    def actual_text_edit(self, text_edit):
+        self._actual_text_edit = text_edit
+     
+
 
     def keyPressEvent(self, e) -> None:
         if e.key() == Qt.Key_Escape:
-            self.find_replace(False)
-            self.btn_find_replace.setChecked(False)
+            # self.find_replace(False)
+            # self.btn_find_replace.setChecked(False)
+            if self.actual_find_box:
+                self.ui_hLayout_findReplace.removeWidget(self.actual_find_box) 
             if self.actual_text_edit:
                 self.actual_text_edit.setFocus()
         return super().keyPressEvent(e)
@@ -278,11 +305,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     #######################################################################
     # Add mouse events to the window
     #######################################################################
-    def mousePressEvent(self, event):
-        # ###############################################
-        # Get the current position of the mouse
-        self.clickPosition = event.globalPos()
-        # For moving window
+    # def mousePressEvent(self, event):
+    #     # ###############################################
+    #     # Get the current position of the mouse
+    #     self.clickPosition = event.globalPos()
+    #     # For moving window
     #######################################################################
     #######################################################################
 
@@ -293,7 +320,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         extended_width = max_width if width == min_width else min_width
         # ANIMATION
         self.animation = QPropertyAnimation(toggled_frame, b"minimumWidth")
-        self.animation.setDuration(400)
+        self.animation.setDuration(300)
         self.animation.setStartValue(width)
         self.animation.setEndValue(extended_width)
         self.animation.setEasingCurve(QEasingCurve.InOutQuart)
@@ -482,29 +509,52 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return opened_files
 
 
+    def file_open_from_dialog(self):
+
+        path, _ = QFileDialog.getOpenFileName(
+            parent=self,
+            caption='Open Script',
+            directory=self.tree_file_browser.current_path,
+            filter=self.filter_script
+        )
+
+        if not path:
+            return
+        else:
+            try:
+                self.file_open_from_tree(path)
+                self.update_title()
+            except Exception as my_exception:
+                dialog_message(self, str(my_exception))        
+
+
+
 
     def file_open_from_tree(self, file_path):
-        file_suffix = Path(file_path).suffix
-        opened_files = self.get_all_opened_files()
-        if file_suffix.lower() in ('.par', '.py', '.con', '.xml', '.a2l', '.map'):
-            if file_path not in opened_files:
-                with open(file_path, 'r') as file_to_open:
-                    text = file_to_open.read()
-                    file_to_open.close()
+        try:
+            file_suffix = Path(file_path).suffix
+            opened_files = self.get_all_opened_files()
+            if file_suffix.lower() in ('.par', '.py', '.con', '.xml', '.txt', '.map'):
+                if file_path not in opened_files:
+                    with open(file_path, 'r') as file_to_open:
+                        text = file_to_open.read()
+                        file_to_open.close()
 
-                tab_name = file_path.split('/')[-1]
-                self.left_tabs.addTab(TextEdit(self, text, file_path), QIcon(u"ui/icons/16x16/cil-file.png"), tab_name)
+                    tab_name = file_path.split('/')[-1]
+                    self.left_tabs.addTab(TextEdit(self, text, file_path), QIcon(u"ui/icons/16x16/cil-file.png"), tab_name)
 
-            else:
-                opened_files[file_path][1].setCurrentWidget(opened_files[file_path][0])
-                self.actual_tabs = opened_files[file_path][1]
-                self.actual_text_edit = opened_files[file_path][0]
-                self.update_actual_information()
+                else:
+                    opened_files[file_path][1].setCurrentWidget(opened_files[file_path][0])
+                    self.actual_tabs = opened_files[file_path][1]
+                    self.actual_text_edit = opened_files[file_path][0]
+                    self.update_actual_information()
+        except Exception as e:
+            dialog_message(self, str(e))
 
 
     
     def find_reference_in_string(self, string):
-        PATTERN_REQ_REFERENCE = re.compile(r'\$REF:\s*"(?P<req_reference>[\w\d,\s\(\)-]+)"\s*\$', re.IGNORECASE)
+        PATTERN_REQ_REFERENCE = re.compile(r'(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*', re.IGNORECASE)
         match_list = PATTERN_REQ_REFERENCE.findall(string)
         # print(match_list)
         references = set()
@@ -526,8 +576,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         missing_references = references_original_text.difference(references_text_to_save)
         new_references = references_text_to_save.difference(references_original_text)
 
-        print("MISSING: ", missing_references)
-        print("NEW: ", new_references)
+        # print("MISSING: ", missing_references)
+        # print("NEW: ", new_references)
 
         if self.data_manager._disk_project_path:
 
@@ -538,19 +588,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 for root_row in range(root.rowCount()):
                     current_file_node = root.child(root_row, 0)
                     if isinstance(current_file_node, RequirementFileNode) and current_file_node.coverage_check:
-                        for req_row in range(current_file_node.rowCount()):
-                            req_item = current_file_node.child(req_row)
-                            if req_item.text().lower() in new_references:
-                                req_item.update_coverage(True)
-                                req_item.file_references.add(file_path)
+
+                        def browse_children(parent_node):
+                    
+                            for row in range(parent_node.rowCount()):
+                                req_item = parent_node.child(row)
+
+                                if req_item.text().lower() in new_references and req_item.is_covered is not None:
+                                    req_item.update_coverage(True)
+                                    req_item.file_references.add(file_path)
+                                    self.show_notification(f"Coverage Updated: {req_item.text()}")
                             
-                            if req_item.text().lower() in missing_references:
-                                if file_path in req_item.file_references:
-                                    req_item.file_references.remove(file_path)
-                                    if not req_item.file_references:
-                                        req_item.update_coverage(False)
+                                if req_item.text().lower() in missing_references and req_item.is_covered is not None:
+                                    if file_path in req_item.file_references:
+                                        req_item.file_references.remove(file_path)
+                                        if not req_item.file_references:
+                                            req_item.update_coverage(False)
+
+                                browse_children(req_item)
+
+
+                        browse_children(current_file_node)
+
+
+
                 
-                self.data_manager.update_data_summary()
+                        self.data_manager.update_data_summary()
                                 
 
 
@@ -565,7 +628,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def file_save(self):
         if self.actual_text_edit:
             if self.app_settings.format_code_when_save:
-                self.format_code()
+                if self.actual_text_edit.file_path is not None:
+                    if Path(self.actual_text_edit.file_path).suffix.lower() in ('.par','.txt'):
+                        self.format_code()
             if self.actual_text_edit.file_path == None:
                 self.file_save_as()
             else:
@@ -705,17 +770,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             try:
                 # REQUEST FOR DATA_CONTROLLER
                 self.open_project.emit(path)
-                self.opened_project_path = path
-                self.update_title()
+                # self.opened_project_path = path
+                # self.update_title()
             except Exception as my_exception:
                 dialog_message(self, str(my_exception))
 
 
 
-
-    def show_recent_projects(self):
-        self.window = RecentProjects(self)
-        self.window.show()                
 
 
 ########################################################################################################################
@@ -751,9 +812,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             text_management.indent_dedent_comment(self.actual_text_edit, variant='comment')
             self.actual_text_edit.setFocus()
 
-    def find_replace(self, is_checked):
+    
+    def update_find_replace(self):
+        if self.ui_hLayout_findReplace.count():
+            self.find_replace(self.actual_find_box.only_find_widget)
+        
+
+
+    
+    def find_replace(self, only_find):
         if not self.actual_text_edit:
-            self.btn_find_replace.setChecked(False)
             return
         
 
@@ -761,40 +829,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.actual_find_box:
                 self.ui_hLayout_findReplace.removeWidget(self.actual_find_box) 
 
-        if is_checked:   
-            # new_find_box = FindTextWidget(self.actual_text_edit)
-            new_find_box = FindReplaceTextWidget(self.actual_text_edit)
-            self.ui_hLayout_findReplace.addWidget(new_find_box)
-            new_find_box.setFocus()
-            self.actual_find_box = new_find_box
-            # self.actual_text_edit.setStyleSheet("selection-background-color: red;")
+
+        # new_find_box = FindTextWidget(self.actual_text_edit)
+        self.new_find_box = FindReplaceTextWidget(self.actual_text_edit)
+        self.ui_hLayout_findReplace.addWidget(self.new_find_box)
+        self.new_find_box.setFocus()
+        self.actual_find_box = self.new_find_box
+        TextEdit.update_ctrl_pressed(False)
+        # self.actual_text_edit.setStyleSheet("selection-background-color: red;")
+
+
+        self.actual_find_box.setOnlyFindTextWidget(only_find)
         
-
-
-
-
-    # def find_text(self, text_to_find):
-    #     if self.actual_text_edit:
-    #         tc = self.actual_text_edit.textCursor()
-    #         self.find_from_index = tc.position()
-    #         text = self.actual_text_edit.toPlainText()
-    #         index = text.lower().find(text_to_find.lower(), self.find_from_index)
-
-    #         if index == -1:
-    #             self.find_from_index = 0
-    #             index = text.lower().find(text_to_find.lower(), self.find_from_index)
-
-
-    #         if index != -1:                
-    #             tc.setPosition(index)
-    #             tc.setPosition(index + len(text_to_find), QTextCursor.KeepAnchor)
-    #             self.actual_text_edit.setTextCursor(tc)
-    #             # self.find_from_index = index
-    #         else:
-    #             dialog_message(self, '\nYou have reached end of Document!', 'Find Text')
-
-
-                
 
 
     def format_code(self):
@@ -812,6 +858,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def perform_undo(self):
         if self.actual_text_edit:
             self.actual_text_edit.undo()
+            self.actual_text_edit.setFocus()
 
     def perform_redo(self):
         if self.actual_text_edit:
@@ -884,6 +931,7 @@ if __name__ == "__main__":
     file.open(QFile.ReadOnly | QFile.Text)
     stream = QTextStream(file)
     app.setStyleSheet(stream.readAll())
+    app.setStyle('Fusion')
     
 
     

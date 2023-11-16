@@ -50,10 +50,10 @@ class FindTextWidget(QWidget):
         self.__prevBtn.setShortcut('Ctrl+Shift+D')
 
         self.__nextBtn = QPushButton()
-        self.__nextBtn.setShortcut('Enter')
+        self.__nextBtn.setShortcut('f3')
         # self.__nextBtn.setIcon('ico/next.svg')
         self.__nextBtn.setIcon(QIcon('ui/icons/16x16/cil-arrow-right.png'))
-        self.__nextBtn.setShortcut('Ctrl+D')
+        self.__nextBtn.setShortcut('F3')
 
         self.__prevBtn.clicked.connect(self.prev)
         self.__nextBtn.clicked.connect(self.next)
@@ -233,7 +233,10 @@ class FindTextWidget(QWidget):
                     else:
                         pass
                 else:
-                    QMessageBox.information(self, 'Notice', 'End of file.')
+                    # QMessageBox.information(self, 'Notice', 'End of file.')
+                    for _ in range(len(self.__selections)-1):
+                        self.prev()
+                    # self.widgetTextChanged()
             else:
                 pos_lst = getPosList()
                 if len(pos_lst) > 0:

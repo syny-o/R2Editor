@@ -69,8 +69,8 @@ class FindReplaceTextWidget(QWidget):
         closeBtn.setToolTip('Close')
 
         lay = QHBoxLayout()
-        lay.addWidget(swapBtn)
-        lay.addWidget(closeBtn)
+        # lay.addWidget(swapBtn)
+        # lay.addWidget(closeBtn)
         lay.setContentsMargins(0, 0, 0, 0)
 
         self.__rightWidget = QWidget()
@@ -104,6 +104,7 @@ class FindReplaceTextWidget(QWidget):
         self.__replaceTextWidget.setLineEdit(find_text)
 
     def setOnlyFindTextWidget(self, f: bool):
+        self.only_find_widget = f
         if self.__findTextWidget.isVisible():
             pass
         else:
@@ -111,7 +112,7 @@ class FindReplaceTextWidget(QWidget):
                 self.__findTextWidget.setVisible(f)
             else:
                 self.__findTextWidget.setVisible(not f)
-        self.__findTextWidget.setCloseBtn(f)
+        # self.__findTextWidget.setCloseBtn(f)
         self.__replaceTextWidget.setVisible(not f)
         self.__rightWidget.setVisible(not f)
 
