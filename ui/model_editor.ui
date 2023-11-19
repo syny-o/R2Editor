@@ -811,7 +811,14 @@ QPushButton:hover{
 
 QTreeView:disabled{
     color: rgb(60,60,60);
-}</string>
+}
+
+QMenu::separator {
+     height: 2px;
+     margin: 2px 5px 2px 4px;
+	background-color: red;
+	color: red;
+ }</string>
          </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>

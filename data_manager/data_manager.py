@@ -93,9 +93,14 @@ class DataManager(QWidget, Ui_Form):
         self.ui_tree_view.customContextMenuRequested.connect(self._context_menu)  
         # CONTEXT MENU ACTIONS:  
 
-        self.action_create_testable_tc_template_with_req_reference = QAction("Create Testable Test Script")
+        self.action_expand_all_children = QAction(QIcon(u"ui/icons/16x16/cil-expand-down.png"), "Expand All Children")
+        self.action_expand_all_children.triggered.connect(self._expand_all_children)
+        self.action_collapse_all_children = QAction(QIcon(u"ui/icons/16x16/cil-expand-up.png"), "Collapse All Children")
+        self.action_collapse_all_children.triggered.connect(self._collapse_all_children)        
+
+        self.action_create_testable_tc_template_with_req_reference = QAction(QIcon(u"ui/icons/16x16/cil-description.png"), "Create Testable Test Script")
         self.action_create_testable_tc_template_with_req_reference.triggered.connect(lambda: self._create_tc_template_with_req_reference(True))
-        self.action_create_not_testable_tc_template_with_req_reference = QAction("Create NOT Testable Test Script")
+        self.action_create_not_testable_tc_template_with_req_reference = QAction(QIcon(u"ui/icons/16x16/cil-description.png"), "Create NOT Testable Test Script")
         self.action_create_not_testable_tc_template_with_req_reference.triggered.connect(lambda: self._create_tc_template_with_req_reference(False))        
 
         self.action_update_requirements = QAction('Update Requirements')
@@ -148,24 +153,23 @@ class DataManager(QWidget, Ui_Form):
         self.action_normalise_a2l_file.setIcon(QIcon(u"ui/icons/16x16/cil-chart-line.png"))
         self.action_normalise_a2l_file.triggered.connect(self.normalise_a2l_file)  
 
-        self.action_open_coverage_filter = QAction('Set Coverage Filter')
-        # self.action_open_coverage_filter.setIcon(QIcon(u"ui/icons/16x16/cil-chart-line.png"))
+        self.action_open_coverage_filter = QAction(QIcon(u"ui/icons/16x16/cil-wifi-signal-2.png"), 'Set Coverage Filter')
         self.action_open_coverage_filter.triggered.connect(self._open_form_for_coverage_filter) 
 
-        self.action_show_only_requirements_with_coverage = QAction('Show Coverage Only')
-        self.action_show_only_requirements_with_coverage.setIcon(QIcon(u"ui/icons/16x16/cil-filter.png"))
+        self.action_show_only_requirements_with_coverage = QAction('Show Not Covered + Covered')
         self.action_show_only_requirements_with_coverage.triggered.connect(self._show_only_items_with_coverage)
+        self.action_show_only_requirements_not_covered = QAction('Show Not Covered')
+        self.action_show_only_requirements_not_covered.triggered.connect(self._show_only_items_not_covered)        
         self.action_show_all_requirements = QAction('Show All')
-        self.action_show_all_requirements.setIcon(QIcon(u"ui/icons/16x16/cil-filter.png"))
+        self.action_show_all_requirements.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))
         self.action_show_all_requirements.triggered.connect(self._show_all_items)        
 
-
-        self.action_remove_coverage_filter = QAction("Remove Coverage Filter")
+        self.action_remove_coverage_filter = QAction(QIcon(u"ui/icons/16x16/cil-wifi-signal-off.png"), "Remove Coverage Filter")
         self.action_remove_coverage_filter.triggered.connect(self._remove_coverage_filter)        
 
-        self.action_add_to_ignore_list = QAction("Add To Ignore List")
+        self.action_add_to_ignore_list = QAction(QIcon(u"ui/icons/16x16/cil-task.png"), "Add To Ignore List")
         self.action_add_to_ignore_list.triggered.connect(self._add_to_ignore_list)
-        self.action_remove_from_ignore_list = QAction("Remove From Ignore List")
+        self.action_remove_from_ignore_list = QAction(QIcon(u"ui/icons/16x16/cil-external-link.png"), "Remove From Ignore List")
         self.action_remove_from_ignore_list.triggered.connect(self._remove_from_ignore_list)        
         ################## CONTEXT MENU END ###########################
 
@@ -269,6 +273,25 @@ class DataManager(QWidget, Ui_Form):
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(1)        
 
+
+    def _expand_all_children(self):
+        selected_item_index = self.ui_tree_view.currentIndex()
+        self.ui_tree_view.expandRecursively(selected_item_index)
+
+    def _collapse_all_children(self):
+        selected_item_index = self.ui_tree_view.currentIndex()
+        selected_item = self.model.itemFromIndex(selected_item_index)
+        
+        def _browse_children(node):         
+            for row in range(node.rowCount()):
+                requirement_node = node.child(row)
+                requirement_node_index = requirement_node.index()
+                self.ui_tree_view.collapse(requirement_node_index)
+
+                _browse_children(requirement_node)        
+        
+        _browse_children(selected_item)
+        self.ui_tree_view.collapse(selected_item_index)
 
 
 
@@ -1112,18 +1135,25 @@ class DataManager(QWidget, Ui_Form):
         # selected_item = self.model.itemFromIndex(selected_item_index)
 
         menu = QMenu()
+        menu.setStyleSheet("QMenu::separator {height: 0.5px; margin: 3px; background-color: rgb(38, 59, 115);}")
+
+        menu.addAction(self.action_expand_all_children)
+        menu.addAction(self.action_collapse_all_children)
+        menu.addSeparator()
         if isinstance(selected_item, RequirementFileNode) and selected_item.coverage_check:
             
-            if not selected_item.data(Qt.UserRole) and selected_item.show_only_coverage:
-                menu.addAction(self.action_show_all_requirements)
-            elif not selected_item.data(Qt.UserRole) and not selected_item.show_only_coverage:   
-                menu.addAction(self.action_show_only_requirements_with_coverage)   
             if not selected_item.data(Qt.UserRole):
+                menu.addAction(self.action_show_only_requirements_not_covered)                 
+                menu.addAction(self.action_show_only_requirements_with_coverage)                   
+                menu.addAction(self.action_show_all_requirements)
+                menu.addSeparator()
                 menu.addAction(self.action_remove_coverage_filter)          
 
         if isinstance(selected_item, RequirementFileNode):
             if not selected_item.data(Qt.UserRole):
-                menu.addAction(self.action_open_coverage_filter)
+                if not selected_item.coverage_check:
+                    menu.addSeparator()
+                    menu.addAction(self.action_open_coverage_filter)
                 menu.addSeparator()
                 menu.addAction(self.action_update_requirements)
 
@@ -1368,6 +1398,42 @@ class DataManager(QWidget, Ui_Form):
 
         _browse_children(requirement_file_node, hide=True)
         requirement_file_node.show_only_coverage = True
+        requirement_file_node.show_only_not_covered = False
+
+        # ICONS:
+        self.action_show_all_requirements.setIcon(QIcon())
+        self.action_show_only_requirements_not_covered.setIcon(QIcon())
+        self.action_show_only_requirements_with_coverage.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))           
+
+
+
+
+
+
+    def _show_only_items_not_covered(self):
+        index = self.ui_tree_view.currentIndex()
+        requirement_file_node = self.model.itemFromIndex(index)
+
+        def _browse_children(node, hide):         
+            for row in range(node.rowCount()):
+                requirement_node = node.child(row)
+                if hide and requirement_node.is_covered is not False:
+                    self.ui_tree_view.setRowHidden(row, node.index(), True)
+                else:
+                    self.ui_tree_view.setRowHidden(row, node.index(), False)
+                _browse_children(requirement_node, hide)
+
+        _browse_children(requirement_file_node, hide=True)
+        requirement_file_node.show_only_coverage = False
+        requirement_file_node.show_only_not_covered = True
+
+        # ICONS:
+        self.action_show_all_requirements.setIcon(QIcon())
+        self.action_show_only_requirements_not_covered.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))
+        self.action_show_only_requirements_with_coverage.setIcon(QIcon())             
+
+
+
 
 
 
@@ -1386,6 +1452,15 @@ class DataManager(QWidget, Ui_Form):
 
         _browse_children(requirement_file_node, hide=False)
         requirement_file_node.show_only_coverage = False
+        requirement_file_node.show_only_not_covered = False
+        # ICONS:
+        self.action_show_all_requirements.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))
+        self.action_show_only_requirements_not_covered.setIcon(QIcon())
+        self.action_show_only_requirements_with_coverage.setIcon(QIcon())
+
+
+
+        
 
 
  

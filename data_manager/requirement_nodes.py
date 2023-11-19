@@ -125,6 +125,7 @@ class RequirementFileNode(QStandardItem):
         self.coverage_filter = coverage_filter
 
         self.show_only_coverage = False
+        self.show_only_not_covered = False
 
         if self.coverage_filter: 
             self.coverage_check = True

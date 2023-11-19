@@ -419,7 +419,14 @@ class Ui_Form(object):
 "\n"
 "QTreeView:disabled{\n"
 "    color: rgb(60,60,60);\n"
-"}")
+"}\n"
+"\n"
+"QMenu::separator {\n"
+"     height: 2px;\n"
+"     margin: 2px 5px 2px 4px;\n"
+"    background-color: red;\n"
+"    color: red;\n"
+" }")
         self.frame_31.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_31.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_31.setObjectName("frame_31")
