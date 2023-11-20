@@ -3,7 +3,7 @@ from pathlib import Path
 from PyQt5.QtWidgets import QWidget, QFileDialog, QListWidget, QInputDialog, QListWidgetItem
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QIcon
-from ui.ui_dashboard import Ui_Form
+from ui.dashboard_ui import Ui_Form
 
 
 

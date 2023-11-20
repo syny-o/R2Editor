@@ -191,6 +191,7 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lab_requirements.sizePolicy().hasHeightForWidth())
         self.lab_requirements.setSizePolicy(sizePolicy)
+        self.lab_requirements.setMaximumSize(QtCore.QSize(16777215, 0))
         font = QtGui.QFont()
         font.setFamily("MS Shell Dlg 2")
         font.setPointSize(12)
@@ -368,6 +369,7 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lab_project_files.sizePolicy().hasHeightForWidth())
         self.lab_project_files.setSizePolicy(sizePolicy)
+        self.lab_project_files.setMaximumSize(QtCore.QSize(16777215, 0))
         font = QtGui.QFont()
         font.setFamily("MS Shell Dlg 2")
         font.setPointSize(12)
@@ -447,7 +449,7 @@ class Ui_Form(object):
         self.horizontalLayout_30.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_30.setObjectName("horizontalLayout_30")
         self.ui_le_filter = QtWidgets.QLineEdit(self.frame_32)
-        self.ui_le_filter.setMinimumSize(QtCore.QSize(350, 50))
+        self.ui_le_filter.setMinimumSize(QtCore.QSize(0, 50))
         font = QtGui.QFont()
         font.setFamily("Arial Narrow,Arial,Helvetica Condensed,Helvetica,sans-serif")
         font.setPointSize(-1)
@@ -463,7 +465,7 @@ class Ui_Form(object):
 "}\n"
 "\n"
 "")
-        self.ui_le_filter.setClearButtonEnabled(True)
+        self.ui_le_filter.setClearButtonEnabled(False)
         self.ui_le_filter.setObjectName("ui_le_filter")
         self.horizontalLayout_30.addWidget(self.ui_le_filter)
         self.ui_btn_goBack = QtWidgets.QPushButton(self.frame_32)

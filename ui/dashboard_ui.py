@@ -76,7 +76,7 @@ class Ui_Form(object):
         self.horizontalLayout_8.setSpacing(0)
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")
         self.frame = QtWidgets.QFrame(Form)
-        self.frame.setMaximumSize(QtCore.QSize(600, 16777215))
+        self.frame.setMaximumSize(QtCore.QSize(800, 16777215))
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")

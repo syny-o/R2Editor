@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QTreeView, QSizePolicy
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, Qt
 
 style = """
         QTreeView {
@@ -18,6 +18,12 @@ class DroppableTreeView(QTreeView):
 
     def __init__(self, data_manager):
         super().__init__()
+
+        self.setHeaderHidden(True)
+        self.setExpandsOnDoubleClick(True)
+        self.setAnimated(True) 
+        self.setContextMenuPolicy(Qt.CustomContextMenu)        
+
 
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.setAcceptDrops(True)

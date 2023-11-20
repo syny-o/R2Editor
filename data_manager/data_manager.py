@@ -1,11 +1,11 @@
 from pathlib import Path
 from ui.model_editor_ui import Ui_Form
-from config.font import font
+# from config.font import font
 import json, re, os
 from PyQt5.QtWidgets import QWidget, QLabel, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QTextEdit, QMessageBox, QStyle, QPushButton, QApplication, QListWidgetItem, QListWidget
 from PyQt5.Qt import QStandardItemModel
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QTextCursor, QTextCharFormat, QColor
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QObject, QRunnable, QThreadPool
+from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QObject, QRunnable, QThreadPool, QPropertyAnimation, QEasingCurve
 from data_manager.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
 from data_manager.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
 from data_manager.a2l_nodes import A2lFileNode, A2lNode
@@ -28,53 +28,48 @@ from dialogs.dialog_message import dialog_message
 from doors.doors_connection import DoorsConnection
 from components.my_list_widget import MyListWidget
 
-import data_manager.req_text_edit
 
 
 class DataManager(QWidget, Ui_Form):
 
     send_project_path = pyqtSignal(str)
-
     send_file_path = pyqtSignal(str)
-
-    
 
     def __init__(self, main_window):
         super().__init__()
         self.setupUi(self)
+        self._hide_all_frames()
 
-        self.main_window = main_window
-
-        self.lab_project_files.setVisible(False)
-        self.lab_requirements.setVisible(False)
-
-        # SETTINGS FROM DISK
-        # self.settings = QSettings(r'.\config\configuration.ini', QSettings.IniFormat)
+        self.MAIN = main_window
         self.settings = main_window.app_settings
-
-        # MODEL PART:
-        self.model = QStandardItemModel()
-        # self.model.rowsInserted.connect(self.send_data_2_completer)
-        # self.model.rowsRemoved.connect(self.send_data_2_completer)
-        # self.model.itemChanged.connect(self.send_data_2_completer)  # finally cancelled because of Requirement Coverage (changing Icon triggeres this signal)
-        self.ROOT = self.model.invisibleRootItem()
-        
+        self.MODEL = QStandardItemModel()
+        self.ROOT = self.MODEL.invisibleRootItem()        
         self.ROOT.setData(self, Qt.UserRole)  # add pointer to DataManager instance to be accesseble from child nodes (ReqNode, CondNode, ...)
-        # print(self.ROOT.data(Qt.UserRole))
         self._disk_project_path = None
         self.is_project_saved = True
 
+        # TREE:
+        self.TREE = DroppableTreeView(self)
+        self.ui_layout_tree.addWidget(self.TREE)
+        self.TREE.setModel(self.MODEL)
+        self.TREE.customContextMenuRequested.connect(self._context_menu) 
+        self.TREE.clicked.connect(self._display_values)
+        selection_model = self.TREE.selectionModel()
+        selection_model.selectionChanged.connect(self._display_values)  # update line edits on Up/Down Arrows        
 
-        # VIEW PART:
-        self.ui_tree_view = DroppableTreeView(self)
-        self.ui_layout_tree.addWidget(self.ui_tree_view)
-        self.ui_tree_view.setHeaderHidden(True)
-        self.ui_tree_view.setFont(font)
-        self.ui_group_box_all_frames.setEnabled(True)
-        self.ui_tree_view.setModel(self.model)
-        self.ui_tree_view.setExpandsOnDoubleClick(True)
-        self.ui_tree_view.setAnimated(True)
-        self._hide_all_frames()
+        QShortcut( 'Ctrl+Down', self.TREE ).activated.connect(lambda: self.move_node(direction='down'))
+        QShortcut( 'Ctrl+Up', self.TREE ).activated.connect(lambda: self.move_node(direction='up'))
+        QShortcut( 'Del', self.TREE ).activated.connect(self.remove_node)
+        QShortcut( 'Ctrl+D', self.TREE ).activated.connect(self.duplicate_node)
+        QShortcut( 'Ctrl+C', self.TREE ).activated.connect(self.copy_node)
+        QShortcut( 'Ctrl+V', self.TREE ).activated.connect(self.paste_node)
+        QShortcut( 'Insert', self.TREE ).activated.connect(self.add_node)
+        QShortcut( 'Esc', self.TREE ).activated.connect(self.stop_filtering)
+        QShortcut( 'Ctrl+S', self ).activated.connect(self.MAIN.project_save)
+     
+
+        self.progress_bar = ModernProgressBar('rgb(0, 179, 0)', 'COVERED')
+        self.ui_layout_data_summary.addWidget(self.progress_bar)     
 
         self.uiLisWidgetModuleColumns = MyListWidget()
         self.uiLisWidgetModuleColumns.setEnabled(False)
@@ -84,15 +79,7 @@ class DataManager(QWidget, Ui_Form):
         # self.uiLisWidgetModuleAttributes.setEnabled(False)
         self.uiLayoutModuleAttributes.addWidget(self.uiLisWidgetModuleAttributes)
 
-
-
-
-
-        ################## CONTEXT MENU START ###########################
-        self.ui_tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.ui_tree_view.customContextMenuRequested.connect(self._context_menu)  
-        # CONTEXT MENU ACTIONS:  
-
+        ################## ACTIONS START ###########################
         self.action_expand_all_children = QAction(QIcon(u"ui/icons/16x16/cil-expand-down.png"), "Expand All Children")
         self.action_expand_all_children.triggered.connect(self._expand_all_children)
         self.action_collapse_all_children = QAction(QIcon(u"ui/icons/16x16/cil-expand-up.png"), "Collapse All Children")
@@ -119,7 +106,6 @@ class DataManager(QWidget, Ui_Form):
         self.action_duplicate.setIcon(QIcon(u"ui/icons/16x16/cil-clone.png"))
         self.action_duplicate.triggered.connect(self.duplicate_node)
         self.action_duplicate.setShortcut(QKeySequence("Ctrl+D"))
-        
         
         self.action_add = QAction('Add')
         self.action_add.setIcon(QIcon(u"ui/icons/16x16/cil-plus.png"))
@@ -171,42 +157,11 @@ class DataManager(QWidget, Ui_Form):
         self.action_add_to_ignore_list.triggered.connect(self._add_to_ignore_list)
         self.action_remove_from_ignore_list = QAction(QIcon(u"ui/icons/16x16/cil-external-link.png"), "Remove From Ignore List")
         self.action_remove_from_ignore_list.triggered.connect(self._remove_from_ignore_list)        
-        ################## CONTEXT MENU END ###########################
-
-        ################## TreeView Shortcuts START ##########################
-        QShortcut( 'Ctrl+Down', self.ui_tree_view ).activated.connect(lambda: self.move_node(direction='down'))
-        QShortcut( 'Ctrl+Up', self.ui_tree_view ).activated.connect(lambda: self.move_node(direction='up'))
-        QShortcut( 'Del', self.ui_tree_view ).activated.connect(self.remove_node)
-        QShortcut( 'Ctrl+D', self.ui_tree_view ).activated.connect(self.duplicate_node)
-        QShortcut( 'Ctrl+C', self.ui_tree_view ).activated.connect(self.copy_node)
-        QShortcut( 'Ctrl+V', self.ui_tree_view ).activated.connect(self.paste_node)
-        QShortcut( 'Insert', self.ui_tree_view ).activated.connect(self.add_node)
-        QShortcut( 'Esc', self.ui_tree_view ).activated.connect(self.stop_filtering)
-        QShortcut( 'Ctrl+S', self ).activated.connect(self.main_window.project_save)
-        
-
-        ################## TreeView Shortcuts END ##########################
-
-
-
-
-        # modern progress bar
-        self.progress_bars = [
-            ModernProgressBar('rgb(0, 179, 0)', 'COVERED')
-        ]
-
-        for progress_bar in self.progress_bars:
-            self.ui_layout_data_summary.addWidget(progress_bar)
-            
+        ################## ACTIONS END ###########################
 
 
         # FUNCTIONAL PART:
         self.send_project_path.connect(main_window.tree_file_browser.receive_project_path)
-
-        self.ui_tree_view.clicked.connect(self._display_values)  # update line edits on mouse click
-
-        selection_model = self.ui_tree_view.selectionModel()
-        selection_model.selectionChanged.connect(self._display_values)  # update line edits on Up/Down Arrows
 
         self.ui_remove.clicked.connect(self.remove_node)
         self.ui_add.clicked.connect(self.add_node)
@@ -221,30 +176,23 @@ class DataManager(QWidget, Ui_Form):
         self.ui_check_coverage.clicked.connect(self.create_dict_from_scripts_for_coverage_check)
         self.ui_le_filter.textChanged.connect(self._filter_items)
         self.ui_le_filter.textEdited.connect(self._reset_filter)
-        # self.ui_btn_filter.clicked.connect(self.open_wildcard_filter)
         self.ui_btn_goBack.clicked.connect(self._goto_previous_index)
 
-
         self.send_data_2_completer()
-
         self.update_data_summary()
 
 
         # node copied into memory by action COPY
         self.node_to_paste = None
 
-        # SENDING REQUIREMENT LIST WIDGET ITEM TO MAIN WINDOW
-        # signal for sending file path from requirement listwidget
         self.send_file_path.connect(main_window.file_open_from_tree)
         self.ui_lw_file_paths_coverage.itemDoubleClicked.connect(self._doubleclick_on_tc_reference)
         self.ui_lw_outlinks.itemDoubleClicked.connect(self._doubleclick_on_outlink)
         self.uiListWidgetModuleIgnoreList.itemDoubleClicked.connect(self._doubleclick_on_ignored_reference)
 
 
-
-
         # REQUIREMENT TEXT IMPROVEMENT
-        self.ui_requirement_text = RequirementTextEdit(self.main_window)
+        self.ui_requirement_text = RequirementTextEdit(self.MAIN)
         self.ui_layout_req_text.addWidget(self.ui_requirement_text)
 
 
@@ -269,29 +217,29 @@ class DataManager(QWidget, Ui_Form):
         ] 
 
 
-
+        # SPECIAL THREAD FOR COVERAGE CHECK
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(1)        
 
 
     def _expand_all_children(self):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        self.ui_tree_view.expandRecursively(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        self.TREE.expandRecursively(selected_item_index)
 
     def _collapse_all_children(self):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
         
         def _browse_children(node):         
             for row in range(node.rowCount()):
                 requirement_node = node.child(row)
                 requirement_node_index = requirement_node.index()
-                self.ui_tree_view.collapse(requirement_node_index)
+                self.TREE.collapse(requirement_node_index)
 
                 _browse_children(requirement_node)        
         
         _browse_children(selected_item)
-        self.ui_tree_view.collapse(selected_item_index)
+        self.TREE.collapse(selected_item_index)
 
 
 
@@ -299,7 +247,7 @@ class DataManager(QWidget, Ui_Form):
         cb = QApplication.clipboard()
         cb.clear(mode=cb.Clipboard)
         cb.setText(self.ui_requirement_id.text(), mode=cb.Clipboard)
-        self.main_window.show_notification(f"Item {self.ui_requirement_id.text()} copied to Clipboard.")  
+        self.MAIN.show_notification(f"Item {self.ui_requirement_id.text()} copied to Clipboard.")  
 
 
 
@@ -329,28 +277,21 @@ class DataManager(QWidget, Ui_Form):
 
 
     def _add_to_ignore_list(self):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
         if isinstance(selected_item, RequirementNode):
             selected_item.add_to_ignore_list()    
             self.update_data_summary()   
 
 
     def _remove_from_ignore_list(self):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
         if isinstance(selected_item, RequirementNode):
             selected_item.remove_from_ignore_list()    
             self.update_data_summary()   
 
-      
 
-
-
-
-    ####################################################################################################################
-    # INTERFACE INPUT (INPUT DATA = LIST OF FILE PATHS):
-    ####################################################################################################################
 
 
     @pyqtSlot(dict)
@@ -359,7 +300,7 @@ class DataManager(QWidget, Ui_Form):
         dspace_nodes.initialise(data, self.ROOT)
         a2l_nodes.initialise(data, self.ROOT)
         self.is_project_saved = False
-        self.main_window.show_notification(f"Model has been updated.")   
+        self.MAIN.show_notification(f"Model has been updated.")   
         self.send_data_2_completer() 
 
 
@@ -386,14 +327,6 @@ class DataManager(QWidget, Ui_Form):
         self.ui_frame_progress_status.setMinimumHeight(30) if is_visible else self.ui_frame_progress_status.setMinimumHeight(0)
         self.ui_label_progress_status.setText(text)
 
-
-
-
-    ####################################################################################################################
-
-    ####################################################################################################################
-    # INTERFACE OUTPUT FOR COMPLETER (OUTPUT DATA = DICTIONARY):
-    ####################################################################################################################
 
 
     def send_data_2_completer(self):
@@ -458,13 +391,6 @@ class DataManager(QWidget, Ui_Form):
 
 
 
-    ####################################################################################################################
-
-
-
-
-
-    ####################################################################################################################
 
     def send_request_2_doors(self, password, paths, columns_names):
         DoorsConnection(self, paths, columns_names, self, password)
@@ -485,7 +411,7 @@ class DataManager(QWidget, Ui_Form):
                 passwd_from_input_dlg, ok = QInputDialog.getText(
                     None, 
                     "Doors Connection", 
-                    f"Database: {self.main_window.app_settings.doors_database_path}\nUsername: {self.main_window.app_settings.doors_user_name}\n\nEnter your password:", QLineEdit.Password)
+                    f"Database: {self.MAIN.app_settings.doors_database_path}\nUsername: {self.MAIN.app_settings.doors_user_name}\n\nEnter your password:", QLineEdit.Password)
                 if ok and passwd_from_input_dlg:
                     paths = []
                     columns = []
@@ -503,13 +429,13 @@ class DataManager(QWidget, Ui_Form):
                         
 
             else:
-                selected_item_index = self.ui_tree_view.currentIndex()
-                selected_item = self.model.itemFromIndex(selected_item_index)
+                selected_item_index = self.TREE.currentIndex()
+                selected_item = self.MODEL.itemFromIndex(selected_item_index)
                 if isinstance(selected_item, RequirementFileNode):
                     passwd_from_input_dlg, ok = QInputDialog.getText(
                     None, 
                     "Doors Connection", 
-                    f"Database: {self.main_window.app_settings.doors_database_path}\nUsername: {self.main_window.app_settings.doors_user_name}\n\nEnter your password:", QLineEdit.Password)
+                    f"Database: {self.MAIN.app_settings.doors_database_path}\nUsername: {self.MAIN.app_settings.doors_user_name}\n\nEnter your password:", QLineEdit.Password)
                     if ok and passwd_from_input_dlg:
                         self.send_request_2_doors(passwd_from_input_dlg, [selected_item.path,], [selected_item.columns_names,])
                         self.update_progress_status(True, 'Initialising...')
@@ -522,7 +448,7 @@ class DataManager(QWidget, Ui_Form):
     def receive_data_from_doors(self, doors_output, timestamp):
         self.downloading_of_requirements_is_in_progress = False
         if not doors_output:
-            self.main_window.show_notification(f"Error: No data received.") 
+            self.MAIN.show_notification(f"Error: No data received.") 
             return
 
         if self._module_which_is_currently_donwnloaded:
@@ -536,7 +462,7 @@ class DataManager(QWidget, Ui_Form):
                 node.receive_data_from_doors(doors_output, timestamp)
 
         
-        self.main_window.show_notification(f"Requirements have been Updated.") 
+        self.MAIN.show_notification(f"Requirements have been Updated.") 
         self.is_project_saved = False
         self._display_values()
         self.update_data_summary()
@@ -604,7 +530,7 @@ class DataManager(QWidget, Ui_Form):
                 current_node.update_title_text()                                                   
 
 
-        self.progress_bars[0].update_value(requirements_number, covered_number)
+        self.progress_bar.update_value(requirements_number, covered_number)
         self.ui_lab_req_total.setText(str(requirements_number))
         self.ui_lab_req_covered.setText(str(covered_number))
         self.ui_lab_req_not_covered.setText(str(requirements_number-covered_number))
@@ -673,7 +599,7 @@ class DataManager(QWidget, Ui_Form):
                 # HANDLE RECENT PROJECTS FILE
                 self.update_recent_projects(path)
                 self.is_project_saved = True
-                self.main_window.show_notification(f"Project {path} has been saved.")    
+                self.MAIN.show_notification(f"Project {path} has been saved.")    
 
         except Exception as e:
             dialog_message(self, "Unable to Save Project, error:" + str(e))
@@ -711,12 +637,12 @@ class DataManager(QWidget, Ui_Form):
             self.update_recent_projects(path)
             self.is_project_saved = True
 
-            self.main_window.show_notification(f"Project {path} has been loaded.") 
+            self.MAIN.show_notification(f"Project {path} has been loaded.") 
             self.send_data_2_completer()
             self.update_data_summary()
 
-            self.main_window.opened_project_path = path
-            self.main_window.update_title()
+            self.MAIN.opened_project_path = path
+            self.MAIN.update_title()
        
         
         except Exception as ex:
@@ -781,7 +707,7 @@ class DataManager(QWidget, Ui_Form):
         self.frame_10.setVisible(False)
         # Condition Area
         self.ui_frame_cond.setVisible(False)
-        self.ui_frame_cond.setFont(font)
+        # self.ui_frame_cond.setFont(font)
         self.ui_frame_value.setVisible(False)
         self.ui_frame_ts.setVisible(False)
         # dSpace Area
@@ -803,16 +729,29 @@ class DataManager(QWidget, Ui_Form):
         self.ui_update_requirements.setEnabled(True)
 
 
+    def _show_filter_input(self, show):
+        start_width = self.ui_le_filter.width()
+        final_width = 8000 if show else 0
+        self.animation = QPropertyAnimation(self.ui_le_filter, b"maximumWidth")
+        self.animation.setDuration(300)
+        self.animation.setStartValue(start_width)
+        self.animation.setEndValue(final_width)
+        self.animation.setEasingCurve(QEasingCurve.InOutQuad)
+        self.animation.start()
+
+
     def _display_values(self):
         self._hide_all_frames()
         self._disable_all_buttons()
-        self.ui_le_filter.setEnabled(False)
+        # self.ui_le_filter.setEnabled(False)
+        # self.ui_le_filter.setVisible(False)
+        self._show_filter_input(False)
         self.ui_frame_requirement.setEnabled(True)
         # self.ui_group_box_all_frames.setEnabled(False)
 
 
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
         # Recover last filter if there is some
         if selected_item:
@@ -821,7 +760,8 @@ class DataManager(QWidget, Ui_Form):
 
         # ConditionFileNode, DspaceFileNode, A2lFileNode
         if isinstance(selected_item, (ConditionFileNode, DspaceFileNode, A2lFileNode)):
-            self.ui_le_filter.setEnabled(True)
+            # self.ui_le_filter.setEnabled(True)
+            self._show_filter_input(True)
             self.ui_frame_file.setVisible(True)
             self.ui_file_path.setText(selected_item.path)
             if isinstance(selected_item, (ConditionFileNode, DspaceFileNode)):
@@ -831,7 +771,9 @@ class DataManager(QWidget, Ui_Form):
 
         # RequirementFileNode
         elif isinstance(selected_item, RequirementFileNode):
-            self.ui_le_filter.setEnabled(True)
+            # self.ui_le_filter.setEnabled(True)
+            # self.ui_le_filter.setVisible(True)
+            self._show_filter_input(True)
             self.uiFrameRequirementModule.setVisible(True)
             self.uiLineEditModulePath.setText(selected_item.path)
             self.uiLineEditUpdateTime.setText(str(selected_item.timestamp))
@@ -1035,8 +977,8 @@ class DataManager(QWidget, Ui_Form):
               
 
     def _doubleclick_on_ignored_reference(self, reference_item):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
         reference = reference_item.text()
 
         FOUND_NODE = None
@@ -1054,8 +996,8 @@ class DataManager(QWidget, Ui_Form):
         find_node_by_reference(selected_item, reference)     
 
         if FOUND_NODE:
-            self.ui_tree_view.setCurrentIndex(FOUND_NODE.index())
-            self.ui_tree_view.scrollTo(FOUND_NODE.index())   
+            self.TREE.setCurrentIndex(FOUND_NODE.index())
+            self.TREE.scrollTo(FOUND_NODE.index())   
 
 
 
@@ -1089,26 +1031,26 @@ class DataManager(QWidget, Ui_Form):
 
 
         if FOUND_NODE:
-            self.ui_tree_view.setCurrentIndex(FOUND_NODE.index())
-            self.ui_tree_view.scrollTo(FOUND_NODE.index())
+            self.TREE.setCurrentIndex(FOUND_NODE.index())
+            self.TREE.scrollTo(FOUND_NODE.index())
             # self._update_previous_indexes(FOUND_NODE.index())
         else:
             dialog_message(self, "Module is missing.")
 
 
     def _goto_previous_index(self):
-        self.ui_tree_view.goto_previous_index()
+        self.TREE.goto_previous_index()
 
 
     def _doubleclick_on_tc_reference(self, list_item_text):
 
         self.send_file_path.emit(list_item_text.data(Qt.UserRole))
-        self.main_window.manage_right_menu(self.main_window.tabs_splitter, self.main_window.ui_btn_text_editor)
+        self.MAIN.manage_right_menu(self.MAIN.tabs_splitter, self.MAIN.ui_btn_text_editor)
 
 
     def _create_tc_template_with_req_reference(self, is_testable):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
         if isinstance(selected_item, RequirementNode):
             template = TemplateTestCase(req_id=selected_item.columns_data[0], req_text=selected_item.columns_data[-1], is_testable=is_testable)
@@ -1116,16 +1058,16 @@ class DataManager(QWidget, Ui_Form):
             text = template.generate_tc_template()
             file_path = None
             tab_name = 'Untitled'
-            self.main_window.left_tabs.addTab(TextEdit(self.main_window, text, file_path), QIcon(u"ui/icons/16x16/cil-description.png"), tab_name)
-            self.main_window.actual_text_edit.setFocus()
-            self.main_window.manage_right_menu(self.main_window.tabs_splitter, self.main_window.ui_btn_text_editor)            
+            self.MAIN.left_tabs.addTab(TextEdit(self.MAIN, text, file_path), QIcon(u"ui/icons/16x16/cil-description.png"), tab_name)
+            self.MAIN.actual_text_edit.setFocus()
+            self.MAIN.manage_right_menu(self.MAIN.tabs_splitter, self.MAIN.ui_btn_text_editor)            
 
 
 
 
     def _context_menu(self, point):
-        selected_item_index = self.ui_tree_view.indexAt(point)
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.indexAt(point)
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
         if not selected_item_index.isValid():
             return
@@ -1143,6 +1085,7 @@ class DataManager(QWidget, Ui_Form):
         if isinstance(selected_item, RequirementFileNode) and selected_item.coverage_check:
             
             if not selected_item.data(Qt.UserRole):
+                self._evaluate_view_filter()
                 menu.addAction(self.action_show_only_requirements_not_covered)                 
                 menu.addAction(self.action_show_only_requirements_with_coverage)                   
                 menu.addAction(self.action_show_all_requirements)
@@ -1216,8 +1159,8 @@ class DataManager(QWidget, Ui_Form):
 ##############################################################################################################################
 
     def stop_filtering(self):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
         if isinstance(selected_item, RequirementNode):
             module = selected_item.get_requirement_module()
             if module.data(Qt.UserRole):  
@@ -1225,18 +1168,18 @@ class DataManager(QWidget, Ui_Form):
                     for row in range(node.rowCount()):
                         node_child = node.child(row)
                         if node_child:
-                            self.ui_tree_view.collapse(node_child.index())
+                            self.TREE.collapse(node_child.index())
                             node_child.setForeground(QColor(200, 200, 200))
-                            self.ui_tree_view.setRowHidden(row, node.index(), False)
+                            self.TREE.setRowHidden(row, node.index(), False)
                         _collapse_all_children(node_child)   
                 
                 _collapse_all_children(module)
 
                 parent = selected_item.parent()
                 while parent:
-                    self.ui_tree_view.expand(parent.index())
+                    self.TREE.expand(parent.index())
                     parent = parent.parent()
-                self.ui_tree_view.scrollTo(selected_item_index)
+                self.TREE.scrollTo(selected_item_index)
         elif isinstance(selected_item, RequirementFileNode):
             self.ui_le_filter.clear()
             selected_item.setData("", Qt.UserRole)
@@ -1244,25 +1187,25 @@ class DataManager(QWidget, Ui_Form):
 
 
     def _reset_filter(self, filtered_text):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)     
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)     
 
         if filtered_text.strip() == "":
             def _collapse_all_children(node):
                 for row in range(node.rowCount()):
                     node_child = node.child(row)
                     if node_child:
-                        self.ui_tree_view.collapse(node_child.index())
+                        self.TREE.collapse(node_child.index())
                         node_child.setForeground(QColor(200, 200, 200))
-                        self.ui_tree_view.setRowHidden(row, node.index(), False)
+                        self.TREE.setRowHidden(row, node.index(), False)
                     _collapse_all_children(node_child)   
             
             _collapse_all_children(selected_item)
 
-            self.ui_tree_view.collapse(selected_item_index)
+            self.TREE.collapse(selected_item_index)
 
         else:
-            self.ui_tree_view.expand(selected_item_index)
+            self.TREE.expand(selected_item_index)
 
 
 
@@ -1270,8 +1213,8 @@ class DataManager(QWidget, Ui_Form):
     def _filter_items(self, filtered_text):
 
 
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)        
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)        
         
         if filtered_text:
             
@@ -1309,24 +1252,26 @@ class DataManager(QWidget, Ui_Form):
                         data = " ".join(requirement_node.columns_data) + " " + str(requirement_node.reference)
                 
                         if filtered_text.lower() in data.lower() :    
-                            self.ui_tree_view.setRowHidden(row, node.index(), False)
+                            self.TREE.setRowHidden(row, node.index(), False)
                             requirement_node.setForeground(QColor("white"))
                             parent = requirement_node.parent()
                             while parent and parent.parent():
-                                self.ui_tree_view.setRowHidden(parent.row(), parent.parent().index(), False)
-                                self.ui_tree_view.expand(parent.index())
+                                self.TREE.setRowHidden(parent.row(), parent.parent().index(), False)
+                                self.TREE.expand(parent.index())
                                 parent = parent.parent()
                         else:
-                            self.ui_tree_view.setRowHidden(row, node.index(), True)
+                            self.TREE.setRowHidden(row, node.index(), True)
                             requirement_node.setForeground(QColor(90, 90, 90))
-                            self.ui_tree_view.collapse(requirement_node.index())
+                            self.TREE.collapse(requirement_node.index())
 
                     _browse_children(requirement_node)
           
 
             if filtered_text.strip() == "":
-                if selected_item.show_only_coverage:
-                    self._show_only_items_with_coverage()  
+                if selected_item.view_filter == "not_covered_plus_covered":
+                    self._show_only_items_with_coverage()
+                elif selected_item.view_filter == "not_covered":
+                    self._show_only_items_not_covered()
                 return            
             
             else:
@@ -1342,15 +1287,15 @@ class DataManager(QWidget, Ui_Form):
                     rows_hidden = 0
                     for definition_row in range(ds_definition.rowCount()):
                         if filtered_text.lower() in ds_definition.child(definition_row).text().lower():
-                            self.ui_tree_view.setRowHidden(definition_row, ds_definition.index(), False)
-                            self.ui_tree_view.expand(ds_definition.index())
+                            self.TREE.setRowHidden(definition_row, ds_definition.index(), False)
+                            self.TREE.expand(ds_definition.index())
                         else:
-                            self.ui_tree_view.setRowHidden(definition_row, ds_definition.index(), True)
+                            self.TREE.setRowHidden(definition_row, ds_definition.index(), True)
                             rows_hidden += 1
                         if rows_hidden == ds_definition.rowCount():
-                            self.ui_tree_view.setRowHidden(row, selected_item.index(), True)
+                            self.TREE.setRowHidden(row, selected_item.index(), True)
                         else:
-                            self.ui_tree_view.setRowHidden(row, selected_item.index(), False)
+                            self.TREE.setRowHidden(row, selected_item.index(), False)
 
             
 
@@ -1358,9 +1303,9 @@ class DataManager(QWidget, Ui_Form):
         elif isinstance(selected_item, (ConditionFileNode, A2lFileNode)):
             for row in range(selected_item.rowCount()):
                 if filtered_text.lower() in selected_item.child(row).text().lower():
-                    self.ui_tree_view.setRowHidden(row, selected_item_index, False)
+                    self.TREE.setRowHidden(row, selected_item_index, False)
                 else:
-                    self.ui_tree_view.setRowHidden(row, selected_item_index, True)
+                    self.TREE.setRowHidden(row, selected_item_index, True)
 
 
 
@@ -1384,79 +1329,76 @@ class DataManager(QWidget, Ui_Form):
 
 
     def _show_only_items_with_coverage(self):
-        index = self.ui_tree_view.currentIndex()
-        requirement_file_node = self.model.itemFromIndex(index)
+        index = self.TREE.currentIndex()
+        requirement_file_node = self.MODEL.itemFromIndex(index)
 
         def _browse_children(node, hide):         
             for row in range(node.rowCount()):
                 requirement_node = node.child(row)
                 if hide and requirement_node.is_covered is None:
-                    self.ui_tree_view.setRowHidden(row, node.index(), True)
+                    self.TREE.setRowHidden(row, node.index(), True)
                 else:
-                    self.ui_tree_view.setRowHidden(row, node.index(), False)
+                    self.TREE.setRowHidden(row, node.index(), False)
                 _browse_children(requirement_node, hide)
 
         _browse_children(requirement_file_node, hide=True)
-        requirement_file_node.show_only_coverage = True
-        requirement_file_node.show_only_not_covered = False
 
-        # ICONS:
-        self.action_show_all_requirements.setIcon(QIcon())
-        self.action_show_only_requirements_not_covered.setIcon(QIcon())
-        self.action_show_only_requirements_with_coverage.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))           
-
-
+        requirement_file_node.view_filter = "not_covered_plus_covered"
 
 
 
 
     def _show_only_items_not_covered(self):
-        index = self.ui_tree_view.currentIndex()
-        requirement_file_node = self.model.itemFromIndex(index)
+        index = self.TREE.currentIndex()
+        requirement_file_node = self.MODEL.itemFromIndex(index)
 
         def _browse_children(node, hide):         
             for row in range(node.rowCount()):
                 requirement_node = node.child(row)
                 if hide and requirement_node.is_covered is not False:
-                    self.ui_tree_view.setRowHidden(row, node.index(), True)
+                    self.TREE.setRowHidden(row, node.index(), True)
                 else:
-                    self.ui_tree_view.setRowHidden(row, node.index(), False)
+                    self.TREE.setRowHidden(row, node.index(), False)
                 _browse_children(requirement_node, hide)
 
         _browse_children(requirement_file_node, hide=True)
-        requirement_file_node.show_only_coverage = False
-        requirement_file_node.show_only_not_covered = True
 
-        # ICONS:
-        self.action_show_all_requirements.setIcon(QIcon())
-        self.action_show_only_requirements_not_covered.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))
-        self.action_show_only_requirements_with_coverage.setIcon(QIcon())             
+        requirement_file_node.view_filter = "not_covered"
 
-
-
-
-
+    
 
     def _show_all_items(self):
-        index = self.ui_tree_view.currentIndex()
-        requirement_file_node = self.model.itemFromIndex(index)
+        index = self.TREE.currentIndex()
+        requirement_file_node = self.MODEL.itemFromIndex(index)
 
         def _browse_children(node, hide):         
             for row in range(node.rowCount()):
                 requirement_node = node.child(row)
                 if hide and requirement_node.is_covered is None:
-                    self.ui_tree_view.setRowHidden(row, node.index(), True)
+                    self.TREE.setRowHidden(row, node.index(), True)
                 else:
-                    self.ui_tree_view.setRowHidden(row, node.index(), False)
+                    self.TREE.setRowHidden(row, node.index(), False)
                 _browse_children(requirement_node, hide)
 
         _browse_children(requirement_file_node, hide=False)
-        requirement_file_node.show_only_coverage = False
-        requirement_file_node.show_only_not_covered = False
-        # ICONS:
-        self.action_show_all_requirements.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))
+
+        requirement_file_node.view_filter = "all"
+
+
+    def _evaluate_view_filter(self):
+        index = self.TREE.currentIndex()
+        requirement_file_node = self.MODEL.itemFromIndex(index)
+        self.action_show_all_requirements.setIcon(QIcon())
         self.action_show_only_requirements_not_covered.setIcon(QIcon())
         self.action_show_only_requirements_with_coverage.setIcon(QIcon())
+        view_filter = requirement_file_node.view_filter
+        if view_filter == "all":
+            self.action_show_all_requirements.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))
+        elif view_filter == "not_covered":
+            self.action_show_only_requirements_not_covered.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))
+        else:
+            self.action_show_only_requirements_with_coverage.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))              
+
 
 
 
@@ -1474,8 +1416,8 @@ class DataManager(QWidget, Ui_Form):
 
 
     def _open_form_for_coverage_filter(self):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
         if isinstance(selected_item, RequirementFileNode):
             self.form_req_filter = FormAddCoverageFilter(self, selected_item)
             self.form_req_filter.show()
@@ -1484,8 +1426,8 @@ class DataManager(QWidget, Ui_Form):
 
 
     def _remove_coverage_filter(self):
-        index = self.ui_tree_view.currentIndex()
-        requirement_file_node = self.model.itemFromIndex(index)   
+        index = self.TREE.currentIndex()
+        requirement_file_node = self.MODEL.itemFromIndex(index)   
         requirement_file_node.remove_coverage_filter()
         self.update_data_summary()
         #  Remove View Filter
@@ -1518,8 +1460,8 @@ class DataManager(QWidget, Ui_Form):
     # A2L NORMALISATIION:
     ####################################################################################################################
     def normalise_a2l_file(self):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
         if isinstance(selected_item, A2lFileNode):
             selected_item.normalise_file()  
@@ -1536,40 +1478,40 @@ class DataManager(QWidget, Ui_Form):
 
 
     def tree_2_file(self):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
         if isinstance(selected_item, (ConditionFileNode, DspaceFileNode)):
             selected_item.tree_2_file()
 
 
     def remove_node(self):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
         selected_item_row = selected_item_index.row()
         parent_item_index = selected_item_index.parent()
 
-        if self.model.rowCount(parent_item_index) > 1:
+        if self.MODEL.rowCount(parent_item_index) > 1:
             
             if hasattr(selected_item, 'get_file_node'):
                 selected_item.get_file_node().set_modified(True)
 
-            self.main_window.show_notification(f"Item {selected_item.text()} has been removed.")  
-            self.model.removeRow(selected_item_row, parent_item_index)                
+            self.MAIN.show_notification(f"Item {selected_item.text()} has been removed.")  
+            self.MODEL.removeRow(selected_item_row, parent_item_index)                
 
             if isinstance(selected_item, RequirementNode):
                 self.is_project_saved = False
                 self.update_data_summary()            
 
         else:
-            self.main_window.show_notification(f"Can not remove last item.")  
+            self.MAIN.show_notification(f"Can not remove last item.")  
 
         self.send_data_2_completer()
             
     
     def add_node(self):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
         if isinstance(selected_item, ConditionNode):
             self.window = DlgAddNode(self, condition_data=[None, None])
@@ -1595,30 +1537,30 @@ class DataManager(QWidget, Ui_Form):
 
 
     def duplicate_node(self):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
         if isinstance(selected_item, (ConditionNode, ValueNode, TestStepNode)):            
             selected_item.parent().insertRow(selected_item_index.row() + 1, selected_item.get_node_copy())        
             if hasattr(selected_item, 'get_file_node'):
                 selected_item.get_file_node().set_modified(True)
-            self.main_window.show_notification(f"Item {selected_item.text()} has been duplicated.")  
+            self.MAIN.show_notification(f"Item {selected_item.text()} has been duplicated.")  
 
     def copy_node(self):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)    
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)    
         if isinstance(selected_item, (ConditionNode, ValueNode, TestStepNode)):         
             self.node_to_paste = selected_item.get_node_copy() 
-            self.main_window.show_notification(f"Item {selected_item.text()} has been copied to Clipboard.")  
+            self.MAIN.show_notification(f"Item {selected_item.text()} has been copied to Clipboard.")  
 
 
     def paste_node(self):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
         if self.node_to_paste and type(self.node_to_paste) == type(selected_item):
             new_item_row = selected_item_index.row() + 1
             selected_item.parent().insertRow(new_item_row, self.node_to_paste)
-            self.main_window.show_notification(f"Item {self.node_to_paste.text()} has been inserted to Tree.") 
+            self.MAIN.show_notification(f"Item {self.node_to_paste.text()} has been inserted to Tree.") 
             self.node_to_paste = None
             selected_item.get_file_node().set_modified(True) 
 
@@ -1626,14 +1568,14 @@ class DataManager(QWidget, Ui_Form):
 
 
     def edit_node(self, button_is_checked):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
         if not selected_item:
             return
 
         if button_is_checked:
-            self.ui_tree_view.setEnabled(False)
+            self.TREE.setEnabled(False)
             self.make_ui_components_editable()
             # if isinstance(selected_item, RequirementFileNode):
             #     self.uiLisWidgetModuleColumns.setStyleSheet("background-color: rgb(20, 20, 120);")
@@ -1647,7 +1589,7 @@ class DataManager(QWidget, Ui_Form):
 
         else:
             
-            self.ui_tree_view.setEnabled(True)
+            self.TREE.setEnabled(True)
             self.make_ui_components_not_editable()
             
             # Save changes:
@@ -1689,7 +1631,7 @@ class DataManager(QWidget, Ui_Form):
 
             
             self.send_data_2_completer()
-            self.main_window.show_notification(f"Item {selected_item.text()} has been updated.")
+            self.MAIN.show_notification(f"Item {selected_item.text()} has been updated.")
 
 
 
@@ -1705,8 +1647,8 @@ class DataManager(QWidget, Ui_Form):
             condition, value, test_step_name, test_step_action, test_step_comment, test_step_nominal \
                 = cond_data["condition"], cond_data["value"], cond_data["test_step_name"], cond_data["test_step_action"], cond_data["test_step_comment"], cond_data["test_step_nominal"]            
         
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
         if hasattr(selected_item, 'get_file_node'):
             selected_item.get_file_node().set_modified(True)
@@ -1745,14 +1687,14 @@ class DataManager(QWidget, Ui_Form):
             selected_item.parent().insertRow(new_item_row, new_item)
             # print("DSPACE VAR NODE ADDED")
 
-        self.main_window.show_notification(f"Item has been inserted to Tree.") 
+        self.MAIN.show_notification(f"Item has been inserted to Tree.") 
         self.send_data_2_completer()
 
 
 
     def move_node(self, direction):
-        selected_item_index = self.ui_tree_view.currentIndex()
-        selected_item = self.model.itemFromIndex(selected_item_index)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
         
         if not selected_item: 
             return
@@ -1772,10 +1714,10 @@ class DataManager(QWidget, Ui_Form):
             return
 
         item = parent.takeChild(selected_item_index.row())
-        self.model.removeRow(selected_item_index.row(), selected_item_index.parent())
+        self.MODEL.removeRow(selected_item_index.row(), selected_item_index.parent())
         parent.insertRow(new_item_row, item)
         
-        self.ui_tree_view.setCurrentIndex(item.index())
+        self.TREE.setCurrentIndex(item.index())
 
         if hasattr(selected_item, 'get_file_node'):
             selected_item.get_file_node().set_modified(True)
@@ -1791,11 +1733,10 @@ class DataManager(QWidget, Ui_Form):
 
 
    
-    ####################################################################################################################
-    # COVERAGE CHECK :
-    ####################################################################################################################
+####################################################################################################################
+# COVERAGE CHECK :
+####################################################################################################################
 
-import time
 PATTERN_REQ_REFERENCE = re.compile(r"""(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*""", re.IGNORECASE)
 
 class Worker(QRunnable):

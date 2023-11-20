@@ -386,6 +386,12 @@ background-color: rgb(39, 44, 54);
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <family>MS Shell Dlg 2</family>
@@ -735,6 +741,12 @@ background-color: rgb(39, 44, 54);
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <family>MS Shell Dlg 2</family>
@@ -864,7 +876,7 @@ QMenu::separator {
               <widget class="QLineEdit" name="ui_le_filter">
                <property name="minimumSize">
                 <size>
-                 <width>350</width>
+                 <width>0</width>
                  <height>50</height>
                 </size>
                </property>
@@ -891,7 +903,7 @@ padding-left: 20px;
                 <string>Filter</string>
                </property>
                <property name="clearButtonEnabled">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
               </widget>
              </item>
