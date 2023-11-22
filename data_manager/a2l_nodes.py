@@ -2,7 +2,7 @@ from PyQt5.Qt import QStandardItem, QStandardItemModel
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 import re
-from .pbc_patterns import patterns
+from .pbc_patterns import patterns, signals_to_check
 from dialogs.dialog_message import dialog_message
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QSettings, QRunnable, QThreadPool
 import time
@@ -27,48 +27,7 @@ def extract_measurements_from_file(file_path):
     for i in matches:
         measurements.append(i.group())
     return measurements
-
-
-def normalise_text(text):
-    for key, value in patterns.items():
-        # find all matches for each variable
-        pattern = key
-        iteration = pattern.finditer(text)
-
-        # check how many matches have been found (in current iteration)
-        matches = pattern.findall(text)
-
-        # if multiple matches (variable definitions) have been found:
-        if len(matches) > 1:
-            string_to_replace = None
-            smallest_match_length = 1000
-            for i in iteration:
-
-                # check if one of the matches is in correct form (pattern value) --> no replacement needed
-                if i.group(2) == value:
-                    string_to_replace = None  # 2021-07-27 FIXED BUG (f.e. Saic AS28 M2M3 issue)
-                    break
-
-                # if all matches are in wrong form, choose shortest one and replace it with correct pattern value
-                elif len(i.group(2)) < smallest_match_length:
-                    smallest_match_length = len(i.group(2))
-                    string_to_replace = i.group(2)
-                    string_to_replace_start, string_to_replace_end = i.span(2)
-
-            if string_to_replace:
-                text = text[:string_to_replace_start] + value + text[string_to_replace_end:]
-
-        # only one match at all has been found
-        elif len(matches) == 1:
-            for i in iteration:
-
-                string_to_replace = i.group(2)
-                string_to_replace_start, string_to_replace_end = i.span(2)
-
-                if string_to_replace != value:
-                    text = text[:string_to_replace_start] + value + text[string_to_replace_end:]
-
-    return text       
+     
 
 
 
@@ -180,7 +139,7 @@ class A2lFileNode(QStandardItem):
 
 
     def normalise_file(self):
-        worker = Worker(self)
+        worker = A2lNormWorker(self, self.data_manager)
         self.threadpool.start(worker)
 
 
@@ -208,23 +167,118 @@ class A2lNode(QStandardItem):
 
 
 
-class Worker(QRunnable):
 
-    def __init__(self, a2l_file_node):
+
+
+
+
+
+
+
+
+
+
+class A2lNormWorker(QRunnable):
+
+    def __init__(self, a2l_file_node, data_manager):
         super().__init__()
         self.a2l_file_node = a2l_file_node
+        self.signals = WorkerSignals()
+        self.signals.status.connect(data_manager.update_progress_status)
+        self.signals.finished.connect(data_manager.a2l_normalisation_finished) 
+
+    
+    def check_missing_signals(self, text):
+        missing_signals = []
+        for signal in signals_to_check:
+            signal_to_check = text.find(signal)
+            if signal_to_check == -1:
+                if not contains_number(signal):
+                    missing_signals.append(signal)
+        return missing_signals
+
+
+
+
+
+    def normalise_text(self, text):
+
+        duplicated_signals = []
+        total_counter = 0
+
+        data_4_report = {}
+
+        for key, value in patterns.items():
+            # find all matches for each variable
+            self.signals.status.emit(True, f"Checking: <{value}>")
+            pattern = key
+            iteration = pattern.finditer(text)
+
+            # check how many matches have been found (in current iteration)
+            matches = pattern.findall(text)
+
+            # if multiple matches (variable definitions) have been found:
+            if len(matches) > 1:
+
+                if not contains_number(value):
+                    duplicated_signals.append(value)
+
+                string_to_replace = None
+                smallest_match_length = 1000
+                for i in iteration:
+
+                    # check if one of the matches is in correct form (pattern value) --> no replacement needed
+                    if i.group(2) == value:
+                        string_to_replace = None  # 2021-07-27 FIXED BUG (f.e. Saic AS28 M2M3 issue)
+                        break
+
+                    # if all matches are in wrong form, choose shortest one and replace it with correct pattern value
+                    elif len(i.group(2)) < smallest_match_length:
+                        smallest_match_length = len(i.group(2))
+                        string_to_replace = i.group(2)
+                        string_to_replace_start, string_to_replace_end = i.span(2)
+
+                if string_to_replace:
+                    text = text[:string_to_replace_start] + value + text[string_to_replace_end:]
+                    
+                    # JUST INFORMATION FOR REPORT
+                    total_counter += 1
+                    # text_for_report += f" string_to_replace " + ' has been replaced with ' + value + '\n'
+                    data_4_report.update({string_to_replace : value})
+
+            # only one match at all has been found
+            elif len(matches) == 1:
+                for i in iteration:
+
+                    string_to_replace = i.group(2)
+                    string_to_replace_start, string_to_replace_end = i.span(2)
+
+                    if string_to_replace != value:
+                        text = text[:string_to_replace_start] + value + text[string_to_replace_end:]
+                        
+                        # JUST INFORMATION FOR REPORT                        
+                        total_counter += 1
+                        # text_for_report += string_to_replace + ' has been replaced with ' + value + '\n'
+                        data_4_report.update({string_to_replace : value})
+        
+
+        return text, data_4_report, duplicated_signals                 
+        
+
+
 
     @pyqtSlot()
     def run(self):
-        print("Thread start - Normalising a2l file")
-        self.a2l_file_node.data_manager.update_progress_status(True, "Normalising according to VDA spec...")
+        self.signals.status.emit(True, "Normalising according to VDA spec...")
         try:
             with open(self.a2l_file_node.path, 'r') as f:
                 a2l_file_string = f.read()
         except Exception as e:
             print(f'Unable to open file {self.a2l_file_node.path}, reason: {str(e)}')
 
-        normalised_text = normalise_text(a2l_file_string)
+        normalised_text, data_4_report, duplicated_signals = self.normalise_text(a2l_file_string)
+        missing_signals = self.check_missing_signals(normalised_text)
+        # self.signals.finished.emit(data_4_report, missing_signals, duplicated_signals)
 
         try:
             with open(self.a2l_file_node.path, 'w') as f:
@@ -232,12 +286,29 @@ class Worker(QRunnable):
 
                 self.a2l_file_node.remove_all_children()
                 self.a2l_file_node.file_2_tree()
+                self.signals.finished.emit(data_4_report, missing_signals, duplicated_signals)
 
-                self.a2l_file_node.data_manager.update_progress_status(False)
 
         except Exception as e:
             print(f'Unable to save file {self.a2l_file_node.path}, reason: {str(e)}')
             dialog_message(self.a2l_file_node.data_manager, f'Unable to save file {self.a2l_file_node.path}, reason: {str(e)}')
+
+        finally:
+            self.signals.status.emit(False, "")
+            
+
+
+
+
+
+
+class WorkerSignals(QObject):
+    finished = pyqtSignal(dict, list, list)
+    status = pyqtSignal(bool, str)
+
+
+def contains_number(string):
+    return any(char.isdigit() for char in string)    
             
 
 

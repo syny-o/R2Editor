@@ -474,8 +474,6 @@ class DataManager(QWidget, Ui_Form):
         if self.disk_project_path:
             self.ui_check_coverage.setEnabled(False)        
             worker = Worker(self)
-            worker.signals.status.connect(self.update_progress_status)
-            worker.signals.finished.connect(self.check_coverage)
             self.threadpool.start(worker)
 
 
@@ -1124,7 +1122,10 @@ class DataManager(QWidget, Ui_Form):
 
         if isinstance(selected_item, (TestStepNode, ValueNode, ConditionNode)):
             menu.addAction(self.action_duplicate)
-            menu.addSeparator()            
+            menu.addSeparator()      
+
+        if isinstance(selected_item, A2lFileNode):
+            menu.addAction(self.action_normalise_a2l_file)                  
         
         if hasattr(selected_item, 'get_node_copy'):
             menu.addSeparator()
@@ -1465,7 +1466,18 @@ class DataManager(QWidget, Ui_Form):
 
         if isinstance(selected_item, A2lFileNode):
             selected_item.normalise_file()  
-            self.send_data_2_completer()      
+            self.send_data_2_completer()    
+
+
+
+    @pyqtSlot(dict, list, list)
+    def a2l_normalisation_finished(self, data_4_report, missing_signals, duplicated_signals):
+        import data_manager.form_a2l_norm_report
+        from importlib import reload
+        reload(data_manager.form_a2l_norm_report)
+        # from data_manager.form_a2l_norm_report import A2lNormReport
+        self.form = data_manager.form_a2l_norm_report.A2lNormReport(data_4_report, missing_signals, duplicated_signals)
+        self.form.show()
 
 
 
@@ -1744,6 +1756,8 @@ class Worker(QRunnable):
         super().__init__()
         self.data_manager = data_manager
         self.signals = WorkerSignals()
+        self.signals.status.connect(data_manager.update_progress_status)
+        self.signals.finished.connect(data_manager.check_coverage)        
 
 
     @pyqtSlot()

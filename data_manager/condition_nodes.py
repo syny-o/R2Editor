@@ -161,7 +161,7 @@ class ConditionFileNode(QStandardItem):
             #  set DATA to QStandardItem
 
 
-            new_cond_node.setData(str(f'{cond_node.text() : <40}{self.path : >40}'), Qt.DisplayRole)
+            # new_cond_node.setData(str(f'{cond_node.text() : <40}{self.path : >40}'), Qt.DisplayRole)
             new_cond_node.setData(cond_node.text(), Qt.ToolTipRole)
 
             condition_list.append(new_cond_node)  # add QStandardItem to List
@@ -188,6 +188,8 @@ class ConditionFileNode(QStandardItem):
                 new_value_node.setData(value_node.text(), Qt.ToolTipRole)
 
                 values_list.append(new_value_node)  # add QStandardItem to model
+
+            new_cond_node.setData(str(f'{cond_node.text() : <40}{" | ".join([v.data(Qt.ToolTipRole) for v in values_list])[:100] : >100}'), Qt.DisplayRole)
 
             condition_dict.update({cond_node.text(): values_list})
 

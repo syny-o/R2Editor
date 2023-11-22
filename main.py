@@ -844,8 +844,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def format_code(self):
-        from importlib import reload
-        reload(text_management)
+        # from importlib import reload
+        # reload(text_management)
         if self.actual_text_edit:
             try:
                 # text_management.format_text(self.actual_text_edit)

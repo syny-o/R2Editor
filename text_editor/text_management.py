@@ -147,9 +147,13 @@ class TextFormatter:
         # get formated lines, merge them together and send it to text_edit object
         formated_lines = self._format_text()
         new_text = '\n'.join(formated_lines)
-        self.text_edit.setPlainText(new_text)
+        
+        temp_cursor = self.text_edit.textCursor()
+        temp_cursor.select(QTextCursor.Document)
+        temp_cursor.insertText(new_text)
+        # self.text_edit.setPlainText(new_text)
         # TEST:
-        HandleTestcaseNumbers(new_text).run()
+        # HandleTestcaseNumbers(new_text).run()
         # retrieve original position of cursor
         self.text_cursor.setPosition(self.text_cursor_original_position)
         self.text_edit.setTextCursor(self.text_cursor)
