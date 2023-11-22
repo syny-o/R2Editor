@@ -16,7 +16,7 @@ from PyQt5.QtGui import QTextCursor, QKeySequence, QIcon, QFontDatabase, QPalett
 
 from text_editor.text_editor import TextEdit
 from text_editor import text_management
-from tree_file_browser import FileSystemView
+from file_browser.tree_file_browser import FileSystemView
 from tabs import Tabs
 from data_manager.data_manager import DataManager
 from dashboard.dashboard import Dashboard

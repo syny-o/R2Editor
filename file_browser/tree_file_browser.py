@@ -7,7 +7,9 @@ from pathlib import Path
 from ui.ui_file_system import Ui_Form
 import os, stat, re
 from dialogs.form_find_replace import FindAndReplace
-from vda_normaliser.vda_normaliser import normalise_file
+# from vda_normaliser.vda_normaliser import normalise_file
+from file_browser.pbc_patterns_scripts import patterns
+from dialogs.dialog_message import dialog_message
 
 
 
@@ -148,10 +150,10 @@ class FileSystemView(QWidget, Ui_Form):
             menu.addSeparator()
             action_add_to_model = menu.addAction(QIcon(u"ui/icons/16x16/cil-dialpad.png"), 'Add to Model')   
             action_add_to_model.triggered.connect(lambda: self.send_file_to_model(file_path))  
-        # if file_suffix.lower() in ('.par', '.txt'):
-        #     menu.addSeparator()
-        #     action_normalise_file = menu.addAction(QIcon(u"ui/icons/16x16/cil-chart-line.png"), 'Normalise Script')                     
-        #     action_normalise_file.triggered.connect(lambda: normalise_file(file_path))
+        if file_suffix.lower() in ('.par', '.txt') or is_directory:
+            menu.addSeparator()
+            action_normalise_file = menu.addAction(QIcon(u"ui/icons/16x16/cil-chart-line.png"), 'Normalise Script(s)')                     
+            action_normalise_file.triggered.connect(lambda: self.normalise_script(file_path))
                 
         menu.exec_(QCursor().pos())
 
@@ -251,6 +253,12 @@ class FileSystemView(QWidget, Ui_Form):
         self.current_path = file_path
 
 
-    def normalise_script(self):
-        pass
+    def normalise_script(self, file_path):
+        import file_browser.form_script_normalisation
+
+        self.form = file_browser.form_script_normalisation.ScriptNormReport(file_path)
+        self.form.show()
+
+        
+    
 
