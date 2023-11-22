@@ -242,8 +242,8 @@ class Worker(QRunnable):
 
 
 
-                    # with open(full_path, 'w') as f:
-                    #     f.write(text)
+                    with open(full_path, 'w') as f:
+                        f.write(text)
 
                     # lock the file to be ReadOnly back again
                     if is_read_only:
