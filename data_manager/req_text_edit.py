@@ -286,7 +286,7 @@ class RequirementTextHighlighter(QSyntaxHighlighter):
             (r"'[^\s]+'", 0, STYLES['string']),
 
             # COLUMNS NAMES
-            (r"^<[\w\s\n-]+>:$", 0, STYLES["COLUMNS"]),
+            (r"^<[\w\s\n/-]+>:$", 0, STYLES["COLUMNS"]),
 
             # Small headings in Object Text
             (r"^[\w\s]+:$", 0, STYLES["TEXT_HEADINGS"]),

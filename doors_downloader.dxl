@@ -14,27 +14,25 @@
     Baseline b
     string module_name
     AttrDef ad
-    string as 
+    string objAttrName 
     
     
     m = read("/EPB FIAT Ducato MY22 Tailor/023 System Diagnostic Tables/DET - PBC",true)
 
     b = getMostRecentBaseline(m)
 
-    print b
-
     module_name = name m
     module_path = path m
     out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
     out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
 
-    for as in m do
+    for objAttrName in (m) do
     { 
-        out << "<<<ATTRIBUTE>>>" as 
+        out << "<<<ATTRIBUTE>>>" objAttrName 
     }
 
     for o in entire(m) do {
-        out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading""<<<COLUMN>>>"o."Object Text"""
+        out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading""<<<COLUMN>>>"o."Object Text""<<<COLUMN>>>"o."011_Object State""<<<COLUMN>>>"o."802_Comment""<<<COLUMN>>>"o."803_OEM/OES - Diagnostic Event Number""<<<COLUMN>>>"o."808_OEM - Detection Condition English""<<<COLUMN>>>"o."810_OEM - Detection Description English""<<<COLUMN>>>"o."815_OEM/OES - ReEvaluation English""<<<COLUMN>>>"o."850_Customer DTC"""
         for outLink in (o -> "*") do {
             out << "<<<OUTLINK>>>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) ""         
         }

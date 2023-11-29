@@ -471,9 +471,10 @@ class RequirementFileNode(QStandardItem):
                     # print(baseline)
 
                     # ATTRIBUTES
-                    attributes = re.findall(r"<<<ATTRIBUTE>>>(.+?)<<<", module)
+                    attributes = re.findall(r"<<<ATTRIBUTE>>>([^<]+)", module)
                     if attributes:
                         self.attributes = attributes
+                        # print(attributes)
 
                     last_item = self
                     

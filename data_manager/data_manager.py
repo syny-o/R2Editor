@@ -75,7 +75,7 @@ class DataManager(QWidget, Ui_Form):
         self.uiLisWidgetModuleColumns.setEnabled(False)
         self.uiLayoutModuleColumns.addWidget(self.uiLisWidgetModuleColumns)
 
-        self.uiLisWidgetModuleAttributes = MyListWidget()
+        self.uiLisWidgetModuleAttributes = MyListWidget(context_menu=False)
         # self.uiLisWidgetModuleAttributes.setEnabled(False)
         self.uiLayoutModuleAttributes.addWidget(self.uiLisWidgetModuleAttributes)
 

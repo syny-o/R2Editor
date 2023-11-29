@@ -37,9 +37,9 @@ def _create_dxl_query(
     out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
     out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
 
-    for as in m do
+    for objAttrName in (m) do
     { 
-        out << "<<<ATTRIBUTE>>>" as 
+        out << "<<<ATTRIBUTE>>>" objAttrName 
     }
 
     for o in entire(m) do {
@@ -110,7 +110,7 @@ def _create_dxl_script(module_paths:list[str], module_columns:list[list]):
     Baseline b
     string module_name
     AttrDef ad
-    string as 
+    string objAttrName 
     """
 
     content = ""

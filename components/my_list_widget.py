@@ -8,8 +8,8 @@ class MyListWidget(QListWidget):
 
  
 
-    def __init__(self, parent=None):
-        super(MyListWidget, self).__init__(parent)
+    def __init__(self, context_menu=True):
+        super(MyListWidget, self).__init__()
         self.setIconSize(QtCore.QSize(124, 124))
         self.setDragDropMode(QtWidgets.QAbstractItemView.DragDropMode.DragDrop)
         self.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
@@ -24,8 +24,9 @@ class MyListWidget(QListWidget):
         self.action_insert_item = QAction("Insert")
         self.action_insert_item.triggered.connect(self.insert_item)   
 
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self._context_menu)      
+        if context_menu:
+            self.setContextMenuPolicy(Qt.CustomContextMenu)
+            self.customContextMenuRequested.connect(self._context_menu)      
 
 
     def dragEnterEvent(self, event):

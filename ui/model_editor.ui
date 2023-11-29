@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2737</width>
+    <width>2729</width>
     <height>1238</height>
    </rect>
   </property>
@@ -1276,40 +1276,6 @@ QListWidget, QTextEdit{
                  </widget>
                 </item>
                 <item>
-                 <widget class="QFrame" name="uiFrameModuleColumns_2">
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Raised</enum>
-                  </property>
-                  <layout class="QHBoxLayout" name="horizontalLayout_45">
-                   <item>
-                    <widget class="QLabel" name="label_27">
-                     <property name="minimumSize">
-                      <size>
-                       <width>100</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string>Attributes:</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="uiLayoutModuleAttributes"/>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item>
                  <widget class="QFrame" name="uiFrameModuleColumns">
                   <property name="frameShape">
                    <enum>QFrame::StyledPanel</enum>
@@ -1317,7 +1283,35 @@ QListWidget, QTextEdit{
                   <property name="frameShadow">
                    <enum>QFrame::Raised</enum>
                   </property>
-                  <layout class="QHBoxLayout" name="horizontalLayout_40">
+                  <layout class="QHBoxLayout" name="horizontalLayout_31">
+                   <item>
+                    <widget class="QFrame" name="uiFrameModuleAttributes">
+                     <property name="frameShape">
+                      <enum>QFrame::StyledPanel</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Raised</enum>
+                     </property>
+                     <layout class="QHBoxLayout" name="horizontalLayout_45">
+                      <item>
+                       <widget class="QLabel" name="label_27">
+                        <property name="minimumSize">
+                         <size>
+                          <width>100</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>Attributes:</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <layout class="QHBoxLayout" name="uiLayoutModuleAttributes"/>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
                    <item>
                     <widget class="QLabel" name="label_23">
                      <property name="minimumSize">
