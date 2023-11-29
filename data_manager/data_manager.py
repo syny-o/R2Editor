@@ -33,7 +33,7 @@ from components.my_list_widget import MyListWidget
 class DataManager(QWidget, Ui_Form):
 
     send_project_path = pyqtSignal(str)
-    send_file_path = pyqtSignal(str)
+    send_file_path = pyqtSignal(Path)
 
     def __init__(self, main_window):
         super().__init__()

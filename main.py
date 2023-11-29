@@ -346,7 +346,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.label_opened_project.setText(str(self.opened_project_path) if self.opened_project_path else 'No Project')
 
         # SET STATUS BAR LABEL SAME AS ACTUAL FILE PATH
-        self.label_actual_script_path.setText(self.actual_text_edit.file_path if self.actual_text_edit else '')
+        self.label_actual_script_path.setText(str(self.actual_text_edit.file_path) if self.actual_text_edit else '')
 
         # UNDERLINE ACTUAL TAB WITH COLOR
         if self.actual_tabs:
@@ -522,25 +522,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return
         else:
             try:
-                self.file_open_from_tree(path)
+                self.file_open_from_tree(Path(path))
                 self.update_title()
             except Exception as my_exception:
                 dialog_message(self, str(my_exception))        
 
 
 
-
-    def file_open_from_tree(self, file_path):
+    @pyqtSlot(Path)
+    def file_open_from_tree(self, file_path: Path):
         try:
-            file_suffix = Path(file_path).suffix
+            file_suffix = file_path.suffix
             opened_files = self.get_all_opened_files()
             if file_suffix.lower() in ('.par', '.py', '.con', '.xml', '.txt', '.map'):
                 if file_path not in opened_files:
                     with open(file_path, 'r') as file_to_open:
                         text = file_to_open.read()
-                        file_to_open.close()
+                        # file_to_open.close()
 
-                    tab_name = file_path.split('/')[-1]
+                    # tab_name = file_path.split('/')[-1]
+                    tab_name = file_path.name
                     self.left_tabs.addTab(TextEdit(self, text, file_path), QIcon(u"ui/icons/16x16/cil-file.png"), tab_name)
 
                 else:

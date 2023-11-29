@@ -1,7 +1,7 @@
 from PyQt5.Qt import QStandardItem, QStandardItemModel
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
-import re
+import re, os, stat
 from .pbc_patterns import patterns, signals_to_check
 from dialogs.dialog_message import dialog_message
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QSettings, QRunnable, QThreadPool
@@ -281,6 +281,11 @@ class A2lNormWorker(QRunnable):
         # self.signals.finished.emit(data_4_report, missing_signals, duplicated_signals)
 
         try:
+            # Check if the file ReadOnly and if so, unlock it:
+            is_read_only = not(os.access(self.a2l_file_node.path, os.W_OK))
+            if is_read_only:
+                os.chmod(self.a2l_file_node.path, stat.S_IWRITE)
+
             with open(self.a2l_file_node.path, 'w') as f:
                 f.write(normalised_text)
 
