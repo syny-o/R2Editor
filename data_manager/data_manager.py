@@ -27,6 +27,7 @@ from components.reduce_path_string import reduce_path_string
 from dialogs.dialog_message import dialog_message
 from doors.doors_connection import DoorsConnection
 from components.my_list_widget import MyListWidget
+from data_manager.widget_baseline import WidgetBaseline
 
 
 
@@ -190,6 +191,10 @@ class DataManager(QWidget, Ui_Form):
         self.ui_lw_outlinks.itemDoubleClicked.connect(self._doubleclick_on_outlink)
         self.uiListWidgetModuleIgnoreList.itemDoubleClicked.connect(self._doubleclick_on_ignored_reference)
 
+        # BASELINE LIST WIDGET
+        self.widget_baseline = WidgetBaseline()
+        self.uiLayoutModuleAllBaselines.addWidget(self.widget_baseline)
+
 
         # REQUIREMENT TEXT IMPROVEMENT
         self.ui_requirement_text = RequirementTextEdit(self.MAIN)
@@ -306,7 +311,7 @@ class DataManager(QWidget, Ui_Form):
 
     @pyqtSlot(str, list)
     def receive_data_from_add_req_module_dialog(self, module_path, columns_names):
-        r = RequirementFileNode(self.ROOT, module_path, columns_names, attributes=[], baseline={}, coverage_filter=None, coverage_dict=None, update_time=None, ignore_list=None, notes=None)
+        r = RequirementFileNode(self.ROOT, module_path, columns_names, attributes=[], baseline={}, coverage_filter=None, coverage_dict=None, update_time=None, ignore_list=None, notes=None, current_baseline=None)
         r.file_2_tree()
         self.is_project_saved = False
 
@@ -392,8 +397,8 @@ class DataManager(QWidget, Ui_Form):
 
 
 
-    def send_request_2_doors(self, password, paths, columns_names):
-        DoorsConnection(self, paths, columns_names, self, password)
+    def send_request_2_doors(self, password, paths, columns_names, baselines):
+        DoorsConnection(self, paths, columns_names, baselines, self, password)
         self.downloading_of_requirements_is_in_progress = True
         
       
@@ -415,14 +420,16 @@ class DataManager(QWidget, Ui_Form):
                 if ok and passwd_from_input_dlg:
                     paths = []
                     columns = []
+                    baselines = []
                     for row in range(self.ROOT.rowCount()):
                         node = self.ROOT.child(row)
                         if isinstance(node, RequirementFileNode):
                             paths.append(node.path)
                             columns.append(node.columns_names)
+                            baselines.append(node.current_baseline)
                     
-                    if paths and columns:
-                        self.send_request_2_doors(passwd_from_input_dlg, paths, columns)
+                    if paths and columns and baselines:
+                        self.send_request_2_doors(passwd_from_input_dlg, paths, columns, baselines)
                         
                         self.update_progress_status(True, 'Initialising...')
                         self.ui_update_requirements.setEnabled(False)
@@ -437,7 +444,7 @@ class DataManager(QWidget, Ui_Form):
                     "Doors Connection", 
                     f"Database: {self.MAIN.app_settings.doors_database_path}\nUsername: {self.MAIN.app_settings.doors_user_name}\n\nEnter your password:", QLineEdit.Password)
                     if ok and passwd_from_input_dlg:
-                        self.send_request_2_doors(passwd_from_input_dlg, [selected_item.path,], [selected_item.columns_names,])
+                        self.send_request_2_doors(passwd_from_input_dlg, [selected_item.path,], [selected_item.columns_names,], [selected_item.current_baseline,])
                         self.update_progress_status(True, 'Initialising...')
                         self._module_which_is_currently_donwnloaded = selected_item
                         self.ui_update_requirements.setEnabled(False)
@@ -778,14 +785,15 @@ class DataManager(QWidget, Ui_Form):
 
             self.uiTextEditModuleBaseline.clear()
             # baseline_text = ""
-            for attr, value in selected_item.baseline.items():
-                self.uiTextEditModuleBaseline.insertHtml(f'<span style="color: rgb(150, 150, 150);">{attr.capitalize()}:</span>  <span> {value}</span><br>')
+            # for attr, value in selected_item.baseline.items():
+            #     self.uiTextEditModuleBaseline.insertHtml(f'<span style="color: rgb(150, 150, 150);">{attr.capitalize()}:</span>  <span> {value}</span><br>')
             # self.uiTextEditModuleBaseline.setPlainText(baseline_text)
 
+            # BASELINES
+            self.widget_baseline.update(selected_item)
+
+            # IGNORE LIST
             self.uiListWidgetModuleIgnoreList.clear()
-            # self.uiListWidgetModuleIgnoreList.insertItems(0, selected_item.ignore_list)
-
-
             for item in selected_item.ignore_list:
                 ignore_lw_item = QListWidgetItem()    
                 ignore_lw_item.setData(Qt.DisplayRole, reduce_path_string(item))

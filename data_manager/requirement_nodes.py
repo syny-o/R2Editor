@@ -51,16 +51,17 @@ def initialise(data: dict, root_node):
         ignore_list = requirement_module.get("ignore_list")
         notes = requirement_module.get("notes")
         data = requirement_module.get("requirements")
+        current_baseline = requirement_module.get("current_baseline")
 
         if path and data:
-            r = RequirementFileNode(root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes)
+            r = RequirementFileNode(root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline)
             r.create_tree_from_requirements_data(data, update_time)
             r.file_2_tree()
             r.update_icons_according_to_coverage()
             
             # r.check_coverage(self.disk_project_path)
         elif not data:
-            r = RequirementFileNode(root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes)
+            r = RequirementFileNode(root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline)
             r.file_2_tree()       
 
 
@@ -103,7 +104,7 @@ def _create_list_of_requirements_from_module(module, my_list=None) -> list[dict]
 
 
 class RequirementFileNode(QStandardItem):
-    def __init__(self, root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes):
+    def __init__(self, root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline):
         super().__init__()
         self.root_node = root_node
         self.data_manager = self.root_node.data(Qt.UserRole)
@@ -147,6 +148,8 @@ class RequirementFileNode(QStandardItem):
         self.notes = notes or {}
 
         self.coverage_dict = coverage_dict or {}
+
+        self.current_baseline = current_baseline
 
         self.update_title_text()
 
@@ -373,6 +376,7 @@ class RequirementFileNode(QStandardItem):
             "coverage_dict"     : self.coverage_dict,
             "ignore_list"       : list(self.ignore_list),
             "notes"             : self.notes,
+            "current_baseline"  : self.current_baseline,
             "requirements"      : _create_list_of_requirements_from_module(self),
             }
         requirement_modules.append(my_data)  
@@ -430,105 +434,74 @@ class RequirementFileNode(QStandardItem):
 
             parents = []
 
-            modules = doors_string.split("<<<MODULE>>>")[1:]
+            last_item = self
 
-            for module in modules:
+            # ALL MODULES
+            modules_string = re.findall(r"<<<MODULE_START>>>(.*?)<<<MODULE_END>>>", doors_string, re.DOTALL)
+
+            # ONE MODULE
+            for one_module_string in modules_string:
                 
                 # MODULE PATH
-                path = re.search(r"<<<PATH>>>(.+?)<<<", module)
-                # path = path.group(1)
+                path_match = re.search(r"<PATH_START>(?P<my_group>.*)<PATH_END>", one_module_string, re.DOTALL)
+                path = path_match.group("my_group")
+                # print(f" MODULE PATH: {path}")
+                
+                if path == self.path:
 
-                if path and path.group(1) == self.path:
+                    # MODULE BASELINES
+                    baselines = {}
+                    baselines_string = re.findall(r"<BASELINE_START>(.*?)<BASELINE_END>", one_module_string, re.DOTALL)
+                    for one_baseline_string in baselines_string:
+                        # baseline version
+                        version_match =  re.search(r"<VERSION_START>(?P<my_group>.*)<VERSION_END>", one_baseline_string)
+                        version = version_match.group("my_group")
+                        # baseline user
+                        user_match =  re.search(r"<USER_START>(?P<my_group>.*)<USER_END>", one_baseline_string)
+                        user = user_match.group("my_group")   
+                        # baseline date
+                        date_match =  re.search(r"<DATE_START>(?P<my_group>.*)<DATE_END>", one_baseline_string)
+                        date = date_match.group("my_group")
+                        # baseline annotation
+                        annotation_match =  re.search(r"<ANNOTATION_START>(?P<my_group>.*)<ANNOTATION_END>", one_baseline_string, re.DOTALL)
+                        if annotation_match:
+                            annotation = annotation_match.group("my_group")
+                        else:
+                            annotation = ""
 
-                    print("MODULE", self.path)
+                        baselines.update({version : [user, date, annotation]})
 
-                    # BASELINE INFO
-                    # out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)""(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
-                    baseline = {}
-                    baseline_match = re.search(r"<<<BASELINE>>>(.+?)<<<ATTRIBUTE>>>", module, re.DOTALL)
-                    baseline_string = baseline_match.group(1)
+                    # MODULE ATTRIBUTES NAMES
+                    attributes = re.findall(r"<ATTRIBUTE_START>(.*?)<ATTRIBUTE_END>", one_module_string, re.DOTALL)
+                    # print(attributes)
+
+                    # REQUIREMENTS DATA
+                    all_requiremets_string = re.findall(r"<REQUIREMENT_START>(.*?)<REQUIREMENT_END>", one_module_string, re.DOTALL)
                     
-                    baseline_version = re.search(r"<<<VERSION>>>(.+?)<<<", baseline_string)
-                    baseline_user = re.search(r"<<<USER>>>(.+?)<<<", baseline_string)
-                    baseline_date = re.search(r"<<<DATE>>>(.+?)<<<", baseline_string)
-                    baseline_annotation = re.search(r"<<<ANNOTATION>>>(.+)", baseline_string, re.DOTALL)
+                    for one_requirement_string in all_requiremets_string:
+                        # requirement identifier
+                        identifier_match =  re.search(r"<ID_START>(?P<my_group>.*)<ID_END>", one_requirement_string)
+                        identifier = identifier_match.group("my_group")
+                        # requirement level
+                        level_match =  re.search(r"<LEVEL_START>(?P<my_group>.*)<LEVEL_END>", one_requirement_string)
+                        level = int(level_match.group("my_group"))
+                        # requirement heading
+                        heading_match =  re.search(r"<HEADING_START>(?P<my_group>.*)<HEADING_END>", one_requirement_string)
+                        if heading_match:
+                            heading = heading_match.group("my_group")
+                        else:
+                            heading = "" 
+                        # requirement columns values
+                        columns = re.findall(r"<COLUMN_START>(.*?)<COLUMN_END>", one_requirement_string, re.DOTALL)
+                        # requirement outlinks
+                        outlinks = re.findall(r"<OUTLINK_START>(.*?)<OUTLINK_END>", one_requirement_string, re.DOTALL)      
+                        # requirement inlinks
+                        inlinks = re.findall(r"<INLINK_START>(.*?)<INLINK_END>", one_requirement_string, re.DOTALL)  
 
-                    baseline["version"] = baseline_version.group(1)
-                    baseline["user"] = baseline_user.group(1)
-                    baseline["date"] = baseline_date.group(1)
-                    baseline["annotation"] = baseline_annotation.group(1)
-
-                    if self.baseline:
-                        if self.baseline != baseline:
-                            dialog_message(
-                                self.data_manager, 
-                                f"Baseline for {self.path} has been updated to version {baseline['version']}.\n\nUpdated on: {baseline['date']}\n\nUpdated by: {baseline['user']}\n\nDetails:\n{baseline['annotation']}\n\n",
-                                f"Baseline Update"
-                            )
-
-                    self.baseline = baseline
-
-                    # print(baseline)
-
-                    # ATTRIBUTES
-                    attributes = re.findall(r"<<<ATTRIBUTE>>>([^<]+)", module)
-                    if attributes:
-                        self.attributes = attributes
-                        # print(attributes)
-
-                    last_item = self
-                    
-                    requirements = module.split("<<<REQUIREMENT>>>")[1:]
-
-                    for requirement in requirements:
                         
-                        # REFERENCE
-                        reference = re.search(r"<<<ID>>>(.+?)<<<", requirement)
-                        reference = reference.group(1)
-
-                        # COLUMNS
-                        columns = requirement.split("<<<COLUMN>>>")[1:]
-                            
-                        # LEVEL
-                        level = re.search(r"<<<LEVEL>>>(.+?)<<<", requirement)
-                        level = level.group(1)
-                        level = int(level)
-
-                        # HEADING
-                        heading = re.search(r"<<<HEADING>>>(.*?)<<<", requirement)
-                        if heading and len(heading.group(1)) > 1:
-                            heading = heading.group(1)
-                        else:
-                            heading = ""
-
-                        # INLINKS
-                        if len(columns) > 0:
-                            links_string = columns[-1]
-                        else:
-                            links_string = requirement
-
-                        if "<<<INLINK>>>" in links_string:
-                            inlinks = links_string.split("<<<INLINK>>>")[1:]
-                            if len(columns) > 0:
-                                columns[-1] = columns[-1].split("<<<INLINK>>>")[0]
-                        else:
-                            inlinks = []  
- 
-                        # OUTLINKS
-                        if "<<<OUTLINK>>>" in links_string:
-                            links_string = links_string.split("<<<INLINK>>>")[0]
-                            outlinks = links_string.split("<<<OUTLINK>>>")[1:]
-                            
-                            if len(columns) > 0:
-                                columns[-1] = columns[-1].split("<<<OUTLINK>>>")[0]
-                        else:
-                            outlinks = []
-
-                           
-
                         
                         # CREATE REQUIREMENT NODE
-                        item = RequirementNode(reference, heading, level, outlinks, inlinks, None, columns)
+                        item = RequirementNode(identifier, heading, level, outlinks, inlinks, None, columns)
 
                         # APPEND TO MODEL
                         if level == last_level:
@@ -546,6 +519,10 @@ class RequirementFileNode(QStandardItem):
 
                         last_level = int(level)   
                         last_item = item  
+
+                        # UPDATE CURRENT REQUIREMENT MODULE
+                        self.attributes = attributes 
+                        self.baseline = baselines  # TODO: rename to self.baselines
 
 
 

@@ -1251,7 +1251,7 @@ QListWidget, QTextEdit{
                   <property name="frameShadow">
                    <enum>QFrame::Raised</enum>
                   </property>
-                  <layout class="QHBoxLayout" name="horizontalLayout_46">
+                  <layout class="QHBoxLayout" name="horizontalLayout_40">
                    <item>
                     <widget class="QLabel" name="label_28">
                      <property name="minimumSize">
@@ -1267,10 +1267,19 @@ QListWidget, QTextEdit{
                    </item>
                    <item>
                     <widget class="QTextEdit" name="uiTextEditModuleBaseline">
+                     <property name="maximumSize">
+                      <size>
+                       <width>0</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
                      <property name="readOnly">
                       <bool>true</bool>
                      </property>
                     </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="uiLayoutModuleAllBaselines"/>
                    </item>
                   </layout>
                  </widget>

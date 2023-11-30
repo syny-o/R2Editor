@@ -19,40 +19,140 @@ def create_time_stamp():
 
 
 def _create_dxl_columns_string(module_columns: list) -> str:
-    return ''.join(['"<<<COLUMN>>>"o."' + column + '"' for column in module_columns])
+    return ''.join(['"<COLUMN_START>"o."' + column + '""<COLUMN_END>"' for column in module_columns])
 
 
 
 def _create_dxl_query(
-    module_path: str,
-    module_columns: list[str],):
-    dxl_query = r'''
-    
-    m = read("''' + str(module_path) + r'''",true)
+    module_path:        str,
+    module_columns:     list[str],
+    baseline_string:    str | None, 
+    ):
 
-    b = getMostRecentBaseline(m)
+    if baseline_string:
 
-    module_name = name m
-    module_path = path m
-    out << "<<<MODULE>>><<<PATH>>>" module_path "/" module_name ""
-    out << "<<<BASELINE>>><<<VERSION>>>"(major b)"."(minor b)"."(suffix b)"<<<USER>>>" (user b) "<<<DATE>>>" (dateOf b)"<<<ANNOTATION>>>"(annotation b)""
+        major, minor, suffix = baseline_string.split(".")
 
-    for objAttrName in (m) do
-    { 
-        out << "<<<ATTRIBUTE>>>" objAttrName 
-    }
+        if suffix: 
 
-    for o in entire(m) do {
-        out << "<<<REQUIREMENT>>><<<ID>>>"identifier(o)"<<<LEVEL>>>"level(o)"<<<HEADING>>>"o."Object Heading"''' + _create_dxl_columns_string(module_columns) + r'''""
-        for outLink in (o -> "*") do {
-            out << "<<<OUTLINK>>>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) ""         
+            baseline = f'{major},{minor},"{suffix}"'
+
+        else:
+
+            baseline = f"{major},{minor},null"
+        
+        dxl_query = r'''
+        
+        m = read("''' + str(module_path) + r'''",true)
+
+        //b = getMostRecentBaseline(m)
+
+        module_name = name m
+        module_path = path m
+        
+        out << "<<<MODULE_START>>>\n<PATH_START>" module_path "/" module_name "<PATH_END>" "\n"
+
+        out << "<BASELINES_START>" "\n"
+
+        for b in m do {
+            out << "<BASELINE_START><VERSION_START>"(major b)"."(minor b)"."(suffix b)"<VERSION_END><USER_START>" (user b) "<USER_END><DATE_START>" (dateOf b)"<DATE_END><ANNOTATION_START>"(annotation b)"<ANNOTATION_END><BASELINE_END>\n"
         }
-        for lrIn in each (o <- "*") do {            
-            out << "<<<INLINK>>>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "" 
-        }        
-    }
 
-    '''
+        out << "<BASELINES_END>" "\n"
+
+        out << "<ATTRIBUTES_START>" "\n"
+
+        for objAttrName in (m) do
+        { 
+            out << "<ATTRIBUTE_START>" objAttrName "<ATTRIBUTE_END>" 
+        }
+
+        out << "<ATTRIBUTES_END>" "\n"
+
+        out << "<REQUIREMENTS_START>" "\n"
+
+        mSpecificBaseline = load (m, baseline(''' + baseline + r'''), false)
+        
+        for o in entire(mSpecificBaseline) do {
+            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>"''' + _create_dxl_columns_string(module_columns) + r'''"<COLUMNS_END>"
+            
+            out << "<OUTLINKS_START>"
+            for outLink in all (o -> "*") do {
+                out << "<OUTLINK_START>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) "<OUTLINK_END>"         
+            }
+            out << "<OUTLINKS_END>"
+            out << "<INLINKS_START>"
+            for lrIn in each (o <- "*") do {            
+                out << "<INLINK_START>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "<INLINK_END>" 
+            }
+            out << "<INLINKS_END>"
+
+            out << "<REQUIREMENT_END>"        
+        }
+
+        out << "<REQUIREMENTS_END>" "\n"    
+
+        out << "<<<MODULE_END>>>" "\n"
+
+        '''
+
+
+
+
+    else:
+
+        dxl_query = r'''
+        
+        m = read("''' + str(module_path) + r'''",true)
+
+        //b = getMostRecentBaseline(m)
+
+        module_name = name m
+        module_path = path m
+        
+        out << "<<<MODULE_START>>>\n<PATH_START>" module_path "/" module_name "<PATH_END>" "\n"
+
+        out << "<BASELINES_START>" "\n"
+
+        for b in m do {
+            out << "<BASELINE_START><VERSION_START>"(major b)"."(minor b)"."(suffix b)"<VERSION_END><USER_START>" (user b) "<USER_END><DATE_START>" (dateOf b)"<DATE_END><ANNOTATION_START>"(annotation b)"<ANNOTATION_END><BASELINE_END>\n"
+        }
+
+        out << "<BASELINES_END>" "\n"
+
+        out << "<ATTRIBUTES_START>" "\n"
+
+        for objAttrName in (m) do
+        { 
+            out << "<ATTRIBUTE_START>" objAttrName "<ATTRIBUTE_END>" 
+        }
+
+        out << "<ATTRIBUTES_END>" "\n"
+
+        out << "<REQUIREMENTS_START>" "\n"
+
+        for o in entire(m) do {
+            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>"''' + _create_dxl_columns_string(module_columns) + r'''"<COLUMNS_END>"
+            
+            out << "<OUTLINKS_START>"
+            for outLink in (o -> "*") do {
+                out << "<OUTLINK_START>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) "<OUTLINK_END>"         
+            }
+            out << "<OUTLINKS_END>"
+            out << "<INLINKS_START>"
+            for lrIn in each (o <- "*") do {            
+                out << "<INLINK_START>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "<INLINK_END>" 
+            }
+            out << "<INLINKS_END>"
+
+            out << "<REQUIREMENT_END>"        
+        }
+
+        out << "<REQUIREMENTS_END>" "\n"    
+
+        out << "<<<MODULE_END>>>" "\n"
+
+        '''
     return dxl_query
 
 
@@ -93,7 +193,7 @@ def _create_dxl_query(
 
 
 
-def _create_dxl_script(module_paths:list[str], module_columns:list[list]):
+def _create_dxl_script(module_paths:list[str], module_columns:list[list], module_current_baselines:list[str|None]):
     dxl_header = r"""
     // Turn off runlimit for timing
     pragma encoding,"utf-8"
@@ -111,12 +211,14 @@ def _create_dxl_script(module_paths:list[str], module_columns:list[list]):
     string module_name
     AttrDef ad
     string objAttrName 
+
+    Module mSpecificBaseline
     """
 
     content = ""
 
     for i in range(len(module_paths)):
-        content += _create_dxl_query(module_paths[i], module_columns[i])
+        content += _create_dxl_query(module_paths[i], module_columns[i], module_current_baselines[i])
         content += "\n"
 
 
@@ -135,11 +237,9 @@ class DoorsConnection(QObject):
     send_downloaded_requirements = pyqtSignal(object, object)
     send_progress_status = pyqtSignal(bool, str)
 
-    # SET PATH TO BATCH SERVER
-    # my_app_directory = os.getcwd()
-    # batchserver_path = str(my_app_directory) + r'\doors\batchserver.dxl'
 
-    def __init__(self, requirement_node, paths: list, columns_names: list, data_manager, password):
+
+    def __init__(self, requirement_node, paths: list, columns_names: list, module_current_baseline: str|None, data_manager, password):
         super().__init__()
 
         self.data_manager = data_manager
@@ -159,16 +259,12 @@ class DoorsConnection(QObject):
 
         self.cmd = fr'{self.app_path} -data "{self.database_path}" -u "{self.user_name}" -P "{self.user_passwd}" -batch "{dxl_file}"'
 
-        # self.start_doors()
 
-        # self.start()
-
-        # self.close_connection()
 
         # THREADS CONFIGURATION
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(1)
-        worker = Worker(self, paths, columns_names)
+        worker = Worker(self, paths, columns_names, module_current_baseline)
         self.threadpool.start(worker)
 
         print(self.database_path)
@@ -187,13 +283,6 @@ class DoorsConnection(QObject):
 
 
 
-    # def __del__(self):
-    #     self.process.
-    #     subprocess
-
-
-
-
 
     def update_percentage(self):
         if self.percentage < 100:
@@ -207,11 +296,12 @@ class DoorsConnection(QObject):
     def create_and_run_dxl_script(
         self,
         module_paths: list[str],
-        module_columns: list[list[str]],):
+        module_columns: list[list[str]],
+        module_current_baselines: list[str|None]):
 
 
 
-        file_content = _create_dxl_script(module_paths, module_columns)
+        file_content = _create_dxl_script(module_paths, module_columns, module_current_baselines)
         # print(file_content)
 
         with open(dxl_file, 'w', encoding='utf8') as new_dxl_file:
@@ -240,18 +330,19 @@ class DoorsConnection(QObject):
 
 
 class Worker(QRunnable):
-    def __init__(self, doors_connection, paths, columns):
+    def __init__(self, doors_connection, paths, columns, module_current_baselines):
         super().__init__()
         self.doors_connection = doors_connection
         self.paths = paths
         self.columns = columns
+        self.module_current_baselines = module_current_baselines
 
     @pyqtSlot()
     def run(self):
         print("Thread start - Connecting to Doors")
         try:
 
-            self.doors_connection.create_and_run_dxl_script(self.paths, self.columns)
+            self.doors_connection.create_and_run_dxl_script(self.paths, self.columns, self.module_current_baselines)
 
             
         except Exception as e:
