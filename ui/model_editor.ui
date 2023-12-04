@@ -316,7 +316,7 @@ background-color: rgb(39, 44, 54);
                <bool>false</bool>
               </property>
               <property name="text">
-               <string>Update Requirements</string>
+               <string>Update All Requirements</string>
               </property>
               <property name="icon">
                <iconset resource="files.qrc">
@@ -1375,7 +1375,10 @@ QListWidget, QTextEdit{
                    <item>
                     <widget class="QLineEdit" name="uiLineEditModuleCoverageFilter">
                      <property name="enabled">
-                      <bool>false</bool>
+                      <bool>true</bool>
+                     </property>
+                     <property name="readOnly">
+                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>

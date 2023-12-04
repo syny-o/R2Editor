@@ -227,48 +227,7 @@ class DataManager(QWidget, Ui_Form):
         self.threadpool.setMaxThreadCount(1)        
 
 
-    def _expand_all_children(self):
-        selected_item_index = self.TREE.currentIndex()
-        self.TREE.expandRecursively(selected_item_index)
 
-    def _collapse_all_children(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-        
-        def _browse_children(node):         
-            for row in range(node.rowCount()):
-                requirement_node = node.child(row)
-                requirement_node_index = requirement_node.index()
-                self.TREE.collapse(requirement_node_index)
-
-                _browse_children(requirement_node)        
-        
-        _browse_children(selected_item)
-        self.TREE.collapse(selected_item_index)
-
-
-
-    def copy_to_clipboard(self):
-        cb = QApplication.clipboard()
-        cb.clear(mode=cb.Clipboard)
-        cb.setText(self.ui_requirement_id.text(), mode=cb.Clipboard)
-        self.MAIN.show_notification(f"Item {self.ui_requirement_id.text()} copied to Clipboard.")  
-
-
-
-    def make_ui_components_editable(self):
-        for c in self.ui_components_for_editing:
-            if isinstance(c, (QLineEdit, QTextEdit)): c.setReadOnly(False)
-            if isinstance(c, QListWidget): c.setEnabled(True) 
-            c.setStyleSheet("background-color: rgb(20, 20, 120);")
-
-    def make_ui_components_not_editable(self):
-        for c in self.ui_components_for_editing:
-            if isinstance(c, (QLineEdit, QTextEdit)): c.setReadOnly(True)  
-            if isinstance(c, QListWidget): c.setEnabled(False) 
-            c.setStyleSheet("background-color: rgb(33, 37, 43);")
-            if isinstance(c, QTextEdit):
-                c.setStyleSheet("background-color: rgb(33, 37, 43); color: rgb(190, 190, 190); font-style: italic")
     
     @property
     def disk_project_path(self):
@@ -312,8 +271,18 @@ class DataManager(QWidget, Ui_Form):
     @pyqtSlot(str, list)
     def receive_data_from_add_req_module_dialog(self, module_path, columns_names):
         r = RequirementFileNode(self.ROOT, module_path, columns_names, attributes=[], baseline={}, coverage_filter=None, coverage_dict=None, update_time=None, ignore_list=None, notes=None, current_baseline=None)
-        r.file_2_tree()
+        self.ROOT.appendRow(r)
         self.is_project_saved = False
+
+
+
+    @pyqtSlot(bool, str)
+    def update_progress_status(self, is_visible, text=''):
+        self.ui_frame_progress_status.setMinimumHeight(30) if is_visible else self.ui_frame_progress_status.setMinimumHeight(0)
+        self.ui_label_progress_status.setText(text)
+
+
+
 
 
     def add_req_node(self):
@@ -324,100 +293,39 @@ class DataManager(QWidget, Ui_Form):
         # reload(data_manager.req_text_edit)
         # self.ui_requirement_text = data_manager.req_text_edit.RequirementTextEdit(self.main_window)
         # self.ui_layout_req_text.addWidget(self.ui_requirement_text)
-        
-
-
-    @pyqtSlot(bool, str)
-    def update_progress_status(self, is_visible, text=''):
-        self.ui_frame_progress_status.setMinimumHeight(30) if is_visible else self.ui_frame_progress_status.setMinimumHeight(0)
-        self.ui_label_progress_status.setText(text)
 
 
 
-    def send_data_2_completer(self):
-
-        cond_tooltips = {}
-        Completer.cond_tooltips.clear()
-        cond_dict = {}
-        cond_model = QStandardItemModel()
-        a2l_model = QStandardItemModel()
-        dspace_model = QStandardItemModel()
-
-        for root_row in range(self.ROOT.rowCount()):
-            current_file_node = self.ROOT.child(root_row, 0)
-            if isinstance(current_file_node, ConditionFileNode):
-                condition_dict, condition_list, cond_tooltips = current_file_node.data_4_completer()
-                if cond_tooltips:
-                    Completer.cond_tooltips.update(cond_tooltips)
-
-
-
-                for cond, values_list in condition_dict.items():
-                    if cond not in cond_dict:
-                        values_model = QStandardItemModel()
-                        for value in values_list:
-                            values_model.appendRow(value)
-
-                        cond_dict.update({cond: values_model})
-
-                        for cond_item in condition_list:
-                            if cond_item.data(role=Qt.ToolTipRole) == cond:
-                                cond_model.appendRow(cond_item)
-
-            elif isinstance(current_file_node, A2lFileNode):
-                a2l_list = current_file_node.data_4_completer()
-                for a2l_item in a2l_list:
-                    a2l_model.appendRow(a2l_item)
-
-            elif isinstance(current_file_node, DspaceFileNode):
-                dspace_model = current_file_node.data_4_completer()
-
-
-        
-        Completer.cond_tooltips.update(tooltips)
-
-        Completer.cond_dict.clear()
-        Completer.cond_model = QStandardItemModel()
-        Completer.dspace_model = QStandardItemModel()
-
-        if cond_dict:
-            Completer.cond_dict.update(cond_dict)
-            Completer.cond_model = cond_model
-
-        if a2l_model:
-            Completer.a2l_model = a2l_model
-
-        if dspace_model:
-            Completer.dspace_model = dspace_model
-
-
-
-        self.update_data_summary()
-
-
+    #####################################################################################################################################################
+    #   CONNECTING AND DOWNLOADING DATA FROM DOORS
+    #####################################################################################################################################################
 
 
     def send_request_2_doors(self, password, paths, columns_names, baselines):
         DoorsConnection(self, paths, columns_names, baselines, self, password)
         self.downloading_of_requirements_is_in_progress = True
+        self.update_progress_status(True, 'Initialising...')
         
-      
 
 
     def update_requirements(self, is_multiple_modules):
+        # 1. Check if at least one req. module is present
         requirements_file_nodes_present = False
         for row in range(self.ROOT.rowCount()):
             node = self.ROOT.child(row)
             if isinstance(node, RequirementFileNode):
                 requirements_file_nodes_present = True
 
+        # 2. If some module is present --> get username/password
         if requirements_file_nodes_present:
-            if is_multiple_modules:
-                passwd_from_input_dlg, ok = QInputDialog.getText(
-                    None, 
-                    "Doors Connection", 
-                    f"Database: {self.MAIN.app_settings.doors_database_path}\nUsername: {self.MAIN.app_settings.doors_user_name}\n\nEnter your password:", QLineEdit.Password)
-                if ok and passwd_from_input_dlg:
+            passwd_from_input_dlg, ok = QInputDialog.getText(
+                None, 
+                "Doors Connection", 
+                f"Database: {self.MAIN.app_settings.doors_database_path}\nUsername: {self.MAIN.app_settings.doors_user_name}\n\nEnter your password:", QLineEdit.Password)
+
+            if ok and passwd_from_input_dlg:            
+                # if Button from Upper Menu was pushed (Update All Requirements)
+                if is_multiple_modules:
                     paths = []
                     columns = []
                     baselines = []
@@ -431,23 +339,14 @@ class DataManager(QWidget, Ui_Form):
                     if paths and columns and baselines:
                         self.send_request_2_doors(passwd_from_input_dlg, paths, columns, baselines)
                         
-                        self.update_progress_status(True, 'Initialising...')
-                        self.ui_update_requirements.setEnabled(False)
-                        
-
-            else:
-                selected_item_index = self.TREE.currentIndex()
-                selected_item = self.MODEL.itemFromIndex(selected_item_index)
-                if isinstance(selected_item, RequirementFileNode):
-                    passwd_from_input_dlg, ok = QInputDialog.getText(
-                    None, 
-                    "Doors Connection", 
-                    f"Database: {self.MAIN.app_settings.doors_database_path}\nUsername: {self.MAIN.app_settings.doors_user_name}\n\nEnter your password:", QLineEdit.Password)
-                    if ok and passwd_from_input_dlg:
+                # if Right Click on Module --> Update Requirements (Update Module)
+                else:
+                    selected_item_index = self.TREE.currentIndex()
+                    selected_item = self.MODEL.itemFromIndex(selected_item_index)
+                    if isinstance(selected_item, RequirementFileNode):
                         self.send_request_2_doors(passwd_from_input_dlg, [selected_item.path,], [selected_item.columns_names,], [selected_item.current_baseline,])
-                        self.update_progress_status(True, 'Initialising...')
                         self._module_which_is_currently_donwnloaded = selected_item
-                        self.ui_update_requirements.setEnabled(False)
+                        
 
 
 
@@ -475,7 +374,11 @@ class DataManager(QWidget, Ui_Form):
         self.update_data_summary()
         
 
-        
+
+    #####################################################################################################################################################
+    #   PHYSICAL COVERAGE CHECK
+    #####################################################################################################################################################
+
 
     def create_dict_from_scripts_for_coverage_check(self):
         if self.disk_project_path:
@@ -487,7 +390,6 @@ class DataManager(QWidget, Ui_Form):
     @pyqtSlot(dict)
     def check_coverage(self, file_content_dict):
         if self.disk_project_path:
-            self.ui_check_coverage.setEnabled(False)
             for row in range(self.ROOT.rowCount()):
                 current_item = self.ROOT.child(row)
                 if isinstance(current_item, RequirementFileNode):
@@ -543,6 +445,39 @@ class DataManager(QWidget, Ui_Form):
 
         self._display_values()
 
+
+
+
+##############################################################################################################################
+# COVERAGE FILTER (DATA AFFECTING)
+##############################################################################################################################
+
+
+    def _open_form_for_coverage_filter(self):
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
+        if isinstance(selected_item, RequirementFileNode):
+            self.form_req_filter = FormAddCoverageFilter(self, selected_item)
+            self.form_req_filter.show()
+            # Remove View Filter
+            self._show_all_items()
+
+
+    def _remove_coverage_filter(self):
+        index = self.TREE.currentIndex()
+        requirement_file_node = self.MODEL.itemFromIndex(index)   
+        requirement_file_node.remove_coverage_filter()
+        self.update_data_summary()
+        #  Remove View Filter
+        self._show_all_items()
+
+
+
+
+
+    @pyqtSlot(str)
+    def receive_data_from_req_filter_dialog(self, filter_string):
+        pass
 
 
 
@@ -702,8 +637,51 @@ class DataManager(QWidget, Ui_Form):
 
 
     ####################################################################################################################
-    # PRIVATE METHODS
+    # VIEW 
     ####################################################################################################################
+
+    def _expand_all_children(self):
+        selected_item_index = self.TREE.currentIndex()
+        self.TREE.expandRecursively(selected_item_index)
+
+    def _collapse_all_children(self):
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
+        
+        def _browse_children(node):         
+            for row in range(node.rowCount()):
+                requirement_node = node.child(row)
+                requirement_node_index = requirement_node.index()
+                self.TREE.collapse(requirement_node_index)
+
+                _browse_children(requirement_node)        
+        
+        _browse_children(selected_item)
+        self.TREE.collapse(selected_item_index)
+
+
+
+    def copy_to_clipboard(self):
+        cb = QApplication.clipboard()
+        cb.clear(mode=cb.Clipboard)
+        cb.setText(self.ui_requirement_id.text(), mode=cb.Clipboard)
+        self.MAIN.show_notification(f"Item {self.ui_requirement_id.text()} copied to Clipboard.")  
+
+
+
+    def make_ui_components_editable(self):
+        for c in self.ui_components_for_editing:
+            if isinstance(c, (QLineEdit, QTextEdit)): c.setReadOnly(False)
+            if isinstance(c, QListWidget): c.setEnabled(True) 
+            c.setStyleSheet("background-color: rgb(20, 20, 120);")
+
+    def make_ui_components_not_editable(self):
+        for c in self.ui_components_for_editing:
+            if isinstance(c, (QLineEdit, QTextEdit)): c.setReadOnly(True)  
+            if isinstance(c, QListWidget): c.setEnabled(False) 
+            c.setStyleSheet("background-color: rgb(33, 37, 43);")
+            if isinstance(c, QTextEdit):
+                c.setStyleSheet("background-color: rgb(33, 37, 43); color: rgb(190, 190, 190); font-style: italic")
 
 
     def _hide_all_frames(self):
@@ -1221,7 +1199,6 @@ class DataManager(QWidget, Ui_Form):
 
     def _filter_items(self, filtered_text):
 
-
         selected_item_index = self.TREE.currentIndex()
         selected_item = self.MODEL.itemFromIndex(selected_item_index)        
         
@@ -1416,39 +1393,6 @@ class DataManager(QWidget, Ui_Form):
 
  
         
-
-
-
-##############################################################################################################################
-# COVERAGE FILTER (DATA AFFECTING)
-##############################################################################################################################
-
-
-    def _open_form_for_coverage_filter(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-        if isinstance(selected_item, RequirementFileNode):
-            self.form_req_filter = FormAddCoverageFilter(self, selected_item)
-            self.form_req_filter.show()
-            # Remove View Filter
-            self._show_all_items()
-
-
-    def _remove_coverage_filter(self):
-        index = self.TREE.currentIndex()
-        requirement_file_node = self.MODEL.itemFromIndex(index)   
-        requirement_file_node.remove_coverage_filter()
-        self.update_data_summary()
-        #  Remove View Filter
-        self._show_all_items()
-
-
-
-
-
-    @pyqtSlot(str)
-    def receive_data_from_req_filter_dialog(self, filter_string):
-        pass
 
 
 
@@ -1655,6 +1599,7 @@ class DataManager(QWidget, Ui_Form):
 
 
 
+
     def receive_data_from_add_node_dialog(self, data: dict):    
 
         cond_data = data.get("cond_data")
@@ -1745,16 +1690,72 @@ class DataManager(QWidget, Ui_Form):
         self.send_data_2_completer()
 
 
-    
 
 
+    ####################################################################################################################
+    # COMPLETER:
+    ####################################################################################################################
+
+    def send_data_2_completer(self):
+
+        cond_tooltips = {}
+        Completer.cond_tooltips.clear()
+        cond_dict = {}
+        cond_model = QStandardItemModel()
+        a2l_model = QStandardItemModel()
+        dspace_model = QStandardItemModel()
+
+        for root_row in range(self.ROOT.rowCount()):
+            current_file_node = self.ROOT.child(root_row, 0)
+            if isinstance(current_file_node, ConditionFileNode):
+                condition_dict, condition_list, cond_tooltips = current_file_node.data_4_completer()
+                if cond_tooltips:
+                    Completer.cond_tooltips.update(cond_tooltips)
+
+                for cond, values_list in condition_dict.items():
+                    if cond not in cond_dict:
+                        values_model = QStandardItemModel()
+                        for value in values_list:
+                            values_model.appendRow(value)
+
+                        cond_dict.update({cond: values_model})
+
+                        for cond_item in condition_list:
+                            if cond_item.data(role=Qt.ToolTipRole) == cond:
+                                cond_model.appendRow(cond_item)
+
+            elif isinstance(current_file_node, A2lFileNode):
+                a2l_list = current_file_node.data_4_completer()
+                for a2l_item in a2l_list:
+                    a2l_model.appendRow(a2l_item)
+
+            elif isinstance(current_file_node, DspaceFileNode):
+                dspace_model = current_file_node.data_4_completer()
+        
+        Completer.cond_tooltips.update(tooltips)
+
+        Completer.cond_dict.clear()
+        Completer.cond_model = QStandardItemModel()
+        Completer.dspace_model = QStandardItemModel()
+
+        if cond_dict:
+            Completer.cond_dict.update(cond_dict)
+            Completer.cond_model = cond_model
+
+        if a2l_model:
+            Completer.a2l_model = a2l_model
+
+        if dspace_model:
+            Completer.dspace_model = dspace_model
+
+        self.update_data_summary()
 
 
 
 
    
 ####################################################################################################################
-# COVERAGE CHECK :
+# COVERAGE CHECK --> PHYSICAL CHECK OF FILES ON DISK:
 ####################################################################################################################
 
 PATTERN_REQ_REFERENCE = re.compile(r"""(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*""", re.IGNORECASE)
@@ -1794,7 +1795,6 @@ class Worker(QRunnable):
                                 reference_dict.update({ref: set([full_path,])})   
         
         self.signals.status.emit(False, "Updating coverage, please wait...")
-        # time.sleep(3)
 
         self.signals.finished.emit(reference_dict)
 

@@ -6,5 +6,6 @@ build/
 dist/
 *.txt
 *.ini
+*.json
 ui/files_rc.py
 files_rc.py

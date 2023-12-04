@@ -10,31 +10,13 @@ from components.reduce_path_string import reduce_path_string
 from dialogs.dialog_message import dialog_message
 
 
-# PATTERN_REQ_REFERENCE = re.compile(r'EPB[\d\w_-]+(?:syDesign|funcDesign|techDesign|syRS)[_-]\d+', re.IGNORECASE)
-
-# PATTERN_REQ_REFERENCE = re.compile(r'\$REF:\s*"(?P<req_reference>[\w\d,\s\(\)-]+)"\s*\$', re.IGNORECASE)
-
-# PATTERN_REQ_REFERENCE = re.compile(r'\$REF:\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*\$', re.IGNORECASE)
-
-
-
-
 PATTERN_REQ_REFERENCE = re.compile(r"""(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*""", re.IGNORECASE)
 
-
-
-
-# PATTERN_REQ_REFERENCE = re.compile(r'REFERENCE "(?P<req_reference>.+)"', re.IGNORECASE)
-
-# EPBi-STLA-KM/KX-SyDesign_3538
-
-# REFERENCE "EPBi-Ford-GE2_MY24SyDesign_4700"
-
-# PATTERN_REQ_DETERMINE = re.compile(r"\d\d\d\d - Determine \w*'(?P<keyword>[\w]+)'.[^\s]+", re.IGNORECASE)
 PATTERN_REQ_DETERMINE = re.compile(r"the (component|safety mechanism) shall determine '(?P<keyword>[\w]+)'", re.IGNORECASE)
 
-
 PATTERN_CONSTANT = re.compile(r"^[A-Z0-9_]+$")
+
+
 
 def initialise(data: dict, root_node):
 
@@ -56,17 +38,16 @@ def initialise(data: dict, root_node):
         if path and data:
             r = RequirementFileNode(root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline)
             r.create_tree_from_requirements_data(data, update_time)
-            r.file_2_tree()
+            root_node.appendRow(r)  # APPEND NODE AS A CHILD
             r.update_icons_according_to_coverage()
             
-            # r.check_coverage(self.disk_project_path)
         elif not data:
             r = RequirementFileNode(root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline)
-            r.file_2_tree()       
+            root_node.appendRow(r)  # APPEND NODE AS A CHILD     
 
 
 
-
+# PROJEDE VSECHNY REQUIREMENTY V MODULU (VE STROME), VYTVORI Z NEJ SLOVNIK A ULOZI JE DO SEZNAMU 
 def _create_list_of_requirements_from_module(module, my_list=None) -> list[dict]:
     if my_list is None:
         requirement_list = []
@@ -98,22 +79,16 @@ def _create_list_of_requirements_from_module(module, my_list=None) -> list[dict]
 
 
 
-
-
-
-
-
 class RequirementFileNode(QStandardItem):
     def __init__(self, root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline):
         super().__init__()
         self.root_node = root_node
         self.data_manager = self.root_node.data(Qt.UserRole)
-        # print(root_node.data(Qt.UserRole))
+
         self.path = path
         self.columns_names = columns_names
         # backup original column names, when column names are edited, these backuped columns are used for displying until new Updtate Req is performed
         self.columns_names_backup = [*columns_names]  
-        
 
         self.timestamp = update_time
 
@@ -124,9 +99,6 @@ class RequirementFileNode(QStandardItem):
         self.setEditable(False)
 
         self.coverage_filter = coverage_filter
-
-        # self.show_only_coverage = False
-        # self.show_only_not_covered = False
 
         self.view_filter = "all"
 
@@ -155,12 +127,16 @@ class RequirementFileNode(QStandardItem):
 
 
 
+    # def file_2_tree(self):
+    #     self.root_node.appendRow(self)  # APPEND NODE AS A CHILD
+    
+    # def update_coverage_dict(self, reference, file_references):
+    #     self.coverage_dict.update({reference: file_references})
 
-        # self.threadpool = QThreadPool()
-        # self.threadpool.setMaxThreadCount(1)
+        
 
 
-
+    # VEZME INFORMACE Z COVERAGE SLOVNIKU A DLE NEHO ZOBRAZI TEXT MODULU: POCET POKRYTYCH REQ/CELKOVY POCET REQ (POCITANYCH)
     def update_title_text(self):
         if self.coverage_check:
             number_of_covered_requirements = 0
@@ -173,86 +149,30 @@ class RequirementFileNode(QStandardItem):
             self.setText(reduce_path_string(self.path) + f" ({number_of_covered_requirements}/{number_of_calculated_requirements})")
 
 
+    # VEZME INFORMACE Z COVERAGE SLOVNIKU A DLE NEHO UPDATUJE JEDNOTLIVE REQUIREMETY
+    def update_coverage_from_coverage_dict(self):
+        def browse_children(parent_node, string):                
+            for row in range(parent_node.rowCount()):
+                requirement_node = parent_node.child(row)
+                
+                if requirement_node.reference in self.coverage_dict:
+                    file_references = self.coverage_dict[requirement_node.reference]
+                    if file_references:
+                        requirement_node.update_coverage(True)
+                        requirement_node.file_references = file_references
+                    else:
+                        requirement_node.update_coverage(False)
+                        requirement_node.file_references = set()
+                # else:
+                #     requirement_node.update_coverage(None)
+                #     requirement_node.file_references = set()
 
-    def file_2_tree(self):
-        self.root_node.appendRow(self)  # APPEND NODE AS A CHILD
-
-
-        
-
-
-
-
-    def create_tree_from_requirements_data(self, req_list, timestamp):
-        self.timestamp = timestamp
-        
-        last_level = 0
-        parents = []
-        last_item = self
-
-        for one_requirement in req_list:  # requirements => list, requirement => dict            
-            # REFERENCE
-            reference = one_requirement.get("reference")
-            # COLUMNS
-            columns_data = one_requirement.get("columns_data")                
-            # LEVEL
-            level = one_requirement.get("level")
-            level = int(level)
-            # HEADING
-            heading = one_requirement.get("heading")
-
-            # INLINKS
-            inlinks = one_requirement.get("inlinks")            
-            # OUTLINKS
-            outlinks = one_requirement.get("outlinks")
-            # FILE REFERENCES
-            file_references = one_requirement.get("file_references")              
-            # is_covered
-            is_covered = one_requirement.get("is_covered")   
-
-            # UPDATE COVERAGE DICT
-            if is_covered is not None and not heading:
-                self.update_coverage_dict(reference, file_references)       
-
-            # CREATE REQUIREMENT NODE
-            item = RequirementNode(reference, heading, level, outlinks, inlinks, file_references, columns_data, is_covered)
-            # APPEND TO MODEL
-            if level == last_level:
-                parents[-1].appendRow(item)
-
-            elif level > last_level:
-                parents.append(last_item)
-                parents[-1].appendRow(item)
-
-            else:
-                dif = last_level - level
-                for _ in range(dif):
-                    parents.pop()
-                parents[-1].appendRow(item)
-
-            last_level = int(level)   
-            last_item = item 
-
-
-    
-    def update_coverage_dict(self, reference, file_references):
-        self.coverage_dict.update({reference: file_references})
-
-        
+                browse_children(requirement_node, string)                
+        browse_children(self, self.coverage_filter)                
 
 
 
-
-
-
-
-
-
-    def tree_2_file(self):
-        pass
-
-
-    
+    # PROJDE VSECHNY REQUIREMENTY VE STROME A SPUSTI JEJICH METODU UPDATE_COVERAGE (NUTNE POKUD SE OTEVRE PROJEKT !TODO Dat to Initu Requirementu)  
     def update_icons_according_to_coverage(self):
         def browse_children(parent_node, string):                
             for row in range(parent_node.rowCount()):
@@ -266,6 +186,8 @@ class RequirementFileNode(QStandardItem):
 
 
 
+
+    # NA ZAKLADE SVEHO ARGUMENTU=SLOVNIKU UPDATUJE JEDNOTLIVE REQUIREMENTY VE STROME
     def check_coverage_with_file_pointers(self, project_path, reference_dict):
 
         if project_path and self.coverage_check:
@@ -327,38 +249,117 @@ class RequirementFileNode(QStandardItem):
 
 
             
-    def create_reference_dict(self, project_path): 
-        reference_dict = {}       
-        for root, dirs, files in os.walk(project_path):
-            for filename in files:
-                if filename.endswith((".par", ".txt")):
-                    full_path = (root + '\\' + filename)
-                    full_path = full_path.replace("\\", "/")
-                    with open(full_path, 'r') as f:
-                        text = f.read()
-                    reference_list = PATTERN_REQ_REFERENCE.findall(text)
 
-                    for ref_string in reference_list: # ref string is in following form: 
-                        references = ref_string.split(",")
-                        for ref in references:
-                            ref = ref.lower().strip()
+    # FYZICKY PROZKOUMA SOUBORY NA DISKU VYTVORI SLOVNIK KTERY VRATI:       EPBi-Saic-AS23-SyDesign273 : [C:/Path/test.par, C:/Path/test2.par]
+    # def create_reference_dict(self, project_path): 
+    #     reference_dict = {}       
+    #     for root, dirs, files in os.walk(project_path):
+    #         for filename in files:
+    #             if filename.endswith((".par", ".txt")):
+    #                 full_path = (root + '\\' + filename)
+    #                 full_path = full_path.replace("\\", "/")
+    #                 with open(full_path, 'r') as f:
+    #                     text = f.read()
 
-                            if ref in reference_dict:
-                                reference_dict[ref].add(full_path)
-                            else:
-                                reference_dict.update({ref: set([full_path,])})   
+    #                 reference_list = PATTERN_REQ_REFERENCE.findall(text)
 
-        return reference_dict         
+    #                 for ref_string in reference_list:
+    #                     references = ref_string.split(",")
+    #                     for ref in references:
+    #                         ref = ref.lower().strip()
 
+    #                         if ref in reference_dict:
+    #                             reference_dict[ref].add(full_path)
+    #                         else:
+    #                             reference_dict.update({ref: set([full_path,])})   
 
-
-
-
-
-            
+    #     return reference_dict         
 
 
 
+
+
+
+         
+        
+
+
+
+
+
+
+
+    def apply_coverage_filter(self):
+        if self.coverage_filter:
+            def browse_children(parent_node, string):                    
+                for row in range(parent_node.rowCount()):
+                    item = parent_node.child(row)
+
+                    try:
+                        column = item.columns_data
+                        evaluation = eval(string)
+                        
+                    except Exception as ex:
+                        self.coverage_check = False
+                        self.coverage_filter = None
+                        break
+    
+                    if evaluation:
+                        if item.reference not in self.ignore_list:  # IGNORE LIST CHECK
+                            item.update_coverage(False)
+                        else:
+                            item.update_coverage(None)                    
+                    else:
+                        item.update_coverage(None)
+
+                    browse_children(item, string)                
+        
+            browse_children(self, self.coverage_filter)   
+            self.update_title_text() 
+
+
+    def remove_coverage_filter(self):
+        self.coverage_dict.clear()
+        def browse_children(parent_node):                
+            for row in range(parent_node.rowCount()):
+                item = parent_node.child(row)
+                item.update_coverage(None)                    
+                browse_children(item)            
+    
+        browse_children(self)           
+        self.setIcon(QIcon(u"ui/icons/doors.png"))
+        self.update_title_text()
+        self.coverage_filter = None
+        self.coverage_check = False
+
+
+
+
+    ##########################################################################################################################################
+    # DOORS DOWNLOADING FINISHED:
+
+    # @pyqtSlot(object)
+    def receive_data_from_doors(self, doors_output, timestamp):
+        self.timestamp = timestamp
+        # delete all children
+        self.removeRows(0, self.rowCount())
+        # create new children from received data
+        # self.create_tree_from_requirements_data(req_list, timestamp)
+        self._txtfile_to_tree(doors_output)
+        # once succefull update is performed, update backup columns
+        self.columns_names_backup = [*self.columns_names]  
+        
+        # APPLY FILTER WHICH HAS BEEN APPLIED BEFORE DOWNLOADING
+        self.apply_coverage_filter()
+        # UPDATE ACCORDING TO COVERAGE DICT WHICH IS STORED IN REQUIREMENT MODULE INDEPENDETLY TO REQUIREMETS NODES
+        self.update_coverage_from_coverage_dict()
+
+
+    #######################################################################################################################################
+    #######################################################################################################################################
+    #######################################################################################################################################
+    #######################################################################################################################################
+    #######################################################################################################################################
 
 
 
@@ -379,52 +380,63 @@ class RequirementFileNode(QStandardItem):
             "current_baseline"  : self.current_baseline,
             "requirements"      : _create_list_of_requirements_from_module(self),
             }
-        requirement_modules.append(my_data)  
 
+        requirement_modules.append(my_data)  
 
         return data_from_root      
            
 
 
-
-    # @pyqtSlot(object)
-    def receive_data_from_doors(self, doors_output, timestamp):
+    def create_tree_from_requirements_data(self, req_list, timestamp):
         self.timestamp = timestamp
-        # delete all children
-        self.removeRows(0, self.rowCount())
-        # create new children from received data
-        # self.create_tree_from_requirements_data(req_list, timestamp)
-        self._txtfile_to_tree(doors_output)
-        # once succefull update is performed, update backup columns
-        self.columns_names_backup = [*self.columns_names]  
         
-        # APPLY FILTER WHICH HAS BEEN APPLIED BEFORE DOWNLOADING
-        self.apply_coverage_filter()
-        # UPDATE ACCORDING TO COVERAGE DICT WHICH IS STORED IN REQUIREMENT MODULE INDEPENDETLY TO REQUIREMETS NODES
-        self.update_coverage_from_coverage_dict()
+        last_level = 0
+        parents = []
+        last_item = self
 
+        for one_requirement in req_list:  # requirements => list, requirement => dict            
+            # REFERENCE
+            reference = one_requirement.get("reference")
+            # COLUMNS
+            columns_data = one_requirement.get("columns_data")                
+            # LEVEL
+            level = one_requirement.get("level")
+            level = int(level)
+            # HEADING
+            heading = one_requirement.get("heading")
 
+            # INLINKS
+            inlinks = one_requirement.get("inlinks")            
+            # OUTLINKS
+            outlinks = one_requirement.get("outlinks")
+            # FILE REFERENCES
+            file_references = one_requirement.get("file_references")              
+            # is_covered
+            is_covered = one_requirement.get("is_covered")   
 
-    def update_coverage_from_coverage_dict(self):
-        def browse_children(parent_node, string):                
-            for row in range(parent_node.rowCount()):
-                requirement_node = parent_node.child(row)
-                
-                if requirement_node.reference in self.coverage_dict:
-                    file_references = self.coverage_dict[requirement_node.reference]
-                    if file_references:
-                        requirement_node.update_coverage(True)
-                        requirement_node.file_references = file_references
-                    else:
-                        requirement_node.update_coverage(False)
-                        requirement_node.file_references = set()
-                # else:
-                #     requirement_node.update_coverage(None)
-                #     requirement_node.file_references = set()
+            # UPDATE COVERAGE DICT
+            if is_covered is not None and not heading:
+                self.coverage_dict.update({reference: file_references})     
 
-                browse_children(requirement_node, string)                
-        browse_children(self, self.coverage_filter)             
-        
+            # CREATE REQUIREMENT NODE
+            item = RequirementNode(reference, heading, level, outlinks, inlinks, file_references, columns_data, is_covered)
+            # APPEND TO MODEL
+            if level == last_level:
+                parents[-1].appendRow(item)
+
+            elif level > last_level:
+                parents.append(last_item)
+                parents[-1].appendRow(item)
+
+            else:
+                dif = last_level - level
+                for _ in range(dif):
+                    parents.pop()
+                parents[-1].appendRow(item)
+
+            last_level = int(level)   
+            last_item = item 
+
 
 
 
@@ -526,55 +538,8 @@ class RequirementFileNode(QStandardItem):
 
 
 
-    def apply_coverage_filter(self):
-
-        if self.coverage_filter:
-
-            def browse_children(parent_node, string):
-                    
-                for row in range(parent_node.rowCount()):
-                    item = parent_node.child(row)
-
-                    try:
-                        column = item.columns_data
-                        evaluation = eval(string)
-                        
-                    except Exception as ex:
-                        self.coverage_check = False
-                        self.coverage_filter = None
-                        break
-
-    
-                    if evaluation:
-                        if item.reference not in self.ignore_list:  # IGNORE LIST CHECK
-                            item.update_coverage(False)
-                        else:
-                            item.update_coverage(None)
-                    
-                    else:
-                        item.update_coverage(None)
-
-                    browse_children(item, string)
-                
-        
-            browse_children(self, self.coverage_filter)    
-
-
-    def remove_coverage_filter(self):
-        self.coverage_filter = None
-        self.coverage_check = False
-        
-        def browse_children(parent_node):
-                
-            for row in range(parent_node.rowCount()):
-                item = parent_node.child(row)
-
-                item.update_coverage(None)                    
-
-                browse_children(item)            
-    
-        browse_children(self)           
-        self.setIcon(QIcon(u"ui/icons/doors.png"))
+    def tree_2_file(self):
+        pass
 
 
 

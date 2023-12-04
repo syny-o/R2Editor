@@ -100,12 +100,13 @@ class WidgetBaseline(QWidget):
 
     def _switch_baseline(self):
         item = self.uiListWidgetBaselines.currentItem()
-        new_baseline = item.text()
+        if item:
+            new_baseline = item.text()
         
-        if self.module.current_baseline != new_baseline:
-            self.module.current_baseline = new_baseline
-            self._update_icon()
-            print("CHANGED BASELINE TO ", new_baseline)
+            if self.module.current_baseline != new_baseline:
+                self.module.current_baseline = new_baseline
+                self._update_icon()
+                print("CHANGED BASELINE TO ", new_baseline)
 
 
         

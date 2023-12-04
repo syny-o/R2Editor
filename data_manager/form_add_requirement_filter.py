@@ -121,7 +121,10 @@ class FormAddCoverageFilter(QWidget, Ui_Form):
         self.ui_label_number_ignored_requirements.setText("Ignored Items: " + str(IGNORED))
         if FILTERED:
             self.requirement_file_node.coverage_check = True
+            # self.requirement_file_node.apply_coverage_filter()
+            self.data_manager.create_dict_from_scripts_for_coverage_check()
             # self.data_manager.show_only_items_with_coverage(self.requirement_file_node)
         else:
             self.requirement_file_node.coverage_check = False
+            self.requirement_file_node.remove_coverage_filter()
 
