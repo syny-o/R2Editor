@@ -42,6 +42,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     open_project = pyqtSignal(str)
     save_project = pyqtSignal(str)
+    script_requirement_reference_changed = pyqtSignal(set, str)
 
     def __init__(self):
         QMainWindow.__init__(self)
@@ -209,6 +210,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.data_manager = DataManager(self)
         self.open_project.connect(self.data_manager.open_project)
         self.save_project.connect(self.data_manager.save_project)
+        self.script_requirement_reference_changed.connect(self.data_manager.script_requirement_reference_changed)
 
 
         ################################################################################################################
@@ -577,44 +579,49 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         missing_references = references_original_text.difference(references_text_to_save)
         new_references = references_text_to_save.difference(references_original_text)
 
+        references = missing_references.union(new_references)
+
         # print("MISSING: ", missing_references)
         # print("NEW: ", new_references)
 
-        if self.data_manager._disk_project_path:
+        self.script_requirement_reference_changed.emit(references, str(file_path))
 
-            is_subfolder = self.data_manager._disk_project_path in file_path
-            root = self.data_manager.ROOT
+        # if self.data_manager._disk_project_path:
+            
+            # is_subfolder = self.data_manager._disk_project_path in file_path
+            # root = self.data_manager.ROOT
 
-            if is_subfolder:
-                for root_row in range(root.rowCount()):
-                    current_file_node = root.child(root_row, 0)
-                    if isinstance(current_file_node, RequirementFileNode) and current_file_node.coverage_check:
+            # if is_subfolder:
+            
+                # for root_row in range(root.rowCount()):
+                #     current_file_node = root.child(root_row, 0)
+                #     if isinstance(current_file_node, RequirementFileNode) and current_file_node.coverage_check:
 
-                        def browse_children(parent_node):
+                #         def browse_children(parent_node):
                     
-                            for row in range(parent_node.rowCount()):
-                                req_item = parent_node.child(row)
+                #             for row in range(parent_node.rowCount()):
+                #                 req_item = parent_node.child(row)
 
-                                if req_item.text().lower() in new_references and req_item.is_covered is not None:
-                                    req_item.update_coverage(True)
-                                    req_item.file_references.add(file_path)
-                                    self.show_notification(f"Coverage Updated: {req_item.text()}")
+                #                 if req_item.text().lower() in new_references and req_item.is_covered is not None:
+                #                     req_item.update_coverage(True)
+                #                     req_item.file_references.add(file_path)
+                #                     self.show_notification(f"Coverage Updated: {req_item.text()}")
                             
-                                if req_item.text().lower() in missing_references and req_item.is_covered is not None:
-                                    if file_path in req_item.file_references:
-                                        req_item.file_references.remove(file_path)
-                                        if not req_item.file_references:
-                                            req_item.update_coverage(False)
+                #                 if req_item.text().lower() in missing_references and req_item.is_covered is not None:
+                #                     if file_path in req_item.file_references:
+                #                         req_item.file_references.remove(file_path)
+                #                         if not req_item.file_references:
+                #                             req_item.update_coverage(False)
 
-                                browse_children(req_item)
+                #                 browse_children(req_item)
 
 
-                        browse_children(current_file_node)
+                #         browse_children(current_file_node)
 
 
 
                 
-                        self.data_manager.update_data_summary()
+                #         self.data_manager.update_data_summary()
                                 
 
 

@@ -142,6 +142,8 @@ class DataManager(QWidget, Ui_Form):
 
         self.action_open_coverage_filter = QAction(QIcon(u"ui/icons/16x16/cil-wifi-signal-2.png"), 'Set Coverage Filter')
         self.action_open_coverage_filter.triggered.connect(self._open_form_for_coverage_filter) 
+        self.action_edit_coverage_filter = QAction(QIcon(u"ui/icons/16x16/cil-wifi-signal-2.png"), 'Modify Coverage Filter')
+        self.action_edit_coverage_filter.triggered.connect(self._open_form_for_coverage_filter)         
 
         self.action_show_only_requirements_with_coverage = QAction('Show Not Covered + Covered')
         self.action_show_only_requirements_with_coverage.triggered.connect(self._show_only_items_with_coverage)
@@ -240,20 +242,7 @@ class DataManager(QWidget, Ui_Form):
 
 
 
-    def _add_to_ignore_list(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-        if isinstance(selected_item, RequirementNode):
-            selected_item.add_to_ignore_list()    
-            self.update_data_summary()   
-
-
-    def _remove_from_ignore_list(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-        if isinstance(selected_item, RequirementNode):
-            selected_item.remove_from_ignore_list()    
-            self.update_data_summary()   
+  
 
 
 
@@ -268,13 +257,6 @@ class DataManager(QWidget, Ui_Form):
         self.send_data_2_completer() 
 
 
-    @pyqtSlot(str, list)
-    def receive_data_from_add_req_module_dialog(self, module_path, columns_names):
-        r = RequirementFileNode(self.ROOT, module_path, columns_names, attributes=[], baseline={}, coverage_filter=None, coverage_dict=None, update_time=None, ignore_list=None, notes=None, current_baseline=None)
-        self.ROOT.appendRow(r)
-        self.is_project_saved = False
-
-
 
     @pyqtSlot(bool, str)
     def update_progress_status(self, is_visible, text=''):
@@ -283,6 +265,17 @@ class DataManager(QWidget, Ui_Form):
 
 
 
+
+
+    #####################################################################################################################################################
+    #   ADDING REQUIREMENT MODULE
+    #####################################################################################################################################################
+
+    @pyqtSlot(str, list)
+    def receive_data_from_add_req_module_dialog(self, module_path, columns_names):
+        r = RequirementFileNode(self.ROOT, module_path, columns_names, attributes=[], baseline={}, coverage_filter=None, coverage_dict=None, update_time=None, ignore_list=None, notes=None, current_baseline=None)
+        self.ROOT.appendRow(r)
+        self.is_project_saved = False
 
 
     def add_req_node(self):
@@ -372,14 +365,29 @@ class DataManager(QWidget, Ui_Form):
         self.is_project_saved = False
         self._display_values()
         self.update_data_summary()
+
+
+    #####################################################################################################################################################
+    #   UPDATING COVERAGE BY EDITING SCRIPT IN EDITOR
+    #####################################################################################################################################################
+
+    @pyqtSlot(set, str)
+    def script_requirement_reference_changed(self, req_references: set[str], script_path: str):
+        if self.disk_project_path:
+            for req_reference in req_references:            
+                for row in range(self.ROOT.rowCount()):
+                    current_item = self.ROOT.child(row)
+                    if isinstance(current_item, RequirementFileNode) and current_item.coverage_filter:
+                        current_item.update_script_in_coverage_dict(req_reference, script_path)
+
+            self.update_data_summary()
+
         
 
 
     #####################################################################################################################################################
     #   PHYSICAL COVERAGE CHECK
     #####################################################################################################################################################
-
-
     def create_dict_from_scripts_for_coverage_check(self):
         if self.disk_project_path:
             self.ui_check_coverage.setEnabled(False)        
@@ -393,64 +401,37 @@ class DataManager(QWidget, Ui_Form):
             for row in range(self.ROOT.rowCount()):
                 current_item = self.ROOT.child(row)
                 if isinstance(current_item, RequirementFileNode):
-                    current_item.check_coverage_with_file_pointers(self.disk_project_path, file_content_dict)
+                    current_item.check_coverage_with_file_pointers(file_content_dict)
             self.update_data_summary()
             self.ui_check_coverage.setEnabled(True)
-
-
-
-
 
 
     #####################################################################################################################################################
     #   UPDATE DATA SUMMARY
     #####################################################################################################################################################
-
-    def update_data_summary(self):
-        requirements_number = 0
-        covered_number = 0
-
-        def browse_children(parent_node):                
-            nonlocal requirements_number, covered_number
-            for row in range(parent_node.rowCount()):
-                item = parent_node.child(row)   
-                if not item.heading:
-                    if item.is_covered == True:
-                        covered_number += 1
-                        requirements_number += 1
-                        item.update_coverage(True)
-                        item.get_requirement_module().coverage_dict.update({item.reference: list(item.file_references)})
-                    elif item.is_covered == False:
-                        requirements_number += 1
-                        item.update_coverage(False)
-                        item.get_requirement_module().coverage_dict.update({item.reference: list(item.file_references)})
-                    else:
-                        item.update_coverage(None)                    
-                browse_children(item)
-
+    def update_data_summary(self):        
+        calculated_number, covered_number = 0, 0
         for row in range(self.ROOT.rowCount()):
             current_node = self.ROOT.child(row)
-            if isinstance(current_node, RequirementFileNode) and current_node.coverage_check:          
-                current_node.coverage_dict.clear()
-                browse_children(current_node)    
+            if isinstance(current_node, RequirementFileNode) and current_node.coverage_filter:                          
+                calculated_number += current_node.number_of_calculated_requirements
+                covered_number += current_node.number_of_covered_requirements
                 
-                current_node.update_title_text()                                                   
-
-
-        self.progress_bar.update_value(requirements_number, covered_number)
-        self.ui_lab_req_total.setText(str(requirements_number))
+        self.progress_bar.update_value(calculated_number, covered_number)
+        self.ui_lab_req_total.setText(str(calculated_number))
         self.ui_lab_req_covered.setText(str(covered_number))
-        self.ui_lab_req_not_covered.setText(str(requirements_number-covered_number))
+        self.ui_lab_req_not_covered.setText(str(calculated_number-covered_number))
         self.ui_lab_project_path.setText(self.disk_project_path)
 
         self._display_values()
+        
 
 
 
 
-##############################################################################################################################
-# COVERAGE FILTER (DATA AFFECTING)
-##############################################################################################################################
+    ##############################################################################################################################
+    # COVERAGE FILTER - OPENING FORM AND RECEIVING BACK COVERAGE FILTER STRING:
+    ##############################################################################################################################
 
 
     def _open_form_for_coverage_filter(self):
@@ -459,8 +440,16 @@ class DataManager(QWidget, Ui_Form):
         if isinstance(selected_item, RequirementFileNode):
             self.form_req_filter = FormAddCoverageFilter(self, selected_item)
             self.form_req_filter.show()
-            # Remove View Filter
-            self._show_all_items()
+
+
+    @pyqtSlot(str)
+    def receive_data_from_req_filter_dialog(self, filter_string):
+        index = self.TREE.currentIndex()
+        node = self.MODEL.itemFromIndex(index)
+        node.apply_coverage_filter(filter_string) 
+        self.update_data_summary()
+        # Remove View Filter
+        self._show_all_items()        
 
 
     def _remove_coverage_filter(self):
@@ -472,24 +461,24 @@ class DataManager(QWidget, Ui_Form):
         self._show_all_items()
 
 
+    ##############################################################################################################################
+    # IGNORE LIST:
+    ##############################################################################################################################
+
+    def _add_to_ignore_list(self):
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
+        if isinstance(selected_item, RequirementNode):
+            selected_item.add_to_ignore_list()    
+            self.update_data_summary()   
 
 
-
-    @pyqtSlot(str)
-    def receive_data_from_req_filter_dialog(self, filter_string):
-        pass
-
-
-
-
-
-
-
-
-
-
-
-
+    def _remove_from_ignore_list(self):
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
+        if isinstance(selected_item, RequirementNode):
+            selected_item.remove_from_ignore_list()    
+            self.update_data_summary()         
 
 
     ################################################################################################
@@ -858,7 +847,7 @@ class DataManager(QWidget, Ui_Form):
             self.ui_requirement_covered.setText(str(selected_item.is_covered))
             text_to_display = ''
             columns_data = selected_item.columns_data
-            columns_names = selected_item.get_requirement_module().columns_names_backup
+            columns_names = selected_item.MODULE.columns_names_backup
 
             # COLUMNS NAMES + DATA
             for i in range(len(columns_names)):
@@ -870,21 +859,13 @@ class DataManager(QWidget, Ui_Form):
             # Frame
             self.ui_frame_requirement.setEnabled(True)
             # OUTLINKS
-            self.ui_lw_outlinks.clear() 
-                       
-
+            self.ui_lw_outlinks.clear()                        
             for outlink in selected_item.outlinks:
                 outlink_lw_item = QListWidgetItem()
                 outlink_lw_item.setData(Qt.DisplayRole, reduce_path_string(outlink))
                 outlink_lw_item.setData(Qt.UserRole, outlink)
                 outlink_lw_item.setData(Qt.DecorationRole, QIcon(u"ui/icons/20x20/cil-arrow-right.png"))
-
                 outlink_lw_item.setData(Qt.ToolTipRole, self._get_tooltip_from_link(outlink))
-
-                
-                
-
-
                 self.ui_lw_outlinks.addItem(outlink_lw_item)
             # INLINKS
             for inlink in selected_item.inlinks:
@@ -907,7 +888,7 @@ class DataManager(QWidget, Ui_Form):
             self.uiTextEditRequirementNote.setPlainText(selected_item.get_note())
 
             ## FILTER --> HIGHLIGHT FINDINGS WITH RED COLOR
-            filter_text = selected_item.get_requirement_module().data(Qt.UserRole)
+            filter_text = selected_item.MODULE.data(Qt.UserRole)
             if filter_text:
                 text_edit_content = self.ui_requirement_text.toPlainText()
                 for match in re.finditer(filter_text, text_edit_content, re.IGNORECASE):
@@ -1027,8 +1008,8 @@ class DataManager(QWidget, Ui_Form):
 
 
     def _doubleclick_on_tc_reference(self, list_item_text):
-
-        self.send_file_path.emit(list_item_text.data(Qt.UserRole))
+        file_path_string = list_item_text.data(Qt.UserRole)
+        self.send_file_path.emit(Path(file_path_string))
         self.MAIN.manage_right_menu(self.MAIN.tabs_splitter, self.MAIN.ui_btn_text_editor)
 
 
@@ -1066,7 +1047,7 @@ class DataManager(QWidget, Ui_Form):
         menu.addAction(self.action_expand_all_children)
         menu.addAction(self.action_collapse_all_children)
         menu.addSeparator()
-        if isinstance(selected_item, RequirementFileNode) and selected_item.coverage_check:
+        if isinstance(selected_item, RequirementFileNode) and selected_item.coverage_filter:
             
             if not selected_item.data(Qt.UserRole):
                 self._evaluate_view_filter()
@@ -1074,11 +1055,12 @@ class DataManager(QWidget, Ui_Form):
                 menu.addAction(self.action_show_only_requirements_with_coverage)                   
                 menu.addAction(self.action_show_all_requirements)
                 menu.addSeparator()
+                menu.addAction(self.action_edit_coverage_filter)
                 menu.addAction(self.action_remove_coverage_filter)          
 
         if isinstance(selected_item, RequirementFileNode):
             if not selected_item.data(Qt.UserRole):
-                if not selected_item.coverage_check:
+                if not selected_item.coverage_filter:
                     menu.addSeparator()
                     menu.addAction(self.action_open_coverage_filter)
                 menu.addSeparator()
@@ -1100,7 +1082,7 @@ class DataManager(QWidget, Ui_Form):
             menu.addAction(self.action_create_testable_tc_template_with_req_reference)
             menu.addAction(self.action_create_not_testable_tc_template_with_req_reference)
             if not selected_item.hasChildren():
-                if selected_item.reference in selected_item.get_requirement_module().ignore_list:                
+                if selected_item.reference in selected_item.MODULE.ignore_list:                
                     menu.addAction(self.action_remove_from_ignore_list)
                 elif selected_item.is_covered == False:
                     menu.addAction(self.action_add_to_ignore_list)
@@ -1149,7 +1131,7 @@ class DataManager(QWidget, Ui_Form):
         selected_item_index = self.TREE.currentIndex()
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
         if isinstance(selected_item, RequirementNode):
-            module = selected_item.get_requirement_module()
+            module = selected_item.MODULE
             if module.data(Qt.UserRole):  
                 def _collapse_all_children(node):
                     for row in range(node.rowCount()):
