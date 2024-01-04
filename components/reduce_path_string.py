@@ -1,16 +1,17 @@
-def reduce_path_string(path):
-    # path_length = len(path)
-    # if path_length > 70:
-    #     difference = path_length - 70
-    #     reduced_path = f"...{path[difference:]}"
-    #     return reduced_path
-    # return path
+from pathlib import Path
 
-    path = path.replace("\\", "/")
-    path_list = path.split("/")
-    # print(path_list)
-    if len(path_list) > 1:
-        return "/".join(path_list[-2:])
+def reduce_path_string(path):
+
+    path = Path(path)
+    parts: tuple = path.parts
+
+    if len(parts) > 1:
+        return str(Path(*parts[-2:]))
     else:
-        return "/".join(path_list)
+        return str(path)
+
+
+# print(reduce_path_string("c:/test.txt"))
+# print(reduce_path_string("c://bar//foo//test.txt"))
+# print(reduce_path_string("c://map/foo//temp\\file.txt"))
     

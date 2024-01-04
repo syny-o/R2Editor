@@ -1,11 +1,11 @@
 from PyQt5.Qt import QStandardItem, QIcon
-from PyQt5.QtCore import pyqtSlot, Qt, QRunnable, QThreadPool
+# from PyQt5.QtCore import pyqtSlot, Qt, QRunnable, QThreadPool
 # from PyQt5.QtGui import QIcon
 import re
 from pathlib import Path
-from data_manager.tooltips_req import tooltips_req
+# from data_manager.tooltips_req import tooltips_req
 from components.reduce_path_string import reduce_path_string
-from dialogs.dialog_message import dialog_message
+# from dialogs.dialog_message import dialog_message
 
 
 PATTERN_REQ_REFERENCE = re.compile(r"""(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*""", re.IGNORECASE)
@@ -55,7 +55,7 @@ class RequirementFileNode(QStandardItem):
     def __init__(self, root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline):
         super().__init__()
         self.root_node = root_node
-        self.data_manager = self.root_node.data(Qt.UserRole)
+        # self.data_manager = self.root_node.data(Qt.UserRole)
 
         ICON_DOORS = QIcon(u"ui/icons/doors.png")
         ICON_NOT_COVERED = QIcon(u"ui/icons/cross.png")

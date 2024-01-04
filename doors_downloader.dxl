@@ -19,7 +19,7 @@
     Module mSpecificBaseline
     
         
-        m = read("/EPB Ford GE2 MY24 Tailor/023 System Diagnostic Tables/DMT - PBC",true)
+        m = read("/EPB PSA BVH1 v5 Tailor/02 System Specifications/02 System Architecture Design/SysAD - Functional Design",true)
 
         //b = getMostRecentBaseline(m)
 
@@ -47,13 +47,11 @@
 
         out << "<REQUIREMENTS_START>" "\n"
 
-        mSpecificBaseline = load (m, baseline(18,2,null), false)
-        
-        for o in entire(mSpecificBaseline) do {
-            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMN_START>"o."TRW DTC Name""<COLUMN_END>""<COLUMN_START>"o."TRW Func Actuator Apply Left""<COLUMN_END>""<COLUMN_START>"o."TRW Func Actuator Apply Right""<COLUMN_END>""<COLUMN_START>"o."TRW Func Actuator Release Left""<COLUMN_END>""<COLUMN_START>"o."TRW Func Actuator Release Right""<COLUMN_END>""<COLUMN_START>"o."TRW Func Dynamic Apply RWU""<COLUMN_END>""<COLUMN_START>"o."TRW Func Auto Adjust""<COLUMN_END>""<COLUMN_START>"o."TRW Func GDA""<COLUMN_END>""<COLUMN_START>"o."TRW Func RAR""<COLUMN_END>""<COLUMN_START>"o."TRW Func HTR""<COLUMN_END>""<COLUMN_START>"o."TRW Func Rollerbench Apply""<COLUMN_END>""<COLUMNS_END>"
+        for o in entire(m) do {
+            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMNS_END>"
             
             out << "<OUTLINKS_START>"
-            for outLink in all (o -> "*") do {
+            for outLink in (o -> "*") do {
                 out << "<OUTLINK_START>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) "<OUTLINK_END>"         
             }
             out << "<OUTLINKS_END>"

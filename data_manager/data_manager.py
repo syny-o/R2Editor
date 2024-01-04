@@ -33,21 +33,19 @@ from data_manager.widget_baseline import WidgetBaseline
 
 class DataManager(QWidget, Ui_Form):
 
-    send_project_path = pyqtSignal(str)
     send_file_path = pyqtSignal(Path)
 
-    def __init__(self, main_window):
+    def __init__(self, main_window, project_manager):
         super().__init__()
         self.setupUi(self)
         self._hide_all_frames()
 
         self.MAIN = main_window
-        self.settings = main_window.app_settings
+        self.PROJECT_MANAGER = project_manager
+        
         self.MODEL = QStandardItemModel()
         self.ROOT = self.MODEL.invisibleRootItem()        
         self.ROOT.setData(self, Qt.UserRole)  # add pointer to DataManager instance to be accesseble from child nodes (ReqNode, CondNode, ...)
-        self._disk_project_path = None
-        self.is_project_saved = True
 
         # TREE:
         self.TREE = DroppableTreeView(self)
@@ -65,7 +63,7 @@ class DataManager(QWidget, Ui_Form):
         QShortcut( 'Ctrl+C', self.TREE ).activated.connect(self.copy_node)
         QShortcut( 'Ctrl+V', self.TREE ).activated.connect(self.paste_node)
         QShortcut( 'Insert', self.TREE ).activated.connect(self.add_node)
-        QShortcut( 'Esc', self.TREE ).activated.connect(self.stop_filtering)
+        QShortcut( 'Esc', self.TREE ).activated.connect(self._stop_filtering)
         QShortcut( 'Ctrl+S', self ).activated.connect(self.MAIN.project_save)
      
 
@@ -138,7 +136,7 @@ class DataManager(QWidget, Ui_Form):
 
         self.action_normalise_a2l_file = QAction('Normalise (VDA spec.)')
         self.action_normalise_a2l_file.setIcon(QIcon(u"ui/icons/16x16/cil-chart-line.png"))
-        self.action_normalise_a2l_file.triggered.connect(self.normalise_a2l_file)  
+        self.action_normalise_a2l_file.triggered.connect(self._normalise_a2l_file)  
 
         self.action_open_coverage_filter = QAction(QIcon(u"ui/icons/16x16/cil-wifi-signal-2.png"), 'Set Coverage Filter')
         self.action_open_coverage_filter.triggered.connect(self._open_form_for_coverage_filter) 
@@ -164,7 +162,9 @@ class DataManager(QWidget, Ui_Form):
 
 
         # FUNCTIONAL PART:
-        self.send_project_path.connect(main_window.tree_file_browser.receive_project_path)
+        # self.MODEL.itemChanged.connect(lambda: self.set_project_saved(False))
+        self.MODEL.rowsInserted.connect(lambda: self.set_project_saved(False))
+        self.MODEL.rowsRemoved.connect(lambda: self.set_project_saved(False))
 
         self.ui_remove.clicked.connect(self.remove_node)
         self.ui_add.clicked.connect(self.add_node)
@@ -204,7 +204,7 @@ class DataManager(QWidget, Ui_Form):
 
 
         # COPY TO CLIPBOAR FEATURE
-        self.ui_btnCopyReqRef.clicked.connect(self.copy_to_clipboard)
+        self.ui_btnCopyReqRef.clicked.connect(self._copy_to_clipboard)
 
 
         # POINTER TO REQ MODULE WHEN ONLY ONE IS DOWNLOADING
@@ -229,39 +229,70 @@ class DataManager(QWidget, Ui_Form):
         self.threadpool.setMaxThreadCount(1)        
 
 
-
-    
-    @property
-    def disk_project_path(self):
-        return self._disk_project_path            
-
-    @disk_project_path.setter
-    def disk_project_path(self, path):
-        self._disk_project_path = path
-        self.ui_lab_project_path.setText(path)
+    @pyqtSlot(bool, str)
+    def update_progress_status(self, is_visible, text=''):
+        self.ui_frame_progress_status.setMinimumHeight(30) if is_visible else self.ui_frame_progress_status.setMinimumHeight(0)
+        self.ui_label_progress_status.setText(text)
 
 
 
-  
-
-
-
-
-    @pyqtSlot(dict)
     def receive_data_from_drop_or_file_manager(self, data):
         condition_nodes.initialise(data, self.ROOT)
         dspace_nodes.initialise(data, self.ROOT)
         a2l_nodes.initialise(data, self.ROOT)
-        self.is_project_saved = False
         self.MAIN.show_notification(f"Model has been updated.")   
         self.send_data_2_completer() 
 
 
 
-    @pyqtSlot(bool, str)
-    def update_progress_status(self, is_visible, text=''):
-        self.ui_frame_progress_status.setMinimumHeight(30) if is_visible else self.ui_frame_progress_status.setMinimumHeight(0)
-        self.ui_label_progress_status.setText(text)
+
+    ################################################################################################
+    #  PROJECT HANDLING
+    ################################################################################################
+
+    # @interface --> PROJECT MANAGER
+    def set_project_saved(self, is_modified: bool) -> None:
+        self.PROJECT_MANAGER.receive_parameters_from_listeners(dict(is_project_saved=is_modified))
+
+
+    @pyqtSlot(dict)
+    def receive_data_from_project_manager(self, data: dict):
+
+        self.ROOT.removeRows(0, self.ROOT.rowCount())
+
+        condition_nodes.initialise(data, self.ROOT)
+        dspace_nodes.initialise(data, self.ROOT)
+        a2l_nodes.initialise(data, self.ROOT)
+        requirement_nodes.initialise(data, self.ROOT)        
+
+        self.update_data_summary()
+        self.send_data_2_completer()  
+
+        self.set_project_saved(True)
+
+
+    @pyqtSlot(dict)
+    def receive_parameters_from_project_manager(self, parameters: dict):
+        self.ui_lab_project_path.setText(parameters["disk_project_path"])
+
+
+    @pyqtSlot(dict)
+    def provide_data_4_project_manager(self):
+        data = {
+            'Conditions Files': [],
+            'DSpace Files': [],
+            'A2L Files': [],
+            'REQUIREMENT MODULES': [],
+        }
+        for row in range(self.ROOT.rowCount()):
+            current_node = self.ROOT.child(row)  # get node object
+            received_data = current_node.data_4_project(data)
+            data.update(received_data)
+            # if con/dspace file is modified, save it
+            if isinstance(current_node, (ConditionFileNode, DspaceFileNode)):
+                if current_node.is_modified:
+                    current_node.tree_2_file()        
+        return data
 
 
 
@@ -275,7 +306,6 @@ class DataManager(QWidget, Ui_Form):
     def receive_data_from_add_req_module_dialog(self, module_path, columns_names):
         r = RequirementFileNode(self.ROOT, module_path, columns_names, attributes=[], baseline={}, coverage_filter=None, coverage_dict=None, update_time=None, ignore_list=None, notes=None, current_baseline=None)
         self.ROOT.appendRow(r)
-        self.is_project_saved = False
 
 
     def add_req_node(self):
@@ -362,9 +392,10 @@ class DataManager(QWidget, Ui_Form):
 
         
         self.MAIN.show_notification(f"Requirements have been Updated.") 
-        self.is_project_saved = False
         self._display_values()
         self.update_data_summary()
+
+        self.set_project_saved(False)
 
 
     #####################################################################################################################################################
@@ -373,14 +404,18 @@ class DataManager(QWidget, Ui_Form):
 
     @pyqtSlot(set, str)
     def script_requirement_reference_changed(self, req_references: set[str], script_path: str):
-        if self.disk_project_path:
+        if self.PROJECT_MANAGER.disk_project_path():
             for req_reference in req_references:            
                 for row in range(self.ROOT.rowCount()):
                     current_item = self.ROOT.child(row)
                     if isinstance(current_item, RequirementFileNode) and current_item.coverage_filter:
                         current_item.update_script_in_coverage_dict(req_reference, script_path)
+                        print(req_reference)
+                        print(script_path)
 
             self.update_data_summary()
+            
+            self.set_project_saved(False)
 
         
 
@@ -389,7 +424,8 @@ class DataManager(QWidget, Ui_Form):
     #   PHYSICAL COVERAGE CHECK
     #####################################################################################################################################################
     def create_dict_from_scripts_for_coverage_check(self):
-        if self.disk_project_path:
+        if self.PROJECT_MANAGER.disk_project_path():
+            # print("START COVERAGE CHECK")
             self.ui_check_coverage.setEnabled(False)        
             worker = Worker(self)
             self.threadpool.start(worker)
@@ -397,13 +433,15 @@ class DataManager(QWidget, Ui_Form):
 
     @pyqtSlot(dict)
     def check_coverage(self, file_content_dict):
-        if self.disk_project_path:
+        if self.PROJECT_MANAGER.disk_project_path():
             for row in range(self.ROOT.rowCount()):
                 current_item = self.ROOT.child(row)
                 if isinstance(current_item, RequirementFileNode):
                     current_item.check_coverage_with_file_pointers(file_content_dict)
             self.update_data_summary()
             self.ui_check_coverage.setEnabled(True)
+
+            self.set_project_saved(False)
 
 
     #####################################################################################################################################################
@@ -421,7 +459,6 @@ class DataManager(QWidget, Ui_Form):
         self.ui_lab_req_total.setText(str(calculated_number))
         self.ui_lab_req_covered.setText(str(covered_number))
         self.ui_lab_req_not_covered.setText(str(calculated_number-covered_number))
-        self.ui_lab_project_path.setText(self.disk_project_path)
 
         self._display_values()
         
@@ -449,7 +486,9 @@ class DataManager(QWidget, Ui_Form):
         node.apply_coverage_filter(filter_string) 
         self.update_data_summary()
         # Remove View Filter
-        self._show_all_items()        
+        self._show_all_items()       
+
+        self.set_project_saved(False) 
 
 
     def _remove_coverage_filter(self):
@@ -459,6 +498,8 @@ class DataManager(QWidget, Ui_Form):
         self.update_data_summary()
         #  Remove View Filter
         self._show_all_items()
+
+        self.set_project_saved(False)
 
 
     ##############################################################################################################################
@@ -470,7 +511,9 @@ class DataManager(QWidget, Ui_Form):
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
         if isinstance(selected_item, RequirementNode):
             selected_item.add_to_ignore_list()    
-            self.update_data_summary()   
+            self.update_data_summary()  
+            
+            self.set_project_saved(False) 
 
 
     def _remove_from_ignore_list(self):
@@ -478,150 +521,9 @@ class DataManager(QWidget, Ui_Form):
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
         if isinstance(selected_item, RequirementNode):
             selected_item.remove_from_ignore_list()    
-            self.update_data_summary()         
+            self.update_data_summary()   
 
-
-    ################################################################################################
-    #  PROJECT HANDLING
-    ################################################################################################
-
-    def check_if_project_is_saved(self):
-        if not self.is_project_saved:
-            question = QMessageBox.question(self,
-                            "R2ScriptEditor",
-                            "Current project is not saved.\n\nDo you want to discard changes?",
-                            QMessageBox.Yes | QMessageBox.No)
-            if question == QMessageBox.Yes:
-                return True
-            else:
-                return False
-        
-        else:
-            return True
-
-
-    @pyqtSlot(str)
-    def save_project(self, path):
-
-        data = {
-            'disk_project_path': self.disk_project_path,
-            'Conditions Files': [],
-            'DSpace Files': [],
-            'A2L Files': [],
-            'REQUIREMENT MODULES': [],
-        }
-
-        for row in range(self.ROOT.rowCount()):
-            current_node = self.ROOT.child(row)  # get node object
-
-            received_data = current_node.data_4_project(data)
-
-            data.update(received_data)
-
-            if isinstance(current_node, (ConditionFileNode, DspaceFileNode)):
-                if current_node.is_modified:
-                    current_node.tree_2_file()
-
-        try:
-            with open(path, 'w', encoding='utf8') as f:
-                f.write(json.dumps(data, indent=2))
-                # HANDLE RECENT PROJECTS FILE
-                self.update_recent_projects(path)
-                self.is_project_saved = True
-                self.MAIN.show_notification(f"Project {path} has been saved.")    
-
-        except Exception as e:
-            dialog_message(self, "Unable to Save Project, error:" + str(e))
-
-
-
-
-
-    @pyqtSlot(str)
-    def open_project(self, path):
-
-        if not self.check_if_project_is_saved():
-            return
-
-        self._erase_model()
-
-        try:
-            with open(path, 'r', encoding='utf8') as f:
-                data = json.loads(f.read())
-
-            # Handle project disk path
-            self.disk_project_path = data.get('disk_project_path')
-            if self.disk_project_path:
-                if Path(self.disk_project_path).exists():
-                    self.send_project_path.emit(self.disk_project_path)
-                else:
-                    dialog_message(self, f'Unable to Set Disk Project Path, {self.disk_project_path} does not exist!')
-            # Handle project files
-            condition_nodes.initialise(data, self.ROOT)
-            dspace_nodes.initialise(data, self.ROOT)
-            a2l_nodes.initialise(data, self.ROOT)
-            requirement_nodes.initialise(data, self.ROOT)
-
-            # HANDLE RECENT PROJECTS FILE
-            self.update_recent_projects(path)
-            self.is_project_saved = True
-
-            self.MAIN.show_notification(f"Project {path} has been loaded.") 
-            self.send_data_2_completer()
-            self.update_data_summary()
-
-            self.MAIN.opened_project_path = path
-            self.MAIN.update_title()
-       
-        
-        except Exception as ex:
-            dialog_message(self, f"Loading of JSON File failed:\n\n" + str(ex))
-        
-
-
-
-    @pyqtSlot(object)
-    def new_project(self, data):
-
-        if not self.check_if_project_is_saved():
-            return
-
-        self._erase_model()
-
-        # Handle project disk path
-        self.disk_project_path = data.get('disk_project_path')
-        self.send_project_path.emit(self.disk_project_path)
-        # Handle project files
-        condition_nodes.initialise(data, self.ROOT)
-        dspace_nodes.initialise(data, self.ROOT)
-        a2l_nodes.initialise(data, self.ROOT)
-        requirement_nodes.initialise(data, self.ROOT)
-
-        self.is_project_saved = False
-
-
-        self.update_data_summary()
-        self.send_data_2_completer()
-
-    
-    def update_recent_projects(self, path):
-        if self.settings.recent_projects:
-            if path not in self.settings.recent_projects:
-                self.settings.recent_projects.insert(0, path)
-            else:
-                self.settings.recent_projects.remove(path)
-                self.settings.recent_projects.insert(0, path)
-        else:
-            self.settings.recent_projects = [path,]          
-
-
-    def _erase_model(self):
-        self.ROOT.removeRows(0, self.ROOT.rowCount())
-
-
-
-
-
+            self.set_project_saved(False)      
 
 
 
@@ -650,7 +552,7 @@ class DataManager(QWidget, Ui_Form):
 
 
 
-    def copy_to_clipboard(self):
+    def _copy_to_clipboard(self):
         cb = QApplication.clipboard()
         cb.clear(mode=cb.Clipboard)
         cb.setText(self.ui_requirement_id.text(), mode=cb.Clipboard)
@@ -658,13 +560,13 @@ class DataManager(QWidget, Ui_Form):
 
 
 
-    def make_ui_components_editable(self):
+    def _make_ui_components_editable(self):
         for c in self.ui_components_for_editing:
             if isinstance(c, (QLineEdit, QTextEdit)): c.setReadOnly(False)
             if isinstance(c, QListWidget): c.setEnabled(True) 
             c.setStyleSheet("background-color: rgb(20, 20, 120);")
 
-    def make_ui_components_not_editable(self):
+    def _make_ui_components_not_editable(self):
         for c in self.ui_components_for_editing:
             if isinstance(c, (QLineEdit, QTextEdit)): c.setReadOnly(True)  
             if isinstance(c, QListWidget): c.setEnabled(False) 
@@ -1127,7 +1029,7 @@ class DataManager(QWidget, Ui_Form):
 # TEXT FILTER (ONLY VIEW AFFECTING
 ##############################################################################################################################
 
-    def stop_filtering(self):
+    def _stop_filtering(self):
         selected_item_index = self.TREE.currentIndex()
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
         if isinstance(selected_item, RequirementNode):
@@ -1394,7 +1296,7 @@ class DataManager(QWidget, Ui_Form):
     ####################################################################################################################
     # A2L NORMALISATIION:
     ####################################################################################################################
-    def normalise_a2l_file(self):
+    def _normalise_a2l_file(self):
         selected_item_index = self.TREE.currentIndex()
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
@@ -1446,7 +1348,6 @@ class DataManager(QWidget, Ui_Form):
             self.MODEL.removeRow(selected_item_row, parent_item_index)                
 
             if isinstance(selected_item, RequirementNode):
-                self.is_project_saved = False
                 self.update_data_summary()            
 
         else:
@@ -1522,7 +1423,7 @@ class DataManager(QWidget, Ui_Form):
 
         if button_is_checked:
             self.TREE.setEnabled(False)
-            self.make_ui_components_editable()
+            self._make_ui_components_editable()
             # if isinstance(selected_item, RequirementFileNode):
             #     self.uiLisWidgetModuleColumns.setStyleSheet("background-color: rgb(20, 20, 120);")
             #     self.uiLineEditModulePath.setStyleSheet("background-color: rgb(20, 20, 120);")
@@ -1536,7 +1437,7 @@ class DataManager(QWidget, Ui_Form):
         else:
             
             self.TREE.setEnabled(True)
-            self.make_ui_components_not_editable()
+            self._make_ui_components_not_editable()
             
             # Save changes:
             if isinstance(selected_item, ConditionNode):
@@ -1578,6 +1479,8 @@ class DataManager(QWidget, Ui_Form):
             
             self.send_data_2_completer()
             self.MAIN.show_notification(f"Item {selected_item.text()} has been updated.")
+            
+            self.set_project_saved(False)
 
 
 
@@ -1671,6 +1574,8 @@ class DataManager(QWidget, Ui_Form):
         
         self.send_data_2_completer()
 
+        self.set_project_saved(False)
+
 
 
 
@@ -1754,11 +1659,11 @@ class Worker(QRunnable):
     @pyqtSlot()
     def run(self):
         reference_dict = {}       
-        for root, dirs, files in os.walk(self.data_manager.disk_project_path):
+        for root, dirs, files in os.walk(self.data_manager.PROJECT_MANAGER.disk_project_path()):
             for filename in files:
                 if filename.endswith((".par", ".txt")):
-                    full_path = (root + '\\' + filename)
-                    full_path = full_path.replace("\\", "/")
+                    full_path = Path(root) / Path(filename)
+                    full_path = str(full_path)
 
                     self.signals.status.emit(True, f"Checking: <{full_path}>")
 

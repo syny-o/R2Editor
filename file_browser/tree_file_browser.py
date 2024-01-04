@@ -30,7 +30,7 @@ class FileSystemView(QWidget, Ui_Form):
 
     send_file_path = pyqtSignal(Path)
 
-    def __init__(self, main_window):
+    def __init__(self, main_window, project_manager):
         super().__init__()
         self.setupUi(self)
 
@@ -38,6 +38,7 @@ class FileSystemView(QWidget, Ui_Form):
         self.ui_le_filter.setVisible(False)
 
         self.main_window = main_window
+        self.PROJECT_MANAGER = project_manager
 
         self.send_file_path.connect(main_window.file_open_from_tree)
 
@@ -89,14 +90,24 @@ class FileSystemView(QWidget, Ui_Form):
         self.tree.customContextMenuRequested.connect(self.context_menu)
 
         ################## FILTER LINE EDIT ###########################
-        
-    @pyqtSlot(str)
-    def receive_project_path(self, path):
+
+    
+    # INTERFACE TO PROJECT MANAGER
+    def receive_parameters_from_project_manager(self, parameters: dict):
+        if parameters["disk_project_path"]:
+            self.receive_project_path(parameters)
+        else:
+            self.disconnect_project_folder()
+
+
+
+    def receive_project_path(self, project_params: dict):
+        path = project_params.get("disk_project_path")
         self.ui_btn_disconnect_project_folder.setVisible(True)
         self.ui_btn_disconnect_project_folder.setText(path)
         self.model.setRootPath(path)
         self.tree.setRootIndex(self.model.index(path))
-        self.main_window.data_manager.disk_project_path = path
+        # self.main_window.data_manager.disk_project_path = path
         self.current_path = path
 
 
@@ -104,7 +115,7 @@ class FileSystemView(QWidget, Ui_Form):
         self.ui_btn_disconnect_project_folder.setVisible(False)
         self.model.setRootPath(self._dir_path)
         self.tree.setRootIndex(self.model.index(self._dir_path))
-        self.main_window.data_manager.disk_project_path = None
+
 
 
 
@@ -146,7 +157,7 @@ class FileSystemView(QWidget, Ui_Form):
             menu.addSeparator()
             # ACTION SET PROJECT LOCATION
             action_set_project_location = menu.addAction(QIcon(u"ui/icons/16x16/cil-layers.png"), 'Set as Project Location')
-            action_set_project_location.triggered.connect(lambda: self.receive_project_path(file_path))
+            action_set_project_location.triggered.connect(lambda: self.disk_project_path_was_changed(file_path))
         elif (file_suffix.lower() in ('.con','.a2l')) or file_path.lower().endswith('dspacemapping.py'): 
             # ACTION ADD TO MODEL
             menu.addSeparator()
@@ -165,6 +176,12 @@ class FileSystemView(QWidget, Ui_Form):
 
                 
         menu.exec_(QCursor().pos())
+
+
+    def disk_project_path_was_changed(self, path):
+        self.PROJECT_MANAGER.receive_parameters_from_listeners(
+            { "disk_project_path": path }
+        )
 
 
 
@@ -303,7 +320,6 @@ class FileSystemView(QWidget, Ui_Form):
     def update_current_path(self, index):
         file_path = index.model().filePath(index)
         self.current_path = file_path
-
 
 
     def normalise_script(self, file_path):

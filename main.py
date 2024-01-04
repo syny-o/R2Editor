@@ -22,7 +22,7 @@ from data_manager.data_manager import DataManager
 from dashboard.dashboard import Dashboard
 
 from dialogs.window_project_config import ProjectConfig
-from dialogs.window_settings import AppSettings
+from app_settings import AppSettings
 from dialogs.form_find_replace import FindAndReplace
 # from dialogs.dialog_recent_projects import RecentProjects
 
@@ -34,6 +34,10 @@ from components.notification_widget import NotificationWidget
 import pywinstyles
 from data_manager.requirement_nodes import RequirementFileNode
 
+
+from data_manager import project_manager
+
+_FILE_FILTER = 'RapitTwo Editor Project (*.json)'
 
 # pyinstaller -w --icon=R2Editor.ico main.py
 # pyinstaller -w --icon=R2Editor.ico --name=R2Editor main.py
@@ -182,7 +186,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.VERSION = '2021-03-04'
         # FILTER FOR OPENING/SAVING SCRIPTS AND PROJECTS
         self.filter_script = 'RapitTwo Script (*.par)'
-        self.filter_project = 'RapitTwo Editor Project (*.json)'
+
 
         ################################################################################################################
         # APP SETTINGS CONFIGURATION
@@ -200,23 +204,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ################################################################################################################
         # TREE FILE BROWSER CONFIGURATION
         ################################################################################################################
-        self.tree_file_browser = FileSystemView(self)
+        self.tree_file_browser = FileSystemView(self, project_manager)
         self.verticalLayout_7.addWidget(self.tree_file_browser)
 
 
         ################################################################################################################
         # DATA MANAGER CONFIGURATION
         ################################################################################################################
-        self.data_manager = DataManager(self)
-        self.open_project.connect(self.data_manager.open_project)
-        self.save_project.connect(self.data_manager.save_project)
+        self.data_manager = DataManager(self, project_manager)
         self.script_requirement_reference_changed.connect(self.data_manager.script_requirement_reference_changed)
 
 
         ################################################################################################################
         # DASHBOARD CONFIGURATION
         ################################################################################################################
-        self.dashboard = Dashboard(self)
+        self.dashboard = Dashboard(self, project_manager)
+
+        ################################################################################################################
+        # CONNECT PROJECT MANAGER WITH PROJECT LISTENERS
+        ################################################################################################################        
+        project_manager.set_listeners(self, self.dashboard, self.data_manager, self.tree_file_browser)
 
         ################################################################################################################
         # TABS CONFIGURATION
@@ -333,32 +340,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.btn_toggle_menu.setStyleSheet("background-image: url(:/20x20/icons/20x20/cil-menu.png);")
 
 
-    def update_actual_information(self):
-        self.update_title()
-        if self.actual_text_edit:
-            self.btn_lock_unlock.setChecked(self.actual_text_edit.is_read_only)
-        else:
-           self.btn_lock_unlock.setChecked(False) 
 
-
-    def update_title(self):
-        # SET WINDOW TITLE SAME AS ACTUAL FILE PATH
-        self.setWindowTitle(
-            '{0} - R2 Script Editor'.format(self.opened_project_path) if self.opened_project_path else 'Unsaved Project')
-        self.label_opened_project.setText(str(self.opened_project_path) if self.opened_project_path else 'No Project')
-
-        # SET STATUS BAR LABEL SAME AS ACTUAL FILE PATH
-        self.label_actual_script_path.setText(str(self.actual_text_edit.file_path) if self.actual_text_edit else '')
-
-        # UNDERLINE ACTUAL TAB WITH COLOR
-        if self.actual_tabs:
-            self.left_tabs.setStyleSheet('QTabBar::tab {border-bottom: 3px solid #31363b}')
-            self.right_tabs.setStyleSheet('QTabBar::tab {border-bottom: 3px solid #31363b}')
-            self.actual_tabs.setStyleSheet(' QTabBar::tab:selected {border-bottom: 3px solid rgb(0, 128, 255)}')
-   
-    
-    def show_notification(self, notification_text):
-        self.notification_widget.show_text(notification_text)
 
 
 
@@ -525,7 +507,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             try:
                 self.file_open_from_tree(Path(path))
-                self.update_title()
+                # self.update_title()
             except Exception as my_exception:
                 dialog_message(self, str(my_exception))        
 
@@ -584,52 +566,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # print("MISSING: ", missing_references)
         # print("NEW: ", new_references)
 
-        self.script_requirement_reference_changed.emit(references, str(file_path))
+        self.script_requirement_reference_changed.emit(references, str(Path(file_path)))
 
-        # if self.data_manager._disk_project_path:
-            
-            # is_subfolder = self.data_manager._disk_project_path in file_path
-            # root = self.data_manager.ROOT
-
-            # if is_subfolder:
-            
-                # for root_row in range(root.rowCount()):
-                #     current_file_node = root.child(root_row, 0)
-                #     if isinstance(current_file_node, RequirementFileNode) and current_file_node.coverage_check:
-
-                #         def browse_children(parent_node):
-                    
-                #             for row in range(parent_node.rowCount()):
-                #                 req_item = parent_node.child(row)
-
-                #                 if req_item.text().lower() in new_references and req_item.is_covered is not None:
-                #                     req_item.update_coverage(True)
-                #                     req_item.file_references.add(file_path)
-                #                     self.show_notification(f"Coverage Updated: {req_item.text()}")
-                            
-                #                 if req_item.text().lower() in missing_references and req_item.is_covered is not None:
-                #                     if file_path in req_item.file_references:
-                #                         req_item.file_references.remove(file_path)
-                #                         if not req_item.file_references:
-                #                             req_item.update_coverage(False)
-
-                #                 browse_children(req_item)
-
-
-                #         browse_children(current_file_node)
-
-
-
-                
-                #         self.data_manager.update_data_summary()
-                                
-
-
-
-
-
-        
-        
 
 
 
@@ -729,59 +667,111 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 ########################################################################################################################
 # PROJECT MANAGEMENT METHODS:  START
 ########################################################################################################################
+    def receive_parameters_from_project_manager(self, parameters: dict):
+        self.update_project_title(parameters)
+
+
+    def update_project_title(self, project_params:dict):
+        json_project_path = project_params.get("json_project_path")
+        is_project_saved = project_params.get("is_project_saved")
+        str_modified_status = "" if is_project_saved else "[*Modified]"
+        str_project_path = str(json_project_path) if json_project_path else "New Project"  
+        
+        self.setWindowTitle(f"{str_project_path} {str_modified_status} - R2 Script Editor")
+        self.label_opened_project.setText(f"{str_project_path} {str_modified_status}") 
+        if is_project_saved:
+            self.label_opened_project.setStyleSheet("color: rgb(200, 200, 200)")
+        else:
+            self.label_opened_project.setStyleSheet("color: rgb(200, 50, 50); font-weight: bold")
+        
+
+    def update_actual_information(self):
+        self._update_btn_lock_unlock()
+        self._update_tabs_color()
+        self._update_script_label()
+
+
+    def _update_btn_lock_unlock(self):
+        if self.actual_text_edit:
+            self.btn_lock_unlock.setChecked(self.actual_text_edit.is_read_only)
+        else:
+           self.btn_lock_unlock.setChecked(False)  
+
+
+    def _update_tabs_color(self):
+        # UNDERLINE ACTUAL TAB WITH COLOR
+        if self.actual_tabs:
+            self.left_tabs.setStyleSheet('QTabBar::tab {border-bottom: 3px solid #31363b}')
+            self.right_tabs.setStyleSheet('QTabBar::tab {border-bottom: 3px solid #31363b}')
+            self.actual_tabs.setStyleSheet('QTabBar::tab:selected {border-bottom: 3px solid rgb(0, 128, 255)}')        
+
+
+    def _update_script_label(self):
+        # SET STATUS BAR LABEL SAME AS ACTUAL FILE PATH
+        self.label_actual_script_path.setText(str(self.actual_text_edit.file_path) if self.actual_text_edit else '')
+
+
+   
+    
+    def show_notification(self, notification_text):
+        self.notification_widget.show_text(notification_text)
+
+
+
+
     def project_new(self):
         self.opened_project_path = None
         self.window = ProjectConfig(self, is_new_project=True)
         self.window.show()
 
     def project_save(self):        
-        path = self.opened_project_path
-        if not path:
+        success, message = project_manager.save_project()
+        if success:
+            self.show_notification(message)
+        elif message == "NO JSON PATH":
             self.project_save_as()
         else:
-            try:
-                # REQUEST FOR DATA_CONTROLLER
-                self.save_project.emit(path)
-            except Exception as exception_to_show:
-                dialog_message(self, str(exception_to_show))
+            dialog_message(message)
+
 
     def project_save_as(self):        
         path, _ = QFileDialog.getSaveFileName(
             parent=self,
             caption='Save Project',
             directory='.//Projects',
-            filter=self.filter_project
+            filter=_FILE_FILTER
         )
         if not path:
             return
+        success, message = project_manager.save_project_as(path)
+        if success:
+            self.show_notification(message)
         else:
-            try:
-                # REQUEST FOR DATA_CONTROLLER
-                self.save_project.emit(path)
-                self.opened_project_path = path
-                self.update_title()
-            except Exception as exception_to_show:
-                dialog_message(self, str(exception_to_show))
+            dialog_message(message)            
 
 
     def project_open(self):
+        if not project_manager.is_project_saved():
+            proceed = QMessageBox.question(self,
+                            "R2ScriptEditor",
+                            "Current project is not saved.\n\nDo you want to proceed (all changes will be lost)?",
+                            QMessageBox.Yes | QMessageBox.No)
+            if proceed == QMessageBox.No:
+                return
+
         path, _ = QFileDialog.getOpenFileName(
             parent=self,
             caption='Open Project',
             directory='.//Projects',
-            filter=self.filter_project
+            filter=_FILE_FILTER
         )
 
         if not path:
             return
         else:
-            try:
-                # REQUEST FOR DATA_CONTROLLER
-                self.open_project.emit(path)
-                # self.opened_project_path = path
-                # self.update_title()
-            except Exception as my_exception:
-                dialog_message(self, str(my_exception))
+            success, error_message = project_manager.open_project(path)
+            if not success:
+                dialog_message(self, f"Failed to Open Project!\n{error_message}")
 
 
 
@@ -909,10 +899,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     event.ignore()
 
-        if not self.data_manager.is_project_saved:
+        if not project_manager.is_project_saved():
             close = QMessageBox.question(self,
                                         "R2ScriptEditor",
-                                        "Current project is not saved.\n\nDo you want to discard changes?",
+                                        "Current project is not saved.\n\nDo you want to exit (all changes will be lost)?",
                                         QMessageBox.Yes | QMessageBox.No)
             if close == QMessageBox.Yes:
                 event.accept()
