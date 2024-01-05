@@ -291,7 +291,7 @@ background-color: rgb(39, 44, 54);
              <number>0</number>
             </property>
             <property name="rightMargin">
-             <number>9</number>
+             <number>0</number>
             </property>
             <property name="bottomMargin">
              <number>0</number>
@@ -307,6 +307,20 @@ background-color: rgb(39, 44, 54);
               <property name="icon">
                <iconset resource="files.qrc">
                 <normaloff>:/16x16/icons/16x16/cil-task.png</normaloff>:/16x16/icons/16x16/cil-task.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ui_check_html_report">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="text">
+               <string>Check Report</string>
+              </property>
+              <property name="icon">
+               <iconset resource="files.qrc">
+                <normaloff>:/16x16/icons/16x16/cil-notes.png</normaloff>:/16x16/icons/16x16/cil-notes.png</iconset>
               </property>
              </widget>
             </item>

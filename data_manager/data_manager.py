@@ -2,7 +2,7 @@ from pathlib import Path
 from ui.model_editor_ui import Ui_Form
 # from config.font import font
 import json, re, os
-from PyQt5.QtWidgets import QWidget, QLabel, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QTextEdit, QMessageBox, QStyle, QPushButton, QApplication, QListWidgetItem, QListWidget
+from PyQt5.QtWidgets import QWidget, QFileDialog, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QTextEdit, QMessageBox, QStyle, QPushButton, QApplication, QListWidgetItem, QListWidget
 from PyQt5.Qt import QStandardItemModel
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QTextCursor, QTextCharFormat, QColor
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QObject, QRunnable, QThreadPool, QPropertyAnimation, QEasingCurve
@@ -28,6 +28,9 @@ from dialogs.dialog_message import dialog_message
 from doors.doors_connection import DoorsConnection
 from components.my_list_widget import MyListWidget
 from data_manager.widget_baseline import WidgetBaseline
+
+from data_manager import model_manager
+from data_manager import view_filter
 
 
 
@@ -91,7 +94,7 @@ class DataManager(QWidget, Ui_Form):
 
         self.action_update_requirements = QAction('Update Requirements')
         self.action_update_requirements.setIcon(QIcon(u"ui/icons/16x16/cil-cloud-download.png"))
-        self.action_update_requirements.triggered.connect(lambda: self.update_requirements(False))
+        self.action_update_requirements.triggered.connect(lambda: self._update_requirements(False))
 
         self.action_remove = QAction(QIcon(u"ui/icons/16x16/cil-x.png"), 'Remove')
         self.action_remove.triggered.connect(self.remove_node)
@@ -174,15 +177,16 @@ class DataManager(QWidget, Ui_Form):
         self.ui_edit.setShortcut('F4')
         self.ui_edit.setToolTip("F4")
         self.ui_export.clicked.connect(self.tree_2_file)
-        self.ui_update_requirements.clicked.connect(lambda: self.update_requirements(True))
-        self.ui_new_requirements.clicked.connect(self.add_req_node)
-        self.ui_check_coverage.clicked.connect(self.create_dict_from_scripts_for_coverage_check)
+        self.ui_update_requirements.clicked.connect(lambda: self._update_requirements(True))
+        self.ui_new_requirements.clicked.connect(self._add_req_node)
+        self.ui_check_coverage.clicked.connect(self._create_dict_from_scripts_for_coverage_check)
+        self.ui_check_html_report.clicked.connect(self.check_HTML_report)
         self.ui_le_filter.textChanged.connect(self._filter_items)
         self.ui_le_filter.textEdited.connect(self._reset_filter)
         self.ui_btn_goBack.clicked.connect(self._goto_previous_index)
 
         self.send_data_2_completer()
-        self.update_data_summary()
+        self._update_data_summary()
 
 
         # node copied into memory by action COPY
@@ -265,7 +269,7 @@ class DataManager(QWidget, Ui_Form):
         a2l_nodes.initialise(data, self.ROOT)
         requirement_nodes.initialise(data, self.ROOT)        
 
-        self.update_data_summary()
+        self._update_data_summary()
         self.send_data_2_completer()  
 
         self.set_project_saved(True)
@@ -308,7 +312,7 @@ class DataManager(QWidget, Ui_Form):
         self.ROOT.appendRow(r)
 
 
-    def add_req_node(self):
+    def _add_req_node(self):
         self.form_add_req_module = FormAddModule(self)
         self.form_add_req_module.show()
         # from importlib import reload
@@ -324,14 +328,14 @@ class DataManager(QWidget, Ui_Form):
     #####################################################################################################################################################
 
 
-    def send_request_2_doors(self, password, paths, columns_names, baselines):
+    def _send_request_2_doors(self, password, paths, columns_names, baselines):
         DoorsConnection(self, paths, columns_names, baselines, self, password)
         self.downloading_of_requirements_is_in_progress = True
         self.update_progress_status(True, 'Initialising...')
         
 
 
-    def update_requirements(self, is_multiple_modules):
+    def _update_requirements(self, is_multiple_modules):
         # 1. Check if at least one req. module is present
         requirements_file_nodes_present = False
         for row in range(self.ROOT.rowCount()):
@@ -360,14 +364,14 @@ class DataManager(QWidget, Ui_Form):
                             baselines.append(node.current_baseline)
                     
                     if paths and columns and baselines:
-                        self.send_request_2_doors(passwd_from_input_dlg, paths, columns, baselines)
+                        self._send_request_2_doors(passwd_from_input_dlg, paths, columns, baselines)
                         
                 # if Right Click on Module --> Update Requirements (Update Module)
                 else:
                     selected_item_index = self.TREE.currentIndex()
                     selected_item = self.MODEL.itemFromIndex(selected_item_index)
                     if isinstance(selected_item, RequirementFileNode):
-                        self.send_request_2_doors(passwd_from_input_dlg, [selected_item.path,], [selected_item.columns_names,], [selected_item.current_baseline,])
+                        self._send_request_2_doors(passwd_from_input_dlg, [selected_item.path,], [selected_item.columns_names,], [selected_item.current_baseline,])
                         self._module_which_is_currently_donwnloaded = selected_item
                         
 
@@ -393,7 +397,7 @@ class DataManager(QWidget, Ui_Form):
         
         self.MAIN.show_notification(f"Requirements have been Updated.") 
         self._display_values()
-        self.update_data_summary()
+        self._update_data_summary()
 
         self.set_project_saved(False)
 
@@ -409,13 +413,16 @@ class DataManager(QWidget, Ui_Form):
                 for row in range(self.ROOT.rowCount()):
                     current_item = self.ROOT.child(row)
                     if isinstance(current_item, RequirementFileNode) and current_item.coverage_filter:
-                        current_item.update_script_in_coverage_dict(req_reference, script_path)
-                        print(req_reference)
-                        print(script_path)
+                        change = current_item.update_script_in_coverage_dict(req_reference, script_path)
+                        # print(req_reference)
+                        # print(script_path)
 
-            self.update_data_summary()
-            
-            self.set_project_saved(False)
+                        
+                        if change:
+                            self._update_data_summary()            
+                            self.set_project_saved(False)
+                            self.MAIN.show_notification("Coverage Updated.")
+                            self._display_values()
 
         
 
@@ -423,7 +430,7 @@ class DataManager(QWidget, Ui_Form):
     #####################################################################################################################################################
     #   PHYSICAL COVERAGE CHECK
     #####################################################################################################################################################
-    def create_dict_from_scripts_for_coverage_check(self):
+    def _create_dict_from_scripts_for_coverage_check(self):
         if self.PROJECT_MANAGER.disk_project_path():
             # print("START COVERAGE CHECK")
             self.ui_check_coverage.setEnabled(False)        
@@ -437,17 +444,19 @@ class DataManager(QWidget, Ui_Form):
             for row in range(self.ROOT.rowCount()):
                 current_item = self.ROOT.child(row)
                 if isinstance(current_item, RequirementFileNode):
-                    current_item.check_coverage_with_file_pointers(file_content_dict)
-            self.update_data_summary()
+                    change = current_item.check_coverage_with_file_pointers(file_content_dict)
+                    if change:
+                        self.set_project_saved(False)
+            self._update_data_summary()
             self.ui_check_coverage.setEnabled(True)
 
-            self.set_project_saved(False)
+            
 
 
     #####################################################################################################################################################
     #   UPDATE DATA SUMMARY
     #####################################################################################################################################################
-    def update_data_summary(self):        
+    def _update_data_summary(self):        
         calculated_number, covered_number = 0, 0
         for row in range(self.ROOT.rowCount()):
             current_node = self.ROOT.child(row)
@@ -484,7 +493,7 @@ class DataManager(QWidget, Ui_Form):
         index = self.TREE.currentIndex()
         node = self.MODEL.itemFromIndex(index)
         node.apply_coverage_filter(filter_string) 
-        self.update_data_summary()
+        self._update_data_summary()
         # Remove View Filter
         self._show_all_items()       
 
@@ -495,7 +504,7 @@ class DataManager(QWidget, Ui_Form):
         index = self.TREE.currentIndex()
         requirement_file_node = self.MODEL.itemFromIndex(index)   
         requirement_file_node.remove_coverage_filter()
-        self.update_data_summary()
+        self._update_data_summary()
         #  Remove View Filter
         self._show_all_items()
 
@@ -511,7 +520,7 @@ class DataManager(QWidget, Ui_Form):
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
         if isinstance(selected_item, RequirementNode):
             selected_item.add_to_ignore_list()    
-            self.update_data_summary()  
+            self._update_data_summary()  
             
             self.set_project_saved(False) 
 
@@ -521,7 +530,7 @@ class DataManager(QWidget, Ui_Form):
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
         if isinstance(selected_item, RequirementNode):
             selected_item.remove_from_ignore_list()    
-            self.update_data_summary()   
+            self._update_data_summary()   
 
             self.set_project_saved(False)      
 
@@ -932,16 +941,17 @@ class DataManager(QWidget, Ui_Form):
 
 
 
+
+
+
+
     def _context_menu(self, point):
         selected_item_index = self.TREE.indexAt(point)
+        # selected_item_index = self.TREE.currentIndex()
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
         if not selected_item_index.isValid():
             return
-
-        # # TEST:
-        # selected_item_index = self.ui_tree_view.currentIndex()
-        # selected_item = self.model.itemFromIndex(selected_item_index)
 
         menu = QMenu()
         menu.setStyleSheet("QMenu::separator {height: 0.5px; margin: 3px; background-color: rgb(38, 59, 115);}")
@@ -1030,64 +1040,17 @@ class DataManager(QWidget, Ui_Form):
 ##############################################################################################################################
 
     def _stop_filtering(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-        if isinstance(selected_item, RequirementNode):
-            module = selected_item.MODULE
-            if module.data(Qt.UserRole):  
-                def _collapse_all_children(node):
-                    for row in range(node.rowCount()):
-                        node_child = node.child(row)
-                        if node_child:
-                            self.TREE.collapse(node_child.index())
-                            node_child.setForeground(QColor(200, 200, 200))
-                            self.TREE.setRowHidden(row, node.index(), False)
-                        _collapse_all_children(node_child)   
-                
-                _collapse_all_children(module)
-
-                parent = selected_item.parent()
-                while parent:
-                    self.TREE.expand(parent.index())
-                    parent = parent.parent()
-                self.TREE.scrollTo(selected_item_index)
-        elif isinstance(selected_item, RequirementFileNode):
-            self.ui_le_filter.clear()
-            selected_item.setData("", Qt.UserRole)
-            self._reset_filter("")
+        view_filter.stop_filtering(self.TREE, self.MODEL)
 
 
     def _reset_filter(self, filtered_text):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)     
-
-        if filtered_text.strip() == "":
-            def _collapse_all_children(node):
-                for row in range(node.rowCount()):
-                    node_child = node.child(row)
-                    if node_child:
-                        self.TREE.collapse(node_child.index())
-                        node_child.setForeground(QColor(200, 200, 200))
-                        self.TREE.setRowHidden(row, node.index(), False)
-                    _collapse_all_children(node_child)   
-            
-            _collapse_all_children(selected_item)
-
-            self.TREE.collapse(selected_item_index)
-
-        else:
-            self.TREE.expand(selected_item_index)
-
-
+        view_filter.reset_filter(self.TREE, self.MODEL, filtered_text)
 
 
     def _filter_items(self, filtered_text):
-
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)        
+        view_filter.filter_items(self.TREE, self.MODEL, filtered_text)
         
-        if filtered_text:
-            
+        if filtered_text:            
             self.ui_le_filter.setStyleSheet(""" background-color: rgb(220, 220, 220);
                                                 background-image: url(:/16x16/icons/16x16/cil-magnifying-glass.png);
                                                 background-position: left center;
@@ -1107,153 +1070,19 @@ class DataManager(QWidget, Ui_Form):
 
 
 
-        # Save filter text to items QUserRole Data
-        selected_item.setData(filtered_text, Qt.UserRole)
-
-        if isinstance(selected_item, (ValueNode, TestStepNode, DspaceDefinitionNode, DspaceVariableNode, RequirementNode)):
-            return
-        
-        elif isinstance(selected_item, RequirementFileNode):      
-
-            def _browse_children(node):         
-                for row in range(node.rowCount()):
-                    requirement_node = node.child(row)
-                    if requirement_node:
-                        data = " ".join(requirement_node.columns_data) + " " + str(requirement_node.reference)
-                
-                        if filtered_text.lower() in data.lower() :    
-                            self.TREE.setRowHidden(row, node.index(), False)
-                            requirement_node.setForeground(QColor("white"))
-                            parent = requirement_node.parent()
-                            while parent and parent.parent():
-                                self.TREE.setRowHidden(parent.row(), parent.parent().index(), False)
-                                self.TREE.expand(parent.index())
-                                parent = parent.parent()
-                        else:
-                            self.TREE.setRowHidden(row, node.index(), True)
-                            requirement_node.setForeground(QColor(90, 90, 90))
-                            self.TREE.collapse(requirement_node.index())
-
-                    _browse_children(requirement_node)
-          
-
-            if filtered_text.strip() == "":
-                if selected_item.view_filter == "not_covered_plus_covered":
-                    self._show_only_items_with_coverage()
-                elif selected_item.view_filter == "not_covered":
-                    self._show_only_items_not_covered()
-                return            
-            
-            else:
-                _browse_children(selected_item)
-
-
-
-        elif isinstance(selected_item, DspaceFileNode):
-            
-            if filtered_text.strip() != "":
-                for row in range(selected_item.rowCount()):
-                    ds_definition = selected_item.child(row)
-                    rows_hidden = 0
-                    for definition_row in range(ds_definition.rowCount()):
-                        if filtered_text.lower() in ds_definition.child(definition_row).text().lower():
-                            self.TREE.setRowHidden(definition_row, ds_definition.index(), False)
-                            self.TREE.expand(ds_definition.index())
-                        else:
-                            self.TREE.setRowHidden(definition_row, ds_definition.index(), True)
-                            rows_hidden += 1
-                        if rows_hidden == ds_definition.rowCount():
-                            self.TREE.setRowHidden(row, selected_item.index(), True)
-                        else:
-                            self.TREE.setRowHidden(row, selected_item.index(), False)
-
-            
-
-
-        elif isinstance(selected_item, (ConditionFileNode, A2lFileNode)):
-            for row in range(selected_item.rowCount()):
-                if filtered_text.lower() in selected_item.child(row).text().lower():
-                    self.TREE.setRowHidden(row, selected_item_index, False)
-                else:
-                    self.TREE.setRowHidden(row, selected_item_index, True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+       
 ##############################################################################################################################
 # COVERAGE FILTER (ONLY VIEW AFFECTING)
 ##############################################################################################################################
 
-
     def _show_only_items_with_coverage(self):
-        index = self.TREE.currentIndex()
-        requirement_file_node = self.MODEL.itemFromIndex(index)
-
-        def _browse_children(node, hide):         
-            for row in range(node.rowCount()):
-                requirement_node = node.child(row)
-                if hide and requirement_node.is_covered is None:
-                    self.TREE.setRowHidden(row, node.index(), True)
-                else:
-                    self.TREE.setRowHidden(row, node.index(), False)
-                _browse_children(requirement_node, hide)
-
-        _browse_children(requirement_file_node, hide=True)
-
-        requirement_file_node.view_filter = "not_covered_plus_covered"
-
-
-
+        view_filter.show_only_items_with_coverage(self.TREE, self.MODEL)
 
     def _show_only_items_not_covered(self):
-        index = self.TREE.currentIndex()
-        requirement_file_node = self.MODEL.itemFromIndex(index)
-
-        def _browse_children(node, hide):         
-            for row in range(node.rowCount()):
-                requirement_node = node.child(row)
-                if hide and requirement_node.is_covered is not False:
-                    self.TREE.setRowHidden(row, node.index(), True)
-                else:
-                    self.TREE.setRowHidden(row, node.index(), False)
-                _browse_children(requirement_node, hide)
-
-        _browse_children(requirement_file_node, hide=True)
-
-        requirement_file_node.view_filter = "not_covered"
-
-    
+        view_filter.show_only_items_not_covered(self.TREE, self.MODEL)
 
     def _show_all_items(self):
-        index = self.TREE.currentIndex()
-        requirement_file_node = self.MODEL.itemFromIndex(index)
-
-        def _browse_children(node, hide):         
-            for row in range(node.rowCount()):
-                requirement_node = node.child(row)
-                if hide and requirement_node.is_covered is None:
-                    self.TREE.setRowHidden(row, node.index(), True)
-                else:
-                    self.TREE.setRowHidden(row, node.index(), False)
-                _browse_children(requirement_node, hide)
-
-        _browse_children(requirement_file_node, hide=False)
-
-        requirement_file_node.view_filter = "all"
-
+        view_filter.show_all_items(self.TREE, self.MODEL)
 
     def _evaluate_view_filter(self):
         index = self.TREE.currentIndex()
@@ -1275,23 +1104,6 @@ class DataManager(QWidget, Ui_Form):
         
 
 
- 
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     ####################################################################################################################
     # A2L NORMALISATIION:
@@ -1299,7 +1111,6 @@ class DataManager(QWidget, Ui_Form):
     def _normalise_a2l_file(self):
         selected_item_index = self.TREE.currentIndex()
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
-
         if isinstance(selected_item, A2lFileNode):
             selected_item.normalise_file()  
             self.send_data_2_completer()    
@@ -1326,34 +1137,14 @@ class DataManager(QWidget, Ui_Form):
 
 
     def tree_2_file(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-        if isinstance(selected_item, (ConditionFileNode, DspaceFileNode)):
-            selected_item.tree_2_file()
-
+        model_manager.export_file(self.TREE, self.MODEL)
 
     def remove_node(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-
-        selected_item_row = selected_item_index.row()
-        parent_item_index = selected_item_index.parent()
-
-        if self.MODEL.rowCount(parent_item_index) > 1:
-            
-            if hasattr(selected_item, 'get_file_node'):
-                selected_item.get_file_node().set_modified(True)
-
-            self.MAIN.show_notification(f"Item {selected_item.text()} has been removed.")  
-            self.MODEL.removeRow(selected_item_row, parent_item_index)                
-
-            if isinstance(selected_item, RequirementNode):
-                self.update_data_summary()            
-
-        else:
-            self.MAIN.show_notification(f"Can not remove last item.")  
-
+        result = model_manager.remove_node(self.TREE, self.MODEL)
+        message = "Item Removed" if result else "Last Item can not be Removed"
+        self.MAIN.show_notification(message)  
         self.send_data_2_completer()
+        self._update_data_summary()                    
             
     
     def add_node(self):
@@ -1380,38 +1171,22 @@ class DataManager(QWidget, Ui_Form):
             self.window = DlgAddNode(self, dspace_data=definition)
             self.window.show()
         
-        self.send_data_2_completer()
-
 
     def duplicate_node(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-        if isinstance(selected_item, (ConditionNode, ValueNode, TestStepNode)):            
-            selected_item.parent().insertRow(selected_item_index.row() + 1, selected_item.get_node_copy())        
-            if hasattr(selected_item, 'get_file_node'):
-                selected_item.get_file_node().set_modified(True)
-            self.MAIN.show_notification(f"Item {selected_item.text()} has been duplicated.")  
+        model_manager.duplicate_node(self.TREE, self.MODEL)
+        self.MAIN.show_notification(f"Item was duplicated.")  
 
     def copy_node(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)    
-        if isinstance(selected_item, (ConditionNode, ValueNode, TestStepNode)):         
-            self.node_to_paste = selected_item.get_node_copy() 
-            self.MAIN.show_notification(f"Item {selected_item.text()} has been copied to Clipboard.")  
+        self.node_to_paste = model_manager.copy_node(self.TREE, self.MODEL)        
+        if self.node_to_paste: 
+            self.MAIN.show_notification(f"Item was copied to Clipboard.")  
 
 
     def paste_node(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-
-        if self.node_to_paste and type(self.node_to_paste) == type(selected_item):
-            new_item_row = selected_item_index.row() + 1
-            selected_item.parent().insertRow(new_item_row, self.node_to_paste)
-            self.MAIN.show_notification(f"Item {self.node_to_paste.text()} has been inserted to Tree.") 
-            self.node_to_paste = None
-            selected_item.get_file_node().set_modified(True) 
-
-            self.send_data_2_completer
+        success = model_manager.paste_node(self.TREE, self.MODEL, self.node_to_paste)
+        if success:
+            self.MAIN.show_notification(f"Item {self.node_to_paste.text()} was inserted.") 
+        self.send_data_2_completer
 
 
     def edit_node(self, button_is_checked):
@@ -1424,18 +1199,8 @@ class DataManager(QWidget, Ui_Form):
         if button_is_checked:
             self.TREE.setEnabled(False)
             self._make_ui_components_editable()
-            # if isinstance(selected_item, RequirementFileNode):
-            #     self.uiLisWidgetModuleColumns.setStyleSheet("background-color: rgb(20, 20, 120);")
-            #     self.uiLineEditModulePath.setStyleSheet("background-color: rgb(20, 20, 120);")
-            #     self.uiLisWidgetModuleColumns.setEnabled(True)
-            #     self.uiListWidgetModuleIgnoreList.setEnabled(False)
-            # elif isinstance(selected_item, RequirementNode):
-            #     self.uiTextEditRequirementNote.setStyleSheet("background-color: rgb(20, 20, 120);")
-            #     self.uiTextEditRequirementNote.setReadOnly(False)
 
-
-        else:
-            
+        else:            
             self.TREE.setEnabled(True)
             self._make_ui_components_not_editable()
             
@@ -1452,128 +1217,45 @@ class DataManager(QWidget, Ui_Form):
                 selected_item.setText(selected_item.action)
                 selected_item.comment = self.ui_ts_comment.text()
                 selected_item.nominal = self.ui_ts_nominal.text()
-                # selected_item.set_is_saved(False)
+
             elif isinstance(selected_item, DspaceVariableNode):
                 selected_item.name = self.ui_ds_name.text()
                 selected_item.setText(selected_item.name)
                 selected_item.value = self.ui_ds_value.text()
                 selected_item.path = self.ui_ds_path.text()
-                # change path for backup --> impossible to save two requirement files with same path
+
             elif isinstance(selected_item, RequirementFileNode):
                 selected_item.path = self.uiLineEditModulePath.text()
                 selected_item.setText(reduce_path_string(selected_item.path))
                 self.uiLisWidgetModuleColumns.setEnabled(False)
                 self.uiListWidgetModuleIgnoreList.setEnabled(True)
                 selected_item.columns_names = self.uiLisWidgetModuleColumns.get_all_items()
-                # self.uiLisWidgetModuleColumns.setStyleSheet("background-color: rgb(33, 37, 43); border-color: rgb(50, 50, 50)")
-                # self.uiLineEditModulePath.setStyleSheet("background-color: rgb(33, 37, 43); border-color: rgb(50, 50, 50)")
+
             elif isinstance(selected_item, RequirementNode):
                 note = self.uiTextEditRequirementNote.toPlainText()
                 selected_item.update_note(note)
-                # self.uiTextEditRequirementNote.setStyleSheet("background-color: rgb(33,37,43);")
-                # self.uiTextEditRequirementNote.setReadOnly(True)
             
             if hasattr(selected_item, 'get_file_node'):
                 selected_item.get_file_node().set_modified(True)
 
             
             self.send_data_2_completer()
-            self.MAIN.show_notification(f"Item {selected_item.text()} has been updated.")
-            
+            self.MAIN.show_notification(f"Item {selected_item.text()} has been updated.")            
             self.set_project_saved(False)
 
 
 
 
     def receive_data_from_add_node_dialog(self, data: dict):    
-
-        cond_data = data.get("cond_data")
-        dspace_data = data.get("dspace_data")
-
-        if dspace_data:
-            dspace_name, dspace_value, dspace_path = dspace_data["dspace_name"], dspace_data["dspace_value"], dspace_data["dspace_path"]
-
-        if cond_data:
-            condition, value, test_step_name, test_step_action, test_step_comment, test_step_nominal \
-                = cond_data["condition"], cond_data["value"], cond_data["test_step_name"], cond_data["test_step_action"], cond_data["test_step_comment"], cond_data["test_step_nominal"]            
-        
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-
-        if hasattr(selected_item, 'get_file_node'):
-            selected_item.get_file_node().set_modified(True)
-
-        if isinstance(selected_item, ConditionNode):
-            # CONDITION:
-            new_condition = ConditionNode(condition, '99')
-            new_value = ValueNode(value, '99')
-            new_ts = TestStepNode(test_step_name, test_step_action, test_step_comment, test_step_nominal)
-
-            new_value.appendRow(new_ts)
-            new_condition.appendRow(new_value)
-
-            new_condition_row = selected_item_index.row() + 1
-            selected_item.parent().insertRow(new_condition_row, new_condition)
-
-        elif isinstance(selected_item, ValueNode):
-            # VALUE:
-            new_value = ValueNode(value, '99')
-            new_ts = TestStepNode(test_step_name, test_step_action, test_step_comment, test_step_nominal)
-
-            new_value.appendRow(new_ts)
-            new_value_row = selected_item_index.row() + 1
-            selected_item.parent().insertRow(new_value_row, new_value)
-
-        elif isinstance(selected_item, TestStepNode):
-            # TEST STEP:
-            new_item = TestStepNode(test_step_name, test_step_action, test_step_comment, test_step_nominal)
-            new_item_row = selected_item_index.row() + 1
-            selected_item.parent().insertRow(new_item_row, new_item)
-
-        elif isinstance(selected_item, DspaceVariableNode):
-            # dSPACE VARIABLE:
-            new_item = DspaceVariableNode(dspace_name, dspace_value, dspace_path)
-            new_item_row = selected_item_index.row() + 1
-            selected_item.parent().insertRow(new_item_row, new_item)
-            # print("DSPACE VAR NODE ADDED")
-
+        model_manager.insert_node(self.TREE, self.MODEL, data)
         self.MAIN.show_notification(f"Item has been inserted to Tree.") 
         self.send_data_2_completer()
 
 
 
     def move_node(self, direction):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-        
-        if not selected_item: 
-            return
-
-        if not selected_item.parent() or isinstance(selected_item, (DspaceDefinitionNode, A2lFileNode)):
-            return
-
-        
-        parent = selected_item.parent()
-
-        if direction == 'up':
-            new_item_row = selected_item_index.row() - 1
-        else:
-            new_item_row = selected_item_index.row() + 1
-        
-        if new_item_row < 0 or new_item_row > parent.rowCount()-1:
-            return
-
-        item = parent.takeChild(selected_item_index.row())
-        self.MODEL.removeRow(selected_item_index.row(), selected_item_index.parent())
-        parent.insertRow(new_item_row, item)
-        
-        self.TREE.setCurrentIndex(item.index())
-
-        if hasattr(selected_item, 'get_file_node'):
-            selected_item.get_file_node().set_modified(True)
-        
+        model_manager.move_node(self.TREE, self.MODEL, direction)
         self.send_data_2_completer()
-
         self.set_project_saved(False)
 
 
@@ -1584,58 +1266,85 @@ class DataManager(QWidget, Ui_Form):
     ####################################################################################################################
 
     def send_data_2_completer(self):
+        model_manager.send_data_2_completer(self.ROOT)
+        self._update_data_summary()
 
-        cond_tooltips = {}
-        Completer.cond_tooltips.clear()
-        cond_dict = {}
-        cond_model = QStandardItemModel()
-        a2l_model = QStandardItemModel()
-        dspace_model = QStandardItemModel()
 
-        for root_row in range(self.ROOT.rowCount()):
-            current_file_node = self.ROOT.child(root_row, 0)
-            if isinstance(current_file_node, ConditionFileNode):
-                condition_dict, condition_list, cond_tooltips = current_file_node.data_4_completer()
-                if cond_tooltips:
-                    Completer.cond_tooltips.update(cond_tooltips)
 
-                for cond, values_list in condition_dict.items():
-                    if cond not in cond_dict:
-                        values_model = QStandardItemModel()
-                        for value in values_list:
-                            values_model.appendRow(value)
-
-                        cond_dict.update({cond: values_model})
-
-                        for cond_item in condition_list:
-                            if cond_item.data(role=Qt.ToolTipRole) == cond:
-                                cond_model.appendRow(cond_item)
-
-            elif isinstance(current_file_node, A2lFileNode):
-                a2l_list = current_file_node.data_4_completer()
-                for a2l_item in a2l_list:
-                    a2l_model.appendRow(a2l_item)
-
-            elif isinstance(current_file_node, DspaceFileNode):
-                dspace_model = current_file_node.data_4_completer()
+    ####################################################################################################################
+    # HTML REPORT CHECK:
+    ####################################################################################################################
+    def check_HTML_report(self):
+        import data_manager.form_validate_html_report
+        from importlib import reload
+        reload(data_manager.form_validate_html_report)
         
-        Completer.cond_tooltips.update(tooltips)
+        path, _ = QFileDialog.getOpenFileName(
+            parent=self,
+            caption='Open HTML Report',
+            directory=self.PROJECT_MANAGER.disk_project_path(),
+            filter="*.html"
+        )
 
-        Completer.cond_dict.clear()
-        Completer.cond_model = QStandardItemModel()
-        Completer.dspace_model = QStandardItemModel()
+        if not path: return
 
-        if cond_dict:
-            Completer.cond_dict.update(cond_dict)
-            Completer.cond_model = cond_model
+        try:
+            with Path(path).open() as f:
+                html_report_string = f.read()
 
-        if a2l_model:
-            Completer.a2l_model = a2l_model
+        except Exception as my_exception:
+            dialog_message(self, str(my_exception))                      
+                
+        missing_requirements, covered_requirements = [], []
 
-        if dspace_model:
-            Completer.dspace_model = dspace_model
+        for row in range(self.ROOT.rowCount()):
+            file_node = self.ROOT.child(row)
+            if isinstance(file_node, RequirementFileNode) and file_node.coverage_filter:
+                for k in file_node.coverage_dict.keys():
+                    if k.lower() in html_report_string.lower():
+                        covered_requirements.append(k)
+                    else:
+                        missing_requirements.append(k)
 
-        self.update_data_summary()
+        # print("MISSING: ", "\n".join(missing_requirements))
+        # print("COVERED: ", covered_requirements)
+
+        self.form = data_manager.form_validate_html_report.FormValidatedHTMLReport(self, missing_requirements)
+
+    @pyqtSlot(str)
+    def doubleclicked_on_requirement_in_HTML_report_form(self, req_identifier: str):
+        FOUND_NODE = None
+
+        def find_node_by_reference(parent_node, reference):
+            nonlocal FOUND_NODE
+            for row in range(parent_node.rowCount()):
+                node = parent_node.child(row)
+                if node.reference.lower() == reference.lower():
+                    # print(node)
+                    # print("FOUND: ", node.reference)
+                    FOUND_NODE = node
+                    return node
+                else:
+                    find_node_by_reference(node, reference)
+
+
+        for row in range(self.ROOT.rowCount()):
+            node = self.ROOT.child(row)
+            if isinstance(node, RequirementFileNode) and node.coverage_filter:
+                find_node_by_reference(node, req_identifier)
+
+
+        if FOUND_NODE:
+            self.TREE.setCurrentIndex(FOUND_NODE.index())
+            self.TREE.scrollTo(FOUND_NODE.index())
+            # self._update_previous_indexes(FOUND_NODE.index())
+        else:
+            dialog_message(self, "Module is missing.")        
+
+
+
+        
+    
 
 
 

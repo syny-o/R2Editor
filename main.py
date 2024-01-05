@@ -1,41 +1,45 @@
-import sys, os, stat, re
+import os
+import re
+import stat
+import sys
 from pathlib import Path
-from PyQt5.QtWidgets import QSizeGrip
-from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QTimer, QEvent
-from config.font import font
-
-from ui.main_ui import Ui_MainWindow
-
-from dialogs.dialog_message import dialog_message
-
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QMessageBox, QTabWidget, \
-     QAction, QFileDialog, QSplitter, QToolTip, QMenu, QShortcut, QPushButton
-
-from PyQt5.QtCore import Qt, QSize, QFile, QTextStream, pyqtSignal, pyqtSlot, QSettings, QPoint, QRect
-from PyQt5.QtGui import QTextCursor, QKeySequence, QIcon, QFontDatabase, QPalette, QColor
-
-from text_editor.text_editor import TextEdit
-from text_editor import text_management
-from file_browser.tree_file_browser import FileSystemView
-from tabs import Tabs
-from data_manager.data_manager import DataManager
-from dashboard.dashboard import Dashboard
-
-from dialogs.window_project_config import ProjectConfig
-from app_settings import AppSettings
-from dialogs.form_find_replace import FindAndReplace
-# from dialogs.dialog_recent_projects import RecentProjects
-
-from components.pyqt_find_text_widget.findTextWidget import FindTextWidget
-from components.pyqt_find_text_widget.findReplaceTextWidget import FindReplaceTextWidget
-from components.template_test_case import TemplateTestCase
-from components.notification_widget import NotificationWidget
 
 import pywinstyles
-from data_manager.requirement_nodes import RequirementFileNode
+from PyQt5.QtCore import (QEasingCurve, QEvent, QFile, QPoint,
+                          QPropertyAnimation, QRect, QSettings, QSize, Qt,
+                          QTextStream, QTimer, pyqtSignal, pyqtSlot)
+from PyQt5.QtGui import (QColor, QFontDatabase, QIcon, QKeySequence, QPalette,
+                         QTextCursor)
+from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QHBoxLayout,
+                             QMainWindow, QMenu, QMessageBox, QPushButton,
+                             QShortcut, QSizeGrip, QSplitter, QTabWidget,
+                             QToolTip, QVBoxLayout, QWidget)
 
-
+from app_settings import AppSettings
+from components.notification_widget import NotificationWidget
+from components.pyqt_find_text_widget.findReplaceTextWidget import \
+    FindReplaceTextWidget
+from components.pyqt_find_text_widget.findTextWidget import FindTextWidget
+from components.template_test_case import TemplateTestCase
+from config.font import font
+from dashboard.dashboard import Dashboard
 from data_manager import project_manager
+from data_manager.data_manager import DataManager
+from data_manager.requirement_nodes import RequirementFileNode
+from dialogs.dialog_message import dialog_message
+from dialogs.form_find_replace import FindAndReplace
+from dialogs.window_project_config import ProjectConfig
+from file_browser.tree_file_browser import FileSystemView
+from tabs import Tabs
+from text_editor import text_management
+from text_editor.text_editor import TextEdit
+from ui.main_ui import Ui_MainWindow
+
+# from dialogs.dialog_recent_projects import RecentProjects
+
+
+
+
 
 _FILE_FILTER = 'RapitTwo Editor Project (*.json)'
 
@@ -494,7 +498,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def file_open_from_dialog(self):
-
         path, _ = QFileDialog.getOpenFileName(
             parent=self,
             caption='Open Script',
@@ -677,12 +680,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         str_modified_status = "" if is_project_saved else "[*Modified]"
         str_project_path = str(json_project_path) if json_project_path else "New Project"  
         
-        self.setWindowTitle(f"{str_project_path} {str_modified_status} - R2 Script Editor")
+        # self.setWindowTitle(f"{str_project_path} {str_modified_status} - R2 Script Editor")
+
         self.label_opened_project.setText(f"{str_project_path} {str_modified_status}") 
         if is_project_saved:
             self.label_opened_project.setStyleSheet("color: rgb(200, 200, 200)")
         else:
-            self.label_opened_project.setStyleSheet("color: rgb(200, 50, 50); font-weight: bold")
+            self.label_opened_project.setStyleSheet("color: rgb(250, 100, 100); font-weight: bold")
         
 
     def update_actual_information(self):
@@ -707,8 +711,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def _update_script_label(self):
-        # SET STATUS BAR LABEL SAME AS ACTUAL FILE PATH
-        self.label_actual_script_path.setText(str(self.actual_text_edit.file_path) if self.actual_text_edit else '')
+        self.setWindowTitle(f"R2 Editor - {self.actual_text_edit.file_path}" if self.actual_text_edit else "R2 Editor")
 
 
    

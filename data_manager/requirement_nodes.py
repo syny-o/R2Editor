@@ -1,4 +1,8 @@
+import logging
+from datetime import datetime
+
 from PyQt5.Qt import QStandardItem, QIcon
+from PyQt5.QtWidgets import QPushButton, QStyle
 # from PyQt5.QtCore import pyqtSlot, Qt, QRunnable, QThreadPool
 # from PyQt5.QtGui import QIcon
 import re
@@ -11,6 +15,17 @@ from components.reduce_path_string import reduce_path_string
 PATTERN_REQ_REFERENCE = re.compile(r"""(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*""", re.IGNORECASE)
 # PATTERN_REQ_DETERMINE = re.compile(r"the (component|safety mechanism) shall determine '(?P<keyword>[\w]+)'", re.IGNORECASE)
 # PATTERN_CONSTANT = re.compile(r"^[A-Z0-9_]+$")
+
+
+
+
+logging.basicConfig(
+    filename=f"log_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log",
+    format=str(__name__) + " %(asctime)s %(levelname)s- %(message)s",
+    level=logging.INFO,
+    filemode="w"
+)
+
 
 
 
@@ -57,10 +72,11 @@ class RequirementFileNode(QStandardItem):
         self.root_node = root_node
         # self.data_manager = self.root_node.data(Qt.UserRole)
 
-        ICON_DOORS = QIcon(u"ui/icons/doors.png")
-        ICON_NOT_COVERED = QIcon(u"ui/icons/cross.png")
-        ICON_COVERED = QIcon(u"ui/icons/check.png")
-        ICON_NONE = QIcon()
+        self.ICON_DOORS = QIcon(u"ui/icons/doors.png")
+        # self.ICON_NOT_COVERED = QIcon(u"ui/icons/cross.png")
+        self.ICON_NOT_COVERED = QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton)
+        self.ICON_COVERED = QIcon(u"ui/icons/check.png")
+        self.ICON_NONE = QIcon()  
 
         self.path = path
         self.columns_names = columns_names
@@ -73,13 +89,17 @@ class RequirementFileNode(QStandardItem):
         self._coverage_dict = coverage_dict or {}
         self.current_baseline = current_baseline        
         
-        self.setIcon(ICON_DOORS)
+        self.setIcon(self.ICON_DOORS)
         self.setText(reduce_path_string(self.path))
         self.setEditable(False)
         self.view_filter = "all"        
         self.columns_names_backup = [*columns_names]          
 
         self.update_title_text()
+
+        # print("\n".join(coverage_dict.keys()))
+        logging.info("\n".join([f"\n{k}\n{v}\n" for k, v in self._coverage_dict.items()]))
+ 
 
 
     @property
@@ -121,6 +141,10 @@ class RequirementFileNode(QStandardItem):
     def clear_coverage_dict(self):
         self._coverage_dict.clear()
 
+    @property
+    def coverage_dict(self):
+        return self._coverage_dict
+
 
     def remove_all_scripts_from_coverage_dict(self):
         for v in self._coverage_dict.values():
@@ -130,13 +154,23 @@ class RequirementFileNode(QStandardItem):
     def update_script_in_coverage_dict(self, req_id: str, path: str):
         if req_id.lower() in self._coverage_dict:
             paths = self._coverage_dict[req_id.lower()]
+
+            before = len(paths)
+
             if path in paths:
                 paths.remove(path)
             else:
                 paths.append(path)
 
-            self.update_icons_according_to_coverage()
-            self.update_title_text()
+            after = len(paths)
+
+
+
+            if before != after:
+                self.update_icons_according_to_coverage()
+                self.update_title_text()
+                
+                return True
 
 
 
@@ -147,11 +181,13 @@ class RequirementFileNode(QStandardItem):
 
     # UDPATUJE SVUJ COVERAGE SLOVNIK O SEZNAMY SKRIPTU VE KTERYCH JSOU ODKAZY NA REQ ID
     def check_coverage_with_file_pointers(self, reference_dict: dict[str, set]):
-
         "{ 'epbi-ford-ge2_my24sydesign_7534' : { 'C:/!!! Projects/Ford_GE2_MY24/test.par', 'C:/!!! Projects/Ford_GE2_MY24/test2.par' } }"
 
+        coverage_dict_before = self.coverage_dict.copy()
+        # 0. vytvorit znovu slovnik na zaklade Coverage Filtru
+        self.apply_coverage_filter()  # !TODO Validate if it is ok
         # 1. odebrat vsechny skripty ze slovniku
-        self.remove_all_scripts_from_coverage_dict()
+        # self.remove_all_scripts_from_coverage_dict()
         # 2. znovu naplnit slovnik skriptama dle aktualni situace na disku
         for req_identifier, set_of_script_paths in reference_dict.items():
             typo = req_identifier.replace("sydesign", "-sydesign")  # TYPO = WRONGLY WRITTEN REQ IDENTIFIER IN DOORS (MISSING DASH)
@@ -160,8 +196,12 @@ class RequirementFileNode(QStandardItem):
             if typo in self._coverage_dict:
                 self._coverage_dict[typo] = list(set_of_script_paths)
 
+        
         self.update_icons_according_to_coverage()
         self.update_title_text()
+
+        if coverage_dict_before != self._coverage_dict:
+            return True
     
 
 
@@ -451,6 +491,8 @@ def _create_list_of_requirements_from_module(module, my_list=None) -> list[dict]
 
 
 class RequirementNode(QStandardItem):
+
+
     def __init__(
         self, 
         module: RequirementFileNode,
@@ -466,6 +508,9 @@ class RequirementNode(QStandardItem):
 
         super().__init__()
         self.setEditable(False)
+
+
+
 
         self.MODULE = module
         self.reference = reference
@@ -493,19 +538,14 @@ class RequirementNode(QStandardItem):
 
 
 
-    def update_icon(self):
-        ICON_DOORS = QIcon(u"ui/icons/doors.png")
-        ICON_NOT_COVERED = QIcon(u"ui/icons/cross.png")
-        ICON_COVERED = QIcon(u"ui/icons/check.png")
-        ICON_NONE = QIcon()        
-        
+    def update_icon(self):        
         module = self.MODULE
         is_covered = module._coverage_dict.get(self.reference.lower(), "Not Calculated")
         
 
         if is_covered == "Not Calculated":  # if the requirement is not present in coverage dict
             self.is_covered = None
-            self.setIcon(ICON_NONE)
+            self.setIcon(self.MODULE.ICON_NONE)
             for _ in range(self.level):
                 parent = self.parent()
                 children = []
@@ -517,7 +557,7 @@ class RequirementNode(QStandardItem):
                         children_none =  False
 
                 if children_none:
-                    self.parent().setIcon(ICON_NONE) if isinstance(self.parent(), RequirementNode) else self.parent().setIcon(ICON_DOORS)
+                    self.parent().setIcon(self.MODULE.ICON_NONE) if isinstance(self.parent(), RequirementNode) else self.parent().setIcon(self.MODULE.ICON_DOORS)
                     self.parent().is_covered = None
                 if not isinstance(self, RequirementFileNode):
                     self = self.parent()   
@@ -525,7 +565,7 @@ class RequirementNode(QStandardItem):
         else:
             if is_covered:  # if the requirements HAS file references
                 self.is_covered = True
-                self.setIcon(ICON_COVERED)
+                self.setIcon(self.MODULE.ICON_COVERED)
                 for _ in range(self.level):
                     parent = self.parent()
                     children = []
@@ -537,16 +577,16 @@ class RequirementNode(QStandardItem):
                             children_covered =  False
 
                     if children_covered:
-                        self.parent().setIcon(ICON_COVERED)
+                        self.parent().setIcon(self.MODULE.ICON_COVERED)
                         self.parent().is_covered = True
                     if not isinstance(self, RequirementFileNode):
                         self = self.parent()
 
             if not is_covered:  # if the requirements HAS NO file references
                 self.is_covered = False
-                self.setIcon(ICON_NOT_COVERED)
+                self.setIcon(self.MODULE.ICON_NOT_COVERED)
                 for _ in range(self.level):
-                    self.parent().setIcon(ICON_NOT_COVERED)
+                    self.parent().setIcon(self.MODULE.ICON_NOT_COVERED)
                     self.parent().is_covered = False
                     if not isinstance(self, RequirementFileNode):
                         self = self.parent()
