@@ -104,6 +104,17 @@ def save_project_as(new_path: Path) -> Callable:
     return save_project()
 
 
+
+def new_project():
+    _DATA_MANAGER.ROOT.removeRows(0, _DATA_MANAGER.ROOT.rowCount())
+    _DATA_MANAGER._update_data_summary()    
+    _PARAMETERS["disk_project_path"] = None
+    _PARAMETERS["is_project_saved"] = True
+    _PARAMETERS["json_project_path"] = None
+    _notify_listeners()
+
+
+
 def is_project_saved() -> bool:
     return _PARAMETERS["is_project_saved"]
     

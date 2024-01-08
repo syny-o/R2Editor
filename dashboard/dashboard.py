@@ -36,7 +36,7 @@ class Dashboard(QWidget, Ui_Form):
 
         self.ui_btn_remove.clicked.connect(self.remove_project)
         self.ui_btn_remove.setShortcut("Del")
-        self.ui_btn_new_project.clicked.connect(self.main_window.project_new)
+        self.ui_btn_new_project.clicked.connect(self.new_project)
         self.ui_btn_open_project.clicked.connect(self.open_from_disk)
         self.ui_lw_projects.itemDoubleClicked.connect(self.open_project)
         self.ui_btn_configuration.clicked.connect(lambda: self.main_window.manage_right_menu(self.main_window.app_settings, self.main_window.btn_app_settings))
@@ -60,7 +60,13 @@ class Dashboard(QWidget, Ui_Form):
         # print(parameters.get("recent_projects"))
         self.populate_list_widget()
 
-        
+
+    def new_project(self):
+        self.main_window.project_new()
+        self.main_window.manage_right_menu(self.main_window.data_manager, self.main_window.ui_btn_data_manager)
+
+
+
 
     def open_project(self):
         if not self.PROJECT_MANAGER.is_project_saved():
@@ -76,6 +82,7 @@ class Dashboard(QWidget, Ui_Form):
         self.main_window.show_notification(f"Loading {project_name}...")  
         QTimer.singleShot(500, lambda: self.trigger_opening_project())
              
+
         
 
 

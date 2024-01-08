@@ -12,7 +12,24 @@ class AppSettings(QWidget, Ui_Form):
         super().__init__()
         self.setupUi(self)
 
-        self.frame_25.setVisible(False) # HIDE WHOLE PASSWD FRAME
+        # HIDE WHOLE PASSWD FRAME
+        self.frame_25.setVisible(False) 
+
+        # CREATE LIST OF ALL LINEDITS --> THEN THEY WILL BE CONNECTED TO SLOT
+        UI_LINEEDITS_INPUTS = [
+            self.le_app_path,
+            self.le_user,
+        ]
+
+        UI_COMBOBOX_INPUTS = [
+            self.ui_cb_database,
+        ]
+
+        for line_edit_input in UI_LINEEDITS_INPUTS:
+            line_edit_input.editingFinished.connect(self.save_settings)
+
+        for combo_box_input in UI_COMBOBOX_INPUTS:
+            combo_box_input.currentTextChanged.connect(self.save_settings)            
 
         # OPEN CONFIG FILE INI:
         self.settings = QSettings(r'.\app_config.ini', QSettings.IniFormat)
@@ -45,6 +62,8 @@ class AppSettings(QWidget, Ui_Form):
         self.ui_checkBox_format_code_when_save.stateChanged.connect(self.get_data_from_form)
 
 
+
+
     def fill_line_edits_with_saved_settings(self):
         # DOORS
         self.le_app_path.setText(self.doors_app_path)
@@ -72,7 +91,7 @@ class AppSettings(QWidget, Ui_Form):
 
 
     def save_settings(self):
-        """ METHOD is triggered after pressing Apply/OK --> settings are saved to disk """
+        """ METHOD is triggered after pressing Apply/OK --> settings are saved to MEMORY """
         self.get_data_from_form()
 
         self.settings.beginGroup("project")

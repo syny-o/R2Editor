@@ -1,9 +1,7 @@
-import logging
-from datetime import datetime
-
+from dialogs.dialog_message import dialog_message
 from PyQt5.Qt import QStandardItem, QIcon
 from PyQt5.QtWidgets import QPushButton, QStyle
-# from PyQt5.QtCore import pyqtSlot, Qt, QRunnable, QThreadPool
+from PyQt5.QtCore import pyqtSlot, Qt
 # from PyQt5.QtGui import QIcon
 import re
 from pathlib import Path
@@ -16,15 +14,12 @@ PATTERN_REQ_REFERENCE = re.compile(r"""(?:REFERENCE|\$REF:)\s*"(?P<req_reference
 # PATTERN_REQ_DETERMINE = re.compile(r"the (component|safety mechanism) shall determine '(?P<keyword>[\w]+)'", re.IGNORECASE)
 # PATTERN_CONSTANT = re.compile(r"^[A-Z0-9_]+$")
 
+# from my_logging import logger
 
 
 
-logging.basicConfig(
-    filename=f"log_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log",
-    format=str(__name__) + " %(asctime)s %(levelname)s- %(message)s",
-    level=logging.INFO,
-    filemode="w"
-)
+logger.debug(f"{__name__} --> Init")
+
 
 
 
@@ -70,7 +65,7 @@ class RequirementFileNode(QStandardItem):
     def __init__(self, root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline):
         super().__init__()
         self.root_node = root_node
-        # self.data_manager = self.root_node.data(Qt.UserRole)
+        self.data_manager = self.root_node.data(Qt.UserRole)
 
         self.ICON_DOORS = QIcon(u"ui/icons/doors.png")
         # self.ICON_NOT_COVERED = QIcon(u"ui/icons/cross.png")
@@ -98,7 +93,6 @@ class RequirementFileNode(QStandardItem):
         self.update_title_text()
 
         # print("\n".join(coverage_dict.keys()))
-        logging.info("\n".join([f"\n{k}\n{v}\n" for k, v in self._coverage_dict.items()]))
  
 
 
@@ -253,6 +247,9 @@ class RequirementFileNode(QStandardItem):
 
     # @pyqtSlot(object)
     def receive_data_from_doors(self, doors_output, timestamp):
+        # if not doors_output:
+        #     dialog_message(self.data_manager, f"Failed to download module {self.path}.")
+        #     return
         self.timestamp = timestamp
         # delete all children
         self.removeRows(0, self.rowCount())
@@ -457,7 +454,7 @@ class RequirementFileNode(QStandardItem):
 
 
 # PROJEDE VSECHNY REQUIREMENTY V MODULU (VE STROME), VYTVORI Z NEJ SLOVNIK A ULOZI JE DO SEZNAMU --> PRO UKLADANI PROJEKTU
-def _create_list_of_requirements_from_module(module, my_list=None) -> list[dict]:
+def _create_list_of_requirements_from_module(module: RequirementFileNode, my_list=None) -> list[dict]:
     if my_list is None:
         requirement_list = []
     else:

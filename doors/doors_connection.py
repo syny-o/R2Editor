@@ -4,6 +4,8 @@ import socket
 import subprocess
 import os
 
+from dialogs.dialog_message import dialog_message
+
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QSettings, QRunnable, QThreadPool, QTimer
 
@@ -234,7 +236,7 @@ def _create_dxl_script(module_paths:list[str], module_columns:list[list], module
 
 class DoorsConnection(QObject):
 
-    send_downloaded_requirements = pyqtSignal(object, object)
+    send_downloaded_requirements = pyqtSignal(str, str)
     send_progress_status = pyqtSignal(bool, str)
 
 
@@ -257,7 +259,7 @@ class DoorsConnection(QObject):
         # self.user_passwd = self.settings_doors.value('doors_user_passwd')
         self.user_passwd = password
 
-        self.cmd = fr'{self.app_path} -data "{self.database_path}" -u "{self.user_name}" -P "{self.user_passwd}" -batch "{dxl_file}"'
+        self.cmd = fr'{self.app_path} -data "{self.database_path}" -u "{self.user_name}" -P "{self.user_passwd}" -batch "{dxl_file}" -W'
 
 
 
@@ -284,8 +286,20 @@ class DoorsConnection(QObject):
 
 
 
+
+    # def __del__(self):
+    #     self.end_time = time.time()
+    #     delta = self.end_time - self.start_time
+    #     if delta < 120:
+    #         dialog_message(self.data_manager, f"Connection to {self.database_path} failed!\n Check User Name/Password.")
+        
+
+
     def update_percentage(self):
-        if self.percentage < 100:
+        if self.percentage < 10:
+            self.percentage += 1
+            self.send_progress_status.emit(True,f"Connecting to {self.database_path}: {self.percentage}%")            
+        elif self.percentage < 100:
             self.percentage += 1
             self.send_progress_status.emit(True,f"Downloading requirements: {self.percentage}%")
         else:
@@ -337,6 +351,8 @@ class Worker(QRunnable):
         self.columns = columns
         self.module_current_baselines = module_current_baselines
 
+        self.start_time = time.time()   
+
     @pyqtSlot()
     def run(self):
         print("Thread start - Connecting to Doors")
@@ -350,6 +366,15 @@ class Worker(QRunnable):
 
         # finally:
         #     self.doors_connection.kill_doors_client()
+
+
+
+    def __del__(self):
+        self.end_time = time.time()
+        delta = self.end_time - self.start_time
+        # print(delta)
+        if delta < 100:
+            self.doors_connection.send_progress_status.emit(True, f"Connection to {self.doors_connection.database_path} failed!")     
 
             
 

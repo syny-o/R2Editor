@@ -59,7 +59,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.resize(1920, 1080)
 
         self.setWindowIcon(QIcon('R2Editor.ico'))
-        self.setWindowTitle("R2Editor")
+        self.setWindowTitle("Editor")
 
         self.splitter.setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:horizontal:hover {background-color:rgb(58,89,245);}")
         
@@ -711,7 +711,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def _update_script_label(self):
-        self.setWindowTitle(f"R2 Editor - {self.actual_text_edit.file_path}" if self.actual_text_edit else "R2 Editor")
+        self.setWindowTitle(f"Editor - {self.actual_text_edit.file_path}" if self.actual_text_edit else "Editor")
 
 
    
@@ -723,9 +723,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def project_new(self):
-        self.opened_project_path = None
-        self.window = ProjectConfig(self, is_new_project=True)
-        self.window.show()
+        # self.opened_project_path = None
+        # self.window = ProjectConfig(self, is_new_project=True)
+        # self.window.show()
+        if not project_manager.is_project_saved():
+            proceed = QMessageBox.question(self,
+                            "R2ScriptEditor",
+                            "Current project is not saved.\n\nDo you want to proceed (all changes will be lost)?",
+                            QMessageBox.Yes | QMessageBox.No)
+            if proceed == QMessageBox.No:
+                return        
+        project_manager.new_project()
 
     def project_save(self):        
         success, message = project_manager.save_project()

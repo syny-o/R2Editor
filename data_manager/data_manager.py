@@ -33,6 +33,11 @@ from data_manager import model_manager
 from data_manager import view_filter
 
 
+# from my_logging import logger
+
+
+# logger.debug(f"{__name__} --> Init")
+
 
 class DataManager(QWidget, Ui_Form):
 
@@ -178,7 +183,7 @@ class DataManager(QWidget, Ui_Form):
         self.ui_edit.setToolTip("F4")
         self.ui_export.clicked.connect(self.tree_2_file)
         self.ui_update_requirements.clicked.connect(lambda: self._update_requirements(True))
-        self.ui_new_requirements.clicked.connect(self._add_req_node)
+        self.ui_new_requirements.clicked.connect(self._add_requirement_module)
         self.ui_check_coverage.clicked.connect(self._create_dict_from_scripts_for_coverage_check)
         self.ui_check_html_report.clicked.connect(self.check_HTML_report)
         self.ui_le_filter.textChanged.connect(self._filter_items)
@@ -306,36 +311,26 @@ class DataManager(QWidget, Ui_Form):
     #   ADDING REQUIREMENT MODULE
     #####################################################################################################################################################
 
+    def _add_requirement_module(self):
+        self.form_add_req_module = FormAddModule(self)
+        self.form_add_req_module.show()
+
     @pyqtSlot(str, list)
     def receive_data_from_add_req_module_dialog(self, module_path, columns_names):
         r = RequirementFileNode(self.ROOT, module_path, columns_names, attributes=[], baseline={}, coverage_filter=None, coverage_dict=None, update_time=None, ignore_list=None, notes=None, current_baseline=None)
         self.ROOT.appendRow(r)
 
-
-    def _add_req_node(self):
-        self.form_add_req_module = FormAddModule(self)
-        self.form_add_req_module.show()
-        # from importlib import reload
-        # self.ui_layout_req_text.removeWidget(self.ui_requirement_text)
-        # reload(data_manager.req_text_edit)
-        # self.ui_requirement_text = data_manager.req_text_edit.RequirementTextEdit(self.main_window)
-        # self.ui_layout_req_text.addWidget(self.ui_requirement_text)
-
-
-
     #####################################################################################################################################################
     #   CONNECTING AND DOWNLOADING DATA FROM DOORS
-    #####################################################################################################################################################
+    #####################################################################################################################################################        
 
+    # Click on Button Update Requirements
+    def _update_requirements(self, is_multiple_modules):    
+        if not self.MAIN.app_settings.doors_user_name:
+            dialog_message(self, "User is not defined! Please set user name in application config.")
+            self.MAIN.manage_right_menu(self.MAIN.app_settings, self.MAIN.btn_app_settings)
+            return
 
-    def _send_request_2_doors(self, password, paths, columns_names, baselines):
-        DoorsConnection(self, paths, columns_names, baselines, self, password)
-        self.downloading_of_requirements_is_in_progress = True
-        self.update_progress_status(True, 'Initialising...')
-        
-
-
-    def _update_requirements(self, is_multiple_modules):
         # 1. Check if at least one req. module is present
         requirements_file_nodes_present = False
         for row in range(self.ROOT.rowCount()):
@@ -376,12 +371,19 @@ class DataManager(QWidget, Ui_Form):
                         
 
 
+    def _send_request_2_doors(self, password, paths, columns_names, baselines):
+        DoorsConnection(self, paths, columns_names, baselines, self, password)
+        self.downloading_of_requirements_is_in_progress = True
+        self.update_progress_status(True, 'Initialising...')
 
 
-    def receive_data_from_doors(self, doors_output, timestamp):
+    @pyqtSlot(str, str)
+    def receive_data_from_doors(self, doors_output: str, timestamp: str):
         self.downloading_of_requirements_is_in_progress = False
         if not doors_output:
             self.MAIN.show_notification(f"Error: No data received.") 
+            # logger.debug("No Doors Output - EMPTY txt file")
+            
             return
 
         if self._module_which_is_currently_donwnloaded:
@@ -416,7 +418,6 @@ class DataManager(QWidget, Ui_Form):
                         change = current_item.update_script_in_coverage_dict(req_reference, script_path)
                         # print(req_reference)
                         # print(script_path)
-
                         
                         if change:
                             self._update_data_summary()            
@@ -432,14 +433,13 @@ class DataManager(QWidget, Ui_Form):
     #####################################################################################################################################################
     def _create_dict_from_scripts_for_coverage_check(self):
         if self.PROJECT_MANAGER.disk_project_path():
-            # print("START COVERAGE CHECK")
             self.ui_check_coverage.setEnabled(False)        
             worker = Worker(self)
             self.threadpool.start(worker)
 
 
     @pyqtSlot(dict)
-    def check_coverage(self, file_content_dict):
+    def check_coverage(self, file_content_dict: dict):
         if self.PROJECT_MANAGER.disk_project_path():
             for row in range(self.ROOT.rowCount()):
                 current_item = self.ROOT.child(row)
@@ -464,11 +464,11 @@ class DataManager(QWidget, Ui_Form):
                 calculated_number += current_node.number_of_calculated_requirements
                 covered_number += current_node.number_of_covered_requirements
                 
+        # VIEW PART
         self.progress_bar.update_value(calculated_number, covered_number)
         self.ui_lab_req_total.setText(str(calculated_number))
         self.ui_lab_req_covered.setText(str(covered_number))
-        self.ui_lab_req_not_covered.setText(str(calculated_number-covered_number))
-
+        self.ui_lab_req_not_covered.setText(str(calculated_number - covered_number))
         self._display_values()
         
 
@@ -478,7 +478,6 @@ class DataManager(QWidget, Ui_Form):
     ##############################################################################################################################
     # COVERAGE FILTER - OPENING FORM AND RECEIVING BACK COVERAGE FILTER STRING:
     ##############################################################################################################################
-
 
     def _open_form_for_coverage_filter(self):
         selected_item_index = self.TREE.currentIndex()
@@ -520,8 +519,7 @@ class DataManager(QWidget, Ui_Form):
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
         if isinstance(selected_item, RequirementNode):
             selected_item.add_to_ignore_list()    
-            self._update_data_summary()  
-            
+            self._update_data_summary()              
             self.set_project_saved(False) 
 
 
@@ -531,7 +529,6 @@ class DataManager(QWidget, Ui_Form):
         if isinstance(selected_item, RequirementNode):
             selected_item.remove_from_ignore_list()    
             self._update_data_summary()   
-
             self.set_project_saved(False)      
 
 

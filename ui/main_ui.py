@@ -518,7 +518,7 @@ class Ui_MainWindow(object):
         self.btn_toggle_menu.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.btn_toggle_menu.setStyleSheet("QPushButton {    \n"
 "    background-image: url(:/24x24/icons/24x24/cil-menu.png);\n"
-"    border-bottom: 1px solid #000;\n"
+"\n"
 "}")
         self.btn_toggle_menu.setText("")
         self.btn_toggle_menu.setCheckable(True)
@@ -1511,9 +1511,14 @@ class Ui_MainWindow(object):
         self.btn_minimize.setToolTip(_translate("MainWindow", "Minimize"))
         self.btn_maximize_restore.setToolTip(_translate("MainWindow", "Maximize"))
         self.btn_close.setToolTip(_translate("MainWindow", "Close"))
+        self.btn_toggle_menu.setToolTip(_translate("MainWindow", "Show/Hide Menu"))
+        self.btn_project_open.setToolTip(_translate("MainWindow", "Open Project"))
         self.btn_project_open.setText(_translate("MainWindow", "Open Project"))
+        self.btn_project_save.setToolTip(_translate("MainWindow", "Save Project"))
         self.btn_project_save.setText(_translate("MainWindow", "Save Project"))
+        self.btn_project_save_as.setToolTip(_translate("MainWindow", "Save Project As.."))
         self.btn_project_save_as.setText(_translate("MainWindow", "Save Project As"))
+        self.btn_project_new.setToolTip(_translate("MainWindow", "New Project"))
         self.btn_project_new.setText(_translate("MainWindow", "New Project"))
         self.btn_app_exit.setText(_translate("MainWindow", "Exit"))
         self.btn_script_new.setText(_translate("MainWindow", "New"))
@@ -1533,6 +1538,9 @@ class Ui_MainWindow(object):
         self.btn_undo.setText(_translate("MainWindow", "Undo"))
         self.btn_redo.setText(_translate("MainWindow", "Redo"))
         self.btn_find_replace.setText(_translate("MainWindow", "Find and Replace"))
+        self.ui_btn_home.setToolTip(_translate("MainWindow", "Home"))
+        self.ui_btn_text_editor.setToolTip(_translate("MainWindow", "Editor"))
+        self.ui_btn_data_manager.setToolTip(_translate("MainWindow", "Data"))
         self.label_credits.setText(_translate("MainWindow", "RapitTwo Script Editor"))
         self.label_credits_5.setText(_translate("MainWindow", "Current project:"))
         self.label_opened_project.setText(_translate("MainWindow", "No project loaded"))

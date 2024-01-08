@@ -1213,13 +1213,16 @@ QPushButton:pressed {
                     <family>Segoe UI</family>
                    </font>
                   </property>
+                  <property name="toolTip">
+                   <string>Show/Hide Menu</string>
+                  </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
                   </property>
                   <property name="styleSheet">
                    <string notr="true">QPushButton {	
 	background-image: url(:/24x24/icons/24x24/cil-menu.png);
-	border-bottom: 1px solid #000;
+
 }</string>
                   </property>
                   <property name="text">
@@ -1248,6 +1251,9 @@ QPushButton:pressed {
                    <font>
                     <family>Segoe UI</family>
                    </font>
+                  </property>
+                  <property name="toolTip">
+                   <string>Open Project</string>
                   </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
@@ -1281,6 +1287,9 @@ QPushButton:pressed {
                     <family>Segoe UI</family>
                    </font>
                   </property>
+                  <property name="toolTip">
+                   <string>Save Project</string>
+                  </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
                   </property>
@@ -1313,6 +1322,9 @@ QPushButton:pressed {
                     <family>Segoe UI</family>
                    </font>
                   </property>
+                  <property name="toolTip">
+                   <string>Save Project As..</string>
+                  </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
                   </property>
@@ -1344,6 +1356,9 @@ QPushButton:pressed {
                    <font>
                     <family>Segoe UI</family>
                    </font>
+                  </property>
+                  <property name="toolTip">
+                   <string>New Project</string>
                   </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
@@ -2431,6 +2446,9 @@ QPushButton:checked {
                     <family>Segoe UI</family>
                    </font>
                   </property>
+                  <property name="toolTip">
+                   <string>Home</string>
+                  </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
                   </property>
@@ -2467,6 +2485,9 @@ QPushButton:checked {
                     <family>Segoe UI</family>
                    </font>
                   </property>
+                  <property name="toolTip">
+                   <string>Editor</string>
+                  </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
                   </property>
@@ -2501,6 +2522,9 @@ QPushButton:checked {
                    <font>
                     <family>Segoe UI</family>
                    </font>
+                  </property>
+                  <property name="toolTip">
+                   <string>Data</string>
                   </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
