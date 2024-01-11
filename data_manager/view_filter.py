@@ -18,7 +18,7 @@ def show_only_items_with_coverage(TREE, MODEL):
     def _browse_children(node, hide):         
         for row in range(node.rowCount()):
             requirement_node = node.child(row)
-            if hide and requirement_node.is_covered is None:
+            if hide and requirement_node.node_icon is None:
                 TREE.setRowHidden(row, node.index(), True)
             else:
                 TREE.setRowHidden(row, node.index(), False)
@@ -37,10 +37,10 @@ def show_only_items_not_covered(TREE, MODEL):
     def _browse_children(node, hide):         
         for row in range(node.rowCount()):
             requirement_node = node.child(row)
-            if hide and requirement_node.is_covered is not False:
-                TREE.setRowHidden(row, node.index(), True)
-            else:
+            if hide and requirement_node.node_icon == "red":
                 TREE.setRowHidden(row, node.index(), False)
+            else:
+                TREE.setRowHidden(row, node.index(), True)
             _browse_children(requirement_node, hide)
 
     _browse_children(requirement_file_node, hide=True)
@@ -48,20 +48,18 @@ def show_only_items_not_covered(TREE, MODEL):
     requirement_file_node.view_filter = "not_covered"
 
 
+
 def show_all_items(TREE, MODEL):
     index = TREE.currentIndex()
     requirement_file_node = MODEL.itemFromIndex(index)
 
-    def _browse_children(node, hide):         
+    def _browse_children(node):         
         for row in range(node.rowCount()):
             requirement_node = node.child(row)
-            if hide and requirement_node.is_covered is None:
-                TREE.setRowHidden(row, node.index(), True)
-            else:
-                TREE.setRowHidden(row, node.index(), False)
-            _browse_children(requirement_node, hide)
+            TREE.setRowHidden(row, node.index(), False)
+            _browse_children(requirement_node)
 
-    _browse_children(requirement_file_node, hide=False)
+    _browse_children(requirement_file_node)
 
     requirement_file_node.view_filter = "all"  
 

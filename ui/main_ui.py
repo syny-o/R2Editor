@@ -1234,8 +1234,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addWidget(self.frame_right_menu)
         self.verticalLayout.addWidget(self.frame_center)
         self.frame_grip = QtWidgets.QFrame(self.frame_main)
-        self.frame_grip.setMinimumSize(QtCore.QSize(0, 25))
-        self.frame_grip.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.frame_grip.setMinimumSize(QtCore.QSize(0, 28))
+        self.frame_grip.setMaximumSize(QtCore.QSize(16777215, 28))
         self.frame_grip.setStyleSheet("QFrame{\n"
 "background-color: rgb(33, 37, 43);\n"
 "background-color: rgb(27, 29, 35);\n"
@@ -1310,6 +1310,7 @@ class Ui_MainWindow(object):
         self.label_opened_project.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setFamily("Segoe UI")
+        font.setPointSize(9)
         font.setBold(False)
         font.setWeight(50)
         self.label_opened_project.setFont(font)

@@ -2624,13 +2624,13 @@ QPushButton:checked {
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>25</height>
+           <height>28</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>16777215</width>
-           <height>25</height>
+           <height>28</height>
           </size>
          </property>
          <property name="styleSheet">
@@ -2780,6 +2780,7 @@ QLabel{
                <property name="font">
                 <font>
                  <family>Segoe UI</family>
+                 <pointsize>9</pointsize>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>

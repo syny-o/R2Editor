@@ -10,7 +10,8 @@ from components.reduce_path_string import reduce_path_string
 # from dialogs.dialog_message import dialog_message
 
 
-PATTERN_REQ_REFERENCE = re.compile(r"""(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*""", re.IGNORECASE)
+# PATTERN_REQ_REFERENCE = re.compile(r"""(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*""", re.IGNORECASE)
+# PATTERN_REQ_REFERENCE = re.compile(r'(?:REFERENCE|\$REF:)\s*"(?P<req_reference>.+)"\s*\$', re.IGNORECASE)
 # PATTERN_REQ_DETERMINE = re.compile(r"the (component|safety mechanism) shall determine '(?P<keyword>[\w]+)'", re.IGNORECASE)
 # PATTERN_CONSTANT = re.compile(r"^[A-Z0-9_]+$")
 
@@ -18,7 +19,7 @@ PATTERN_REQ_REFERENCE = re.compile(r"""(?:REFERENCE|\$REF:)\s*"(?P<req_reference
 
 
 
-logger.debug(f"{__name__} --> Init")
+# logger.debug(f"{__name__} --> Init")
 
 
 
@@ -247,9 +248,13 @@ class RequirementFileNode(QStandardItem):
 
     # @pyqtSlot(object)
     def receive_data_from_doors(self, doors_output, timestamp):
-        # if not doors_output:
-        #     dialog_message(self.data_manager, f"Failed to download module {self.path}.")
-        #     return
+
+        success, message = self.validate_doors_output(doors_output)
+
+        if not success: 
+            dialog_message(self.data_manager, message)
+            return False
+
         self.timestamp = timestamp
         # delete all children
         self.removeRows(0, self.rowCount())
@@ -263,6 +268,22 @@ class RequirementFileNode(QStandardItem):
         self.apply_coverage_filter()
         # UPDATE ACCORDING TO COVERAGE DICT WHICH IS STORED IN REQUIREMENT MODULE INDEPENDETLY TO REQUIREMETS NODES
         # self.update_coverage_from_coverage_dict()
+        return True
+
+
+    def validate_doors_output(self, doors_output: str) -> tuple[bool, str]:                   
+            if self.path not in doors_output:
+                return False, f"Failed to download module:\n {self.path}.\n\n Reason:\n Connection issues during downloading or invalid module path!"
+
+            modules = doors_output.split("<PATH_START>")
+            for module in modules:
+                if self.path in module:
+                    current_module_string = module
+            match = re.search(fr"{self.path}(.+?)<REQUIREMENTS_END>", current_module_string, re.DOTALL)
+            if not match:
+                return False, f"Failed to download module:\n {self.path}.\n\n Reason:\n Invalid column name!"
+            
+            return True, "OK"
 
 
     #######################################################################################################################################
@@ -514,7 +535,6 @@ class RequirementNode(QStandardItem):
         self.heading = heading
         self.level = level
 
-        self.is_covered = None
         
         if outlinks:
             self.outlinks = [o.strip() for o in outlinks]
@@ -530,63 +550,116 @@ class RequirementNode(QStandardItem):
         if self.heading:
             self.setText(heading)
         else:
-            self.setText(reference)        
+            self.setText(reference)  
+
+        self.node_icon = None      
 
 
 
+    @property
+    def is_covered(self):
+        is_covered = self.MODULE._coverage_dict.get(self.reference.lower(), "Not Calculated")
+        if is_covered == "Not Calculated":
+            return None
+        elif is_covered:
+            return True
+        else:
+            return False
+
+    
 
     def update_icon(self):        
-        module = self.MODULE
-        is_covered = module._coverage_dict.get(self.reference.lower(), "Not Calculated")
+        if self.is_covered == None:
+            self.setIcon(self.MODULE.ICON_NONE)
+            self.node_icon = None
+        elif self.is_covered:
+            self.setIcon(self.MODULE.ICON_COVERED)
+            self.node_icon = "green"
+        else:
+            self.setIcon(self.MODULE.ICON_NOT_COVERED)
+            self.node_icon = "red"
+        self.update_parents_icons()
+
+
+    def update_parents_icons(self):
+        while not isinstance(self, RequirementFileNode):
+            parent = self.parent()
+            children = []
+            green = False
+            red = False
+            for row in range(parent.rowCount()):
+                children.append(parent.child(row))
+
+            for child in children:
+                if child.node_icon == "red":
+                    red = True
+                elif child.node_icon == "green":
+                    green = True
+
+            if red:
+                self.parent().setIcon(self.MODULE.ICON_NOT_COVERED)
+                self.parent().node_icon = "red"
+            elif green:
+                self.parent().setIcon(self.MODULE.ICON_COVERED)
+                self.parent().node_icon = "green"
+            else:
+                self.parent().setIcon(self.MODULE.ICON_NONE) if isinstance(self.parent(), RequirementNode) else self.parent().setIcon(self.MODULE.ICON_DOORS)
+                self.parent().node_icon = None
+
+            self = self.parent()            
+
         
 
-        if is_covered == "Not Calculated":  # if the requirement is not present in coverage dict
-            self.is_covered = None
-            self.setIcon(self.MODULE.ICON_NONE)
-            for _ in range(self.level):
-                parent = self.parent()
-                children = []
-                for row in range(parent.rowCount()):
-                    children.append(parent.child(row))
-                children_none = True
-                for child in children:
-                    if child.is_covered is not None:
-                        children_none =  False
 
-                if children_none:
-                    self.parent().setIcon(self.MODULE.ICON_NONE) if isinstance(self.parent(), RequirementNode) else self.parent().setIcon(self.MODULE.ICON_DOORS)
-                    self.parent().is_covered = None
-                if not isinstance(self, RequirementFileNode):
-                    self = self.parent()   
+        
+        
+        # if is_covered == "Not Calculated":  # if the requirement is not present in coverage dict
+        #     self.is_covered = None
+        #     self.setIcon(self.MODULE.ICON_NONE)
+        #     for _ in range(self.level):
+        #         parent = self.parent()
+        #         children = []
+        #         for row in range(parent.rowCount()):
+        #             children.append(parent.child(row))
+        #         children_none = True
+        #         for child in children:
+        #             if child.is_covered is not None:
+        #                 children_none =  False
 
-        else:
-            if is_covered:  # if the requirements HAS file references
-                self.is_covered = True
-                self.setIcon(self.MODULE.ICON_COVERED)
-                for _ in range(self.level):
-                    parent = self.parent()
-                    children = []
-                    for row in range(parent.rowCount()):
-                        children.append(parent.child(row))
-                    children_covered = True
-                    for child in children:
-                        if child.is_covered == False:
-                            children_covered =  False
+        #         if children_none:
+        #             self.parent().setIcon(self.MODULE.ICON_NONE) if isinstance(self.parent(), RequirementNode) else self.parent().setIcon(self.MODULE.ICON_DOORS)
+        #             self.parent().is_covered = None
+        #         if not isinstance(self, RequirementFileNode):
+        #             self = self.parent()   
 
-                    if children_covered:
-                        self.parent().setIcon(self.MODULE.ICON_COVERED)
-                        self.parent().is_covered = True
-                    if not isinstance(self, RequirementFileNode):
-                        self = self.parent()
+        # else:
+        #     if is_covered:  # if the requirements HAS file references
+        #         self.is_covered = True
+        #         self.setIcon(self.MODULE.ICON_COVERED)
+        #         for _ in range(self.level):
+        #             parent = self.parent()
+        #             children = []
+        #             for row in range(parent.rowCount()):
+        #                 children.append(parent.child(row))
+        #             children_covered = True
+        #             for child in children:
+        #                 if child.is_covered == False:
+        #                     children_covered =  False
 
-            if not is_covered:  # if the requirements HAS NO file references
-                self.is_covered = False
-                self.setIcon(self.MODULE.ICON_NOT_COVERED)
-                for _ in range(self.level):
-                    self.parent().setIcon(self.MODULE.ICON_NOT_COVERED)
-                    self.parent().is_covered = False
-                    if not isinstance(self, RequirementFileNode):
-                        self = self.parent()
+        #             if children_covered:
+        #                 self.parent().setIcon(self.MODULE.ICON_COVERED)
+        #                 self.parent().is_covered = True
+        #             if not isinstance(self, RequirementFileNode):
+        #                 self = self.parent()
+
+        #     if not is_covered:  # if the requirements HAS NO file references
+        #         self.is_covered = False
+        #         self.setIcon(self.MODULE.ICON_NOT_COVERED)
+        #         for _ in range(self.level):
+        #             self.parent().setIcon(self.MODULE.ICON_NOT_COVERED)
+        #             self.parent().is_covered = False
+        #             if not isinstance(self, RequirementFileNode):
+        #                 self = self.parent()
 
 
 
@@ -606,27 +679,40 @@ class RequirementNode(QStandardItem):
     def add_to_ignore_list(self):
         if not self.hasChildren():  # if it is not Heading
             # self.update_coverage(None)
-            self.MODULE.remove_identifier_from_coverage_dict(self.reference)
+            self.MODULE._coverage_dict.pop(self.reference.lower())
             self.MODULE.ignore_list.add(self.reference)
+            self.update_icon()
 
     def remove_from_ignore_list(self):
         if not self.hasChildren():  # if it is not Heading
             if self.reference in self.MODULE.ignore_list:            
                 # self.update_coverage(False)
                 self.MODULE.ignore_list.remove(self.reference)   
-                self.MODULE._coverage_dict.update({self.reference : []})
+                self.MODULE._coverage_dict.update({self.reference.lower() : []})
+                self.update_icon()
 
 
 
 
 
 
-    def update_note(self, text):
+    # def update_note(self, text):
+    #     if text.strip() != "":
+    #         self.MODULE.notes.update({self.reference: text})
+    #     else:     
+    #         self.MODULE.notes.pop(self.reference, None)
+
+    # def get_note(self):
+    #     return self.MODULE.notes.get(self.reference, "")
+
+    @property
+    def note(self) -> str:
+        return self.MODULE.notes.get(self.reference, "")
+
+    @note.setter
+    def note(self, text: str) -> None:
         if text.strip() != "":
             self.MODULE.notes.update({self.reference: text})
         else:     
             self.MODULE.notes.pop(self.reference, None)
-
-    def get_note(self):
-        return self.MODULE.notes.get(self.reference, "")
 

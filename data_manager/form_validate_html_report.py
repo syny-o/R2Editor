@@ -11,7 +11,8 @@ class FormValidatedHTMLReport(QWidget, Ui_Form):
     def __init__(self, data_manager: object, not_covered_requirements: list):
         super().__init__()
         self.setupUi(self)
-        self.setMinimumSize(600, 600)
+        # self.setMinimumSize(600, 600)
+        self.setWindowIcon(QIcon('R2Editor.ico'))
         # self.setWindowFlags(Qt.FramelessWindowHint)
         # self.setWindowModality(Qt.ApplicationModal)
         self.uiFrameTitleBar.setMaximumHeight(0)

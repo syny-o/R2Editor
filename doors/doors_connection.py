@@ -263,6 +263,12 @@ class DoorsConnection(QObject):
 
 
 
+        # DELETE OLD DOORS OUTPUT
+        if os.path.isfile("doors/doors_output.txt"):
+            os.remove("doors/doors_output.txt")
+
+
+
         # THREADS CONFIGURATION
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(1)
@@ -331,8 +337,10 @@ class DoorsConnection(QObject):
 
             self.send_progress_status.emit(False,"")
         except Exception as e:
-            with open(f"error_{timestamp}.log", "w") as log:
-                log.write("create_and_run_dxl_script ERROR:  " + str(e))
+            print("Missing Doors Output")
+            self.send_downloaded_requirements.emit("Connection Failed", "") 
+            self.send_progress_status.emit(False, "")
+            
                 
 
 
@@ -369,12 +377,13 @@ class Worker(QRunnable):
 
 
 
-    def __del__(self):
-        self.end_time = time.time()
-        delta = self.end_time - self.start_time
-        # print(delta)
-        if delta < 100:
-            self.doors_connection.send_progress_status.emit(True, f"Connection to {self.doors_connection.database_path} failed!")     
+    # def __del__(self):
+    #     self.end_time = time.time()
+    #     delta = self.end_time - self.start_time
+    #     # print(delta)
+    #     if delta < 100:
+    #         # self.doors_connection.send_progress_status.emit(True, f"Connection to {self.doors_connection.database_path} failed!")  
+    #         self.doors_connection.send_downloaded_requirements.emit("Connection Failed", "")   
 
             
 

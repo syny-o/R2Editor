@@ -542,7 +542,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     
     def find_reference_in_string(self, string):
-        PATTERN_REQ_REFERENCE = re.compile(r'(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*', re.IGNORECASE)
+        # PATTERN_REQ_REFERENCE = re.compile(r'(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*', re.IGNORECASE)
+        PATTERN_REQ_REFERENCE = re.compile(r'(?:REFERENCE|\$REF:)\s*"(?P<req_reference>.+)"\s*\$', re.IGNORECASE)
         match_list = PATTERN_REQ_REFERENCE.findall(string)
         # print(match_list)
         references = set()

@@ -1,6 +1,5 @@
 from pathlib import Path
 from ui.model_editor_ui import Ui_Form
-# from config.font import font
 import json, re, os
 from PyQt5.QtWidgets import QWidget, QFileDialog, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QTextEdit, QMessageBox, QStyle, QPushButton, QApplication, QListWidgetItem, QListWidget
 from PyQt5.Qt import QStandardItemModel
@@ -12,10 +11,8 @@ from data_manager.a2l_nodes import A2lFileNode, A2lNode
 from data_manager import a2l_nodes, condition_nodes, requirement_nodes, dspace_nodes
 from data_manager.requirement_nodes import RequirementFileNode, RequirementNode
 from data_manager.dlg_add_node import DlgAddNode
-# from dialogs.form_add_req_module import AddRequirementsModule
 from data_manager.form_add_module import FormAddModule
 from data_manager.form_add_requirement_filter import FormAddCoverageFilter
-# from dialogs.form_req_filter import RequirementFilter
 from progress_bar.widget_modern_progress_bar import ModernProgressBar
 from text_editor.completer import Completer
 from components.droppable_tree_view import DroppableTreeView
@@ -31,6 +28,8 @@ from data_manager.widget_baseline import WidgetBaseline
 
 from data_manager import model_manager
 from data_manager import view_filter
+from data_manager.ui_control_manager import UIControlManager
+from data_manager.display_manager import DisplayManager
 
 
 # from my_logging import logger
@@ -46,23 +45,23 @@ class DataManager(QWidget, Ui_Form):
     def __init__(self, main_window, project_manager):
         super().__init__()
         self.setupUi(self)
-        self._hide_all_frames()
 
         self.MAIN = main_window
-        self.PROJECT_MANAGER = project_manager
-        
+        self.PROJECT_MANAGER = project_manager        
         self.MODEL = QStandardItemModel()
         self.ROOT = self.MODEL.invisibleRootItem()        
         self.ROOT.setData(self, Qt.UserRole)  # add pointer to DataManager instance to be accesseble from child nodes (ReqNode, CondNode, ...)
 
-        # TREE:
         self.TREE = DroppableTreeView(self)
         self.ui_layout_tree.addWidget(self.TREE)
         self.TREE.setModel(self.MODEL)
         self.TREE.customContextMenuRequested.connect(self._context_menu) 
         self.TREE.clicked.connect(self._display_values)
         selection_model = self.TREE.selectionModel()
-        selection_model.selectionChanged.connect(self._display_values)  # update line edits on Up/Down Arrows        
+        selection_model.selectionChanged.connect(self._display_values)  # update line edits on Up/Down Arrows  
+
+        self.progress_bar = ModernProgressBar('rgb(0, 179, 0)', 'COVERED')
+        self.ui_layout_data_summary.addWidget(self.progress_bar)                
 
         QShortcut( 'Ctrl+Down', self.TREE ).activated.connect(lambda: self.move_node(direction='down'))
         QShortcut( 'Ctrl+Up', self.TREE ).activated.connect(lambda: self.move_node(direction='up'))
@@ -74,17 +73,13 @@ class DataManager(QWidget, Ui_Form):
         QShortcut( 'Esc', self.TREE ).activated.connect(self._stop_filtering)
         QShortcut( 'Ctrl+S', self ).activated.connect(self.MAIN.project_save)
      
+        # self.uiLisWidgetModuleColumns = MyListWidget()
+        # self.uiLisWidgetModuleColumns.setEnabled(False)
+        # self.uiLayoutModuleColumns.addWidget(self.uiLisWidgetModuleColumns)
 
-        self.progress_bar = ModernProgressBar('rgb(0, 179, 0)', 'COVERED')
-        self.ui_layout_data_summary.addWidget(self.progress_bar)     
-
-        self.uiLisWidgetModuleColumns = MyListWidget()
-        self.uiLisWidgetModuleColumns.setEnabled(False)
-        self.uiLayoutModuleColumns.addWidget(self.uiLisWidgetModuleColumns)
-
-        self.uiLisWidgetModuleAttributes = MyListWidget(context_menu=False)
+        # self.uiLisWidgetModuleAttributes = MyListWidget(context_menu=False)
         # self.uiLisWidgetModuleAttributes.setEnabled(False)
-        self.uiLayoutModuleAttributes.addWidget(self.uiLisWidgetModuleAttributes)
+        # self.uiLayoutModuleAttributes.addWidget(self.uiLisWidgetModuleAttributes)
 
         ################## ACTIONS START ###########################
         self.action_expand_all_children = QAction(QIcon(u"ui/icons/16x16/cil-expand-down.png"), "Expand All Children")
@@ -149,7 +144,9 @@ class DataManager(QWidget, Ui_Form):
         self.action_open_coverage_filter = QAction(QIcon(u"ui/icons/16x16/cil-wifi-signal-2.png"), 'Set Coverage Filter')
         self.action_open_coverage_filter.triggered.connect(self._open_form_for_coverage_filter) 
         self.action_edit_coverage_filter = QAction(QIcon(u"ui/icons/16x16/cil-wifi-signal-2.png"), 'Modify Coverage Filter')
-        self.action_edit_coverage_filter.triggered.connect(self._open_form_for_coverage_filter)         
+        self.action_edit_coverage_filter.triggered.connect(self._open_form_for_coverage_filter)  
+        self.action_remove_coverage_filter = QAction(QIcon(u"ui/icons/16x16/cil-wifi-signal-off.png"), "Remove Coverage Filter")
+        self.action_remove_coverage_filter.triggered.connect(self._remove_coverage_filter)                
 
         self.action_show_only_requirements_with_coverage = QAction('Show Not Covered + Covered')
         self.action_show_only_requirements_with_coverage.triggered.connect(self._show_only_items_with_coverage)
@@ -159,9 +156,6 @@ class DataManager(QWidget, Ui_Form):
         self.action_show_all_requirements.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))
         self.action_show_all_requirements.triggered.connect(self._show_all_items)        
 
-        self.action_remove_coverage_filter = QAction(QIcon(u"ui/icons/16x16/cil-wifi-signal-off.png"), "Remove Coverage Filter")
-        self.action_remove_coverage_filter.triggered.connect(self._remove_coverage_filter)        
-
         self.action_add_to_ignore_list = QAction(QIcon(u"ui/icons/16x16/cil-task.png"), "Add To Ignore List")
         self.action_add_to_ignore_list.triggered.connect(self._add_to_ignore_list)
         self.action_remove_from_ignore_list = QAction(QIcon(u"ui/icons/16x16/cil-external-link.png"), "Remove From Ignore List")
@@ -169,19 +163,43 @@ class DataManager(QWidget, Ui_Form):
         ################## ACTIONS END ###########################
 
 
+        self.ui_control_manager = UIControlManager(
+            
+            action_expand_all_children=self.action_expand_all_children,
+            action_collapse_all_children=self.action_collapse_all_children,
+            action_add_node=self.action_add,
+            action_remove_node=self.action_remove,
+            action_edit_node=self.action_edit,
+            action_duplicate_node=self.action_duplicate,
+            action_copy_node=self.action_copy,
+            action_paste_node=self.action_paste,
+            action_export_node=self.action_save,
+            action_move_up_node=self.action_move_up,
+            action_move_down_node=self.action_move_down,
+            action_normalise_a2l_file=self.action_normalise_a2l_file,
+            action_update_module=self.action_update_requirements,
+            action_open_coverage_filter=self.action_open_coverage_filter,
+            action_edit_coverage_filter=self.action_edit_coverage_filter,
+            action_remove_coverage_filter=self.action_remove_coverage_filter,
+            action_add_to_ignore_list=self.action_add_to_ignore_list,
+            action_remove_from_ignore_list=self.action_remove_from_ignore_list,
+            action_show_only_requirements_with_coverage=self.action_show_only_requirements_with_coverage,
+            action_show_only_requirements_not_covered=self.action_show_only_requirements_not_covered,
+            action_show_all_requirements=self.action_show_all_requirements,
+
+        )
+
+
         # FUNCTIONAL PART:
         # self.MODEL.itemChanged.connect(lambda: self.set_project_saved(False))
         self.MODEL.rowsInserted.connect(lambda: self.set_project_saved(False))
         self.MODEL.rowsRemoved.connect(lambda: self.set_project_saved(False))
 
-        self.ui_remove.clicked.connect(self.remove_node)
         self.ui_add.clicked.connect(self.add_node)
         self.ui_add.setShortcut('Ctrl+n')
-        self.ui_duplicate.clicked.connect(self.duplicate_node)
         self.ui_edit.clicked.connect(self.edit_node)
         self.ui_edit.setShortcut('F4')
         self.ui_edit.setToolTip("F4")
-        self.ui_export.clicked.connect(self.tree_2_file)
         self.ui_update_requirements.clicked.connect(lambda: self._update_requirements(True))
         self.ui_new_requirements.clicked.connect(self._add_requirement_module)
         self.ui_check_coverage.clicked.connect(self._create_dict_from_scripts_for_coverage_check)
@@ -193,56 +211,26 @@ class DataManager(QWidget, Ui_Form):
         self.send_data_2_completer()
         self._update_data_summary()
 
-
         # node copied into memory by action COPY
         self.node_to_paste = None
 
-        self.send_file_path.connect(main_window.file_open_from_tree)
-        self.ui_lw_file_paths_coverage.itemDoubleClicked.connect(self._doubleclick_on_tc_reference)
-        self.ui_lw_outlinks.itemDoubleClicked.connect(self._doubleclick_on_outlink)
-        self.uiListWidgetModuleIgnoreList.itemDoubleClicked.connect(self._doubleclick_on_ignored_reference)
-
-        # BASELINE LIST WIDGET
-        self.widget_baseline = WidgetBaseline()
-        self.uiLayoutModuleAllBaselines.addWidget(self.widget_baseline)
-
-
-        # REQUIREMENT TEXT IMPROVEMENT
-        self.ui_requirement_text = RequirementTextEdit(self.MAIN)
-        self.ui_layout_req_text.addWidget(self.ui_requirement_text)
-
-
-        # COPY TO CLIPBOAR FEATURE
-        self.ui_btnCopyReqRef.clicked.connect(self._copy_to_clipboard)
-
-
         # POINTER TO REQ MODULE WHEN ONLY ONE IS DOWNLOADING
-        self._module_which_is_currently_donwnloaded = None
+        self._currently_downloaded_single_module = None
 
         # FLAG FOR DETERMINING IF DOWNLOADING REQUIREMENTS IS IN PROGRESS
-        self.downloading_of_requirements_is_in_progress = False
-
-        # EDITING --> BUTTON EDIT
-        self.ui_components_for_editing = [
-            self.uiTextEditRequirementNote, 
-            self.uiLineEditModulePath, self.uiLisWidgetModuleColumns,
-            self.ui_ts_name, self.ui_ts_action, self.ui_ts_comment, self.ui_ts_nominal,
-            self.ui_cond_name, self.ui_cond_category,
-            self.ui_val_name, self.ui_val_category,
-            self.ui_ds_name, self.ui_ds_path, self.ui_ds_value, 
-        ] 
-
+        self._downloading_of_requirements_is_in_progress = False
 
         # SPECIAL THREAD FOR COVERAGE CHECK
         self.threadpool = QThreadPool()
-        self.threadpool.setMaxThreadCount(1)        
+        self.threadpool.setMaxThreadCount(1)   
+
+        self.display_manager = DisplayManager(self)     
 
 
     @pyqtSlot(bool, str)
     def update_progress_status(self, is_visible, text=''):
         self.ui_frame_progress_status.setMinimumHeight(30) if is_visible else self.ui_frame_progress_status.setMinimumHeight(0)
         self.ui_label_progress_status.setText(text)
-
 
 
     def receive_data_from_drop_or_file_manager(self, data):
@@ -343,7 +331,7 @@ class DataManager(QWidget, Ui_Form):
             passwd_from_input_dlg, ok = QInputDialog.getText(
                 None, 
                 "Doors Connection", 
-                f"Database: {self.MAIN.app_settings.doors_database_path}\nUsername: {self.MAIN.app_settings.doors_user_name}\n\nEnter your password:", QLineEdit.Password)
+                f"Database: {self.MAIN.app_settings.doors_database_path}\n\nUsername: {self.MAIN.app_settings.doors_user_name}\n\nEnter your password:\n", QLineEdit.Password)
 
             if ok and passwd_from_input_dlg:            
                 # if Button from Upper Menu was pushed (Update All Requirements)
@@ -367,41 +355,51 @@ class DataManager(QWidget, Ui_Form):
                     selected_item = self.MODEL.itemFromIndex(selected_item_index)
                     if isinstance(selected_item, RequirementFileNode):
                         self._send_request_2_doors(passwd_from_input_dlg, [selected_item.path,], [selected_item.columns_names,], [selected_item.current_baseline,])
-                        self._module_which_is_currently_donwnloaded = selected_item
+                        self._currently_downloaded_single_module = selected_item
                         
 
 
+
+    def _lock_actions_while_requirements_are_downloading(self, lock:bool=True) -> None:
+        self.action_remove.setEnabled(not lock)
+        self.ui_new_requirements.setEnabled(not lock)
+        self.ui_update_requirements.setEnabled(not lock)
+        self._downloading_of_requirements_is_in_progress = lock
+
     def _send_request_2_doors(self, password, paths, columns_names, baselines):
         DoorsConnection(self, paths, columns_names, baselines, self, password)
-        self.downloading_of_requirements_is_in_progress = True
+        self._lock_actions_while_requirements_are_downloading(True)
         self.update_progress_status(True, 'Initialising...')
 
 
     @pyqtSlot(str, str)
     def receive_data_from_doors(self, doors_output: str, timestamp: str):
-        self.downloading_of_requirements_is_in_progress = False
-        if not doors_output:
-            self.MAIN.show_notification(f"Error: No data received.") 
-            # logger.debug("No Doors Output - EMPTY txt file")
-            
+        global_success = True
+        self._lock_actions_while_requirements_are_downloading(False)
+        if doors_output == "Connection Failed":
+            global_success = False
+            dialog_message(self, "Connecting to Doors Failed.\n\nPossible reasons:\n1. Invalid username/password\n2. Doors client is N/A\n3. Network issues.")
+
+        elif self._currently_downloaded_single_module:
+            success = self._currently_downloaded_single_module.receive_data_from_doors(doors_output, timestamp)
+            self._currently_downloaded_single_module = None
+            if not success: global_success = False
             return
 
-        if self._module_which_is_currently_donwnloaded:
-            self._module_which_is_currently_donwnloaded.receive_data_from_doors(doors_output, timestamp)
-            self._module_which_is_currently_donwnloaded = None
-            return
-
-        for row in range(self.ROOT.rowCount()):
-            node = self.ROOT.child(row)
-            if isinstance(node, RequirementFileNode):
-                node.receive_data_from_doors(doors_output, timestamp)
-
+        else:
+            for row in range(self.ROOT.rowCount()):
+                node = self.ROOT.child(row)
+                if isinstance(node, RequirementFileNode):
+                    success = node.receive_data_from_doors(doors_output, timestamp)
+                    if not success: 
+                        global_success = False
+                        break
         
         self.MAIN.show_notification(f"Requirements have been Updated.") 
         self._display_values()
         self._update_data_summary()
-
         self.set_project_saved(False)
+        if global_success: dialog_message(self, "Requirements have been updated successfully.", "Downloading from Doors finished")
 
 
     #####################################################################################################################################################
@@ -495,7 +493,6 @@ class DataManager(QWidget, Ui_Form):
         self._update_data_summary()
         # Remove View Filter
         self._show_all_items()       
-
         self.set_project_saved(False) 
 
 
@@ -506,7 +503,6 @@ class DataManager(QWidget, Ui_Form):
         self._update_data_summary()
         #  Remove View Filter
         self._show_all_items()
-
         self.set_project_saved(False)
 
 
@@ -537,6 +533,36 @@ class DataManager(QWidget, Ui_Form):
     # VIEW 
     ####################################################################################################################
 
+    def _display_values(self):
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)        
+
+        if isinstance(selected_item, (RequirementNode, RequirementFileNode)):            
+            self.display_manager.get_layout(selected_item)
+        return
+
+
+
+    def _context_menu(self, point):
+        selected_item_index = self.TREE.indexAt(point)
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
+
+        if not selected_item_index.isValid(): return
+
+        if isinstance(selected_item, RequirementFileNode): self._evaluate_view_filter()
+        
+        menu = self.ui_control_manager.get_context_menu(selected_item)
+        
+        if menu:
+            if self.node_to_paste and type(self.node_to_paste) == type(selected_item):
+                menu.addAction(self.action_paste)        
+            menu.exec_(QCursor().pos())
+
+
+
+    def _goto_previous_index(self):
+        self.TREE.goto_previous_index()
+
     def _expand_all_children(self):
         selected_item_index = self.TREE.currentIndex()
         self.TREE.expandRecursively(selected_item_index)
@@ -558,57 +584,6 @@ class DataManager(QWidget, Ui_Form):
 
 
 
-    def _copy_to_clipboard(self):
-        cb = QApplication.clipboard()
-        cb.clear(mode=cb.Clipboard)
-        cb.setText(self.ui_requirement_id.text(), mode=cb.Clipboard)
-        self.MAIN.show_notification(f"Item {self.ui_requirement_id.text()} copied to Clipboard.")  
-
-
-
-    def _make_ui_components_editable(self):
-        for c in self.ui_components_for_editing:
-            if isinstance(c, (QLineEdit, QTextEdit)): c.setReadOnly(False)
-            if isinstance(c, QListWidget): c.setEnabled(True) 
-            c.setStyleSheet("background-color: rgb(20, 20, 120);")
-
-    def _make_ui_components_not_editable(self):
-        for c in self.ui_components_for_editing:
-            if isinstance(c, (QLineEdit, QTextEdit)): c.setReadOnly(True)  
-            if isinstance(c, QListWidget): c.setEnabled(False) 
-            c.setStyleSheet("background-color: rgb(33, 37, 43);")
-            if isinstance(c, QTextEdit):
-                c.setStyleSheet("background-color: rgb(33, 37, 43); color: rgb(190, 190, 190); font-style: italic")
-
-
-    def _hide_all_frames(self):
-        # Common Area
-        self.ui_frame_file.setVisible(False)
-        self.frame_10.setVisible(False)
-        # Condition Area
-        self.ui_frame_cond.setVisible(False)
-        # self.ui_frame_cond.setFont(font)
-        self.ui_frame_value.setVisible(False)
-        self.ui_frame_ts.setVisible(False)
-        # dSpace Area
-        self.ui_frame_dspace_definition.setVisible(False)
-        self.ui_frame_dspace_variable.setVisible(False)
-        # A2L Area
-        self.ui_frame_a2l_variable.setVisible(False)
-        # Requirement Area
-        self.ui_frame_requirement.setVisible(False)
-        # RequirementFileNode Area
-        self.uiFrameRequirementModule.setVisible(False)
-
-    def _disable_all_buttons(self):
-        self.ui_add.setEnabled(False)
-        self.ui_edit.setEnabled(False)
-        self.ui_remove.setEnabled(False)
-        self.ui_duplicate.setEnabled(False)
-        self.ui_export.setEnabled(False)
-        self.ui_update_requirements.setEnabled(True)
-
-
     def _show_filter_input(self, show):
         start_width = self.ui_le_filter.width()
         final_width = 8000 if show else 0
@@ -620,197 +595,10 @@ class DataManager(QWidget, Ui_Form):
         self.animation.start()
 
 
-    def _display_values(self):
-        self._hide_all_frames()
-        self._disable_all_buttons()
-        # self.ui_le_filter.setEnabled(False)
-        # self.ui_le_filter.setVisible(False)
-        self._show_filter_input(False)
-        self.ui_frame_requirement.setEnabled(True)
-        # self.ui_group_box_all_frames.setEnabled(False)
 
-
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-
-        # Recover last filter if there is some
-        if selected_item:
-            self.ui_le_filter.setText(selected_item.data(Qt.UserRole))
-            
-
-        # ConditionFileNode, DspaceFileNode, A2lFileNode
-        if isinstance(selected_item, (ConditionFileNode, DspaceFileNode, A2lFileNode)):
-            # self.ui_le_filter.setEnabled(True)
-            self._show_filter_input(True)
-            self.ui_frame_file.setVisible(True)
-            self.ui_file_path.setText(selected_item.path)
-            if isinstance(selected_item, (ConditionFileNode, DspaceFileNode)):
-                # Buttons:
-                self.ui_export.setEnabled(True)  
-                self.ui_remove.setEnabled(True)          
-
-        # RequirementFileNode
-        elif isinstance(selected_item, RequirementFileNode):
-            # self.ui_le_filter.setEnabled(True)
-            # self.ui_le_filter.setVisible(True)
-            self._show_filter_input(True)
-            self.uiFrameRequirementModule.setVisible(True)
-            self.uiLineEditModulePath.setText(selected_item.path)
-            self.uiLineEditUpdateTime.setText(str(selected_item.timestamp))
-
-            self.uiTextEditModuleBaseline.clear()
-            # baseline_text = ""
-            # for attr, value in selected_item.baseline.items():
-            #     self.uiTextEditModuleBaseline.insertHtml(f'<span style="color: rgb(150, 150, 150);">{attr.capitalize()}:</span>  <span> {value}</span><br>')
-            # self.uiTextEditModuleBaseline.setPlainText(baseline_text)
-
-            # BASELINES
-            self.widget_baseline.update(selected_item)
-
-            # IGNORE LIST
-            self.uiListWidgetModuleIgnoreList.clear()
-            for item in selected_item.ignore_list:
-                ignore_lw_item = QListWidgetItem()    
-                ignore_lw_item.setData(Qt.DisplayRole, reduce_path_string(item))
-                ignore_lw_item.setData(Qt.UserRole, item)
-                # ignore_lw_item.setData(Qt.DecorationRole, QIcon(u"ui/icons/20x20/cil-task.png"))
-                ignore_lw_item.setData(Qt.ToolTipRole, self._get_tooltip_from_link(f"{selected_item.path}:{item.split('_')[-1]}"))
-                self.uiListWidgetModuleIgnoreList.insertItem(0, ignore_lw_item)
-
-
-            self.uiLineEditModuleCoverageFilter.setText(str(selected_item.coverage_filter))
-            # Buttons:
-            self.ui_update_requirements.setEnabled(True)
-            self.ui_remove.setEnabled(True)
-            self.ui_edit.setEnabled(True)
-
-
-            self.uiLisWidgetModuleColumns.clear()
-            self.uiLisWidgetModuleColumns.insertItems(0, selected_item.columns_names)
-
-            self.uiLisWidgetModuleAttributes.clear()
-            self.uiLisWidgetModuleAttributes.insertItems(0, selected_item.attributes)            
-
-        # Condition Area
-        elif isinstance(selected_item, ConditionNode):
-            self.ui_frame_cond.setVisible(True)
-            self.ui_cond_name.setText(selected_item.name)
-            self.ui_cond_category.setText(selected_item.category)
-
-            # Buttons:
-            self.ui_edit.setEnabled(True)
-            self.ui_add.setEnabled(True)
-            self.ui_remove.setEnabled(True)
-        elif isinstance(selected_item, ValueNode):
-            self.ui_frame_value.setVisible(True)
-            self.ui_val_name.setText(selected_item.name)
-            self.ui_val_category.setText(selected_item.category)
-
-            # Buttons:
-            self.ui_edit.setEnabled(True)
-            self.ui_add.setEnabled(True)
-            self.ui_remove.setEnabled(True)
-        elif isinstance(selected_item, TestStepNode):
-            self.ui_frame_ts.setVisible(True)
-            self.ui_ts_name.setText(selected_item.name)
-            self.ui_ts_action.setText(selected_item.action)
-            self.ui_ts_comment.setText(selected_item.comment)
-            self.ui_ts_nominal.setText(selected_item.nominal)
-
-            # Buttons:
-            self.ui_edit.setEnabled(True)
-            self.ui_add.setEnabled(True)
-            self.ui_remove.setEnabled(True)
-            self.ui_duplicate.setEnabled(True)
-
-        # dSpace Area
-        elif isinstance(selected_item, DspaceDefinitionNode):
-            self.ui_frame_dspace_definition.setVisible(True)
-            self.ui_ds_definition.setText(selected_item.name)
-        elif isinstance(selected_item, DspaceVariableNode):
-            self.ui_frame_dspace_variable.setVisible(True)
-            self.ui_ds_name.setText(selected_item.name)
-            self.ui_ds_value.setText(selected_item.value)
-            self.ui_ds_path.setText(selected_item.path)
-
-            # Buttons:
-            self.ui_edit.setEnabled(True)
-            self.ui_add.setEnabled(True)
-            self.ui_remove.setEnabled(True)
-            self.ui_duplicate.setEnabled(True)
-        # A2L Area
-        elif isinstance(selected_item, A2lNode):
-            self.ui_frame_a2l_variable.setVisible(True)
-            self.ui_a2l_name.setText(selected_item.name)
-            self.ui_a2l_address.setText(selected_item.address)
-
-        ####################################################################
-        # REQUIREMENT AREA #################################################
-        ####################################################################
-        elif isinstance(selected_item, RequirementNode):
-            
-            self.ui_frame_requirement.setVisible(True)
-
-            self.ui_requirement_id.setText(selected_item.reference)
-            self.ui_requirement_covered.setText(str(selected_item.is_covered))
-            text_to_display = ''
-            columns_data = selected_item.columns_data
-            columns_names = selected_item.MODULE.columns_names_backup
-
-            # COLUMNS NAMES + DATA
-            for i in range(len(columns_names)):
-                text_to_display += f'<{columns_names[i]}>:\n{columns_data[i]} \n\n'
-            self.ui_requirement_text.setPlainText(text_to_display)
-
-            # Buttons:
-            self.ui_edit.setEnabled(True)
-            # Frame
-            self.ui_frame_requirement.setEnabled(True)
-            # OUTLINKS
-            self.ui_lw_outlinks.clear()                        
-            for outlink in selected_item.outlinks:
-                outlink_lw_item = QListWidgetItem()
-                outlink_lw_item.setData(Qt.DisplayRole, reduce_path_string(outlink))
-                outlink_lw_item.setData(Qt.UserRole, outlink)
-                outlink_lw_item.setData(Qt.DecorationRole, QIcon(u"ui/icons/20x20/cil-arrow-right.png"))
-                outlink_lw_item.setData(Qt.ToolTipRole, self._get_tooltip_from_link(outlink))
-                self.ui_lw_outlinks.addItem(outlink_lw_item)
-            # INLINKS
-            for inlink in selected_item.inlinks:
-                inlink_lw_item = QListWidgetItem()
-                inlink_lw_item.setData(Qt.DisplayRole, reduce_path_string(inlink))
-                inlink_lw_item.setData(Qt.UserRole, inlink)
-                inlink_lw_item.setData(Qt.ToolTipRole, self._get_tooltip_from_link(inlink))
-                inlink_lw_item.setData(Qt.DecorationRole, QIcon(u"ui/icons/20x20/cil-arrow-left.png"))
-                self.ui_lw_outlinks.addItem(inlink_lw_item)                   
-            # FILE REFERENCES
-            self.ui_lw_file_paths_coverage.clear()            
-            for file_reference in selected_item.file_references:
-                ref_lw_item = QListWidgetItem()
-                ref_lw_item.setData(Qt.DisplayRole, reduce_path_string(file_reference))
-                ref_lw_item.setData(Qt.UserRole ,file_reference)
-                self.ui_lw_file_paths_coverage.addItem(ref_lw_item)  
-
-            # NOTES
-            self.uiTextEditRequirementNote.clear()
-            self.uiTextEditRequirementNote.setPlainText(selected_item.get_note())
-
-            ## FILTER --> HIGHLIGHT FINDINGS WITH RED COLOR
-            filter_text = selected_item.MODULE.data(Qt.UserRole)
-            if filter_text:
-                text_edit_content = self.ui_requirement_text.toPlainText()
-                for match in re.finditer(filter_text, text_edit_content, re.IGNORECASE):
-                    # print('%02d-%02d: %s' % (m.start(), m.end(), m.group(0)))
-                    tc = self.ui_requirement_text.textCursor()
-                    tc.setPosition(match.start())
-                    for _ in range(match.end() - match.start()):
-                        tc.movePosition(QTextCursor.Right, QTextCursor.KeepAnchor)
-                    f = QTextCharFormat()
-                    f.setBackground(QColor(255, 0, 0))
-                    # f.setForeground(Qt.black)
-                    tc.setCharFormat(f)
-
-
+    ####################################################################################################################
+    # LIST WIDGETS CLICKS/HOVER MANAGEMENT  
+    ####################################################################################################################
 
     def _get_tooltip_from_link(self, link):
         FOUND_LINK_TEXT = ""
@@ -823,8 +611,8 @@ class DataManager(QWidget, Ui_Form):
                     # print(node)
                     # print("FOUND: ", node.reference)
                     FOUND_LINK_TEXT = "\n".join(node.columns_data)
-                    if node.get_note():
-                        FOUND_LINK_TEXT += f"\n\n<User Note>: {node.get_note()}"
+                    if node.note:
+                        FOUND_LINK_TEXT += f"\n\n<User Note>: {node.note}"
                     break
                 else:
                     find_node_by_reference(node, reference)
@@ -882,7 +670,6 @@ class DataManager(QWidget, Ui_Form):
             for row in range(parent_node.rowCount()):
                 node = parent_node.child(row)
                 if node.reference == reference:
-                    # print(node)
                     # print("FOUND: ", node.reference)
                     FOUND_NODE = node
                     return node
@@ -906,19 +693,17 @@ class DataManager(QWidget, Ui_Form):
         if FOUND_NODE:
             self.TREE.setCurrentIndex(FOUND_NODE.index())
             self.TREE.scrollTo(FOUND_NODE.index())
-            # self._update_previous_indexes(FOUND_NODE.index())
         else:
             dialog_message(self, "Module is missing.")
 
-
-    def _goto_previous_index(self):
-        self.TREE.goto_previous_index()
 
 
     def _doubleclick_on_tc_reference(self, list_item_text):
         file_path_string = list_item_text.data(Qt.UserRole)
         self.send_file_path.emit(Path(file_path_string))
         self.MAIN.manage_right_menu(self.MAIN.tabs_splitter, self.MAIN.ui_btn_text_editor)
+
+
 
 
     def _create_tc_template_with_req_reference(self, is_testable):
@@ -934,96 +719,6 @@ class DataManager(QWidget, Ui_Form):
             self.MAIN.left_tabs.addTab(TextEdit(self.MAIN, text, file_path), QIcon(u"ui/icons/16x16/cil-description.png"), tab_name)
             self.MAIN.actual_text_edit.setFocus()
             self.MAIN.manage_right_menu(self.MAIN.tabs_splitter, self.MAIN.ui_btn_text_editor)            
-
-
-
-
-
-
-
-
-    def _context_menu(self, point):
-        selected_item_index = self.TREE.indexAt(point)
-        # selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-
-        if not selected_item_index.isValid():
-            return
-
-        menu = QMenu()
-        menu.setStyleSheet("QMenu::separator {height: 0.5px; margin: 3px; background-color: rgb(38, 59, 115);}")
-
-        menu.addAction(self.action_expand_all_children)
-        menu.addAction(self.action_collapse_all_children)
-        menu.addSeparator()
-        if isinstance(selected_item, RequirementFileNode) and selected_item.coverage_filter:
-            
-            if not selected_item.data(Qt.UserRole):
-                self._evaluate_view_filter()
-                menu.addAction(self.action_show_only_requirements_not_covered)                 
-                menu.addAction(self.action_show_only_requirements_with_coverage)                   
-                menu.addAction(self.action_show_all_requirements)
-                menu.addSeparator()
-                menu.addAction(self.action_edit_coverage_filter)
-                menu.addAction(self.action_remove_coverage_filter)          
-
-        if isinstance(selected_item, RequirementFileNode):
-            if not selected_item.data(Qt.UserRole):
-                if not selected_item.coverage_filter:
-                    menu.addSeparator()
-                    menu.addAction(self.action_open_coverage_filter)
-                menu.addSeparator()
-                menu.addAction(self.action_update_requirements)
-
-        elif isinstance(selected_item, (ConditionFileNode, DspaceFileNode)):
-            menu.addAction(self.action_save)
-        elif isinstance(selected_item, (ConditionNode, ValueNode, TestStepNode, DspaceVariableNode)):
-            menu.addActions([self.action_add,])
-        
-       
-
-        if selected_item.parent() and not isinstance(selected_item, (A2lNode, RequirementNode)): 
-            menu.addAction(self.action_move_up)
-            menu.addAction(self.action_move_down)
-            menu.addSeparator()
-
-        if isinstance(selected_item, RequirementNode):
-            menu.addAction(self.action_create_testable_tc_template_with_req_reference)
-            menu.addAction(self.action_create_not_testable_tc_template_with_req_reference)
-            if not selected_item.hasChildren():
-                if selected_item.reference in selected_item.MODULE.ignore_list:                
-                    menu.addAction(self.action_remove_from_ignore_list)
-                elif selected_item.is_covered == False:
-                    menu.addAction(self.action_add_to_ignore_list)
-            menu.addSeparator()            
-
-        if isinstance(selected_item, (TestStepNode, ValueNode, ConditionNode)):
-            menu.addAction(self.action_duplicate)
-            menu.addSeparator()      
-
-        if isinstance(selected_item, A2lFileNode):
-            menu.addAction(self.action_normalise_a2l_file)                  
-        
-        if hasattr(selected_item, 'get_node_copy'):
-            menu.addSeparator()
-            menu.addAction(self.action_copy)
-
-        if self.node_to_paste and type(self.node_to_paste) == type(selected_item):
-            menu.addAction(self.action_paste)
-
-        if not isinstance(selected_item, (DspaceDefinitionNode, A2lNode, RequirementNode)):
-            menu.addSeparator()
-            menu.addAction(self.action_remove)
-
-        menu.exec_(QCursor().pos())
-
-
-
-
-
-
-
-
 
 
 
@@ -1190,55 +885,55 @@ class DataManager(QWidget, Ui_Form):
         selected_item_index = self.TREE.currentIndex()
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
-        if not selected_item:
-            return
+        # if not selected_item:
+        #     return
 
-        if button_is_checked:
-            self.TREE.setEnabled(False)
-            self._make_ui_components_editable()
+        # if button_is_checked:
+        #     self.TREE.setEnabled(False)
+        #     self._make_ui_components_editable()
 
-        else:            
-            self.TREE.setEnabled(True)
-            self._make_ui_components_not_editable()
+        # else:            
+        #     self.TREE.setEnabled(True)
+        #     self._make_ui_components_not_editable()
             
-            # Save changes:
-            if isinstance(selected_item, ConditionNode):
-                selected_item.name = self.ui_cond_name.text()
-                selected_item.setText(selected_item.name)
-            elif isinstance(selected_item, ValueNode):
-                selected_item.name = self.ui_val_name.text()
-                selected_item.setText(selected_item.name)
-            elif isinstance(selected_item, TestStepNode):
-                selected_item.name = self.ui_ts_name.text()
-                selected_item.action = self.ui_ts_action.text()
-                selected_item.setText(selected_item.action)
-                selected_item.comment = self.ui_ts_comment.text()
-                selected_item.nominal = self.ui_ts_nominal.text()
+        #     # Save changes:
+        #     if isinstance(selected_item, ConditionNode):
+        #         selected_item.name = self.ui_cond_name.text()
+        #         selected_item.setText(selected_item.name)
+        #     elif isinstance(selected_item, ValueNode):
+        #         selected_item.name = self.ui_val_name.text()
+        #         selected_item.setText(selected_item.name)
+        #     elif isinstance(selected_item, TestStepNode):
+        #         selected_item.name = self.ui_ts_name.text()
+        #         selected_item.action = self.ui_ts_action.text()
+        #         selected_item.setText(selected_item.action)
+        #         selected_item.comment = self.ui_ts_comment.text()
+        #         selected_item.nominal = self.ui_ts_nominal.text()
 
-            elif isinstance(selected_item, DspaceVariableNode):
-                selected_item.name = self.ui_ds_name.text()
-                selected_item.setText(selected_item.name)
-                selected_item.value = self.ui_ds_value.text()
-                selected_item.path = self.ui_ds_path.text()
+        #     elif isinstance(selected_item, DspaceVariableNode):
+        #         selected_item.name = self.ui_ds_name.text()
+        #         selected_item.setText(selected_item.name)
+        #         selected_item.value = self.ui_ds_value.text()
+        #         selected_item.path = self.ui_ds_path.text()
 
-            elif isinstance(selected_item, RequirementFileNode):
-                selected_item.path = self.uiLineEditModulePath.text()
-                selected_item.setText(reduce_path_string(selected_item.path))
-                self.uiLisWidgetModuleColumns.setEnabled(False)
-                self.uiListWidgetModuleIgnoreList.setEnabled(True)
-                selected_item.columns_names = self.uiLisWidgetModuleColumns.get_all_items()
+        #     elif isinstance(selected_item, RequirementFileNode):
+        #         selected_item.path = self.uiLineEditModulePath.text()
+        #         selected_item.setText(reduce_path_string(selected_item.path))
+        #         self.uiLisWidgetModuleColumns.setEnabled(False)
+        #         self.uiListWidgetModuleIgnoreList.setEnabled(True)
+        #         selected_item.columns_names = self.uiLisWidgetModuleColumns.get_all_items()
 
-            elif isinstance(selected_item, RequirementNode):
-                note = self.uiTextEditRequirementNote.toPlainText()
-                selected_item.update_note(note)
+        #     elif isinstance(selected_item, RequirementNode):
+        #         note = self.uiTextEditRequirementNote.toPlainText()
+        #         selected_item.note = note
             
-            if hasattr(selected_item, 'get_file_node'):
-                selected_item.get_file_node().set_modified(True)
+        #     if hasattr(selected_item, 'get_file_node'):
+        #         selected_item.get_file_node().set_modified(True)
 
             
-            self.send_data_2_completer()
-            self.MAIN.show_notification(f"Item {selected_item.text()} has been updated.")            
-            self.set_project_saved(False)
+        #     self.send_data_2_completer()
+        #     self.MAIN.show_notification(f"Item {selected_item.text()} has been updated.")            
+        #     self.set_project_saved(False)
 
 
 
@@ -1351,7 +1046,8 @@ class DataManager(QWidget, Ui_Form):
 # COVERAGE CHECK --> PHYSICAL CHECK OF FILES ON DISK:
 ####################################################################################################################
 
-PATTERN_REQ_REFERENCE = re.compile(r"""(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*""", re.IGNORECASE)
+# PATTERN_REQ_REFERENCE = re.compile(r"""(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*""", re.IGNORECASE)
+PATTERN_REQ_REFERENCE = re.compile(r'(?:REFERENCE|\$REF:)\s*"(?P<req_reference>.+)"\s*\$', re.IGNORECASE)
 
 class Worker(QRunnable):
     def __init__(self, data_manager):
