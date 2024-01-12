@@ -83,12 +83,14 @@ def filter_items(TREE, MODEL, filtered_text):
     selected_item_index = TREE.currentIndex()
     selected_item = MODEL.itemFromIndex(selected_item_index)  
 
+    if not selected_item: return
+
     selected_item.setData(filtered_text, Qt.UserRole) # Save filter text to items QUserRole Data
 
     if isinstance(selected_item, (ValueNode, TestStepNode, DspaceDefinitionNode, DspaceVariableNode, RequirementNode)):
         return
     
-    elif isinstance(selected_item, RequirementFileNode):      
+    if isinstance(selected_item, (RequirementFileNode, RequirementNode)):      
 
         def _browse_children(node):         
             for row in range(node.rowCount()):
@@ -159,7 +161,7 @@ def reset_filter(TREE, MODEL, filtered_text):
     selected_item_index = TREE.currentIndex()
     selected_item = MODEL.itemFromIndex(selected_item_index)     
 
-    if filtered_text.strip() == "":
+    if selected_item and filtered_text.strip() == "":
         def _collapse_all_children(node):
             for row in range(node.rowCount()):
                 node_child = node.child(row)

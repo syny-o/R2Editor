@@ -2,8 +2,7 @@ from pathlib import Path
 from ui.model_editor_ui import Ui_Form
 import json, re, os
 from PyQt5.QtWidgets import QWidget, QFileDialog, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QTextEdit, QMessageBox, QStyle, QPushButton, QApplication, QListWidgetItem, QListWidget
-from PyQt5.Qt import QStandardItemModel
-from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QTextCursor, QTextCharFormat, QColor
+from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QStandardItemModel
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QObject, QRunnable, QThreadPool, QPropertyAnimation, QEasingCurve
 from data_manager.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
 from data_manager.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
@@ -30,6 +29,7 @@ from data_manager import model_manager
 from data_manager import view_filter
 from data_manager.ui_control_manager import UIControlManager
 from data_manager.display_manager import DisplayManager
+from data_manager.form_edit_node import FormEditNode
 
 
 # from my_logging import logger
@@ -73,13 +73,7 @@ class DataManager(QWidget, Ui_Form):
         QShortcut( 'Esc', self.TREE ).activated.connect(self._stop_filtering)
         QShortcut( 'Ctrl+S', self ).activated.connect(self.MAIN.project_save)
      
-        # self.uiLisWidgetModuleColumns = MyListWidget()
-        # self.uiLisWidgetModuleColumns.setEnabled(False)
-        # self.uiLayoutModuleColumns.addWidget(self.uiLisWidgetModuleColumns)
 
-        # self.uiLisWidgetModuleAttributes = MyListWidget(context_menu=False)
-        # self.uiLisWidgetModuleAttributes.setEnabled(False)
-        # self.uiLayoutModuleAttributes.addWidget(self.uiLisWidgetModuleAttributes)
 
         ################## ACTIONS START ###########################
         self.action_expand_all_children = QAction(QIcon(u"ui/icons/16x16/cil-expand-down.png"), "Expand All Children")
@@ -102,7 +96,7 @@ class DataManager(QWidget, Ui_Form):
 
         self.action_edit = QAction('Edit')
         self.action_edit.setIcon(QIcon(u"ui/icons/16x16/cil-pencil.png"))
-        self.action_edit.triggered.connect(self.edit_node)
+        self.action_edit.triggered.connect(self.edit_node_request)
 
         self.action_duplicate = QAction('Duplicate')
         self.action_duplicate.setIcon(QIcon(u"ui/icons/16x16/cil-clone.png"))
@@ -197,11 +191,11 @@ class DataManager(QWidget, Ui_Form):
 
         self.ui_add.clicked.connect(self.add_node)
         self.ui_add.setShortcut('Ctrl+n')
-        self.ui_edit.clicked.connect(self.edit_node)
+        self.ui_edit.clicked.connect(self.edit_node_request)
         self.ui_edit.setShortcut('F4')
         self.ui_edit.setToolTip("F4")
         self.ui_update_requirements.clicked.connect(lambda: self._update_requirements(True))
-        self.ui_new_requirements.clicked.connect(self._add_requirement_module)
+        self.ui_new_requirements.clicked.connect(self._open_add_requirement_module_form)
         self.ui_check_coverage.clicked.connect(self._create_dict_from_scripts_for_coverage_check)
         self.ui_check_html_report.clicked.connect(self.check_HTML_report)
         self.ui_le_filter.textChanged.connect(self._filter_items)
@@ -299,7 +293,7 @@ class DataManager(QWidget, Ui_Form):
     #   ADDING REQUIREMENT MODULE
     #####################################################################################################################################################
 
-    def _add_requirement_module(self):
+    def _open_add_requirement_module_form(self):
         self.form_add_req_module = FormAddModule(self)
         self.form_add_req_module.show()
 
@@ -535,11 +529,15 @@ class DataManager(QWidget, Ui_Form):
 
     def _display_values(self):
         selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)        
-
-        if isinstance(selected_item, (RequirementNode, RequirementFileNode)):            
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)  
+        if selected_item:      
             self.display_manager.get_layout(selected_item)
-        return
+            self.ui_le_filter.setText(selected_item.data(Qt.UserRole))
+
+        self._show_filter_input(False)
+        if isinstance(selected_item, (RequirementFileNode, A2lFileNode, ConditionFileNode, DspaceFileNode)):
+            self._show_filter_input(True)
+
 
 
 
@@ -584,7 +582,7 @@ class DataManager(QWidget, Ui_Form):
 
 
 
-    def _show_filter_input(self, show):
+    def _show_filter_input(self, show: bool) -> None:
         start_width = self.ui_le_filter.width()
         final_width = 8000 if show else 0
         self.animation = QPropertyAnimation(self.ui_le_filter, b"maximumWidth")
@@ -881,60 +879,22 @@ class DataManager(QWidget, Ui_Form):
         self.send_data_2_completer
 
 
-    def edit_node(self, button_is_checked):
+    def edit_node_request(self):
         selected_item_index = self.TREE.currentIndex()
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
-        # if not selected_item:
-        #     return
-
-        # if button_is_checked:
-        #     self.TREE.setEnabled(False)
-        #     self._make_ui_components_editable()
-
-        # else:            
-        #     self.TREE.setEnabled(True)
-        #     self._make_ui_components_not_editable()
-            
-        #     # Save changes:
-        #     if isinstance(selected_item, ConditionNode):
-        #         selected_item.name = self.ui_cond_name.text()
-        #         selected_item.setText(selected_item.name)
-        #     elif isinstance(selected_item, ValueNode):
-        #         selected_item.name = self.ui_val_name.text()
-        #         selected_item.setText(selected_item.name)
-        #     elif isinstance(selected_item, TestStepNode):
-        #         selected_item.name = self.ui_ts_name.text()
-        #         selected_item.action = self.ui_ts_action.text()
-        #         selected_item.setText(selected_item.action)
-        #         selected_item.comment = self.ui_ts_comment.text()
-        #         selected_item.nominal = self.ui_ts_nominal.text()
-
-        #     elif isinstance(selected_item, DspaceVariableNode):
-        #         selected_item.name = self.ui_ds_name.text()
-        #         selected_item.setText(selected_item.name)
-        #         selected_item.value = self.ui_ds_value.text()
-        #         selected_item.path = self.ui_ds_path.text()
-
-        #     elif isinstance(selected_item, RequirementFileNode):
-        #         selected_item.path = self.uiLineEditModulePath.text()
-        #         selected_item.setText(reduce_path_string(selected_item.path))
-        #         self.uiLisWidgetModuleColumns.setEnabled(False)
-        #         self.uiListWidgetModuleIgnoreList.setEnabled(True)
-        #         selected_item.columns_names = self.uiLisWidgetModuleColumns.get_all_items()
-
-        #     elif isinstance(selected_item, RequirementNode):
-        #         note = self.uiTextEditRequirementNote.toPlainText()
-        #         selected_item.note = note
-            
-        #     if hasattr(selected_item, 'get_file_node'):
-        #         selected_item.get_file_node().set_modified(True)
-
-            
-        #     self.send_data_2_completer()
-        #     self.MAIN.show_notification(f"Item {selected_item.text()} has been updated.")            
-        #     self.set_project_saved(False)
-
+        if not selected_item or isinstance(selected_item, (ConditionFileNode, A2lFileNode, DspaceFileNode, DspaceDefinitionNode)):
+            self.MAIN.show_notification("Item is not Editable!")    
+            return
+        self.form_edit_node = FormEditNode(selected_item, self)
+    
+    
+    @pyqtSlot()
+    def edit_node_response(self):
+        self.MAIN.show_notification("Data Updated")
+        self._display_values()
+        self.set_project_saved(False)
+        self.send_data_2_completer()
 
 
 
@@ -942,7 +902,6 @@ class DataManager(QWidget, Ui_Form):
         model_manager.insert_node(self.TREE, self.MODEL, data)
         self.MAIN.show_notification(f"Item has been inserted to Tree.") 
         self.send_data_2_completer()
-
 
 
     def move_node(self, direction):

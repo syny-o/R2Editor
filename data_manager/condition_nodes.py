@@ -233,14 +233,22 @@ class ConditionFileNode(QStandardItem):
 class ConditionNode(QStandardItem):
     def __init__(self, name, category):
         super().__init__()
+        self.setEditable(False)
+        self.setIcon(QIcon(u"ui/icons/condition.png"))
+
         self.name = name
         self.category = category
 
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
         self.setText(name)
+        self._name = name
 
-        self.setEditable(False)
-
-        self.setIcon(QIcon(u"ui/icons/condition.png"))
 
     def get_file_node(self):
         return self.parent()
@@ -259,14 +267,23 @@ class ConditionNode(QStandardItem):
 class ValueNode(QStandardItem):
     def __init__(self, name, category):
         super().__init__()
+        self.setEditable(False)
+        self.setIcon(QIcon(u"ui/icons/value.png"))
+
         self.name = name
         self.category = category
 
+
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
         self.setText(name)
+        self._name = name
 
-        self.setEditable(False)
-
-        self.setIcon(QIcon(u"ui/icons/value.png"))
 
     def get_file_node(self):
         return self.parent().parent()
@@ -285,16 +302,27 @@ class ValueNode(QStandardItem):
 class TestStepNode(QStandardItem):
     def __init__(self, name, action, comment, nominal):
         super().__init__()
+
+        self.setEditable(False)
+        self.setIcon(QIcon(u"ui/icons/ts.png"))
+
         self.name = name
         self.action = action
         self.comment = comment
         self.nominal = nominal
+        
 
+
+    @property
+    def action(self):
+        return self._action
+
+    @action.setter
+    def action(self, action):
         self.setText(action)
+        self._action = action
 
-        self.setEditable(False)
 
-        self.setIcon(QIcon(u"ui/icons/ts.png"))
 
     def get_file_node(self):
         return self.parent().parent().parent()

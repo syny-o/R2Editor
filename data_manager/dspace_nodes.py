@@ -1,6 +1,6 @@
-from PyQt5.Qt import QStandardItem, QStandardItemModel
+# from PyQt5.Qt import QStandardItem, QStandardItemModel
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel
 import re
 from dialogs.dialog_message import dialog_message
 from components.reduce_path_string import reduce_path_string
@@ -22,7 +22,6 @@ class DspaceFileNode(QStandardItem):
 
         self.setText(reduce_path_string(self.path))
 
-        # self.setIcon(QIcon(u"ui/icons/16x16/cil-folder.png"))
         self.setIcon(QIcon(u"ui/icons/python.png"))
 
         self.setEditable(False)
@@ -109,10 +108,10 @@ class DspaceFileNode(QStandardItem):
 
 
     def data_4_project(self, data):
-        a2l_list = data.get('DSpace Files')
-        a2l_list.append(self.path)
+        ds_list = data.get('DSpace Files')
+        ds_list.append(self.path)
         data.update(
-            {'DSpace Files': a2l_list}
+            {'DSpace Files': ds_list}
         )
         return data
 
@@ -154,7 +153,6 @@ class DspaceDefinitionNode(QStandardItem):
     def __init__(self, name):
         super().__init__()
         self.name = name
-
         self.setText(name)
 
         self.setEditable(False)
@@ -163,15 +161,24 @@ class DspaceDefinitionNode(QStandardItem):
 class DspaceVariableNode(QStandardItem):
     def __init__(self, name, value, path):
         super().__init__()
+        self.setEditable(False)        
+        
         self.name = name
         self.value = value
         self.path = path
 
+    
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
         self.setText(name)
 
-        self.setEditable(False)
 
-    def get_file_node(self):
+    def get_file_node(self) -> DspaceFileNode:
         return self.parent().parent()
 
 

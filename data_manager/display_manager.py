@@ -1,59 +1,86 @@
 import re
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Type
 from abc import ABC, abstractmethod
 
 from PyQt5.QtGui import QStandardItem, QIcon, QTextCursor, QTextCharFormat, QColor, QCursor
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QLayout, QFrame, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QTextEdit, QPushButton, QApplication
 from PyQt5.QtCore import Qt
+
 from data_manager.requirement_nodes import RequirementFileNode, RequirementNode
 from data_manager.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
 from data_manager.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
 from data_manager.a2l_nodes import A2lFileNode, A2lNode
-from data_manager.data_manager import DataManager
 from components.reduce_path_string import reduce_path_string
 from data_manager.req_text_edit import RequirementTextEdit
 from data_manager.widget_baseline import WidgetBaseline
 
+from components.helper_functions import layout_generate_one_row as generate_one_row
 
 
 @dataclass
 class DisplayManager:
 
-    DATA_MANAGER: DataManager
+    DATA_MANAGER: Type
 
     def __post_init__(self):
-
-        
+        self.ALL_WIDGETS = []
+        # 1. Create Widget and append it to ALL_WIDGETS
         self.requirement_node_layout = RequirementNodeLayoutGenerator(self.DATA_MANAGER)
+        self.ALL_WIDGETS.append(self.requirement_node_layout)
         self.requirement_module_layout = RequirementModuleLayoutGenerator(self.DATA_MANAGER)
-        
-        
-        self.DATA_MANAGER.ui_layout_group_box.addWidget(self.requirement_node_layout.provide_layout())
-        self.DATA_MANAGER.ui_layout_group_box.addWidget(self.requirement_module_layout.provide_layout())
+        self.ALL_WIDGETS.append(self.requirement_module_layout)
+        self.file_node_layout = FileNodeLayoutGenerator(self.DATA_MANAGER)
+        self.ALL_WIDGETS.append(self.file_node_layout)
+        self.condition_value_node_layout = ConditionValueNodeLayoutGenerator(self.DATA_MANAGER)
+        self.ALL_WIDGETS.append(self.condition_value_node_layout)
+        self.test_step_node_layout = TestStepNodeLayoutGenerator(self.DATA_MANAGER)
+        self.ALL_WIDGETS.append(self.test_step_node_layout)
+        self.a2l_node_layout = A2lNodeLayoutGenerator(self.DATA_MANAGER)
+        self.ALL_WIDGETS.append(self.a2l_node_layout)        
+        self.dspace_definition_node_layout = DspaceDefinitionNodeLayoutGenerator(self.DATA_MANAGER)
+        self.ALL_WIDGETS.append(self.dspace_definition_node_layout)        
+        self.dspace_variable_node_layout = DspaceVariableNodeLayoutGenerator(self.DATA_MANAGER)
+        self.ALL_WIDGETS.append(self.dspace_variable_node_layout)        
 
+        
+        # Add all widgets to Layout 
+        for widget in self.ALL_WIDGETS:
+            self.DATA_MANAGER.ui_layout_group_box.addWidget(widget.provide_layout())
+        
+        # 2. Add to Dictionary
         self._NODES_2_LAYOUT: dict = {
             RequirementNode:        self.requirement_node_layout.fill_with_data,
             RequirementFileNode:    self.requirement_module_layout.fill_with_data,
+            ConditionFileNode:      self.file_node_layout.fill_with_data,
+            A2lFileNode:            self.file_node_layout.fill_with_data,
+            DspaceFileNode:         self.file_node_layout.fill_with_data,
+            ConditionNode:          self.condition_value_node_layout.fill_with_data,
+            ValueNode:              self.condition_value_node_layout.fill_with_data,
+            TestStepNode:           self.test_step_node_layout.fill_with_data,
+            A2lNode:                self.a2l_node_layout.fill_with_data,
+            DspaceDefinitionNode:   self.dspace_definition_node_layout.fill_with_data,
+            DspaceVariableNode:     self.dspace_variable_node_layout.fill_with_data,
+
+            
         }
 
+   
     # INTERFACE FROM DATA_MANAGER
     def get_layout(self, node: QStandardItem) -> Callable | None:
-        self.requirement_node_layout.provide_layout().setVisible(False)
-        self.requirement_module_layout.provide_layout().setVisible(False)
+
+        for widget in self.ALL_WIDGETS:
+            widget.provide_layout().setVisible(False)
+
         return self._NODES_2_LAYOUT[type(node)](node)      
 
-
-
-    # def _display_requirement_node(self, node: QStandardItem) -> QLayout:
-    #     return self.requirement_node_layout.fill_with_data(node)
 
 
 
 class iLayoutGenerator(ABC):
     @abstractmethod
     def fill_with_data(self):
-        """Get Data from Node and populate Widgets"""
+        """Get Data from Node and display them in Widgets"""
 
     @abstractmethod
     def provide_layout(self):
@@ -63,7 +90,7 @@ class iLayoutGenerator(ABC):
 
 
 class RequirementNodeLayoutGenerator(iLayoutGenerator):
-    def __init__(self, DATA_MANAGER: DataManager) -> None:
+    def __init__(self, DATA_MANAGER: Type) -> None:
         self.DATA_MANAGER = DATA_MANAGER
         
         self.uiMainLayout = QVBoxLayout()
@@ -204,7 +231,7 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
 
 
 class RequirementModuleLayoutGenerator(iLayoutGenerator):
-    def __init__(self, DATA_MANAGER: DataManager) -> None:
+    def __init__(self, DATA_MANAGER: Type) -> None:
         self.DATA_MANAGER = DATA_MANAGER 
         self.uiMainLayout = QVBoxLayout()
         self.uiFrame = QFrame()
@@ -306,90 +333,158 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
 
 
 
+class SimpleNodeLayoutGenerator(iLayoutGenerator):
+    def __init__(self, DATA_MANAGER: Type) -> None:
+        self.DATA_MANAGER = DATA_MANAGER 
+        self.uiMainLayout = QVBoxLayout()
+        self.uiFrame = QFrame()
+        self.uiFrame.setLayout(self.uiMainLayout)
+        self.uiFrame.setVisible(False)
+
+    def provide_layout(self) -> QFrame:
+        return self.uiFrame
+
+    def fill_with_data(self, NODE):
+        self.uiFrame.setVisible(True)
 
 
 
-        # self._show_filter_input(False)
-        # self.ui_frame_requirement.setEnabled(True)
-        # # self.ui_group_box_all_frames.setEnabled(False)
+class FileNodeLayoutGenerator(SimpleNodeLayoutGenerator):
+    def __init__(self, DATA_MANAGER: Type) -> None:
+        super().__init__(DATA_MANAGER)
+        self._generate_layout()  
+
+    def fill_with_data(self, NODE):
+        super().fill_with_data(NODE)
+        self._fill_layout(NODE)           
+    
+    def _generate_layout(self):
+        self.uiLineEditFilePath = generate_one_row("Path:", self.uiMainLayout)
+
+    def _fill_layout(self, NODE):
+        self.uiLineEditFilePath.setText(NODE.path)    
+
+     
+
+
+
+class A2lNodeLayoutGenerator(SimpleNodeLayoutGenerator):
+    def __init__(self, DATA_MANAGER: Type) -> None:
+        super().__init__(DATA_MANAGER)
+        self._generate_layout()  
+
+    def fill_with_data(self, NODE):
+        super().fill_with_data(NODE)
+        self._fill_layout(NODE)  
+    
+    def _generate_layout(self):
+        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout)
+        self.uiLineEditAddress = generate_one_row("Address:", self.uiMainLayout)
+
+    def _fill_layout(self, NODE):
+        self.uiLineEditName.setText(NODE.name)  
+        self.uiLineEditAddress.setText(NODE.address)  
+
+
+
+class ConditionValueNodeLayoutGenerator(SimpleNodeLayoutGenerator):
+    def __init__(self, DATA_MANAGER: Type) -> None:
+        super().__init__(DATA_MANAGER)
+        self._generate_layout()  
+
+    def fill_with_data(self, NODE):
+        super().fill_with_data(NODE)
+        self._fill_layout(NODE)  
+    
+    def _generate_layout(self):
+        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout)
+        self.uiLineEditCategory = generate_one_row("Category:", self.uiMainLayout)
+
+    def _fill_layout(self, NODE):
+        self.uiLineEditName.setText(NODE.name)
+        self.uiLineEditCategory.setText(NODE.category)
+
+
+
+class TestStepNodeLayoutGenerator(SimpleNodeLayoutGenerator):
+    def __init__(self, DATA_MANAGER: Type) -> None:
+        super().__init__(DATA_MANAGER)
+        self._generate_layout()  
+
+    def fill_with_data(self, NODE):
+        super().fill_with_data(NODE)
+        self._fill_layout(NODE)  
+
+    
+    def _generate_layout(self):
+        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout)
+        self.uiLineEditAction = generate_one_row("Action:", self.uiMainLayout)
+        self.uiLineEditComment = generate_one_row("Comment:", self.uiMainLayout)
+        self.uiLineEditNominal = generate_one_row("Nominal:", self.uiMainLayout)
+
+    def _fill_layout(self, NODE):
+        self.uiLineEditName.setText(NODE.name)
+        self.uiLineEditAction.setText(NODE.action)
+        self.uiLineEditComment.setText(NODE.comment)
+        self.uiLineEditNominal.setText(NODE.nominal)
+
+
+
+class DspaceDefinitionNodeLayoutGenerator(SimpleNodeLayoutGenerator):
+    def __init__(self, DATA_MANAGER: Type) -> None:
+        super().__init__(DATA_MANAGER)
+        self._generate_layout()  
+
+    def fill_with_data(self, NODE):
+        super().fill_with_data(NODE)
+        self._fill_layout(NODE)  
+
+    def _generate_layout(self):
+        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout)
+
+    def _fill_layout(self, NODE):
+        self.uiLineEditName.setText(NODE.name)
+
+
+class DspaceVariableNodeLayoutGenerator(SimpleNodeLayoutGenerator):
+    def __init__(self, DATA_MANAGER: Type) -> None:
+        super().__init__(DATA_MANAGER)
+        self._generate_layout()  
+
+    def fill_with_data(self, NODE):
+        super().fill_with_data(NODE)
+        self._fill_layout(NODE)  
+
+    
+    def _generate_layout(self):
+        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout)
+        self.uiLineEditValue = generate_one_row("Value:", self.uiMainLayout)
+        self.uiLineEditPath = generate_one_row("Path:", self.uiMainLayout)
+
+    def _fill_layout(self, NODE):
+        self.uiLineEditName.setText(NODE.name)
+        self.uiLineEditValue.setText(NODE.value)
+        self.uiLineEditPath.setText(NODE.path)
+    
 
 
 
 
-        # # Recover last filter if there is some
-        # if selected_item:
-        #     self.ui_le_filter.setText(selected_item.data(Qt.UserRole))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             
 
-        # # ConditionFileNode, DspaceFileNode, A2lFileNode
-        # if isinstance(selected_item, (ConditionFileNode, DspaceFileNode, A2lFileNode)):
-        #     # self.ui_le_filter.setEnabled(True)
-        #     self._show_filter_input(True)
-        #     self.ui_frame_file.setVisible(True)
-        #     self.ui_file_path.setText(selected_item.path)
-        #     if isinstance(selected_item, (ConditionFileNode, DspaceFileNode)):
-        #         # Buttons:
-        #         self.ui_export.setEnabled(True)  
-        #         self.ui_remove.setEnabled(True)          
 
-        # # RequirementFileNode
-        # elif isinstance(selected_item, RequirementFileNode):
-        #     # self.ui_le_filter.setEnabled(True)
-        #     # self.ui_le_filter.setVisible(True)
-        #     self._show_filter_input(True)
-        #     self.uiFrameRequirementModule.setVisible(True)
-         
-
-        # # Condition Area
-        # elif isinstance(selected_item, ConditionNode):
-        #     self.ui_frame_cond.setVisible(True)
-        #     self.ui_cond_name.setText(selected_item.name)
-        #     self.ui_cond_category.setText(selected_item.category)
-
-        #     # Buttons:
-        #     self.ui_edit.setEnabled(True)
-        #     self.ui_add.setEnabled(True)
-        #     self.ui_remove.setEnabled(True)
-        # elif isinstance(selected_item, ValueNode):
-        #     self.ui_frame_value.setVisible(True)
-        #     self.ui_val_name.setText(selected_item.name)
-        #     self.ui_val_category.setText(selected_item.category)
-
-        #     # Buttons:
-        #     self.ui_edit.setEnabled(True)
-        #     self.ui_add.setEnabled(True)
-        #     self.ui_remove.setEnabled(True)
-        # elif isinstance(selected_item, TestStepNode):
-        #     self.ui_frame_ts.setVisible(True)
-        #     self.ui_ts_name.setText(selected_item.name)
-        #     self.ui_ts_action.setText(selected_item.action)
-        #     self.ui_ts_comment.setText(selected_item.comment)
-        #     self.ui_ts_nominal.setText(selected_item.nominal)
-
-        #     # Buttons:
-        #     self.ui_edit.setEnabled(True)
-        #     self.ui_add.setEnabled(True)
-        #     self.ui_remove.setEnabled(True)
-        #     self.ui_duplicate.setEnabled(True)
-
-        # # dSpace Area
-        # elif isinstance(selected_item, DspaceDefinitionNode):
-        #     self.ui_frame_dspace_definition.setVisible(True)
-        #     self.ui_ds_definition.setText(selected_item.name)
-        # elif isinstance(selected_item, DspaceVariableNode):
-        #     self.ui_frame_dspace_variable.setVisible(True)
-        #     self.ui_ds_name.setText(selected_item.name)
-        #     self.ui_ds_value.setText(selected_item.value)
-        #     self.ui_ds_path.setText(selected_item.path)
-
-        #     # Buttons:
-        #     self.ui_edit.setEnabled(True)
-        #     self.ui_add.setEnabled(True)
-        #     self.ui_remove.setEnabled(True)
-        #     self.ui_duplicate.setEnabled(True)
-        # # A2L Area
-        # elif isinstance(selected_item, A2lNode):
-        #     self.ui_frame_a2l_variable.setVisible(True)
-        #     self.ui_a2l_name.setText(selected_item.name)
-        #     self.ui_a2l_address.setText(selected_item.address)
 

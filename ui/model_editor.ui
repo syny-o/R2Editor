@@ -184,7 +184,7 @@ background-color: rgb(39, 44, 54);
                <item>
                 <widget class="QPushButton" name="ui_add">
                  <property name="enabled">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="text">
                   <string>Add</string>
@@ -201,7 +201,7 @@ background-color: rgb(39, 44, 54);
                <item>
                 <widget class="QPushButton" name="ui_edit">
                  <property name="enabled">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="text">
                   <string>Edit</string>
@@ -211,7 +211,7 @@ background-color: rgb(39, 44, 54);
                    <normaloff>:/16x16/icons/16x16/cil-pencil.png</normaloff>:/16x16/icons/16x16/cil-pencil.png</iconset>
                  </property>
                  <property name="checkable">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
