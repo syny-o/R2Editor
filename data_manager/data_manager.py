@@ -834,7 +834,8 @@ class DataManager(QWidget, Ui_Form):
         message = "Item Removed" if result else "Last Item can not be Removed"
         self.MAIN.show_notification(message)  
         self.send_data_2_completer()
-        self._update_data_summary()                    
+        self._update_data_summary()  
+        self.TREE.setFocus()                  
             
     
     def add_node(self):
@@ -865,6 +866,7 @@ class DataManager(QWidget, Ui_Form):
     def duplicate_node(self):
         model_manager.duplicate_node(self.TREE, self.MODEL)
         self.MAIN.show_notification(f"Item was duplicated.")  
+        self.TREE.setFocus()
 
     def copy_node(self):
         self.node_to_paste = model_manager.copy_node(self.TREE, self.MODEL)        
@@ -877,13 +879,14 @@ class DataManager(QWidget, Ui_Form):
         if success:
             self.MAIN.show_notification(f"Item {self.node_to_paste.text()} was inserted.") 
         self.send_data_2_completer
+        self.TREE.setFocus()
 
 
     def edit_node_request(self):
         selected_item_index = self.TREE.currentIndex()
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
-        if not selected_item or isinstance(selected_item, (ConditionFileNode, A2lFileNode, DspaceFileNode, DspaceDefinitionNode)):
+        if not selected_item or isinstance(selected_item, (ConditionFileNode, A2lFileNode, A2lNode, DspaceFileNode, DspaceDefinitionNode)):
             self.MAIN.show_notification("Item is not Editable!")    
             return
         self.form_edit_node = FormEditNode(selected_item, self)
@@ -895,6 +898,7 @@ class DataManager(QWidget, Ui_Form):
         self._display_values()
         self.set_project_saved(False)
         self.send_data_2_completer()
+        self.TREE.setFocus()
 
 
 

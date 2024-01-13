@@ -4,7 +4,7 @@ from PyQt5.QtGui import QFont, QPalette, QIcon
 
 from ui.form_general_ui import Ui_Form
 
-from components.my_list_widget import MyListWidget
+import components.my_list_widget
 
 
 
@@ -132,6 +132,8 @@ class FormAddModule(QWidget, Ui_Form):
     send_data = pyqtSignal(str, list)
 
     def __init__(self, data_manager):
+        from importlib import reload
+        reload(components.my_list_widget)
         super().__init__()
         self.setupUi(self)
         self.setWindowOpacity(0.95)           
@@ -208,10 +210,11 @@ class FormAddModule(QWidget, Ui_Form):
         self.uiComboModuleLocation.insertItems(0, predefined_paths)
 
 
-        self.uiListFinalColumns = MyListWidget()
+        self.uiListFinalColumns = components.my_list_widget.MyListWidget()
         self.uiListFinalColumns.setDefaultDropAction(Qt.MoveAction)
+        # self.uiListFinalColumns.setDragDropMode(QListWidget.DragDropMode.InternalMove)
 
-        self.uiListPredefinedColumns = MyListWidget()
+        self.uiListPredefinedColumns = components.my_list_widget.MyListWidget()
         self.uiListPredefinedColumns.setAcceptDrops(False)
 
 

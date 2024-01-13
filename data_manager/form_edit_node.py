@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QListWidget, QLineEdit, QVBoxLayout, QHBoxLayout, QTextEdit
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtWidgets import QWidget, QLabel, QListWidget, QLineEdit, QVBoxLayout, QHBoxLayout, QTextEdit, QShortcut
+from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QFont, QPalette
 
 from dialogs.dialog_message import dialog_message
@@ -12,9 +12,10 @@ from data_manager.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, Dspa
 from data_manager.a2l_nodes import A2lFileNode, A2lNode
 
 from components.helper_functions import layout_generate_one_row as generate_one_row, validate_line_edits
+from components.my_list_widget import MyListWidget
 
 stylesheet ="""
-    QLabel {min-width: 120px; text-align: left;}
+    QTextEdit {border: 1px solid rgb(50, 50, 50); max-height: 160px;}
 """
 
 
@@ -25,14 +26,16 @@ class FormEditNode(QWidget, Ui_Form):
     def __init__(self, NODE, DATA_MANAGER):
         super().__init__()
         self.setupUi(self)
-        # self.setMinimumSize(1200, 600)
-        # self.setStyleSheet(stylesheet)
+        if not isinstance(NODE, RequirementFileNode):
+            self.setMaximumSize(800, 500)
+        self.setStyleSheet(stylesheet)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowOpacity(0.95)        
         self.uiLabelTitle.setText("Edit")
         self.uiBtnStatusBarClose.clicked.connect(self.close)
         self.uiBtnTitleBarClose.clicked.connect(self.close)
+        self.uiBtnTitleBarClose.setShortcut('Esc')
         self.uiBtnOK.clicked.connect(self._ok_clicked)
         self.uiBtnOK.setShortcut('Return')
         self.show() 
@@ -44,6 +47,7 @@ class FormEditNode(QWidget, Ui_Form):
         test_step_node_layout_generator = TestStepNodeLayoutGenerator(self.NODE)
         dspace_variable_node_layout_generator = DspaceVariableNodeLayoutGenerator(self.NODE)
         requirement_node_layout_generator = RequirementNodeLayoutGenerator(self.NODE)
+        requirement_module_layout_generator = RequirementModuleLayoutGenerator(self.NODE)
         
         self.NODES_2_LAYOUTS = {
             ConditionNode:      condition_and_value_node_layout_generator,
@@ -51,6 +55,7 @@ class FormEditNode(QWidget, Ui_Form):
             TestStepNode:       test_step_node_layout_generator,
             DspaceVariableNode: dspace_variable_node_layout_generator,
             RequirementNode:    requirement_node_layout_generator,
+            RequirementFileNode: requirement_module_layout_generator,
         }
 
 
@@ -73,7 +78,7 @@ class FormEditNode(QWidget, Ui_Form):
 class ConditionAndValueNodeLayoutGenerator:
     def __init__(self, NODE: ConditionNode|ValueNode) -> None:
         self.uiMainLayout = QVBoxLayout()
-        self.uiMainLayout.setContentsMargins(100, 100, 100, 100)
+        self.uiMainLayout.setContentsMargins(50, 50, 50, 50)
         self.uiMainLayout.setSpacing(10)
         self.NODE = NODE       
 
@@ -84,9 +89,9 @@ class ConditionAndValueNodeLayoutGenerator:
         self.uiLineEditCategory = generate_one_row("Category:", self.uiMainLayout)
         self.uiLineEditCategory.setText(self.NODE.category)
         
-        # self.uiLineEditPath.setFocusPolicy(Qt.StrongFocus)
-        # self.uiLineEditPath.setFocus()
-        # self.uiLineEditPath.selectAll()  
+        QTimer.singleShot(100, lambda: self.uiLineEditName.setFocus())
+        QTimer.singleShot(120, lambda: self.uiLineEditName.selectAll())
+
 
     def provide_layout(self) -> QVBoxLayout:
         self._create_layout() 
@@ -104,7 +109,7 @@ class ConditionAndValueNodeLayoutGenerator:
 class TestStepNodeLayoutGenerator:
     def __init__(self, NODE: TestStepNode) -> None:
         self.uiMainLayout = QVBoxLayout()
-        self.uiMainLayout.setContentsMargins(100, 100, 100, 100)
+        self.uiMainLayout.setContentsMargins(50, 50, 50, 50)
         self.uiMainLayout.setSpacing(10)
         self.NODE = NODE       
 
@@ -119,9 +124,8 @@ class TestStepNodeLayoutGenerator:
         self.uiLineEditNominal = generate_one_row("Nominal:", self.uiMainLayout)
         self.uiLineEditNominal.setText(self.NODE.nominal)
         
-        # self.uiLineEditPath.setFocusPolicy(Qt.StrongFocus)
-        # self.uiLineEditPath.setFocus()
-        # self.uiLineEditPath.selectAll()  
+        QTimer.singleShot(100, lambda: self.uiLineEditName.setFocus())
+        QTimer.singleShot(120, lambda: self.uiLineEditName.selectAll())
 
     def provide_layout(self) -> QVBoxLayout:
         self._create_layout() 
@@ -141,7 +145,7 @@ class TestStepNodeLayoutGenerator:
 class DspaceVariableNodeLayoutGenerator:
     def __init__(self, NODE: DspaceVariableNode) -> None:
         self.uiMainLayout = QVBoxLayout()
-        self.uiMainLayout.setContentsMargins(100, 100, 100, 100)
+        self.uiMainLayout.setContentsMargins(50, 50, 50, 50)
         self.uiMainLayout.setSpacing(10)
         self.NODE = NODE       
 
@@ -153,11 +157,9 @@ class DspaceVariableNodeLayoutGenerator:
         self.uiLineEditValue.setText(self.NODE.value)
         self.uiLineEditPath = generate_one_row("Path:", self.uiMainLayout)
         self.uiLineEditPath.setText(self.NODE.path)
-
         
-        # self.uiLineEditPath.setFocusPolicy(Qt.StrongFocus)
-        # self.uiLineEditPath.setFocus()
-        # self.uiLineEditPath.selectAll()  
+        QTimer.singleShot(100, lambda: self.uiLineEditName.setFocus())
+        QTimer.singleShot(120, lambda: self.uiLineEditName.selectAll()) 
 
     def provide_layout(self) -> QVBoxLayout:
         self._create_layout() 
@@ -171,11 +173,13 @@ class DspaceVariableNodeLayoutGenerator:
             self.NODE.get_file_node().set_modified(True)
             return True                      
         
+
+
         
 class RequirementNodeLayoutGenerator:
     def __init__(self, NODE: RequirementNode) -> None:
         self.uiMainLayout = QVBoxLayout()
-        self.uiMainLayout.setContentsMargins(100, 100, 100, 100)
+        self.uiMainLayout.setContentsMargins(50, 50, 50, 50)
         self.uiMainLayout.setSpacing(10)
         self.NODE = NODE       
 
@@ -183,9 +187,11 @@ class RequirementNodeLayoutGenerator:
     def _create_layout(self):
         l = QHBoxLayout()
         self.uiTextEditNote = QTextEdit(self.NODE.note)
-        l.addWidget(QLabel("Note"))
+        l.addWidget(QLabel("Note:    "))
         l.addWidget(self.uiTextEditNote)
         self.uiMainLayout.addLayout(l) 
+
+        QTimer.singleShot(100, lambda: self.uiTextEditNote.setFocus())
 
     def provide_layout(self) -> QVBoxLayout:
         self._create_layout() 
@@ -193,7 +199,57 @@ class RequirementNodeLayoutGenerator:
 
     def update_data(self) -> bool:
         self.NODE.note = self.uiTextEditNote.toPlainText()
-        return True    
+        return True  
+
+
+
+
+
+class RequirementModuleLayoutGenerator:
+    def __init__(self, NODE: DspaceVariableNode) -> None:
+        self.uiMainLayout = QVBoxLayout()
+        self.uiMainLayout.setContentsMargins(100, 100, 100, 100)
+        self.uiMainLayout.setSpacing(10)
+        self.NODE = NODE       
+
+
+    def _create_layout(self):
+        self.uiLineEditPath = generate_one_row("Path:      ", self.uiMainLayout, extend_label_width=False)
+        self.uiLineEditPath.setText(self.NODE.path)
+        uiLayoutModuleColumns = QHBoxLayout()
+        uiLayoutModuleColumns.setContentsMargins(0, 20, 0, 0)
+        uiLayoutModuleColumns.addWidget(QLabel("Columns:"))
+
+        self.uiListWidgetModuleAttributes = MyListWidget(context_menu=False)
+        self.uiListWidgetModuleAttributes.setAcceptDrops(False)
+        uiLayoutModuleColumns.addWidget(self.uiListWidgetModuleAttributes)        
+
+        self.uiListWidgetModuleColumns = MyListWidget()
+        QShortcut( 'Del', self.uiListWidgetModuleColumns ).activated.connect(self.uiListWidgetModuleColumns.remove_item)
+        # self.uiListWidgetModuleColumns.setDefaultDropAction(Qt.MoveAction)
+        uiLayoutModuleColumns.addWidget(self.uiListWidgetModuleColumns)        
+
+        self.uiMainLayout.addLayout(uiLayoutModuleColumns)
+
+        self.uiListWidgetModuleColumns.insertItems(0, self.NODE.columns_names)
+        self.uiListWidgetModuleAttributes.insertItems(0, self.NODE.attributes)
+
+        QTimer.singleShot(100, lambda: self.uiLineEditPath.setFocus())         
+
+        if self.NODE.coverage_filter:
+            self.uiListWidgetModuleColumns.setEnabled(False)
+            self.uiLineEditPath.setEnabled(False)
+
+
+    def provide_layout(self) -> QVBoxLayout:
+        self._create_layout() 
+        return self.uiMainLayout
+
+    def update_data(self):
+        if validate_line_edits(self.uiLineEditPath):
+            self.NODE.path = self.uiLineEditPath.text()
+            self.NODE.columns_names = self.uiListWidgetModuleColumns.get_all_items()
+            return True            
 
 
         #     elif isinstance(selected_item, RequirementFileNode):
