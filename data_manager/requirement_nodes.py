@@ -133,20 +133,20 @@ class RequirementFileNode(QStandardItem):
 
 
 
+    ##########################################################################################################################################
+    # COVERAGE DICTIONARY:
 
-
-    def clear_coverage_dict(self):
-        self._coverage_dict.clear()
 
     @property
     def coverage_dict(self):
         return self._coverage_dict
 
+    def clear_coverage_dict(self):
+        self._coverage_dict.clear()
 
     def remove_all_scripts_from_coverage_dict(self):
         for v in self._coverage_dict.values():
             v.clear()          
-
 
     def update_script_in_coverage_dict(self, req_id: str, path: str):
         if req_id.lower() in self._coverage_dict:
@@ -174,7 +174,8 @@ class RequirementFileNode(QStandardItem):
 
 
 
-
+    ##########################################################################################################################################
+    # PHYSICAL COVERAGE UPDATE ACCORDING TO HDD FILES:
 
     # UDPATUJE SVUJ COVERAGE SLOVNIK O SEZNAMY SKRIPTU VE KTERYCH JSOU ODKAZY NA REQ ID
     def check_coverage_with_file_pointers(self, reference_dict: dict[str, set]):
@@ -201,6 +202,9 @@ class RequirementFileNode(QStandardItem):
             return True
     
 
+
+    ##########################################################################################################################################
+    # COVERAGE FILTER:
 
 
     def apply_coverage_filter(self, filter_string=None):
@@ -254,8 +258,7 @@ class RequirementFileNode(QStandardItem):
         success, message = self.validate_doors_output(doors_output)
 
         if not success: 
-            dialog_message(self.data_manager, message)
-            return False
+            return False, message
 
         self.timestamp = timestamp
         # delete all children
@@ -270,7 +273,7 @@ class RequirementFileNode(QStandardItem):
         self.apply_coverage_filter()
         # UPDATE ACCORDING TO COVERAGE DICT WHICH IS STORED IN REQUIREMENT MODULE INDEPENDETLY TO REQUIREMETS NODES
         # self.update_coverage_from_coverage_dict()
-        return True
+        return True, ""
 
 
     def validate_doors_output(self, doors_output: str) -> tuple[bool, str]:                   
@@ -445,11 +448,6 @@ class RequirementFileNode(QStandardItem):
                         # UPDATE CURRENT REQUIREMENT MODULE
                         self.attributes = attributes 
                         self.baseline = baselines  # TODO: rename to self.baselines
-
-
-    # NIC --> POUZIVA SE POUZE U COND/A2L/DSPACE Nodu
-    def tree_2_file(self):
-        pass
 
 
 

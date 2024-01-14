@@ -193,7 +193,7 @@ class DataManager(QWidget, Ui_Form):
         self.uiBtnPreviousView.clicked.connect(self._goto_previous_index)
 
         # node copied into memory by action COPY
-        self.node_to_paste = None
+        self._node_to_paste = None
 
         # POINTER TO REQ MODULE(S) WHICH ARE DOWNLOADING
         # self._currently_downloaded_modules = []
@@ -208,15 +208,18 @@ class DataManager(QWidget, Ui_Form):
 
     @pyqtSlot(bool, str)
     def update_progress_status(self, is_visible, text=''):
-        self.ui_frame_progress_status.setMinimumHeight(30) if is_visible else self.ui_frame_progress_status.setMinimumHeight(0)
-        self.ui_label_progress_status.setText(text)
+        # self.ui_frame_progress_status.setMinimumHeight(30) if is_visible else self.ui_frame_progress_status.setMinimumHeight(0)
+        # self.ui_label_progress_status.setText(text)
+
+        self.MAIN.uiLabelProgressStatus.setText(text) if is_visible else self.MAIN.uiLabelProgressStatus.setText("Ready")
+        self.MAIN.uiLabelProgressStatus.setStyleSheet("color: rgb(50, 250, 50);") if is_visible else self.MAIN.uiLabelProgressStatus.setStyleSheet("color: rgb(200, 200, 200);")
 
 
     def receive_data_from_drop_or_file_manager(self, data):
         condition_nodes.initialise(data, self.ROOT)
         dspace_nodes.initialise(data, self.ROOT)
         a2l_nodes.initialise(data, self.ROOT)
-        self.MAIN.show_notification(f"Model has been updated.")   
+        self.MAIN.show_notification(f"Data Updated")   
         self.send_data_2_completer() 
 
 
@@ -354,13 +357,15 @@ class DataManager(QWidget, Ui_Form):
             global_success = False
             dialog_message(self, "Connecting to Doors Failed.\n\nPossible reasons:\n1. Invalid username/password\n2. Doors client is N/A\n3. Network issues.")
   
-        for node in self._module_locker.locked_modules:
-            success = node.receive_data_from_doors(doors_output, timestamp)
+        for module in self._module_locker.locked_modules:
+            self._module_locker.unlock_module(module)
+            success, message = module.receive_data_from_doors(doors_output, timestamp)
             if not success: 
                 global_success = False
+                dialog_message(self, message)
                 break
         
-        self._module_locker.unlock_all_modules()  # clear list of modules which are being downloaded
+          
         self.MAIN.show_notification(f"Requirements have been Updated.") 
         self._display_values()
         self._update_data_summary()
@@ -518,14 +523,19 @@ class DataManager(QWidget, Ui_Form):
         selected_item_index = self.TREE.indexAt(point)
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
-        if not selected_item_index.isValid(): return
+        if not selected_item_index.isValid():
+            return
 
-        if isinstance(selected_item, RequirementFileNode): self._evaluate_view_filter()
+        if isinstance(selected_item, RequirementFileNode) and selected_item in self._module_locker.locked_modules:
+            return
+
+        if isinstance(selected_item, RequirementFileNode):
+            self._evaluate_view_filter()
         
         menu = self.UI_CONTROL_MANAGER.get_context_menu(selected_item)
         
         if menu:
-            if self.node_to_paste and type(self.node_to_paste) == type(selected_item):
+            if self._node_to_paste and type(self._node_to_paste) == type(selected_item):
                 menu.addAction(self.action_paste)        
             menu.exec_(QCursor().pos())
 
@@ -794,17 +804,17 @@ class DataManager(QWidget, Ui_Form):
             self.TREE.setFocus()
 
     def copy_node(self):
-        self.node_to_paste = model_manager.copy_node(self.TREE, self.MODEL)        
-        if self.node_to_paste: 
+        self._node_to_paste = model_manager.copy_node(self.TREE, self.MODEL)        
+        if self._node_to_paste: 
             self.MAIN.show_notification(f"Item was copied to Clipboard.")  
             self.TREE.setFocus()
 
 
     def paste_node(self):
-        success = model_manager.paste_node(self.TREE, self.MODEL, self.node_to_paste)
+        success = model_manager.paste_node(self.TREE, self.MODEL, self._node_to_paste)
         if success:
-            self.MAIN.show_notification(f"Item {self.node_to_paste.text()} was inserted.") 
-            self.node_to_paste = None
+            self.MAIN.show_notification(f"Item {self._node_to_paste.text()} was inserted.") 
+            self._node_to_paste = None
             self.send_data_2_completer
             self.TREE.setFocus()
 

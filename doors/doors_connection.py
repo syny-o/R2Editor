@@ -1,13 +1,16 @@
-import re
 import time
-import socket
 import subprocess
 import os
 
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QSettings, QRunnable, QThreadPool, QTimer
 from dialogs.dialog_message import dialog_message
 
 
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QSettings, QRunnable, QThreadPool, QTimer
+
+DEBUG = False
+
+
+
 
 SW_MINIMIZE = 6
 SW_HIDE = 0
@@ -262,10 +265,10 @@ class DoorsConnection(QObject):
         self.cmd = fr'{self.app_path} -data "{self.database_path}" -u "{self.user_name}" -P "{self.user_passwd}" -batch "{dxl_file}" -W'
 
 
-
-        # DELETE OLD DOORS OUTPUT
-        if os.path.isfile("doors/doors_output.txt"):
-            os.remove("doors/doors_output.txt")
+        if not DEBUG:
+            # DELETE OLD DOORS OUTPUT
+            if os.path.isfile("doors/doors_output.txt"):
+                os.remove("doors/doors_output.txt")
 
 
 
@@ -327,7 +330,8 @@ class DoorsConnection(QObject):
         with open(dxl_file, 'w', encoding='utf8') as new_dxl_file:
             new_dxl_file.write(file_content)
             
-        self.process = subprocess.call(self.cmd, shell=False)  
+        if not DEBUG:
+            self.process = subprocess.call(self.cmd, shell=False)  
 
         timestamp = create_time_stamp()
         try:

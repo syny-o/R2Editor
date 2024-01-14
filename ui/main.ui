@@ -2665,7 +2665,7 @@ QLabel{
            <number>0</number>
           </property>
           <item>
-           <widget class="QFrame" name="frame_app_name">
+           <widget class="QFrame" name="uiFrameProgressStatus">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -2695,21 +2695,22 @@ QLabel{
               <number>0</number>
              </property>
              <item>
-              <widget class="QLabel" name="label_credits">
+              <widget class="QLabel" name="uiLabelProgressStatus">
                <property name="font">
                 <font>
                  <family>Segoe UI</family>
-                 <weight>75</weight>
-                 <bold>true</bold>
+                 <pointsize>9</pointsize>
+                 <weight>50</weight>
+                 <bold>false</bold>
                 </font>
                </property>
                <property name="styleSheet">
-                <string notr="true">color: rgb(98, 103, 111);
+                <string notr="true">color: rgb(200, 200, 200);
 
 </string>
                </property>
                <property name="text">
-                <string>RapitTwo Script Editor</string>
+                <string>Ready</string>
                </property>
               </widget>
              </item>
@@ -2807,6 +2808,12 @@ QLabel{
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="maximumSize">
+             <size>
+              <width>0</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>
@@ -2894,6 +2901,12 @@ color: red;
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="maximumSize">
+             <size>
+              <width>0</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>
@@ -2980,6 +2993,12 @@ color: red;
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>0</width>
+              <height>16777215</height>
+             </size>
             </property>
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
@@ -3134,7 +3153,7 @@ margin-right: 5px;
             </property>
             <property name="maximumSize">
              <size>
-              <width>20</width>
+              <width>0</width>
               <height>20</height>
              </size>
             </property>

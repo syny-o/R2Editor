@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(2729, 1238)
+        Form.resize(2262, 1020)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -380,7 +380,7 @@ class Ui_Form(object):
         self.frame_3.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_3.setObjectName("frame_3")
         self.verticalLayout_13 = QtWidgets.QVBoxLayout(self.frame_3)
-        self.verticalLayout_13.setContentsMargins(-1, -1, 0, -1)
+        self.verticalLayout_13.setContentsMargins(-1, -1, 0, 0)
         self.verticalLayout_13.setObjectName("verticalLayout_13")
         self.splitter = QtWidgets.QSplitter(self.frame_3)
         self.splitter.setStyleSheet("QWidget{\n"
@@ -518,7 +518,7 @@ class Ui_Form(object):
         self.ui_frame_progress_status.setFrameShadow(QtWidgets.QFrame.Raised)
         self.ui_frame_progress_status.setObjectName("ui_frame_progress_status")
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.ui_frame_progress_status)
-        self.horizontalLayout_6.setContentsMargins(0, 0, 0, 5)
+        self.horizontalLayout_6.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_6.setSpacing(0)
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
         self.frame_28 = QtWidgets.QFrame(self.ui_frame_progress_status)
@@ -534,7 +534,7 @@ class Ui_Form(object):
         self.frame_5.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_5.setObjectName("frame_5")
         self.horizontalLayout_22 = QtWidgets.QHBoxLayout(self.frame_5)
-        self.horizontalLayout_22.setContentsMargins(50, 5, 50, 5)
+        self.horizontalLayout_22.setContentsMargins(50, 0, 50, 5)
         self.horizontalLayout_22.setSpacing(0)
         self.horizontalLayout_22.setObjectName("horizontalLayout_22")
         self.ui_label_progress_status = QtWidgets.QLabel(self.frame_5)

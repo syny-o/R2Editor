@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2729</width>
-    <height>1238</height>
+    <width>2262</width>
+    <height>1020</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -751,6 +751,9 @@ background-color: rgb(39, 44, 54);
       <property name="rightMargin">
        <number>0</number>
       </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QSplitter" name="splitter">
         <property name="styleSheet">
@@ -1015,7 +1018,7 @@ background-color: rgb(95, 180, 255);
        <number>0</number>
       </property>
       <property name="bottomMargin">
-       <number>5</number>
+       <number>0</number>
       </property>
       <item>
        <widget class="QFrame" name="frame_28">
@@ -1048,7 +1051,7 @@ border-radius: 5px;</string>
           <number>50</number>
          </property>
          <property name="topMargin">
-          <number>5</number>
+          <number>0</number>
          </property>
          <property name="rightMargin">
           <number>50</number>

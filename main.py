@@ -687,7 +687,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if is_project_saved:
             self.label_opened_project.setStyleSheet("color: rgb(200, 200, 200)")
         else:
-            self.label_opened_project.setStyleSheet("color: rgb(250, 100, 100); font-weight: bold")
+            self.label_opened_project.setStyleSheet("color: rgb(250, 50, 50);")
         
 
     def update_actual_information(self):

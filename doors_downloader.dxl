@@ -19,7 +19,7 @@
     Module mSpecificBaseline
     
         
-        m = read("/EPB FIAT Ducato MY22 Tailor/023 System Diagnostic Tables/DMT - PBC",true)
+        m = read("/EPB FIAT Ducato MY22 Tailor/02 System Specifications/02 System Design/SyDesign",true)
 
         //b = getMostRecentBaseline(m)
 
@@ -48,7 +48,7 @@
         out << "<REQUIREMENTS_START>" "\n"
 
         for o in entire(m) do {
-            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMN_START>"o."TRW DTC Name""<COLUMN_END>""<COLUMN_START>"o."TRW Func Actuator Apply Left""<COLUMN_END>""<COLUMN_START>"o."TRW Func Actuator Apply Right""<COLUMN_END>""<COLUMN_START>"o."TRW Func Actuator Release Left""<COLUMN_END>""<COLUMN_START>"o."TRW Func Actuator Release Right""<COLUMN_END>""<COLUMN_START>"o."TRW Func Dynamic Apply RWU""<COLUMN_END>""<COLUMN_START>"o."TRW Func Auto Adjust""<COLUMN_END>""<COLUMN_START>"o."TRW Func GDA""<COLUMN_END>""<COLUMN_START>"o."TRW Func RAR""<COLUMN_END>""<COLUMN_START>"o."TRW Func HTR""<COLUMN_END>""<COLUMN_START>"o."TRW Func Rollerbench Apply""<COLUMN_END>""<COLUMN_START>"o."Object Text""<COLUMN_END>""<COLUMNS_END>"
+            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMN_START>"o."010_Object Type""<COLUMN_END>""<COLUMN_START>"o."011_Object State""<COLUMN_END>""<COLUMN_START>"o."011_DXL_Object State""<COLUMN_END>""<COLUMN_START>"o."820_EPBi Variant""<COLUMN_END>""<COLUMN_START>"o."050_Test Department""<COLUMN_END>""<COLUMN_START>"o."Object Text""<COLUMN_END>""<COLUMN_START>"o."Object Text_DXL""<COLUMN_END>""<COLUMNS_END>"
             
             out << "<OUTLINKS_START>"
             for outLink in (o -> "*") do {
