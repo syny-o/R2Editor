@@ -182,24 +182,7 @@ background-color: rgb(39, 44, 54);
                 <number>0</number>
                </property>
                <item>
-                <widget class="QPushButton" name="ui_add">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="text">
-                  <string>Add</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="files.qrc">
-                   <normaloff>:/16x16/icons/16x16/cil-plus.png</normaloff>:/16x16/icons/16x16/cil-plus.png</iconset>
-                 </property>
-                 <property name="flat">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="ui_edit">
+                <widget class="QPushButton" name="uiBtnEditNode">
                  <property name="enabled">
                   <bool>true</bool>
                  </property>
@@ -252,7 +235,7 @@ background-color: rgb(39, 44, 54);
              <number>0</number>
             </property>
             <item>
-             <widget class="QPushButton" name="ui_check_coverage">
+             <widget class="QPushButton" name="uiBtnCheckCoverage">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -266,7 +249,7 @@ background-color: rgb(39, 44, 54);
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="ui_check_html_report">
+             <widget class="QPushButton" name="uiBtnCheckHtmlReport">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -280,9 +263,9 @@ background-color: rgb(39, 44, 54);
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="ui_update_requirements">
+             <widget class="QPushButton" name="uiBtnUpdateRequirements">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="text">
                <string>Update All Requirements</string>
@@ -294,7 +277,7 @@ background-color: rgb(39, 44, 54);
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="ui_new_requirements">
+             <widget class="QPushButton" name="uiBtnNewModule">
               <property name="text">
                <string>New Module</string>
               </property>
@@ -870,7 +853,7 @@ QMenu::separator {
               <number>0</number>
              </property>
              <item>
-              <widget class="QLineEdit" name="ui_le_filter">
+              <widget class="QLineEdit" name="uiLineEditFilter">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -905,7 +888,7 @@ padding-left: 20px;
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="ui_btn_goBack">
+              <widget class="QPushButton" name="uiBtnPreviousView">
                <property name="enabled">
                 <bool>true</bool>
                </property>

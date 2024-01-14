@@ -15,6 +15,7 @@ def layout_generate_one_row(label_text: str, main_layout: QVBoxLayout, extend_la
     uiOneRowLayout.addWidget(label)
     uiOneRowLayout.addWidget(line_edit)             
     main_layout.addLayout(uiOneRowLayout)
+    main_layout.setAlignment(Qt.AlignTop)
     return line_edit
 
 

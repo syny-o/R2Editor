@@ -18,7 +18,6 @@ class UIControlManager:
     action_expand_all_children:                     QAction
     action_collapse_all_children:                   QAction    
     # Standard operations with nodes:
-    action_add_node:                                QAction
     action_remove_node:                             QAction
     action_edit_node:                               QAction
     action_duplicate_node:                          QAction
@@ -46,14 +45,14 @@ class UIControlManager:
             RequirementFileNode: self._context_menu_requirement_module,
             RequirementNode: self._context_menu_requirement_node,
             ConditionFileNode: self._context_menu_condition_file_node,
-            ConditionNode: self._context_menu_condition_value_test_step_node,
-            ValueNode: self._context_menu_condition_value_test_step_node,
-            TestStepNode: self._context_menu_condition_value_test_step_node,
+            ConditionNode: self._context_menu_condition_value_test_step_ds_variable_node,
+            ValueNode: self._context_menu_condition_value_test_step_ds_variable_node,
+            TestStepNode: self._context_menu_condition_value_test_step_ds_variable_node,
             A2lFileNode: self._context_menu_a2l_file_node,
             A2lNode: self._context_menu_no_action,
-            DspaceFileNode: self._context_menu_no_action,
+            DspaceFileNode: self._context_menu_condition_file_node,
             DspaceDefinitionNode: self._context_menu_no_action,
-            DspaceVariableNode: self._context_menu_no_action,
+            DspaceVariableNode: self._context_menu_condition_value_test_step_ds_variable_node,
         }
 
         # self._disable_all_actions()
@@ -74,6 +73,7 @@ class UIControlManager:
         menu = QMenu()
         menu.setStyleSheet("QMenu::separator {height: 0.5px; margin: 3px; background-color: rgb(38, 59, 115);}")
         menu.addActions([self.action_expand_all_children, self.action_collapse_all_children])
+        menu.addSeparator()
         return menu
 
 
@@ -87,11 +87,15 @@ class UIControlManager:
                 self.action_show_only_requirements_with_coverage,
                 self.action_show_all_requirements
             ])
+        menu.addSeparator()
         if not node.coverage_filter:
             menu.addAction(self.action_open_coverage_filter)
         else:
             menu.addActions([self.action_edit_coverage_filter, self.action_remove_coverage_filter])
+        menu.addSeparator()
         menu.addAction(self.action_update_module)
+        menu.addSeparator()
+        menu.addAction(self.action_remove_node)        
         return menu
 
     
@@ -108,19 +112,25 @@ class UIControlManager:
     def _context_menu_condition_file_node(self, node) -> QMenu:
         menu = self._create_menu()
         menu.addAction(self.action_export_node)
+        menu.addSeparator()
+        menu.addAction(self.action_remove_node)
         return menu
 
-    def _context_menu_condition_value_test_step_node(self, node) -> QMenu:
+    def _context_menu_condition_value_test_step_ds_variable_node(self, node) -> QMenu:
         menu = self._create_menu()
         menu.addActions([self.action_move_up_node, self.action_move_down_node])
         menu.addAction(self.action_duplicate_node)
         menu.addAction(self.action_copy_node)
+        menu.addSeparator()
+        menu.addAction(self.action_remove_node)        
         return menu
 
 
     def _context_menu_a2l_file_node(self, node) -> QMenu:
         menu = self._create_menu()
         menu.addAction(self.action_normalise_a2l_file)
+        menu.addSeparator()
+        menu.addAction(self.action_remove_node)        
         return menu      
 
 

@@ -129,8 +129,7 @@ class ConditionFileNode(QStandardItem):
             self.set_modified(False)
 
         except Exception as e:
-            print(str(e))
-            dialog_message(self.data_manager, str(e))     
+            raise Exception(f'Unable to save file {self.path}, reason: {str(e)}')   
             
                 
 

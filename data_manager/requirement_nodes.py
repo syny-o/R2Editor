@@ -1,8 +1,7 @@
 from dialogs.dialog_message import dialog_message
-from PyQt5.Qt import QStandardItem, QIcon
 from PyQt5.QtWidgets import QPushButton, QStyle
 from PyQt5.QtCore import pyqtSlot, Qt
-# from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QColor, QStandardItem
 import re
 from pathlib import Path
 # from data_manager.tooltips_req import tooltips_req
@@ -88,10 +87,13 @@ class RequirementFileNode(QStandardItem):
         self.setIcon(self.ICON_DOORS)
         self.setText(reduce_path_string(self.path))
         self.setEditable(False)
+        self.setForeground(QColor(200, 200, 200)) 
         self.view_filter = "all"        
         self.columns_names_backup = [*columns_names]          
 
         self.update_title_text()
+
+
 
         # print("\n".join(coverage_dict.keys()))
  

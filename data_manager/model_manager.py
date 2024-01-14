@@ -4,7 +4,8 @@ from PyQt5.QtCore import Qt
 from text_editor.completer import Completer
 from data_manager.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
 from data_manager.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
-from data_manager.a2l_nodes import A2lFileNode
+from data_manager.requirement_nodes import RequirementNode
+from data_manager.a2l_nodes import A2lFileNode, A2lNode
 from text_editor.tooltips import tooltips
 
 
@@ -14,7 +15,11 @@ def export_file(TREE, MODEL):
     selected_item_index = TREE.currentIndex()
     selected_item = MODEL.itemFromIndex(selected_item_index)
     if isinstance(selected_item, (ConditionFileNode, DspaceFileNode)):
-        selected_item.tree_2_file()    
+        try:
+            selected_item.tree_2_file()
+            return True, ""
+        except Exception as e:
+            return False, str(e)
 
 def remove_node(TREE, MODEL):
     selected_item_index = TREE.currentIndex()
@@ -22,6 +27,9 @@ def remove_node(TREE, MODEL):
 
     selected_item_row = selected_item_index.row()
     parent_item_index = selected_item_index.parent()
+
+    if isinstance(selected_item, (RequirementNode, A2lNode)):
+        return False
 
     if MODEL.rowCount(parent_item_index) > 1:        
         if hasattr(selected_item, 'get_file_node'):
@@ -34,16 +42,18 @@ def remove_node(TREE, MODEL):
 def duplicate_node(TREE, MODEL):
     selected_item_index = TREE.currentIndex()
     selected_item = MODEL.itemFromIndex(selected_item_index)
-    if isinstance(selected_item, (ConditionNode, ValueNode, TestStepNode)):            
+    if isinstance(selected_item, (ConditionNode, ValueNode, TestStepNode, DspaceVariableNode)):            
         selected_item.parent().insertRow(selected_item_index.row() + 1, selected_item.get_node_copy())        
         if hasattr(selected_item, 'get_file_node'):
-            selected_item.get_file_node().set_modified(True)    
+            selected_item.get_file_node().set_modified(True)
+            return True
+    return False
 
 
 def copy_node(TREE, MODEL):
     selected_item_index = TREE.currentIndex()
     selected_item = MODEL.itemFromIndex(selected_item_index)    
-    if isinstance(selected_item, (ConditionNode, ValueNode, TestStepNode)):         
+    if isinstance(selected_item, (ConditionNode, ValueNode, TestStepNode, DspaceVariableNode)):         
         return selected_item.get_node_copy()     
 
 
@@ -51,77 +61,13 @@ def paste_node(TREE, MODEL, node_to_paste):
     selected_item_index = TREE.currentIndex()
     selected_item = MODEL.itemFromIndex(selected_item_index)
 
-    if node_to_paste and type(node_to_paste) == type(selected_item):
-        new_item_row = selected_item_index.row() + 1
-        selected_item.parent().insertRow(new_item_row, node_to_paste)
-        
-        node_to_paste = None
-        selected_item.get_file_node().set_modified(True) 
-        return True
-
-
-
-
-# def edit_node(TREE, MODEL, button_is_checked):
-#     selected_item_index = TREE.currentIndex()
-#     selected_item = MODEL.itemFromIndex(selected_item_index)
-
-#     if not selected_item:
-#         return 
-
-
-def insert_node(TREE, MODEL, data: dict):
-        selected_item_index = TREE.currentIndex()
-        selected_item = MODEL.itemFromIndex(selected_item_index)
-
-        cond_data = data.get("cond_data")
-        dspace_data = data.get("dspace_data")
-
-        if dspace_data:
-            dspace_name, dspace_value, dspace_path = dspace_data["dspace_name"], dspace_data["dspace_value"], dspace_data["dspace_path"]
-
-        if cond_data:
-            condition, value, test_step_name, test_step_action, test_step_comment, test_step_nominal \
-                = cond_data["condition"], cond_data["value"], cond_data["test_step_name"], cond_data["test_step_action"], cond_data["test_step_comment"], cond_data["test_step_nominal"]            
-
-        if hasattr(selected_item, 'get_file_node'):
-            selected_item.get_file_node().set_modified(True)
-
-        if isinstance(selected_item, ConditionNode):
-            # CONDITION:
-            new_condition = ConditionNode(condition, '99')
-            new_value = ValueNode(value, '99')
-            new_ts = TestStepNode(test_step_name, test_step_action, test_step_comment, test_step_nominal)
-
-            new_value.appendRow(new_ts)
-            new_condition.appendRow(new_value)
-
-            new_condition_row = selected_item_index.row() + 1
-            selected_item.parent().insertRow(new_condition_row, new_condition)
-
-        elif isinstance(selected_item, ValueNode):
-            # VALUE:
-            new_value = ValueNode(value, '99')
-            new_ts = TestStepNode(test_step_name, test_step_action, test_step_comment, test_step_nominal)
-
-            new_value.appendRow(new_ts)
-            new_value_row = selected_item_index.row() + 1
-            selected_item.parent().insertRow(new_value_row, new_value)
-
-        elif isinstance(selected_item, TestStepNode):
-            # TEST STEP:
-            new_item = TestStepNode(test_step_name, test_step_action, test_step_comment, test_step_nominal)
+    if node_to_paste is not None:
+        if type(node_to_paste) == type(selected_item):
             new_item_row = selected_item_index.row() + 1
-            selected_item.parent().insertRow(new_item_row, new_item)
-
-        elif isinstance(selected_item, DspaceVariableNode):
-            # dSPACE VARIABLE:
-            new_item = DspaceVariableNode(dspace_name, dspace_value, dspace_path)
-            new_item_row = selected_item_index.row() + 1
-            selected_item.parent().insertRow(new_item_row, new_item)
-
-
-
+            selected_item.parent().insertRow(new_item_row, node_to_paste)            
+            selected_item.get_file_node().set_modified(True) 
+            return True
+    return False
     
 
 def move_node(TREE, MODEL, direction):

@@ -103,3 +103,24 @@ class DroppableTreeView(QTreeView):
 
     def node_was_expanded(self, node_index):
         self.previous_indexes.append(tuple(["expanded", node_index]))
+
+
+    def collapse_all_children(self):
+        index = self.currentIndex()
+        item = index.model().itemFromIndex(index)
+        
+        def _browse_children(node):         
+            for row in range(node.rowCount()):
+                requirement_node = node.child(row)
+                requirement_node_index = requirement_node.index()
+                self.collapse(requirement_node_index)
+
+                _browse_children(requirement_node)        
+        
+        _browse_children(item)
+        self.collapse(index)
+
+    
+    def expand_all_children(self):
+        index = self.currentIndex()
+        self.expandRecursively(index)        

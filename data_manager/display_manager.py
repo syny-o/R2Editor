@@ -126,11 +126,12 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
     def _generate_header_layout(self):
         uiHeaderLayout = QHBoxLayout()
         self.uiLineEditIdentifier = QLineEdit()
-        self.uiBtnCopyReqRef = QPushButton(QIcon(u"ui/icons/16x16/cil-copy.png"), "")
+        self.uiBtnCopyReqRef = QPushButton(QIcon(u"ui/icons/20x20/cil-copy.png"), "")
         self.uiBtnCopyReqRef.setCursor(QCursor(Qt.PointingHandCursor))
+        self.uiBtnCopyReqRef.setToolTip("Copy Identifier")
         uiHeaderLayout.addWidget(QLabel("Identifier:"))
-        uiHeaderLayout.addWidget(self.uiLineEditIdentifier)
         uiHeaderLayout.addWidget(self.uiBtnCopyReqRef)
+        uiHeaderLayout.addWidget(self.uiLineEditIdentifier)
         self.uiMainLayout.addLayout(uiHeaderLayout)
 
     def _fill_header_layout(self, NODE):
@@ -158,9 +159,11 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
         uiLinksScriptsLayout = QHBoxLayout()
         uiLinksScriptsLayout.addWidget(QLabel("Links:"))
         self.uiListWidgetLinks = QListWidget() 
+        self.uiListWidgetLinks.setMaximumHeight(160)
         uiLinksScriptsLayout.addWidget(self.uiListWidgetLinks)
         uiLinksScriptsLayout.addWidget(QLabel("Scripts:"))
         self.uiListWidgetScripts = QListWidget() 
+        self.uiListWidgetScripts.setMaximumHeight(160)
         uiLinksScriptsLayout.addWidget(self.uiListWidgetScripts)        
         self.uiMainLayout.addLayout(uiLinksScriptsLayout)
   
@@ -221,7 +224,8 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
         cb = QApplication.clipboard()
         cb.clear(mode=cb.Clipboard)
         cb.setText(self.uiLineEditIdentifier.text(), mode=cb.Clipboard)
-        # self.MAIN.show_notification(f"Item {self.ui_requirement_id.text()} copied to Clipboard.")                  
+        # TODO: Reduce coupling
+        self.DATA_MANAGER.MAIN.show_notification(f"Item {self.uiLineEditIdentifier.text()} copied to Clipboard.")                  
 
 
 
@@ -234,6 +238,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
     def __init__(self, DATA_MANAGER: Type) -> None:
         self.DATA_MANAGER = DATA_MANAGER 
         self.uiMainLayout = QVBoxLayout()
+        self.uiMainLayout.setSpacing(30)
         self.uiFrame = QFrame()
         self.uiFrame.setLayout(self.uiMainLayout)
         self.uiFrame.setVisible(False)

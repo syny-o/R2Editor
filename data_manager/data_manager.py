@@ -1,7 +1,8 @@
+from importlib import reload
 from pathlib import Path
 from ui.model_editor_ui import Ui_Form
 import json, re, os
-from PyQt5.QtWidgets import QWidget, QFileDialog, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QTextEdit, QMessageBox, QStyle, QPushButton, QApplication, QListWidgetItem, QListWidget
+from PyQt5.QtWidgets import QWidget, QFileDialog, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QMessageBox
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QStandardItemModel
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QObject, QRunnable, QThreadPool, QPropertyAnimation, QEasingCurve
 from data_manager.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
@@ -9,27 +10,23 @@ from data_manager.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, Dspa
 from data_manager.a2l_nodes import A2lFileNode, A2lNode
 from data_manager import a2l_nodes, condition_nodes, requirement_nodes, dspace_nodes
 from data_manager.requirement_nodes import RequirementFileNode, RequirementNode
-from data_manager.dlg_add_node import DlgAddNode
 from data_manager.form_add_module import FormAddModule
 from data_manager.form_add_requirement_filter import FormAddCoverageFilter
 from progress_bar.widget_modern_progress_bar import ModernProgressBar
-from text_editor.completer import Completer
 from components.droppable_tree_view import DroppableTreeView
-from data_manager.req_text_edit import RequirementTextEdit
-from text_editor.tooltips import tooltips
 from text_editor.text_editor import TextEdit
 from components.template_test_case import TemplateTestCase
 from components.reduce_path_string import reduce_path_string
 from dialogs.dialog_message import dialog_message
 from doors.doors_connection import DoorsConnection
-from components.my_list_widget import MyListWidget
-from data_manager.widget_baseline import WidgetBaseline
 
+import data_manager.form_a2l_norm_report        
 from data_manager import model_manager
 from data_manager import view_filter
 from data_manager.ui_control_manager import UIControlManager
 from data_manager.display_manager import DisplayManager
 from data_manager.form_edit_node import FormEditNode
+from components.module_locker import ModuleLocker
 
 
 # from my_logging import logger
@@ -47,7 +44,8 @@ class DataManager(QWidget, Ui_Form):
         self.setupUi(self)
 
         self.MAIN = main_window
-        self.PROJECT_MANAGER = project_manager        
+        self.PROJECT_MANAGER = project_manager     
+        self.DISPLAY_MANAGER = DisplayManager(self)   
         self.MODEL = QStandardItemModel()
         self.ROOT = self.MODEL.invisibleRootItem()        
         self.ROOT.setData(self, Qt.UserRole)  # add pointer to DataManager instance to be accesseble from child nodes (ReqNode, CondNode, ...)
@@ -69,7 +67,6 @@ class DataManager(QWidget, Ui_Form):
         QShortcut( 'Ctrl+D', self.TREE ).activated.connect(self.duplicate_node)
         QShortcut( 'Ctrl+C', self.TREE ).activated.connect(self.copy_node)
         QShortcut( 'Ctrl+V', self.TREE ).activated.connect(self.paste_node)
-        QShortcut( 'Insert', self.TREE ).activated.connect(self.add_node)
         QShortcut( 'Esc', self.TREE ).activated.connect(self._stop_filtering)
         QShortcut( 'Ctrl+S', self ).activated.connect(self.MAIN.project_save)
      
@@ -102,11 +99,6 @@ class DataManager(QWidget, Ui_Form):
         self.action_duplicate.setIcon(QIcon(u"ui/icons/16x16/cil-clone.png"))
         self.action_duplicate.triggered.connect(self.duplicate_node)
         self.action_duplicate.setShortcut(QKeySequence("Ctrl+D"))
-        
-        self.action_add = QAction('Add')
-        self.action_add.setIcon(QIcon(u"ui/icons/16x16/cil-plus.png"))
-        self.action_add.triggered.connect(self.add_node) 
-        self.action_add.setShortcut(QKeySequence("Insert")) 
 
         self.action_copy = QAction('Copy')
         self.action_copy.setIcon(QIcon(u"ui/icons/20x20/cil-copy.png"))
@@ -157,11 +149,10 @@ class DataManager(QWidget, Ui_Form):
         ################## ACTIONS END ###########################
 
 
-        self.ui_control_manager = UIControlManager(
+        self.UI_CONTROL_MANAGER = UIControlManager(
             
             action_expand_all_children=self.action_expand_all_children,
             action_collapse_all_children=self.action_collapse_all_children,
-            action_add_node=self.action_add,
             action_remove_node=self.action_remove,
             action_edit_node=self.action_edit,
             action_duplicate_node=self.action_duplicate,
@@ -184,41 +175,35 @@ class DataManager(QWidget, Ui_Form):
         )
 
 
-        # FUNCTIONAL PART:
+        # MODEL SIGNALS:
         # self.MODEL.itemChanged.connect(lambda: self.set_project_saved(False))
         self.MODEL.rowsInserted.connect(lambda: self.set_project_saved(False))
         self.MODEL.rowsRemoved.connect(lambda: self.set_project_saved(False))
 
-        self.ui_add.clicked.connect(self.add_node)
-        self.ui_add.setShortcut('Ctrl+n')
-        self.ui_edit.clicked.connect(self.edit_node_request)
-        self.ui_edit.setShortcut('F4')
-        self.ui_edit.setToolTip("F4")
-        self.ui_update_requirements.clicked.connect(lambda: self._update_requirements(True))
-        self.ui_new_requirements.clicked.connect(self._open_add_requirement_module_form)
-        self.ui_check_coverage.clicked.connect(self._create_dict_from_scripts_for_coverage_check)
-        self.ui_check_html_report.clicked.connect(self.check_HTML_report)
-        self.ui_le_filter.textChanged.connect(self._filter_items)
-        self.ui_le_filter.textEdited.connect(self._reset_filter)
-        self.ui_btn_goBack.clicked.connect(self._goto_previous_index)
-
-        self.send_data_2_completer()
-        self._update_data_summary()
+        # ALL BUTTONS
+        self.uiBtnEditNode.clicked.connect(self.edit_node_request)
+        self.uiBtnEditNode.setShortcut('F4')
+        self.uiBtnEditNode.setToolTip("F4")
+        self.uiBtnUpdateRequirements.clicked.connect(lambda: self._update_requirements(is_multiple_modules=True))
+        self.uiBtnNewModule.clicked.connect(self._open_add_requirement_module_form)
+        self.uiBtnCheckCoverage.clicked.connect(self._create_dict_from_scripts_for_coverage_check)
+        self.uiBtnCheckHtmlReport.clicked.connect(self.check_HTML_report)
+        self.uiLineEditFilter.textChanged.connect(self._filter_items)
+        self.uiLineEditFilter.textEdited.connect(self._reset_filter)
+        self.uiBtnPreviousView.clicked.connect(self._goto_previous_index)
 
         # node copied into memory by action COPY
         self.node_to_paste = None
 
-        # POINTER TO REQ MODULE WHEN ONLY ONE IS DOWNLOADING
-        self._currently_downloaded_single_module = None
+        # POINTER TO REQ MODULE(S) WHICH ARE DOWNLOADING
+        # self._currently_downloaded_modules = []
+        self._module_locker = ModuleLocker()
 
-        # FLAG FOR DETERMINING IF DOWNLOADING REQUIREMENTS IS IN PROGRESS
-        self._downloading_of_requirements_is_in_progress = False
-
-        # SPECIAL THREAD FOR COVERAGE CHECK
+        # SPECIAL THREAD FOR BROWSING HDD AND GETTING DATA FOR COVERAGE CHECK
         self.threadpool = QThreadPool()
-        self.threadpool.setMaxThreadCount(1)   
-
-        self.display_manager = DisplayManager(self)     
+        self.threadpool.setMaxThreadCount(1)  
+ 
+     
 
 
     @pyqtSlot(bool, str)
@@ -258,7 +243,6 @@ class DataManager(QWidget, Ui_Form):
 
         self._update_data_summary()
         self.send_data_2_completer()  
-
         self.set_project_saved(True)
 
 
@@ -282,7 +266,10 @@ class DataManager(QWidget, Ui_Form):
             # if con/dspace file is modified, save it
             if isinstance(current_node, (ConditionFileNode, DspaceFileNode)):
                 if current_node.is_modified:
-                    current_node.tree_2_file()        
+                    success, message = self.model_manager.export_file(current_node)
+                    if not success:
+                        dialog_message(self, message)
+
         return data
 
 
@@ -307,92 +294,78 @@ class DataManager(QWidget, Ui_Form):
     #####################################################################################################################################################        
 
     # Click on Button Update Requirements
-    def _update_requirements(self, is_multiple_modules):    
+    def _update_requirements(self, is_multiple_modules):  
+
+        # Dialog message when Doors is now connected  
+        if self._module_locker.locked_modules:
+            dialog_message(self, "Requirements are being downloaded from Doors. Please wait...")
+            return        
+
+        # Dialog message when Use Name is not set  
         if not self.MAIN.app_settings.doors_user_name:
-            dialog_message(self, "User is not defined! Please set user name in application config.")
+            dialog_message(self, "User is not defined! Please set user name in application config...")
             self.MAIN.manage_right_menu(self.MAIN.app_settings, self.MAIN.btn_app_settings)
             return
 
-        # 1. Check if at least one req. module is present
-        requirements_file_nodes_present = False
-        for row in range(self.ROOT.rowCount()):
-            node = self.ROOT.child(row)
-            if isinstance(node, RequirementFileNode):
-                requirements_file_nodes_present = True
+        if is_multiple_modules:  # if Button from Upper Menu was pushed (Update All Requirements)
+            for row in range(self.ROOT.rowCount()):
+                node = self.ROOT.child(row)
+                if isinstance(node, RequirementFileNode):
+                    self._module_locker.lock_module(node)
+        else:  # if Button from Context Menu was pushed (Update Module)
+            selected_item_index = self.TREE.currentIndex()
+            selected_item = self.MODEL.itemFromIndex(selected_item_index)
+            if isinstance(selected_item, RequirementFileNode):
+                self._module_locker.lock_module(selected_item)
 
-        # 2. If some module is present --> get username/password
-        if requirements_file_nodes_present:
+        # If some module(s) are present --> get username/password
+        if self._module_locker.locked_modules:
             passwd_from_input_dlg, ok = QInputDialog.getText(
                 None, 
                 "Doors Connection", 
                 f"Database: {self.MAIN.app_settings.doors_database_path}\n\nUsername: {self.MAIN.app_settings.doors_user_name}\n\nEnter your password:\n", QLineEdit.Password)
 
             if ok and passwd_from_input_dlg:            
-                # if Button from Upper Menu was pushed (Update All Requirements)
-                if is_multiple_modules:
-                    paths = []
-                    columns = []
-                    baselines = []
-                    for row in range(self.ROOT.rowCount()):
-                        node = self.ROOT.child(row)
-                        if isinstance(node, RequirementFileNode):
-                            paths.append(node.path)
-                            columns.append(node.columns_names)
-                            baselines.append(node.current_baseline)
-                    
-                    if paths and columns and baselines:
-                        self._send_request_2_doors(passwd_from_input_dlg, paths, columns, baselines)
-                        
-                # if Right Click on Module --> Update Requirements (Update Module)
-                else:
-                    selected_item_index = self.TREE.currentIndex()
-                    selected_item = self.MODEL.itemFromIndex(selected_item_index)
-                    if isinstance(selected_item, RequirementFileNode):
-                        self._send_request_2_doors(passwd_from_input_dlg, [selected_item.path,], [selected_item.columns_names,], [selected_item.current_baseline,])
-                        self._currently_downloaded_single_module = selected_item
-                        
+                paths = []
+                columns = []
+                baselines = []
+                for node in self._module_locker.locked_modules:
+                    paths.append(node.path)
+                    columns.append(node.columns_names)
+                    baselines.append(node.current_baseline)                
+                if paths and columns and baselines:
+                    self._send_request_2_doors(passwd_from_input_dlg, paths, columns, baselines)
+            
+            else:
+                self._module_locker.unlock_all_modules()
+                return
 
-
-
-    def _lock_actions_while_requirements_are_downloading(self, lock:bool=True) -> None:
-        self.action_remove.setEnabled(not lock)
-        self.ui_new_requirements.setEnabled(not lock)
-        self.ui_update_requirements.setEnabled(not lock)
-        self._downloading_of_requirements_is_in_progress = lock
 
     def _send_request_2_doors(self, password, paths, columns_names, baselines):
         DoorsConnection(self, paths, columns_names, baselines, self, password)
-        self._lock_actions_while_requirements_are_downloading(True)
         self.update_progress_status(True, 'Initialising...')
+        self.uiBtnCheckCoverage.setEnabled(False)
 
 
     @pyqtSlot(str, str)
     def receive_data_from_doors(self, doors_output: str, timestamp: str):
         global_success = True
-        self._lock_actions_while_requirements_are_downloading(False)
         if doors_output == "Connection Failed":
             global_success = False
             dialog_message(self, "Connecting to Doors Failed.\n\nPossible reasons:\n1. Invalid username/password\n2. Doors client is N/A\n3. Network issues.")
-
-        elif self._currently_downloaded_single_module:
-            success = self._currently_downloaded_single_module.receive_data_from_doors(doors_output, timestamp)
-            self._currently_downloaded_single_module = None
-            if not success: global_success = False
-            return
-
-        else:
-            for row in range(self.ROOT.rowCount()):
-                node = self.ROOT.child(row)
-                if isinstance(node, RequirementFileNode):
-                    success = node.receive_data_from_doors(doors_output, timestamp)
-                    if not success: 
-                        global_success = False
-                        break
+  
+        for node in self._module_locker.locked_modules:
+            success = node.receive_data_from_doors(doors_output, timestamp)
+            if not success: 
+                global_success = False
+                break
         
+        self._module_locker.unlock_all_modules()  # clear list of modules which are being downloaded
         self.MAIN.show_notification(f"Requirements have been Updated.") 
         self._display_values()
         self._update_data_summary()
         self.set_project_saved(False)
+        self.uiBtnCheckCoverage.setEnabled(True)
         if global_success: dialog_message(self, "Requirements have been updated successfully.", "Downloading from Doors finished")
 
 
@@ -425,7 +398,7 @@ class DataManager(QWidget, Ui_Form):
     #####################################################################################################################################################
     def _create_dict_from_scripts_for_coverage_check(self):
         if self.PROJECT_MANAGER.disk_project_path():
-            self.ui_check_coverage.setEnabled(False)        
+            self.uiBtnCheckCoverage.setEnabled(False)        
             worker = Worker(self)
             self.threadpool.start(worker)
 
@@ -440,7 +413,7 @@ class DataManager(QWidget, Ui_Form):
                     if change:
                         self.set_project_saved(False)
             self._update_data_summary()
-            self.ui_check_coverage.setEnabled(True)
+            self.uiBtnCheckCoverage.setEnabled(True)
 
             
 
@@ -480,7 +453,7 @@ class DataManager(QWidget, Ui_Form):
 
 
     @pyqtSlot(str)
-    def receive_data_from_req_filter_dialog(self, filter_string):
+    def receive_data_from_req_filter_form(self, filter_string):
         index = self.TREE.currentIndex()
         node = self.MODEL.itemFromIndex(index)
         node.apply_coverage_filter(filter_string) 
@@ -531,8 +504,8 @@ class DataManager(QWidget, Ui_Form):
         selected_item_index = self.TREE.currentIndex()
         selected_item = self.MODEL.itemFromIndex(selected_item_index)  
         if selected_item:      
-            self.display_manager.get_layout(selected_item)
-            self.ui_le_filter.setText(selected_item.data(Qt.UserRole))
+            self.DISPLAY_MANAGER.get_layout(selected_item)
+            self.uiLineEditFilter.setText(selected_item.data(Qt.UserRole))
 
         self._show_filter_input(False)
         if isinstance(selected_item, (RequirementFileNode, A2lFileNode, ConditionFileNode, DspaceFileNode)):
@@ -549,7 +522,7 @@ class DataManager(QWidget, Ui_Form):
 
         if isinstance(selected_item, RequirementFileNode): self._evaluate_view_filter()
         
-        menu = self.ui_control_manager.get_context_menu(selected_item)
+        menu = self.UI_CONTROL_MANAGER.get_context_menu(selected_item)
         
         if menu:
             if self.node_to_paste and type(self.node_to_paste) == type(selected_item):
@@ -562,30 +535,17 @@ class DataManager(QWidget, Ui_Form):
         self.TREE.goto_previous_index()
 
     def _expand_all_children(self):
-        selected_item_index = self.TREE.currentIndex()
-        self.TREE.expandRecursively(selected_item_index)
+        self.TREE.expand_all_children()
 
     def _collapse_all_children(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-        
-        def _browse_children(node):         
-            for row in range(node.rowCount()):
-                requirement_node = node.child(row)
-                requirement_node_index = requirement_node.index()
-                self.TREE.collapse(requirement_node_index)
-
-                _browse_children(requirement_node)        
-        
-        _browse_children(selected_item)
-        self.TREE.collapse(selected_item_index)
+        self.TREE.collapse_all_children()
 
 
 
     def _show_filter_input(self, show: bool) -> None:
-        start_width = self.ui_le_filter.width()
+        start_width = self.uiLineEditFilter.width()
         final_width = 8000 if show else 0
-        self.animation = QPropertyAnimation(self.ui_le_filter, b"maximumWidth")
+        self.animation = QPropertyAnimation(self.uiLineEditFilter, b"maximumWidth")
         self.animation.setDuration(300)
         self.animation.setStartValue(start_width)
         self.animation.setEndValue(final_width)
@@ -709,8 +669,7 @@ class DataManager(QWidget, Ui_Form):
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
         if isinstance(selected_item, RequirementNode):
-            template = TemplateTestCase(req_id=selected_item.columns_data[0], req_text=selected_item.columns_data[-1], is_testable=is_testable)
-            # print(template.generate_tc_template())
+            template = TemplateTestCase(req_id=selected_item.reference, req_text=selected_item.columns_data[-1], is_testable=is_testable)
             text = template.generate_tc_template()
             file_path = None
             tab_name = 'Untitled'
@@ -741,7 +700,7 @@ class DataManager(QWidget, Ui_Form):
         view_filter.filter_items(self.TREE, self.MODEL, filtered_text)
         
         if filtered_text:            
-            self.ui_le_filter.setStyleSheet(""" background-color: rgb(220, 220, 220);
+            self.uiLineEditFilter.setStyleSheet(""" background-color: rgb(220, 220, 220);
                                                 background-image: url(:/16x16/icons/16x16/cil-magnifying-glass.png);
                                                 background-position: left center;
                                                 background-repeat: no-repeat;
@@ -752,7 +711,7 @@ class DataManager(QWidget, Ui_Form):
                                                  """)
 
         else:
-            self.ui_le_filter.setStyleSheet(""" background-color: rgb(35, 35, 25);
+            self.uiLineEditFilter.setStyleSheet(""" background-color: rgb(35, 35, 25);
                                                 background-image: url(:/16x16/icons/16x16/cil-magnifying-glass.png);
                                                 background-position: left center;
                                                 background-repeat: no-repeat;
@@ -775,24 +734,11 @@ class DataManager(QWidget, Ui_Form):
         view_filter.show_all_items(self.TREE, self.MODEL)
 
     def _evaluate_view_filter(self):
-        index = self.TREE.currentIndex()
-        requirement_file_node = self.MODEL.itemFromIndex(index)
-        self.action_show_all_requirements.setIcon(QIcon())
-        self.action_show_only_requirements_not_covered.setIcon(QIcon())
-        self.action_show_only_requirements_with_coverage.setIcon(QIcon())
-        view_filter = requirement_file_node.view_filter
-        if view_filter == "all":
-            self.action_show_all_requirements.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))
-        elif view_filter == "not_covered":
-            self.action_show_only_requirements_not_covered.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))
-        else:
-            self.action_show_only_requirements_with_coverage.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))              
-
-
-
-
-        
-
+        view_filter.evaluate_view_filter(self.TREE, self.MODEL, 
+                                         self.action_show_all_requirements, 
+                                         self.action_show_only_requirements_with_coverage, 
+                                         self.action_show_only_requirements_not_covered)
+            
 
 
     ####################################################################################################################
@@ -806,18 +752,11 @@ class DataManager(QWidget, Ui_Form):
             self.send_data_2_completer()    
 
 
-
     @pyqtSlot(dict, list, list)
     def a2l_normalisation_finished(self, data_4_report, missing_signals, duplicated_signals):
-        import data_manager.form_a2l_norm_report
-        from importlib import reload
-        reload(data_manager.form_a2l_norm_report)
-        # from data_manager.form_a2l_norm_report import A2lNormReport
+        # reload(data_manager.form_a2l_norm_report)
         self.form = data_manager.form_a2l_norm_report.A2lNormReport(data_4_report, missing_signals, duplicated_signals)
         self.form.show()
-
-
-
 
 
 
@@ -827,59 +766,47 @@ class DataManager(QWidget, Ui_Form):
 
 
     def tree_2_file(self):
-        model_manager.export_file(self.TREE, self.MODEL)
+        success, message = model_manager.export_file(self.TREE, self.MODEL)
+        if success:
+            self.MAIN.show_notification("File has been exported.")
+        else:
+            dialog_message(self, message)
+        
 
     def remove_node(self):
-        result = model_manager.remove_node(self.TREE, self.MODEL)
-        message = "Item Removed" if result else "Last Item can not be Removed"
-        self.MAIN.show_notification(message)  
-        self.send_data_2_completer()
-        self._update_data_summary()  
-        self.TREE.setFocus()                  
-            
-    
-    def add_node(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-
-        if isinstance(selected_item, ConditionNode):
-            self.window = DlgAddNode(self, condition_data=[None, None])
-            self.window.show()
-
-        elif isinstance(selected_item, ValueNode):
-            condition = selected_item.parent().name
-            self.window = DlgAddNode(self, condition_data=[condition, None])
-            self.window.show()
-
-        elif isinstance(selected_item, TestStepNode):
-            condition = selected_item.parent().parent().name
-            value = selected_item.parent().name
-            self.window = DlgAddNode(self, condition_data=[condition, value])
-            self.window.show()
-
-        elif isinstance(selected_item, DspaceVariableNode):
-            definition = selected_item.parent().name
-            self.window = DlgAddNode(self, dspace_data=definition)
-            self.window.show()
+        remove = QMessageBox.question(self,
+                    "Remove Item",
+                    "Do you want to remove selected item?",
+                    QMessageBox.Yes | QMessageBox.No)
+        if remove == QMessageBox.Yes:        
+            result = model_manager.remove_node(self.TREE, self.MODEL)
+            message = "Item Removed" if result else "Item can not be Removed"
+            self.MAIN.show_notification(message)  
+            self.send_data_2_completer()
+            self._update_data_summary()  
+            self.TREE.setFocus()                  
         
 
     def duplicate_node(self):
-        model_manager.duplicate_node(self.TREE, self.MODEL)
-        self.MAIN.show_notification(f"Item was duplicated.")  
-        self.TREE.setFocus()
+        success = model_manager.duplicate_node(self.TREE, self.MODEL)
+        if success:
+            self.MAIN.show_notification(f"Item was duplicated.")  
+            self.TREE.setFocus()
 
     def copy_node(self):
         self.node_to_paste = model_manager.copy_node(self.TREE, self.MODEL)        
         if self.node_to_paste: 
             self.MAIN.show_notification(f"Item was copied to Clipboard.")  
+            self.TREE.setFocus()
 
 
     def paste_node(self):
         success = model_manager.paste_node(self.TREE, self.MODEL, self.node_to_paste)
         if success:
             self.MAIN.show_notification(f"Item {self.node_to_paste.text()} was inserted.") 
-        self.send_data_2_completer
-        self.TREE.setFocus()
+            self.node_to_paste = None
+            self.send_data_2_completer
+            self.TREE.setFocus()
 
 
     def edit_node_request(self):
@@ -901,17 +828,11 @@ class DataManager(QWidget, Ui_Form):
         self.TREE.setFocus()
 
 
-
-    def receive_data_from_add_node_dialog(self, data: dict):    
-        model_manager.insert_node(self.TREE, self.MODEL, data)
-        self.MAIN.show_notification(f"Item has been inserted to Tree.") 
-        self.send_data_2_completer()
-
-
     def move_node(self, direction):
         model_manager.move_node(self.TREE, self.MODEL, direction)
         self.send_data_2_completer()
         self.set_project_saved(False)
+        self.TREE.setFocus()
 
 
 
@@ -992,7 +913,6 @@ class DataManager(QWidget, Ui_Form):
         if FOUND_NODE:
             self.TREE.setCurrentIndex(FOUND_NODE.index())
             self.TREE.scrollTo(FOUND_NODE.index())
-            # self._update_previous_indexes(FOUND_NODE.index())
         else:
             dialog_message(self, "Module is missing.")        
 

@@ -11,6 +11,23 @@ from data_manager.requirement_nodes import RequirementFileNode, RequirementNode
 ### FILTER ITEMS BY COVERAGE:
 ######################################################################################################################################
 
+def evaluate_view_filter(TREE, MODEL, action_show_all_requirements, action_show_only_requirements_not_covered, action_show_only_requirements_with_coverage):
+        index = TREE.currentIndex()
+        requirement_file_node = MODEL.itemFromIndex(index)
+        action_show_all_requirements.setIcon(QIcon())
+        action_show_only_requirements_not_covered.setIcon(QIcon())
+        action_show_only_requirements_with_coverage.setIcon(QIcon())
+        view_filter = requirement_file_node.view_filter
+        if view_filter == "all":
+            action_show_all_requirements.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))
+        elif view_filter == "not_covered":
+            action_show_only_requirements_not_covered.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))
+        else:
+            action_show_only_requirements_with_coverage.setIcon(QIcon(u"ui/icons/24x24/cil-check-alt.png"))  
+
+
+
+
 def show_only_items_with_coverage(TREE, MODEL):
     index = TREE.currentIndex()
     requirement_file_node = MODEL.itemFromIndex(index)

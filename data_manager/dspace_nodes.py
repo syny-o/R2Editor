@@ -101,9 +101,9 @@ class DspaceFileNode(QStandardItem):
         try:
             with open(self.path, 'w', encoding='utf8') as f:
                 f.write(output_text)
-                self.set_modified(False)
+            self.set_modified(False)
         except Exception as e:
-            dialog_message(self.data_manager, str(e))   
+            raise Exception(f'Unable to save file {self.path}, reason: {str(e)}') 
 
 
 
@@ -157,6 +157,9 @@ class DspaceDefinitionNode(QStandardItem):
 
         self.setEditable(False)
 
+    def get_file_node(self) -> DspaceFileNode:
+        return self.parent()        
+
 
 class DspaceVariableNode(QStandardItem):
     def __init__(self, name, value, path):
@@ -181,6 +184,9 @@ class DspaceVariableNode(QStandardItem):
     def get_file_node(self) -> DspaceFileNode:
         return self.parent().parent()
 
+        
+    def get_node_copy(self):
+        return DspaceVariableNode(self.name, self.value, self.path)
 
 
 
