@@ -3,7 +3,7 @@ from PyQt5.QtGui import QIcon
 
 
 class WidgetBaseline(QWidget):
-    def __init__(self):
+    def __init__(self, view_only=True):
         super().__init__()
 
         self.setStyleSheet("""
@@ -18,6 +18,8 @@ class WidgetBaseline(QWidget):
         }
         """)
 
+        self.view_only = view_only # if True, then the user can't switch the baseline
+
         uiMainLayout = QHBoxLayout()
         uiVLayout = QVBoxLayout()
 
@@ -25,6 +27,8 @@ class WidgetBaseline(QWidget):
         self.uiListWidgetBaselines = QListWidget()
         self.uiListWidgetBaselines.setMaximumWidth(200)
         self.uiBtnSwitchBaseLine = QPushButton("Switch")
+        self.uiBtnSwitchBaseLine.setVisible(not self.view_only)
+
 
         uiVLayout.addWidget(self.uiListWidgetBaselines)
         uiVLayout.addWidget(self.uiBtnSwitchBaseLine)
@@ -38,6 +42,8 @@ class WidgetBaseline(QWidget):
 
         self.uiListWidgetBaselines.currentItemChanged.connect(self._update_text)
         self.uiBtnSwitchBaseLine.clicked.connect(self._switch_baseline)
+
+        self.switched_baseline = None
 
 
     # INTERFACE FROM DATA MANAGER
@@ -100,13 +106,16 @@ class WidgetBaseline(QWidget):
 
     def _switch_baseline(self):
         item = self.uiListWidgetBaselines.currentItem()
-        if item:
-            new_baseline = item.text()
-        
-            if self.module.current_baseline != new_baseline:
-                self.module.current_baseline = new_baseline
-                self._update_icon()
-                print("CHANGED BASELINE TO ", new_baseline)
+        self._remove_all_icons()
+        item.setIcon(QIcon(u"ui/icons/check.png"))
+        self.switched_baseline = item.text()
+
+
+    def _remove_all_icons(self):
+        for row in range(self.uiListWidgetBaselines.count()):
+            temp_list_widget_item = self.uiListWidgetBaselines.item(row)
+            temp_list_widget_item.setIcon(QIcon())
+
 
 
         

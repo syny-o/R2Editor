@@ -72,7 +72,11 @@ class DisplayManager:
         for widget in self.ALL_WIDGETS:
             widget.provide_layout().setVisible(False)
 
-        return self._NODES_2_LAYOUT[type(node)](node)      
+        try:
+            return self._NODES_2_LAYOUT[type(node)](node)
+        
+        except KeyError:
+            return None
 
 
 

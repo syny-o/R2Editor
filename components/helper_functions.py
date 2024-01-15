@@ -22,15 +22,13 @@ def layout_generate_one_row(label_text: str, main_layout: QVBoxLayout, extend_la
 
 
 
-def validate_line_edits(*line_edits: QLineEdit) -> bool:
-    
-    FORBIDEN_CHARACTERS = ('\\', '?', '!', '<', '>', '&', '%', '#', '@', '^', '*', '$')
+def validate_line_edits(*line_edits: QLineEdit, 
+                        invalid_chars = ('\\', '?', '!', '<', '>', '&', '%', '#', '@', '^', '*', '$')) -> bool:
 
     success = True
-
-    
+  
     for line_edit in line_edits:
-        if any(ch in line_edit.text() for ch in FORBIDEN_CHARACTERS) or line_edit.text().strip() == "":
+        if any(ch in line_edit.text() for ch in invalid_chars) or line_edit.text().strip() == "":
             line_edit.setStyleSheet("border-color: red")
             success = False
         else:

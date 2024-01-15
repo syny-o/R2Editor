@@ -64,7 +64,7 @@ QPushButton:pressed {
 }
 
 QPushButton:checked {	
-	background-color: rgb(85, 170, 255);
+	background-color: rgb(255, 100, 105);
 
 }
 
@@ -398,6 +398,9 @@ QPushButton:pressed {
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel {min-width: 100px; }</string>
+        </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
         </property>
@@ -405,6 +408,18 @@ QPushButton:pressed {
          <enum>QFrame::Raised</enum>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
+         <property name="leftMargin">
+          <number>20</number>
+         </property>
+         <property name="topMargin">
+          <number>20</number>
+         </property>
+         <property name="rightMargin">
+          <number>20</number>
+         </property>
+         <property name="bottomMargin">
+          <number>20</number>
+         </property>
          <item>
           <layout class="QVBoxLayout" name="uiMainLayout_1">
            <property name="spacing">

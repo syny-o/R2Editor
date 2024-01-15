@@ -53,6 +53,36 @@ def initialise(data: dict, root_node):
 
 
 
+# Helper functions for extracting data from doors_output.txt
+def extract_attributes(string: str) -> list[str]:
+    return re.findall(r"<ATTRIBUTE_START>(.*?)<ATTRIBUTE_END>", string, re.DOTALL)
+
+def extract_baselines(string: str) -> dict[str, list[str, str, str]]:
+    baselines = {}
+    baselines_string = re.findall(r"<BASELINE_START>(.*?)<BASELINE_END>", string, re.DOTALL)
+    for one_baseline_string in baselines_string:
+        # baseline version
+        version_match =  re.search(r"<VERSION_START>(?P<my_group>.*)<VERSION_END>", one_baseline_string)
+        version = version_match.group("my_group")
+        # baseline user
+        user_match =  re.search(r"<USER_START>(?P<my_group>.*)<USER_END>", one_baseline_string)
+        user = user_match.group("my_group")   
+        # baseline date
+        date_match =  re.search(r"<DATE_START>(?P<my_group>.*)<DATE_END>", one_baseline_string)
+        date = date_match.group("my_group")
+        # baseline annotation
+        annotation_match =  re.search(r"<ANNOTATION_START>(?P<my_group>.*)<ANNOTATION_END>", one_baseline_string, re.DOTALL)
+        if annotation_match:
+            annotation = annotation_match.group("my_group")
+        else:
+            annotation = ""
+        baselines.update({version : [user, date, annotation]})  
+    return baselines   # { "1.0" : ["user", "date", "annotation"] }
+
+
+  
+
+
 
 
 
@@ -89,7 +119,8 @@ class RequirementFileNode(QStandardItem):
         self.setEditable(False)
         self.setForeground(QColor(200, 200, 200)) 
         self.view_filter = "all"        
-        self.columns_names_backup = [*columns_names]          
+        self.columns_names_backup = [*columns_names] 
+        self.current_baseline_backup = current_baseline
 
         self.update_title_text()
 
@@ -267,12 +298,14 @@ class RequirementFileNode(QStandardItem):
         # self.create_tree_from_requirements_data(req_list, timestamp)
         self._txtfile_to_tree(doors_output)
         # once succefull update is performed, update backup columns
-        self.columns_names_backup = [*self.columns_names]  
+        self.columns_names_backup = [*self.columns_names] 
+        self.current_baseline_backup = self.current_baseline 
         
         # APPLY FILTER WHICH HAS BEEN APPLIED BEFORE DOWNLOADING
         self.apply_coverage_filter()
         # UPDATE ACCORDING TO COVERAGE DICT WHICH IS STORED IN REQUIREMENT MODULE INDEPENDETLY TO REQUIREMETS NODES
         # self.update_coverage_from_coverage_dict()
+        print("REQUIREMENT MODULE UPDATED", self.path)
         return True, ""
 
 
@@ -286,9 +319,16 @@ class RequirementFileNode(QStandardItem):
                     current_module_string = module
             match = re.search(fr"{self.path}(.+?)<REQUIREMENTS_END>", current_module_string, re.DOTALL)
             if not match:
+                # GET AT LEAST BASELINES and ATTRIBUTES 
+                self.baseline = extract_baselines(current_module_string)
+                self.attributes = extract_attributes(current_module_string)
                 return False, f"Failed to download module:\n {self.path}.\n\n Reason:\n Invalid column name!"
             
             return True, "OK"
+    
+    
+   
+
 
 
     #######################################################################################################################################
@@ -354,100 +394,71 @@ class RequirementFileNode(QStandardItem):
 
     # PRI STAHOVANI DAT Z DOORS A NASLEDNEHO OTEVRENI TXT SOUBORU (doors_output.txt)
     def _txtfile_to_tree(self, doors_string):
-
             last_level = 0
-
             parents = []
-
             last_item = self
 
             # ALL MODULES
             modules_string = re.findall(r"<<<MODULE_START>>>(.*?)<<<MODULE_END>>>", doors_string, re.DOTALL)
 
             # ONE MODULE
-            for one_module_string in modules_string:
-                
+            for one_module_string in modules_string:                
                 # MODULE PATH
                 path_match = re.search(r"<PATH_START>(?P<my_group>.*)<PATH_END>", one_module_string, re.DOTALL)
                 path = path_match.group("my_group")
-                # print(f" MODULE PATH: {path}")
                 
                 if path == self.path:
-
                     # MODULE BASELINES
-                    baselines = {}
-                    baselines_string = re.findall(r"<BASELINE_START>(.*?)<BASELINE_END>", one_module_string, re.DOTALL)
-                    for one_baseline_string in baselines_string:
-                        # baseline version
-                        version_match =  re.search(r"<VERSION_START>(?P<my_group>.*)<VERSION_END>", one_baseline_string)
-                        version = version_match.group("my_group")
-                        # baseline user
-                        user_match =  re.search(r"<USER_START>(?P<my_group>.*)<USER_END>", one_baseline_string)
-                        user = user_match.group("my_group")   
-                        # baseline date
-                        date_match =  re.search(r"<DATE_START>(?P<my_group>.*)<DATE_END>", one_baseline_string)
-                        date = date_match.group("my_group")
-                        # baseline annotation
-                        annotation_match =  re.search(r"<ANNOTATION_START>(?P<my_group>.*)<ANNOTATION_END>", one_baseline_string, re.DOTALL)
-                        if annotation_match:
-                            annotation = annotation_match.group("my_group")
-                        else:
-                            annotation = ""
-
-                        baselines.update({version : [user, date, annotation]})
-
+                    self.baseline = extract_baselines(one_module_string)
                     # MODULE ATTRIBUTES NAMES
-                    attributes = re.findall(r"<ATTRIBUTE_START>(.*?)<ATTRIBUTE_END>", one_module_string, re.DOTALL)
-                    # print(attributes)
-
+                    self.attributes = extract_attributes(one_module_string)
                     # REQUIREMENTS DATA
                     all_requiremets_string = re.findall(r"<REQUIREMENT_START>(.*?)<REQUIREMENT_END>", one_module_string, re.DOTALL)
                     
                     for one_requirement_string in all_requiremets_string:
-                        # requirement identifier
-                        identifier_match =  re.search(r"<ID_START>(?P<my_group>.*)<ID_END>", one_requirement_string)
-                        identifier = identifier_match.group("my_group")
-                        # requirement level
-                        level_match =  re.search(r"<LEVEL_START>(?P<my_group>.*)<LEVEL_END>", one_requirement_string)
-                        level = int(level_match.group("my_group"))
-                        # requirement heading
-                        heading_match =  re.search(r"<HEADING_START>(?P<my_group>.*)<HEADING_END>", one_requirement_string)
-                        if heading_match:
-                            heading = heading_match.group("my_group")
-                        else:
-                            heading = "" 
-                        # requirement columns values
-                        columns = re.findall(r"<COLUMN_START>(.*?)<COLUMN_END>", one_requirement_string, re.DOTALL)
-                        # requirement outlinks
-                        outlinks = re.findall(r"<OUTLINK_START>(.*?)<OUTLINK_END>", one_requirement_string, re.DOTALL)      
-                        # requirement inlinks
-                        inlinks = re.findall(r"<INLINK_START>(.*?)<INLINK_END>", one_requirement_string, re.DOTALL)  
-
-                        
-                        
-                        # CREATE REQUIREMENT NODE
-                        item = RequirementNode(self, identifier, heading, level, outlinks, inlinks, None, columns)
+                        requirement_node = self._create_requirement(one_requirement_string)
 
                         # APPEND TO MODEL
-                        if level == last_level:
-                            parents[-1].appendRow(item)
+                        if requirement_node.level == last_level:
+                            parents[-1].appendRow(requirement_node)
 
-                        elif level > last_level:
+                        elif requirement_node.level > last_level:
                             parents.append(last_item)
-                            parents[-1].appendRow(item)
+                            parents[-1].appendRow(requirement_node)
 
                         else:
-                            dif = last_level - level
+                            dif = last_level - requirement_node.level
                             for _ in range(dif):
                                 parents.pop()
-                            parents[-1].appendRow(item)
+                            parents[-1].appendRow(requirement_node)
 
-                        last_level = int(level)   
-                        last_item = item  
+                        last_level = int(requirement_node.level)   
+                        last_item = requirement_node
 
-                        # UPDATE CURRENT REQUIREMENT MODULE
-                        self.attributes = attributes 
-                        self.baseline = baselines  # TODO: rename to self.baselines
+
+
+    def _create_requirement(self, one_requirement_string: str) -> list[dict]:
+        # requirement identifier
+        identifier_match =  re.search(r"<ID_START>(?P<my_group>.*)<ID_END>", one_requirement_string)
+        identifier = identifier_match.group("my_group")
+        # requirement level
+        level_match =  re.search(r"<LEVEL_START>(?P<my_group>.*)<LEVEL_END>", one_requirement_string)
+        level = int(level_match.group("my_group"))
+        # requirement heading
+        heading_match =  re.search(r"<HEADING_START>(?P<my_group>.*)<HEADING_END>", one_requirement_string)
+        if heading_match:
+            heading = heading_match.group("my_group")
+        else:
+            heading = "" 
+        # requirement columns values
+        columns = re.findall(r"<COLUMN_START>(.*?)<COLUMN_END>", one_requirement_string, re.DOTALL)
+        # requirement outlinks
+        outlinks = re.findall(r"<OUTLINK_START>(.*?)<OUTLINK_END>", one_requirement_string, re.DOTALL)      
+        # requirement inlinks
+        inlinks = re.findall(r"<INLINK_START>(.*?)<INLINK_END>", one_requirement_string, re.DOTALL)                          
+
+        # CREATE REQUIREMENT NODE
+        return RequirementNode(self, identifier, heading, level, outlinks, inlinks, None, columns)                          
 
 
 
@@ -464,7 +475,7 @@ class RequirementFileNode(QStandardItem):
             "coverage_dict"     : self._coverage_dict,
             "ignore_list"       : list(self.ignore_list),
             "notes"             : self.notes,
-            "current_baseline"  : self.current_baseline,
+            "current_baseline"  : self.current_baseline_backup,
             "requirements"      : _create_list_of_requirements_from_module(self),
             }
 

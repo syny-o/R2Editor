@@ -107,6 +107,7 @@ def save_project_as(new_path: Path) -> Callable:
 
 def new_project():
     _DATA_MANAGER.ROOT.removeRows(0, _DATA_MANAGER.ROOT.rowCount())
+    _DATA_MANAGER._display_values()
     _DATA_MANAGER._update_data_summary()    
     _PARAMETERS["disk_project_path"] = None
     _PARAMETERS["is_project_saved"] = True

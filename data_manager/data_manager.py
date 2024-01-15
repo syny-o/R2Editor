@@ -27,6 +27,7 @@ from data_manager.ui_control_manager import UIControlManager
 from data_manager.display_manager import DisplayManager
 from data_manager.form_edit_node import FormEditNode
 from components.module_locker import ModuleLocker
+from data_manager.form_doors_inputs import FormDoorsInputs
 
 
 # from my_logging import logger
@@ -85,7 +86,7 @@ class DataManager(QWidget, Ui_Form):
 
         self.action_update_requirements = QAction('Update Requirements')
         self.action_update_requirements.setIcon(QIcon(u"ui/icons/16x16/cil-cloud-download.png"))
-        self.action_update_requirements.triggered.connect(lambda: self._update_requirements(False))
+        self.action_update_requirements.triggered.connect(lambda: self._open_form_for_doors_connection_inputs(all_modules=False))
 
         self.action_remove = QAction(QIcon(u"ui/icons/16x16/cil-x.png"), 'Remove')
         self.action_remove.triggered.connect(self.remove_node)
@@ -184,7 +185,7 @@ class DataManager(QWidget, Ui_Form):
         self.uiBtnEditNode.clicked.connect(self.edit_node_request)
         self.uiBtnEditNode.setShortcut('F4')
         self.uiBtnEditNode.setToolTip("F4")
-        self.uiBtnUpdateRequirements.clicked.connect(lambda: self._update_requirements(is_multiple_modules=True))
+        self.uiBtnUpdateRequirements.clicked.connect(lambda: self._open_form_for_doors_connection_inputs(all_modules=True))
         self.uiBtnNewModule.clicked.connect(self._open_add_requirement_module_form)
         self.uiBtnCheckCoverage.clicked.connect(self._create_dict_from_scripts_for_coverage_check)
         self.uiBtnCheckHtmlReport.clicked.connect(self.check_HTML_report)
@@ -208,9 +209,6 @@ class DataManager(QWidget, Ui_Form):
 
     @pyqtSlot(bool, str)
     def update_progress_status(self, is_visible, text=''):
-        # self.ui_frame_progress_status.setMinimumHeight(30) if is_visible else self.ui_frame_progress_status.setMinimumHeight(0)
-        # self.ui_label_progress_status.setText(text)
-
         self.MAIN.uiLabelProgressStatus.setText(text) if is_visible else self.MAIN.uiLabelProgressStatus.setText("Ready")
         self.MAIN.uiLabelProgressStatus.setStyleSheet("color: rgb(50, 250, 50);") if is_visible else self.MAIN.uiLabelProgressStatus.setStyleSheet("color: rgb(200, 200, 200);")
 
@@ -296,21 +294,17 @@ class DataManager(QWidget, Ui_Form):
     #   CONNECTING AND DOWNLOADING DATA FROM DOORS
     #####################################################################################################################################################        
 
-    # Click on Button Update Requirements
-    def _update_requirements(self, is_multiple_modules):  
-
-        # Dialog message when Doors is now connected  
-        if self._module_locker.locked_modules:
+    # Click on Button Update all Requirements or Update Module from Context Menu
+    def _open_form_for_doors_connection_inputs(self, all_modules: bool) -> None:
+        if self._module_locker.locked_modules:  # Dialog message when Doors is now connected  
             dialog_message(self, "Requirements are being downloaded from Doors. Please wait...")
             return        
+        self.form_doors_inputs = FormDoorsInputs(self, all_modules)
 
-        # Dialog message when Use Name is not set  
-        if not self.MAIN.app_settings.doors_user_name:
-            dialog_message(self, "User is not defined! Please set user name in application config...")
-            self.MAIN.manage_right_menu(self.MAIN.app_settings, self.MAIN.btn_app_settings)
-            return
 
-        if is_multiple_modules:  # if Button from Upper Menu was pushed (Update All Requirements)
+    @pyqtSlot(bool, str, str, str, str)
+    def receive_inputs_from_doors_connection_form(self, all_modules, app_path, database_path, user_name, password):
+        if all_modules:  # if Button from Upper Menu was pushed (Update All Requirements)
             for row in range(self.ROOT.rowCount()):
                 node = self.ROOT.child(row)
                 if isinstance(node, RequirementFileNode):
@@ -320,32 +314,21 @@ class DataManager(QWidget, Ui_Form):
             selected_item = self.MODEL.itemFromIndex(selected_item_index)
             if isinstance(selected_item, RequirementFileNode):
                 self._module_locker.lock_module(selected_item)
-
-        # If some module(s) are present --> get username/password
-        if self._module_locker.locked_modules:
-            passwd_from_input_dlg, ok = QInputDialog.getText(
-                None, 
-                "Doors Connection", 
-                f"Database: {self.MAIN.app_settings.doors_database_path}\n\nUsername: {self.MAIN.app_settings.doors_user_name}\n\nEnter your password:\n", QLineEdit.Password)
-
-            if ok and passwd_from_input_dlg:            
-                paths = []
-                columns = []
-                baselines = []
-                for node in self._module_locker.locked_modules:
-                    paths.append(node.path)
-                    columns.append(node.columns_names)
-                    baselines.append(node.current_baseline)                
-                if paths and columns and baselines:
-                    self._send_request_2_doors(passwd_from_input_dlg, paths, columns, baselines)
-            
-            else:
-                self._module_locker.unlock_all_modules()
-                return
+           
+        module_paths = []
+        module_columns = []
+        module_baselines = []
+        for node in self._module_locker.locked_modules:
+            module_paths.append(node.path)
+            module_columns.append(node.columns_names)
+            module_baselines.append(node.current_baseline)                
+        if module_paths and module_columns and module_baselines:
+            self._send_request_2_doors(app_path, database_path, user_name, password, module_paths, module_columns, module_baselines)
 
 
-    def _send_request_2_doors(self, password, paths, columns_names, baselines):
-        DoorsConnection(self, paths, columns_names, baselines, self, password)
+
+    def _send_request_2_doors(self, app_path, database_path, user_name, password, module_paths, columns_names, baselines):
+        DoorsConnection(self, app_path, database_path, user_name, password, module_paths, columns_names, baselines)
         self.update_progress_status(True, 'Initialising...')
         self.uiBtnCheckCoverage.setEnabled(False)
 
@@ -357,21 +340,22 @@ class DataManager(QWidget, Ui_Form):
             global_success = False
             dialog_message(self, "Connecting to Doors Failed.\n\nPossible reasons:\n1. Invalid username/password\n2. Doors client is N/A\n3. Network issues.")
   
-        for module in self._module_locker.locked_modules:
-            self._module_locker.unlock_module(module)
-            success, message = module.receive_data_from_doors(doors_output, timestamp)
-            if not success: 
-                global_success = False
-                dialog_message(self, message)
-                break
+        else:
+            for module in self._module_locker.locked_modules:
+                success, message = module.receive_data_from_doors(doors_output, timestamp)
+                if not success:                     
+                    global_success = False
+                    dialog_message(self, message)
+                    break
+                self.set_project_saved(False)
+
         
-          
-        self.MAIN.show_notification(f"Requirements have been Updated.") 
+        self._module_locker.unlock_all_modules()
         self._display_values()
         self._update_data_summary()
-        self.set_project_saved(False)
         self.uiBtnCheckCoverage.setEnabled(True)
-        if global_success: dialog_message(self, "Requirements have been updated successfully.", "Downloading from Doors finished")
+        if global_success: 
+            dialog_message(self, "Requirements have been updated successfully.", "Downloading from Doors finished")
 
 
     #####################################################################################################################################################
@@ -508,13 +492,15 @@ class DataManager(QWidget, Ui_Form):
     def _display_values(self):
         selected_item_index = self.TREE.currentIndex()
         selected_item = self.MODEL.itemFromIndex(selected_item_index)  
-        if selected_item:      
-            self.DISPLAY_MANAGER.get_layout(selected_item)
-            self.uiLineEditFilter.setText(selected_item.data(Qt.UserRole))
-
+        
+        self.DISPLAY_MANAGER.get_layout(selected_item)
         self._show_filter_input(False)
-        if isinstance(selected_item, (RequirementFileNode, A2lFileNode, ConditionFileNode, DspaceFileNode)):
-            self._show_filter_input(True)
+
+        if selected_item:      
+            self.uiLineEditFilter.setText(selected_item.data(Qt.UserRole))
+        
+            if isinstance(selected_item, (RequirementFileNode, A2lFileNode, ConditionFileNode, DspaceFileNode)):
+                self._show_filter_input(True)
 
 
 
@@ -824,8 +810,13 @@ class DataManager(QWidget, Ui_Form):
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
 
         if not selected_item or isinstance(selected_item, (ConditionFileNode, A2lFileNode, A2lNode, DspaceFileNode, DspaceDefinitionNode)):
-            self.MAIN.show_notification("Item is not Editable!")    
+            self.MAIN.show_notification("Item is not Editable!")
             return
+        
+        if isinstance(selected_item, RequirementFileNode) and selected_item in self._module_locker.locked_modules:
+            self.MAIN.show_notification("Module is being downloaded from Doors. Please wait...")
+            return
+        
         self.form_edit_node = FormEditNode(selected_item, self)
     
     

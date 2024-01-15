@@ -13,6 +13,7 @@ from data_manager.a2l_nodes import A2lFileNode, A2lNode
 
 from components.helper_functions import layout_generate_one_row as generate_one_row, validate_line_edits
 from components.my_list_widget import MyListWidget
+from data_manager.widget_baseline import WidgetBaseline
 
 stylesheet ="""
     QTextEdit {border: 1px solid rgb(50, 50, 50); max-height: 160px;}
@@ -208,7 +209,7 @@ class RequirementNodeLayoutGenerator:
 class RequirementModuleLayoutGenerator:
     def __init__(self, NODE: DspaceVariableNode) -> None:
         self.uiMainLayout = QVBoxLayout()
-        self.uiMainLayout.setContentsMargins(100, 100, 100, 100)
+        self.uiMainLayout.setContentsMargins(10, 10, 10, 10)
         self.uiMainLayout.setSpacing(10)
         self.NODE = NODE       
 
@@ -222,7 +223,14 @@ class RequirementModuleLayoutGenerator:
 
         self.uiListWidgetModuleAttributes = MyListWidget(context_menu=False)
         self.uiListWidgetModuleAttributes.setAcceptDrops(False)
-        uiLayoutModuleColumns.addWidget(self.uiListWidgetModuleAttributes)        
+        uiLayoutModuleColumns.addWidget(self.uiListWidgetModuleAttributes)  
+
+        uiLayoutBaseline = QHBoxLayout()
+        uiLayoutBaseline.addWidget(QLabel("Baseline:"))
+        self.uiWidgetBaselines = WidgetBaseline(view_only=False)
+        self.uiWidgetBaselines.update(self.NODE)
+        uiLayoutBaseline.addWidget(self.uiWidgetBaselines)      
+        self.uiMainLayout.addLayout(uiLayoutBaseline)
 
         self.uiListWidgetModuleColumns = MyListWidget()
         QShortcut( 'Del', self.uiListWidgetModuleColumns ).activated.connect(self.uiListWidgetModuleColumns.remove_item)
@@ -239,6 +247,11 @@ class RequirementModuleLayoutGenerator:
         if self.NODE.coverage_filter:
             self.uiListWidgetModuleColumns.setEnabled(False)
             self.uiLineEditPath.setEnabled(False)
+            self.uiWidgetBaselines.setEnabled(False)
+            uiLabelWarning = QLabel("Remove coverage filter to edit this module.")
+            uiLabelWarning.setStyleSheet("color: red;")
+            uiLabelWarning.setAlignment(Qt.AlignCenter)
+            self.uiMainLayout.addWidget(uiLabelWarning)
 
 
     def provide_layout(self) -> QVBoxLayout:
@@ -249,6 +262,10 @@ class RequirementModuleLayoutGenerator:
         if validate_line_edits(self.uiLineEditPath):
             self.NODE.path = self.uiLineEditPath.text()
             self.NODE.columns_names = self.uiListWidgetModuleColumns.get_all_items()
+            if self.uiWidgetBaselines.switched_baseline:
+                print("NEW BASELINE: ", self.uiWidgetBaselines.switched_baseline)
+                print("OLD BASELINE: ", self.NODE.current_baseline)
+                self.NODE.current_baseline = self.uiWidgetBaselines.switched_baseline
             return True            
 
 

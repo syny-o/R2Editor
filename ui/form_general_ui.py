@@ -50,7 +50,7 @@ class Ui_Form(object):
 "}\n"
 "\n"
 "QPushButton:checked {    \n"
-"    background-color: rgb(85, 170, 255);\n"
+"    background-color: rgb(255, 100, 105);\n"
 "\n"
 "}\n"
 "\n"
@@ -206,10 +206,12 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.uiFrameContent.sizePolicy().hasHeightForWidth())
         self.uiFrameContent.setSizePolicy(sizePolicy)
+        self.uiFrameContent.setStyleSheet("QLabel {min-width: 100px; }")
         self.uiFrameContent.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.uiFrameContent.setFrameShadow(QtWidgets.QFrame.Raised)
         self.uiFrameContent.setObjectName("uiFrameContent")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.uiFrameContent)
+        self.verticalLayout_3.setContentsMargins(20, 20, 20, 20)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.uiMainLayout_1 = QtWidgets.QVBoxLayout()
         self.uiMainLayout_1.setContentsMargins(12, 12, 12, 12)

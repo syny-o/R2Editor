@@ -15,7 +15,7 @@ DEBUG = False
 SW_MINIMIZE = 6
 SW_HIDE = 0
 
-dxl_file = "doors_downloader.dxl"
+DXL_FILE = "doors_downloader.dxl"
 
 
 def create_time_stamp():
@@ -244,25 +244,22 @@ class DoorsConnection(QObject):
 
 
 
-    def __init__(self, requirement_node, paths: list, columns_names: list, module_current_baseline: str|None, data_manager, password):
+    def __init__(self, data_manager, app_path, database_path, user_name, password, module_paths, columns_names, baselines):
         super().__init__()
 
         self.data_manager = data_manager
-
-        self.paths = paths
+        self.app_path = app_path
+        self.database_path = database_path
+        self.user_name = user_name
+        self.user_passwd = password
+        self.paths = module_paths
         self.columns_names = columns_names
+        self.module_current_baselines = baselines
 
         self.send_downloaded_requirements.connect(data_manager.receive_data_from_doors)
         self.send_progress_status.connect(data_manager.update_progress_status)
 
-        self.settings = QSettings(r'.\app_config.ini', QSettings.IniFormat)
-        self.app_path = self.settings.value('doors/doors_app_path')
-        self.database_path = self.settings.value('doors/doors_database_path')
-        self.user_name = self.settings.value('doors/doors_user_name')
-        # self.user_passwd = self.settings_doors.value('doors_user_passwd')
-        self.user_passwd = password
-
-        self.cmd = fr'{self.app_path} -data "{self.database_path}" -u "{self.user_name}" -P "{self.user_passwd}" -batch "{dxl_file}" -W'
+        self.cmd = fr'{self.app_path} -data "{self.database_path}" -u "{self.user_name}" -P "{self.user_passwd}" -batch "{DXL_FILE}" -W'
 
 
         if not DEBUG:
@@ -275,7 +272,7 @@ class DoorsConnection(QObject):
         # THREADS CONFIGURATION
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(1)
-        worker = Worker(self, paths, columns_names, module_current_baseline)
+        worker = Worker(self, self.paths, columns_names, self.module_current_baselines)
         self.threadpool.start(worker)
 
         print(self.database_path)
@@ -327,7 +324,7 @@ class DoorsConnection(QObject):
         file_content = _create_dxl_script(module_paths, module_columns, module_current_baselines)
         # print(file_content)
 
-        with open(dxl_file, 'w', encoding='utf8') as new_dxl_file:
+        with open(DXL_FILE, 'w', encoding='utf8') as new_dxl_file:
             new_dxl_file.write(file_content)
             
         if not DEBUG:
