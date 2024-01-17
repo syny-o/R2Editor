@@ -28,7 +28,7 @@ class FormEditNode(QWidget, Ui_Form):
         super().__init__()
         self.setupUi(self)
         if not isinstance(NODE, RequirementFileNode):
-            self.setMaximumSize(800, 500)
+            self.setMaximumSize(800, 600)
         self.setStyleSheet(stylesheet)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowModality(Qt.ApplicationModal)
@@ -263,27 +263,7 @@ class RequirementModuleLayoutGenerator:
             self.NODE.path = self.uiLineEditPath.text()
             self.NODE.columns_names = self.uiListWidgetModuleColumns.get_all_items()
             if self.uiWidgetBaselines.switched_baseline:
-                print("NEW BASELINE: ", self.uiWidgetBaselines.switched_baseline)
-                print("OLD BASELINE: ", self.NODE.current_baseline)
                 self.NODE.current_baseline = self.uiWidgetBaselines.switched_baseline
             return True            
-
-
-        #     elif isinstance(selected_item, RequirementFileNode):
-        #         selected_item.path = self.uiLineEditModulePath.text()
-        #         selected_item.setText(reduce_path_string(selected_item.path))
-        #         self.uiLisWidgetModuleColumns.setEnabled(False)
-        #         self.uiListWidgetModuleIgnoreList.setEnabled(True)
-        #         selected_item.columns_names = self.uiLisWidgetModuleColumns.get_all_items()
-
-
-
-        # self.uiLisWidgetModuleColumns = MyListWidget()
-        # self.uiLisWidgetModuleColumns.setEnabled(False)
-        # self.uiLayoutModuleColumns.addWidget(self.uiLisWidgetModuleColumns)
-
-        # self.uiLisWidgetModuleAttributes = MyListWidget(context_menu=False)
-        # self.uiLisWidgetModuleAttributes.setEnabled(False)
-        # self.uiLayoutModuleAttributes.addWidget(self.uiLisWidgetModuleAttributes)
 
     

@@ -9,3 +9,4 @@ dist/
 *.json
 ui/files_rc.py
 files_rc.py
+ui/files_rc.py

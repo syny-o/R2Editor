@@ -1,4 +1,4 @@
-# from PyQt5.Qt import QStandardItem, QStandardItemModel
+import os, stat
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel
 import re
@@ -99,6 +99,10 @@ class DspaceFileNode(QStandardItem):
         output_text += self.footer
 
         try:
+            # Check if the file ReadOnly and if so, unlock it:
+            is_read_only = not(os.access(self.path, os.W_OK))
+            if is_read_only:
+                os.chmod(self.path, stat.S_IWRITE)             
             with open(self.path, 'w', encoding='utf8') as f:
                 f.write(output_text)
             self.set_modified(False)

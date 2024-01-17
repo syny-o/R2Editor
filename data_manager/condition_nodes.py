@@ -1,4 +1,5 @@
-# from PyQt5.Qt import QStandardItem
+import os, stat
+
 from PyQt5.QtGui import QStandardItem, QIcon
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
@@ -102,7 +103,6 @@ class ConditionFileNode(QStandardItem):
 
 
 
-
     def tree_2_file(self):
         output_text = ''
         output_text += self.header
@@ -123,6 +123,10 @@ class ConditionFileNode(QStandardItem):
         output_text += '</Conditions>'
 
         try:
+            # Check if the file ReadOnly and if so, unlock it:
+            is_read_only = not(os.access(self.path, os.W_OK))
+            if is_read_only:
+                os.chmod(self.path, stat.S_IWRITE)            
             with open(self.path, 'w', encoding='utf8') as f:
                 f.write(output_text)
 

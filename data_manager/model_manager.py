@@ -11,9 +11,7 @@ from text_editor.tooltips import tooltips
 
 
 
-def export_file(TREE, MODEL):
-    selected_item_index = TREE.currentIndex()
-    selected_item = MODEL.itemFromIndex(selected_item_index)
+def export_file(selected_item):
     if isinstance(selected_item, (ConditionFileNode, DspaceFileNode)):
         try:
             selected_item.tree_2_file()

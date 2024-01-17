@@ -190,7 +190,7 @@ class DataManager(QWidget, Ui_Form):
         self.uiBtnCheckCoverage.clicked.connect(self._create_dict_from_scripts_for_coverage_check)
         self.uiBtnCheckHtmlReport.clicked.connect(self.check_HTML_report)
         self.uiLineEditFilter.textChanged.connect(self._filter_items)
-        self.uiLineEditFilter.textEdited.connect(self._reset_filter)
+        # self.uiLineEditFilter.textEdited.connect(self._reset_filter)
         self.uiBtnPreviousView.clicked.connect(self._goto_previous_index)
 
         # node copied into memory by action COPY
@@ -267,7 +267,7 @@ class DataManager(QWidget, Ui_Form):
             # if con/dspace file is modified, save it
             if isinstance(current_node, (ConditionFileNode, DspaceFileNode)):
                 if current_node.is_modified:
-                    success, message = self.model_manager.export_file(current_node)
+                    success, message = model_manager.export_file(current_node)
                     if not success:
                         dialog_message(self, message)
 
@@ -688,8 +688,8 @@ class DataManager(QWidget, Ui_Form):
         view_filter.stop_filtering(self.TREE, self.MODEL)
 
 
-    def _reset_filter(self, filtered_text):
-        view_filter.reset_filter(self.TREE, self.MODEL, filtered_text)
+    # def _reset_filter(self, filtered_text):
+    #     view_filter.reset_filter(self.TREE, self.MODEL, filtered_text)
 
 
     def _filter_items(self, filtered_text):
@@ -762,7 +762,9 @@ class DataManager(QWidget, Ui_Form):
 
 
     def tree_2_file(self):
-        success, message = model_manager.export_file(self.TREE, self.MODEL)
+        selected_item_index = self.TREE.currentIndex()
+        selected_item = self.MODEL.itemFromIndex(selected_item_index)
+        success, message = model_manager.export_file(selected_item)
         if success:
             self.MAIN.show_notification("File has been exported.")
         else:

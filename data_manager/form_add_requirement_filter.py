@@ -30,7 +30,7 @@ class FormAddCoverageFilter(QWidget, Ui_Form):
         # SIGNALS:
         self.requirement_module = requirement_module
         self.data_manager = data_manager
-        self.send_requiremet_filter_string.connect(data_manager.receive_data_from_req_filter_dialog)
+        self.send_requiremet_filter_string.connect(data_manager.receive_data_from_req_filter_form)
 
 
         i = 0

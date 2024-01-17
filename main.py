@@ -40,7 +40,6 @@ from ui.main_ui import Ui_MainWindow
 
 
 
-
 _FILE_FILTER = 'RapitTwo Editor Project (*.json)'
 
 # pyinstaller -w --icon=R2Editor.ico main.py
