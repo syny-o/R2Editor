@@ -186,6 +186,12 @@ background-color: rgb(39, 44, 54);
                  <property name="enabled">
                   <bool>true</bool>
                  </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>0</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
                  <property name="text">
                   <string>Edit</string>
                  </property>
@@ -825,109 +831,6 @@ QMenu::separator {
           <property name="rightMargin">
            <number>9</number>
           </property>
-          <item alignment="Qt::AlignTop">
-           <widget class="QFrame" name="frame_32">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"/>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_30">
-             <property name="leftMargin">
-              <number>0</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <property name="rightMargin">
-              <number>0</number>
-             </property>
-             <property name="bottomMargin">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="QLineEdit" name="uiLineEditFilter">
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>50</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <family>Arial Narrow,Arial,Helvetica Condensed,Helvetica,sans-serif</family>
-                 <pointsize>-1</pointsize>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">QLineEdit{
-background-color: rgb(35, 35, 25);
-background-image: url(:/16x16/icons/16x16/cil-magnifying-glass.png);
-background-position: left center;
-background-repeat: no-repeat;
-
-
-padding-left: 20px;
-}
-
-</string>
-               </property>
-               <property name="placeholderText">
-                <string>Filter</string>
-               </property>
-               <property name="clearButtonEnabled">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="uiBtnPreviousView">
-               <property name="enabled">
-                <bool>true</bool>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>50</height>
-                </size>
-               </property>
-               <property name="cursor">
-                <cursorShape>PointingHandCursor</cursorShape>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">QPushButton{background-color: rgb(58, 89, 245);
-color: rgb(200, 200, 200);
-font-size: 16px;}
-
-QPushButton:hover{
-background-color: rgb(95, 180, 255);
-}</string>
-               </property>
-               <property name="text">
-                <string> Previous View</string>
-               </property>
-               <property name="icon">
-                <iconset resource="files.qrc">
-                 <normaloff>:/16x16/icons/16x16/cil-account-logout.png</normaloff>:/16x16/icons/16x16/cil-account-logout.png</iconset>
-               </property>
-               <property name="flat">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
           <item>
            <layout class="QVBoxLayout" name="ui_layout_tree"/>
           </item>

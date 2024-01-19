@@ -50,7 +50,7 @@ class Ui_Form(object):
 "}\n"
 "\n"
 "QPushButton:checked {    \n"
-"    background-color: rgb(255, 100, 105);\n"
+"    background-color: rgb(85, 170, 255);\n"
 "\n"
 "}\n"
 "\n"
@@ -206,12 +206,10 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.uiFrameContent.sizePolicy().hasHeightForWidth())
         self.uiFrameContent.setSizePolicy(sizePolicy)
-        self.uiFrameContent.setStyleSheet("QLabel {min-width: 100px; }")
         self.uiFrameContent.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.uiFrameContent.setFrameShadow(QtWidgets.QFrame.Raised)
         self.uiFrameContent.setObjectName("uiFrameContent")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.uiFrameContent)
-        self.verticalLayout_3.setContentsMargins(20, 20, 20, 20)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.uiMainLayout_1 = QtWidgets.QVBoxLayout()
         self.uiMainLayout_1.setContentsMargins(12, 12, 12, 12)
@@ -233,11 +231,6 @@ class Ui_Form(object):
         self.uiMainLayout_4.setSpacing(8)
         self.uiMainLayout_4.setObjectName("uiMainLayout_4")
         self.verticalLayout_3.addLayout(self.uiMainLayout_4)
-        self.uiMainLayout_5 = QtWidgets.QVBoxLayout()
-        self.uiMainLayout_5.setContentsMargins(12, 12, 12, 12)
-        self.uiMainLayout_5.setSpacing(8)
-        self.uiMainLayout_5.setObjectName("uiMainLayout_5")
-        self.verticalLayout_3.addLayout(self.uiMainLayout_5)
         self.verticalLayout_5.addWidget(self.uiFrameContent)
         self.uiFrameStatusBar = QtWidgets.QFrame(self.uiFrameGlobal)
         self.uiFrameStatusBar.setMinimumSize(QtCore.QSize(0, 40))
@@ -245,8 +238,8 @@ class Ui_Form(object):
         self.uiFrameStatusBar.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.uiFrameStatusBar.setFrameShadow(QtWidgets.QFrame.Raised)
         self.uiFrameStatusBar.setObjectName("uiFrameStatusBar")
-        self.horizontalLayout_12 = QtWidgets.QHBoxLayout(self.uiFrameStatusBar)
-        self.horizontalLayout_12.setObjectName("horizontalLayout_12")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.uiFrameStatusBar)
+        self.horizontalLayout.setObjectName("horizontalLayout")
         self.uiBtnOK = QtWidgets.QPushButton(self.uiFrameStatusBar)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -254,7 +247,7 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.uiBtnOK.sizePolicy().hasHeightForWidth())
         self.uiBtnOK.setSizePolicy(sizePolicy)
         self.uiBtnOK.setObjectName("uiBtnOK")
-        self.horizontalLayout_12.addWidget(self.uiBtnOK)
+        self.horizontalLayout.addWidget(self.uiBtnOK)
         self.uiBtnStatusBarClose = QtWidgets.QPushButton(self.uiFrameStatusBar)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -262,7 +255,16 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.uiBtnStatusBarClose.sizePolicy().hasHeightForWidth())
         self.uiBtnStatusBarClose.setSizePolicy(sizePolicy)
         self.uiBtnStatusBarClose.setObjectName("uiBtnStatusBarClose")
-        self.horizontalLayout_12.addWidget(self.uiBtnStatusBarClose)
+        self.horizontalLayout.addWidget(self.uiBtnStatusBarClose)
+        self.uiBtnApply = QtWidgets.QPushButton(self.uiFrameStatusBar)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.uiBtnApply.sizePolicy().hasHeightForWidth())
+        self.uiBtnApply.setSizePolicy(sizePolicy)
+        self.uiBtnApply.setMaximumSize(QtCore.QSize(0, 16777215))
+        self.uiBtnApply.setObjectName("uiBtnApply")
+        self.horizontalLayout.addWidget(self.uiBtnApply)
         self.verticalLayout_5.addWidget(self.uiFrameStatusBar, 0, QtCore.Qt.AlignRight)
         self.verticalLayout.addWidget(self.uiFrameGlobal)
 
@@ -276,5 +278,6 @@ class Ui_Form(object):
         self.uiLabelTitle.setText(_translate("Form", "Title"))
         self.uiBtnTitleBarClose.setToolTip(_translate("Form", "Close"))
         self.uiBtnOK.setText(_translate("Form", "OK"))
-        self.uiBtnStatusBarClose.setText(_translate("Form", "Close"))
+        self.uiBtnStatusBarClose.setText(_translate("Form", "Cancel"))
+        self.uiBtnApply.setText(_translate("Form", "Apply"))
 import files_rc

@@ -98,6 +98,7 @@ class Ui_Form(object):
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.uiBtnEditNode = QtWidgets.QPushButton(self.frame_22)
         self.uiBtnEditNode.setEnabled(True)
+        self.uiBtnEditNode.setMaximumSize(QtCore.QSize(0, 16777215))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/16x16/icons/16x16/cil-pencil.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.uiBtnEditNode.setIcon(icon)
@@ -438,57 +439,6 @@ class Ui_Form(object):
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.frame_31)
         self.verticalLayout_2.setContentsMargins(-1, -1, 9, -1)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.frame_32 = QtWidgets.QFrame(self.frame_31)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.frame_32.sizePolicy().hasHeightForWidth())
-        self.frame_32.setSizePolicy(sizePolicy)
-        self.frame_32.setStyleSheet("")
-        self.frame_32.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_32.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_32.setObjectName("frame_32")
-        self.horizontalLayout_30 = QtWidgets.QHBoxLayout(self.frame_32)
-        self.horizontalLayout_30.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_30.setObjectName("horizontalLayout_30")
-        self.uiLineEditFilter = QtWidgets.QLineEdit(self.frame_32)
-        self.uiLineEditFilter.setMinimumSize(QtCore.QSize(0, 50))
-        font = QtGui.QFont()
-        font.setFamily("Arial Narrow,Arial,Helvetica Condensed,Helvetica,sans-serif")
-        font.setPointSize(-1)
-        self.uiLineEditFilter.setFont(font)
-        self.uiLineEditFilter.setStyleSheet("QLineEdit{\n"
-"background-color: rgb(35, 35, 25);\n"
-"background-image: url(:/16x16/icons/16x16/cil-magnifying-glass.png);\n"
-"background-position: left center;\n"
-"background-repeat: no-repeat;\n"
-"\n"
-"\n"
-"padding-left: 20px;\n"
-"}\n"
-"\n"
-"")
-        self.uiLineEditFilter.setClearButtonEnabled(False)
-        self.uiLineEditFilter.setObjectName("uiLineEditFilter")
-        self.horizontalLayout_30.addWidget(self.uiLineEditFilter)
-        self.uiBtnPreviousView = QtWidgets.QPushButton(self.frame_32)
-        self.uiBtnPreviousView.setEnabled(True)
-        self.uiBtnPreviousView.setMinimumSize(QtCore.QSize(150, 50))
-        self.uiBtnPreviousView.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.uiBtnPreviousView.setStyleSheet("QPushButton{background-color: rgb(58, 89, 245);\n"
-"color: rgb(200, 200, 200);\n"
-"font-size: 16px;}\n"
-"\n"
-"QPushButton:hover{\n"
-"background-color: rgb(95, 180, 255);\n"
-"}")
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(":/16x16/icons/16x16/cil-account-logout.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.uiBtnPreviousView.setIcon(icon5)
-        self.uiBtnPreviousView.setFlat(False)
-        self.uiBtnPreviousView.setObjectName("uiBtnPreviousView")
-        self.horizontalLayout_30.addWidget(self.uiBtnPreviousView)
-        self.verticalLayout_2.addWidget(self.frame_32, 0, QtCore.Qt.AlignTop)
         self.ui_layout_tree = QtWidgets.QVBoxLayout()
         self.ui_layout_tree.setObjectName("ui_layout_tree")
         self.verticalLayout_2.addLayout(self.ui_layout_tree)
@@ -569,7 +519,5 @@ class Ui_Form(object):
         self.name_3.setText(_translate("Form", "Not Covered:"))
         self.ui_lab_req_not_covered.setText(_translate("Form", "?"))
         self.lab_project_files.setText(_translate("Form", "Project Files"))
-        self.uiLineEditFilter.setPlaceholderText(_translate("Form", "Filter"))
-        self.uiBtnPreviousView.setText(_translate("Form", " Previous View"))
         self.ui_label_progress_status.setText(_translate("Form", "No Action"))
 import files_rc

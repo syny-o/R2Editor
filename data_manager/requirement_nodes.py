@@ -118,7 +118,7 @@ class RequirementFileNode(QStandardItem):
         self.setText(reduce_path_string(self.path))
         self.setEditable(False)
         self.setForeground(QColor(200, 200, 200)) 
-        self.view_filter = "all"        
+        self.view_filter = "All"        
         self.columns_names_backup = [*columns_names] 
         self.current_baseline_backup = current_baseline
 
@@ -142,6 +142,11 @@ class RequirementFileNode(QStandardItem):
     @property
     def number_of_calculated_requirements(self):
         return len(self._coverage_dict)
+
+    
+    @property
+    def number_of_ignored_requirements(self):
+        return len(self.ignore_list)
 
 
     # VEZME INFORMACE Z COVERAGE SLOVNIKU A DLE NEHO ZOBRAZI TEXT MODULU: POCET POKRYTYCH REQ/CELKOVY POCET REQ (POCITANYCH)
@@ -237,12 +242,23 @@ class RequirementFileNode(QStandardItem):
     ##########################################################################################################################################
     # COVERAGE FILTER:
 
+    def translate_filter(self, filter_string):
+        """ Translates filter string to python code """
+        filter_string = filter_string.strip()
+        for i in range(len(self.columns_names)):
+            filter_string = filter_string.replace(self.columns_names[i], f"column[{i}]")
+        return filter_string
+
+
 
     def apply_coverage_filter(self, filter_string=None):
         if filter_string:
             self.coverage_filter = filter_string            
 
         if self.coverage_filter:
+
+            translated_filter_string = self.translate_filter(self.coverage_filter)
+
             def browse_children(parent_node, string):                    
                 for row in range(parent_node.rowCount()):
                     item = parent_node.child(row)
@@ -253,7 +269,8 @@ class RequirementFileNode(QStandardItem):
                         
                     except Exception as ex:
                         self.coverage_filter = None
-                        break
+                        raise Exception(f"Wrong Filter: {ex}")
+
     
                     if evaluation:
                         if item.reference not in self.ignore_list:  # IGNORE LIST CHECK
@@ -262,7 +279,7 @@ class RequirementFileNode(QStandardItem):
                     browse_children(item, string)                
         
             self._coverage_dict.clear()
-            browse_children(self, self.coverage_filter)   
+            browse_children(self, translated_filter_string)   
 
             self.update_icons_according_to_coverage()
             self.update_title_text() 
