@@ -1,3 +1,4 @@
+import re
 from tkinter import N
 from PyQt5.QtWidgets import QWidget, QLabel, QListWidget, QLineEdit, QVBoxLayout, QHBoxLayout, QTextEdit, QShortcut, QPushButton
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
@@ -43,6 +44,8 @@ class FormEditNode(QWidget, Ui_Form):
         self.uiBtnTitleBarClose.setShortcut('Esc')
         self.uiBtnOK.clicked.connect(self._ok_clicked)
         self.uiBtnOK.setShortcut('Return')
+        self.uiBtnApply.setMaximumWidth(500)
+        self.uiBtnApply.clicked.connect(self._apply_clicked)
 
         self.show() 
 
@@ -65,7 +68,7 @@ class FormEditNode(QWidget, Ui_Form):
         }
 
         if type(self.NODE) == RequirementFileNode:
-            self.uiMainLayout_2.addLayout(self.NODES_2_LAYOUTS[type(self.NODE)].provide_layout(self.uiBtnApply))
+            self.uiMainLayout_1.addLayout(self.NODES_2_LAYOUTS[type(self.NODE)].provide_layout())
         else:
             self.uiMainLayout_2.addLayout(self.NODES_2_LAYOUTS[type(self.NODE)].provide_layout())
 
@@ -74,7 +77,12 @@ class FormEditNode(QWidget, Ui_Form):
     def _ok_clicked(self):
         if self.NODES_2_LAYOUTS[type(self.NODE)].update_data():
             self.node_was_updated.emit()
-            self.close()
+        self.close()
+
+
+    def _apply_clicked(self):
+        if self.NODES_2_LAYOUTS[type(self.NODE)].update_data():
+            self.node_was_updated.emit()
 
 
 
@@ -232,9 +240,9 @@ class RequirementModuleLayoutGenerator:
         self.DATA_MANAGER = NODE.data_manager  # TODO: REMOVE THIS LINE AND PASS DATA_MANAGER AS ARGUMENT TO THIS CLASS  
 
 
-    def _create_layout(self, uiBtnApply: QPushButton):
-        self.uiLineEditPath = generate_one_row("Path:      ", self.uiMainLayout, extend_label_width=False)
-        self.uiLineEditPath.setText(self.NODE.path)
+    def _create_layout(self):
+        # self.uiLineEditPath = generate_one_row("Path:      ", self.uiMainLayout, extend_label_width=False)
+        # self.uiLineEditPath.setText(self.NODE.path)
         uiLayoutModuleColumns = QHBoxLayout()
         uiLayoutModuleColumns.setContentsMargins(0, 20, 0, 0)
         uiLayoutModuleColumns.addWidget(QLabel("Columns:"))
@@ -261,16 +269,16 @@ class RequirementModuleLayoutGenerator:
         self.uiListWidgetModuleColumns.insertItems(0, self.NODE.columns_names)
         self.uiListWidgetModuleAttributes.insertItems(0, self.NODE.attributes)
 
-        QTimer.singleShot(100, lambda: self.uiLineEditPath.setFocus())         
+        # QTimer.singleShot(100, lambda: self.uiLineEditPath.setFocus())         
 
-        # if self.NODE.coverage_filter:
-        #     self.uiListWidgetModuleColumns.setEnabled(False)
-        #     self.uiLineEditPath.setEnabled(False)
-        #     self.uiWidgetBaselines.setEnabled(False)
-        #     uiLabelWarning = QLabel("Remove coverage filter to edit this module.")
-        #     uiLabelWarning.setStyleSheet("color: red;")
-        #     uiLabelWarning.setAlignment(Qt.AlignCenter)
-        #     self.uiMainLayout.addWidget(uiLabelWarning)
+        if self.NODE.coverage_filter:
+            self.uiListWidgetModuleColumns.setEnabled(False)
+            # self.uiLineEditPath.setEnabled(False)
+            self.uiWidgetBaselines.setEnabled(False)
+            self. uiLabelWarning = QLabel("Remove coverage filter to edit this module.")
+            self.uiLabelWarning.setStyleSheet("color: red;")
+            self.uiLabelWarning.setAlignment(Qt.AlignCenter)
+            self.uiMainLayout.addWidget(self.uiLabelWarning)
 
         uiLayoutCoverageFilter = QHBoxLayout()
         uiLayoutCoverageFilter.addWidget(QLabel("Cv. Filter:"))
@@ -284,40 +292,87 @@ class RequirementModuleLayoutGenerator:
         self.uiMainLayout.addLayout(uiLayoutCoverageFilter)
         self.uiMainLayout.addWidget(self.uiLabelNumberOfFilteredRequirements)
 
-        uiBtnApply.clicked.connect(self.trigger_changes)
-        uiBtnApply.setMaximumWidth(500)
+
         
 
-    def provide_layout(self, uiBtnApply) -> QVBoxLayout:
-        self._create_layout(uiBtnApply) 
+    def provide_layout(self) -> QVBoxLayout:
+        self._create_layout() 
         return self.uiMainLayout
 
+
     def update_data(self):
-        if validate_line_edits(self.uiLineEditPath):
-            self.NODE.path = self.uiLineEditPath.text()
-            self.NODE.columns_names = self.uiListWidgetModuleColumns.get_all_items()
-            if self.uiWidgetBaselines.switched_baseline:
-                self.NODE.current_baseline = self.uiWidgetBaselines.switched_baseline
-            return True         
+        change = False
+        if self._evaluate_baseline_changes():
+            self._save_baseline_changes()
+            change = True
+        if self._evaluate_columns_changes():
+            self._save_columns_changes()
+            change = True
+        if self._evaluate_filter_changes():
+            if self._save_filter_changes():
+                change = True
+            change = True
+        return change
 
 
-    def trigger_changes(self):
+
+    def _evaluate_baseline_changes(self):
+        if self.uiWidgetBaselines.switched_baseline != self.NODE.current_baseline:
+            return True
+        return False
+    
+    def _evaluate_columns_changes(self):
+        if self.uiListWidgetModuleColumns.get_all_items() != self.NODE.columns_names:
+            return True
+        return False
+    
+    def _evaluate_filter_changes(self):
+        if self.uiTexEditCoverageFilter.toPlainText().strip() != self.NODE.coverage_filter:
+            return True
+        return False
+    
+
+    def _save_baseline_changes(self):
+        self.NODE.current_baseline = self.uiWidgetBaselines.switched_baseline
+
+
+    def _save_columns_changes(self):
+        self.NODE.columns_names = self.uiListWidgetModuleColumns.get_all_items()
+
+
+    def _save_filter_changes(self):
         filter_string = self.uiTexEditCoverageFilter.toPlainText().strip()
-
         if filter_string:
             try:
-                self.NODE.apply_coverage_filter(filter_string)  
-                self.DATA_MANAGER._update_data_summary()      
-                self.uiLabelNumberOfFilteredRequirements.setText(f"Filtered: {self.NODE.number_of_calculated_requirements}")
-                self.uiLabelNumberOfFilteredRequirements.setStyleSheet("color: green; font-size: 20px; margin-top: 10px;")
+                self.NODE._apply_coverage_filter(filter_string)
+                return True
                 
             except Exception as ex:
                 self.uiLabelNumberOfFilteredRequirements.setText("Wrong Filter: " + str(ex))
                 self.uiLabelNumberOfFilteredRequirements.setStyleSheet("color: red; font-size: 20px; margin-top: 10px;")
+                return False
 
         else:
-            self.NODE.remove_coverage_filter()
-            self.DATA_MANAGER._update_data_summary()
+            self._remove_coverage_filter()
+            return True    
+
+
+    def _apply_coverage_filter(self, filter_string):
+        self.NODE.apply_coverage_filter(filter_string)  
+        self.DATA_MANAGER._update_data_summary()      
+        self.uiLabelNumberOfFilteredRequirements.setText(f"Filtered: {self.NODE.number_of_calculated_requirements}")
+        self.uiLabelNumberOfFilteredRequirements.setStyleSheet("color: green; font-size: 20px; margin-top: 10px;")
+        self.uiListWidgetModuleColumns.setEnabled(False)
+        self.uiWidgetBaselines.setEnabled(False)
+            
+
+    def _remove_coverage_filter(self):
+        self.NODE.remove_coverage_filter()
+        self.DATA_MANAGER._update_data_summary()
+        self.uiLabelNumberOfFilteredRequirements.setText("")
+        self.uiListWidgetModuleColumns.setEnabled(True)
+        self.uiWidgetBaselines.setEnabled(True)
+        self.uiLabelWarning.hide()
 
            
 

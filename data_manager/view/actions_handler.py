@@ -97,9 +97,9 @@ class ActionsHandler:
         activate_action(self.action_edit_node, menu)
         if not node.hasChildren():
             if node.reference in node.MODULE.ignore_list:                
-                menu.addAction(self.action_remove_from_ignore_list)
+                activate_action(self.action_remove_from_ignore_list, menu)
             elif node.is_covered == False:
-                menu.addAction(self.action_add_to_ignore_list)
+                activate_action(self.action_add_to_ignore_list, menu)
         return menu
 
 

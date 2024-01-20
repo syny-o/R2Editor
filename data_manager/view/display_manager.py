@@ -4,7 +4,7 @@ from typing import Callable, Type
 from abc import ABC, abstractmethod
 
 from PyQt5.QtGui import QStandardItem, QIcon, QTextCursor, QTextCharFormat, QColor, QCursor
-from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QLayout, QFrame, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QTextEdit, QPushButton, QApplication
+from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QLayout, QFrame, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QTextEdit, QPushButton, QApplication, QStyle
 from PyQt5.QtCore import Qt
 
 from data_manager.requirement_nodes import RequirementFileNode, RequirementNode
@@ -163,11 +163,11 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
         uiLinksScriptsLayout = QHBoxLayout()
         uiLinksScriptsLayout.addWidget(QLabel("Links:"))
         self.uiListWidgetLinks = QListWidget() 
-        self.uiListWidgetLinks.setMaximumHeight(160)
+        self.uiListWidgetLinks.setMaximumHeight(120)
         uiLinksScriptsLayout.addWidget(self.uiListWidgetLinks)
         uiLinksScriptsLayout.addWidget(QLabel("Scripts:"))
         self.uiListWidgetScripts = QListWidget() 
-        self.uiListWidgetScripts.setMaximumHeight(160)
+        self.uiListWidgetScripts.setMaximumHeight(120)
         uiLinksScriptsLayout.addWidget(self.uiListWidgetScripts)        
         self.uiMainLayout.addLayout(uiLinksScriptsLayout)
   
@@ -248,7 +248,9 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
         self.uiFrame.setVisible(False)
         self._generate_header_layout()  
         self._generate_baseline_layout()
-        self._generate_columns_attributes_layout()  
+        self._generate_columns_attributes_layout() 
+        self._generate_covered_list_layout()
+        self._generate_not_covered_list_layout() 
         self._generate_ignore_list_layout()
         self._connect_signals()
 
@@ -261,11 +263,15 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
         self._fill_header_layout(NODE) 
         self._fill_columns_attributes_layout(NODE)
         self._fill_baseline_layout(NODE)
+        self._fill_covered_list_layout(NODE)
+        self._fill_not_covered_list_layout(NODE)
         self._fill_ignore_list_layout(NODE)
 
 
     def _connect_signals(self):
         self.uiListWidgetIgnoreList.itemDoubleClicked.connect(self.DATA_MANAGER._doubleclick_on_ignored_reference)
+        self.uiListWidgetNotCoveredList.itemDoubleClicked.connect(self.DATA_MANAGER._doubleclick_on_ignored_reference)
+        self.uiListWidgetCoveredList.itemDoubleClicked.connect(self.DATA_MANAGER._doubleclick_on_ignored_reference)
 
 
     def _generate_header_layout(self):
@@ -286,7 +292,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
         
         self.uiMainLayout.addLayout(uiModulePathLayout)
         self.uiMainLayout.addLayout(uiTimestampLayout)
-        self.uiMainLayout.addLayout(uiCoverageFilterLayout)        
+        # self.uiMainLayout.addLayout(uiCoverageFilterLayout)        
 
 
     def _fill_header_layout(self, NODE):
@@ -300,7 +306,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
         uiBaselineLayout.addWidget(QLabel("Baseline:"))
         self.widget_baseline = WidgetBaseline()
         uiBaselineLayout.addWidget(self.widget_baseline)
-        self.uiMainLayout.addLayout(uiBaselineLayout)
+        # self.uiMainLayout.addLayout(uiBaselineLayout)
 
     def _fill_baseline_layout(self, NODE):
         self.widget_baseline.update(NODE)
@@ -314,7 +320,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
         uiAttributesColumnsLayout.addWidget(QLabel("Current:"))
         self.uiListWidgetColumns = QListWidget() 
         uiAttributesColumnsLayout.addWidget(self.uiListWidgetColumns)        
-        self.uiMainLayout.addLayout(uiAttributesColumnsLayout)  
+        # self.uiMainLayout.addLayout(uiAttributesColumnsLayout)  
 
 
     def _fill_columns_attributes_layout(self, NODE):
@@ -324,20 +330,63 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
         self.uiListWidgetAttributes.insertItems(0, NODE.attributes) 
 
 
+    def _generate_covered_list_layout(self):
+        self.uiListWidgetCoveredList = QListWidget()
+        uiCoveredListLayout = QHBoxLayout()
+        self.uiLabelCovered = QLabel()
+        self.uiLabelCovered.setStyleSheet("QLabel {color: rgb(0, 179, 0); min-width: 120px}")
+        uiCoveredListLayout.addWidget(self.uiLabelCovered)
+        uiCoveredListLayout.addWidget(self.uiListWidgetCoveredList)
+        self.uiMainLayout.addLayout(uiCoveredListLayout)
+
+    def _fill_covered_list_layout(self, NODE):
+        self.uiLabelCovered.setText(f"Covered: {len(NODE.covered_requirements)}")
+        self.uiListWidgetCoveredList.clear()
+        for item in NODE.covered_requirements:
+            covered_lw_item = QListWidgetItem()    
+            covered_lw_item.setData(Qt.DisplayRole, reduce_path_string(item))
+            covered_lw_item.setData(Qt.DecorationRole, QIcon(u"ui/icons/check.png"))
+            covered_lw_item.setData(Qt.UserRole, item)
+            self.uiListWidgetCoveredList.insertItem(0, covered_lw_item)   
+
+    def _generate_not_covered_list_layout(self):
+        self.uiListWidgetNotCoveredList = QListWidget()
+        uiNotCoveredListLayout = QHBoxLayout()
+        self.uiLabelNotCovered = QLabel()
+        self.uiLabelNotCovered.setStyleSheet("QLabel {color: rgb(250,50,50); min-width: 120px}")
+        uiNotCoveredListLayout.addWidget(self.uiLabelNotCovered)
+        uiNotCoveredListLayout.addWidget(self.uiListWidgetNotCoveredList)
+        self.uiMainLayout.addLayout(uiNotCoveredListLayout)
+
+    def _fill_not_covered_list_layout(self, NODE):
+        self.uiLabelNotCovered.setText(f"Not Covered: {len(NODE.not_covered_requirements)}")
+        self.uiListWidgetNotCoveredList.clear()
+        for item in NODE.not_covered_requirements:
+            not_covered_lw_item = QListWidgetItem()    
+            not_covered_lw_item.setData(Qt.DisplayRole, reduce_path_string(item))
+            not_covered_lw_item.setData(Qt.DecorationRole, QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton))
+            not_covered_lw_item.setData(Qt.UserRole, item)
+            self.uiListWidgetNotCoveredList.insertItem(0, not_covered_lw_item)               
+
+
     def _generate_ignore_list_layout(self):
         self.uiListWidgetIgnoreList = QListWidget()
         uiIgnoreListLayout = QHBoxLayout()
-        uiIgnoreListLayout.addWidget(QLabel("Ignored:"))
+        self.uiLabelIgnored = QLabel()
+        self.uiLabelIgnored.setStyleSheet("QLabel {min-width: 120px}")
+        uiIgnoreListLayout.addWidget(self.uiLabelIgnored)
         uiIgnoreListLayout.addWidget(self.uiListWidgetIgnoreList)
         self.uiMainLayout.addLayout(uiIgnoreListLayout)
 
     def _fill_ignore_list_layout(self, NODE):
+        self.uiLabelIgnored.setText(f"Ignored: {len(NODE.ignore_list)}")        
         self.uiListWidgetIgnoreList.clear()
         for item in NODE.ignore_list:
             ignore_lw_item = QListWidgetItem()    
             ignore_lw_item.setData(Qt.DisplayRole, reduce_path_string(item))
             ignore_lw_item.setData(Qt.UserRole, item)
-            ignore_lw_item.setData(Qt.ToolTipRole, self.DATA_MANAGER._get_tooltip_from_link(f"{NODE.path}:{item.split('_')[-1]}"))
+            ignore_lw_item.setData(Qt.DecorationRole, QIcon(u"ui/icons/16x16/cil-low-vision.png"))
+            # ignore_lw_item.setData(Qt.ToolTipRole, self.DATA_MANAGER._get_tooltip_from_link(f"{NODE.path}:{item.split('_')[-1]}"))
             self.uiListWidgetIgnoreList.insertItem(0, ignore_lw_item)   
 
 

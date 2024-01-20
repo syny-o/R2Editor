@@ -86,7 +86,7 @@ class FullTextRequirementSpecification(iSpecification):
 ######################################################################################################################################
 ### DEFINE FILTERS:
 
-class StandardOneLevelFilter(iFilter):
+class StandardFilter(iFilter):
     def filter(self, TREE, node: ConditionFileNode|A2lFileNode, specification: iSpecification):
         for row in range(node.rowCount()):
             subnode = node.child(row)
@@ -95,6 +95,21 @@ class StandardOneLevelFilter(iFilter):
             else:
                 TREE.setRowHidden(row, node.index(), True)
             self.filter(TREE, subnode, specification)
+
+
+class StandardLastLevelFilter(iFilter):
+    def filter(self, TREE, node: ConditionFileNode|A2lFileNode, specification: iSpecification):
+        for row in range(node.rowCount()):
+            subnode = node.child(row)
+            if specification.is_satisfied(subnode):
+                TREE.setRowHidden(row, node.index(), False)
+                parent = subnode.parent()
+                while parent and parent.parent():
+                    TREE.setRowHidden(parent.row(), parent.parent().index(), False)
+                    parent = parent.parent()                
+            else:
+                TREE.setRowHidden(row, node.index(), True)
+            self.filter(TREE, subnode, specification)            
 
 
 class DecoratedRecursiveFilter(iFilter):
@@ -122,15 +137,15 @@ class DecoratedRecursiveFilter(iFilter):
 
 
 def _show_only_items_with_coverage(TREE, NODE):
-    StandardOneLevelFilter().filter(TREE, NODE, CoveredSpecification() | NotCoveredSpecification())    
+    StandardFilter().filter(TREE, NODE, CoveredSpecification() | NotCoveredSpecification())    
 
 
 def _show_only_items_not_covered(TREE, NODE):
-    StandardOneLevelFilter().filter(TREE, NODE, NotCoveredSpecification())
+    StandardFilter().filter(TREE, NODE, NotCoveredSpecification())
 
 
 def _show_all_items(TREE, NODE):
-    StandardOneLevelFilter().filter(TREE, NODE, AllSpecification())
+    StandardFilter().filter(TREE, NODE, AllSpecification())
 
 def _show_only_items_with_coverage_with_text(TREE, NODE, text):
     DecoratedRecursiveFilter().filter(TREE, NODE, (CoveredSpecification() | NotCoveredSpecification()) & FullTextRequirementSpecification(text))    
@@ -187,7 +202,7 @@ def _filter_dspace_file(TREE, item, text, coverage):
 
 
 def _filter_condition_or_a2l_file(TREE, item, text, coverage):
-    StandardOneLevelFilter().filter(TREE, item, FullTextSpecification(text))
+    StandardFilter().filter(TREE, item, FullTextSpecification(text))
 
 
 

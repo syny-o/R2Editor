@@ -13,7 +13,6 @@ from data_manager.requirement_nodes import RequirementFileNode, RequirementNode
 from data_manager.form_add_module import FormAddModule
 from progress_bar.widget_modern_progress_bar import ModernProgressBar
 from components.template_test_case import TemplateTestCase
-from components.reduce_path_string import reduce_path_string
 from dialogs.dialog_message import dialog_message
 from doors.doors_connection import DoorsConnection
 import data_manager.form_a2l_norm_report        
@@ -33,17 +32,16 @@ class DataManager(QWidget, Ui_Form):
     def __init__(self, main_window, project_manager):
         super().__init__()
         self.setupUi(self)
-
         # node copied into memory by action COPY
         self.node_2_paste = None        
 
         self.MAIN = main_window
         self.PROJECT_MANAGER = project_manager     
-        # self.DISPLAY_MANAGER = DisplayManager(self)   
         self.MODEL = QStandardItemModel()
         self.ROOT = self.MODEL.invisibleRootItem()        
         self.ROOT.setData(self, Qt.UserRole)  # add pointer to DataManager instance to be accesseble from child nodes (ReqNode, CondNode, ...)
 
+        QShortcut( 'Ctrl+S', self ).activated.connect(self.MAIN.project_save)
         # self.TREE = DroppableTreeView(self)
         # self.ui_layout_tree.addWidget(self.TREE)
         self.VIEW = View(self, self.MODEL)
@@ -57,8 +55,6 @@ class DataManager(QWidget, Ui_Form):
 
         self.progress_bar = ModernProgressBar('rgb(0, 179, 0)', 'COVERED')
         self.ui_layout_data_summary.addWidget(self.progress_bar)                
-
-        QShortcut( 'Ctrl+S', self ).activated.connect(self.MAIN.project_save)
 
         # MODEL SIGNALS:
         # self.MODEL.itemChanged.connect(lambda: self.set_project_saved(False))
@@ -80,7 +76,6 @@ class DataManager(QWidget, Ui_Form):
         self.threadpool.setMaxThreadCount(1)  
  
      
-
 
     @pyqtSlot(bool, str)
     def update_progress_status(self, is_visible, text=''):
@@ -310,7 +305,6 @@ class DataManager(QWidget, Ui_Form):
             self._update_data_summary()              
             self.set_project_saved(False) 
 
-
     def _remove_from_ignore_list(self):
         selected_item_index = self.TREE.currentIndex()
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
@@ -318,8 +312,6 @@ class DataManager(QWidget, Ui_Form):
             selected_item.remove_from_ignore_list()    
             self._update_data_summary()   
             self.set_project_saved(False)      
-
-
 
     ####################################################################################################################
     # LIST WIDGETS CLICKS/HOVER MANAGEMENT  
@@ -372,7 +364,7 @@ class DataManager(QWidget, Ui_Form):
             nonlocal FOUND_NODE
             for row in range(parent_node.rowCount()):
                 node = parent_node.child(row)
-                if node.reference == reference:
+                if node.reference.lower() == reference.lower():
                     print(reference)
                     FOUND_NODE = node
                     break

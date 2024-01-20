@@ -147,6 +147,22 @@ class RequirementFileNode(QStandardItem):
     @property
     def number_of_ignored_requirements(self):
         return len(self.ignore_list)
+    
+
+    # TEST IF SPEED IS OK START
+    @property
+    def covered_requirements(self):
+        return [k for k, v in self._coverage_dict.items() if v]
+    
+    @property
+    def not_covered_requirements(self):
+        return [k for k, v in self._coverage_dict.items() if not v]
+    
+    @property
+    def ignored_requirements(self):
+        return list(self.ignore_list)
+    
+    # TEST IF SPEED IS OK START
 
 
     # VEZME INFORMACE Z COVERAGE SLOVNIKU A DLE NEHO ZOBRAZI TEXT MODULU: POCET POKRYTYCH REQ/CELKOVY POCET REQ (POCITANYCH)
