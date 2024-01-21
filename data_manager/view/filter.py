@@ -2,10 +2,11 @@ from abc import ABC, abstractmethod
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QColor
 
-from data_manager.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
-from data_manager.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
-from data_manager.a2l_nodes import A2lFileNode, A2lNode
-from data_manager.requirement_nodes import RequirementFileNode, RequirementNode
+from data_manager.nodes.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
+from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
+from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
+from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
+from data_manager import constants
 
 
 ######################################################################################################################################
@@ -86,7 +87,7 @@ class FullTextRequirementSpecification(iSpecification):
 ######################################################################################################################################
 ### DEFINE FILTERS:
 
-class StandardFilter(iFilter):
+class StandardOneLevelFilter(iFilter):
     def filter(self, TREE, node: ConditionFileNode|A2lFileNode, specification: iSpecification):
         for row in range(node.rowCount()):
             subnode = node.child(row)
@@ -112,8 +113,8 @@ class StandardLastLevelFilter(iFilter):
             self.filter(TREE, subnode, specification)            
 
 
-class DecoratedRecursiveFilter(iFilter):
-    def filter(self, TREE, node: RequirementFileNode|DspaceFileNode, specification: iSpecification):
+class DecoratedAutoExpandingLastLevelFilter(iFilter):
+    def filter(self, TREE, node: RequirementModule|DspaceFileNode, specification: iSpecification):
         for row in range(node.rowCount()):
             subnode = node.child(row)
             if specification.is_satisfied(subnode):
@@ -137,39 +138,46 @@ class DecoratedRecursiveFilter(iFilter):
 
 
 def _show_only_items_with_coverage(TREE, NODE):
-    StandardFilter().filter(TREE, NODE, CoveredSpecification() | NotCoveredSpecification())    
+    StandardOneLevelFilter().filter(TREE, NODE, CoveredSpecification() | NotCoveredSpecification())    
 
 
 def _show_only_items_not_covered(TREE, NODE):
-    StandardFilter().filter(TREE, NODE, NotCoveredSpecification())
+    StandardOneLevelFilter().filter(TREE, NODE, NotCoveredSpecification())
+
+def _show_only_items_covered(TREE, NODE):
+    StandardLastLevelFilter().filter(TREE, NODE, CoveredSpecification())
 
 
 def _show_all_items(TREE, NODE):
-    StandardFilter().filter(TREE, NODE, AllSpecification())
+    StandardOneLevelFilter().filter(TREE, NODE, AllSpecification())
 
 def _show_only_items_with_coverage_with_text(TREE, NODE, text):
-    DecoratedRecursiveFilter().filter(TREE, NODE, (CoveredSpecification() | NotCoveredSpecification()) & FullTextRequirementSpecification(text))    
+    DecoratedAutoExpandingLastLevelFilter().filter(TREE, NODE, (CoveredSpecification() | NotCoveredSpecification()) & FullTextRequirementSpecification(text))    
 
 
 def _show_only_items_not_covered_with_text(TREE, NODE, text):
-    DecoratedRecursiveFilter().filter(TREE, NODE, NotCoveredSpecification() & FullTextRequirementSpecification(text))
+    DecoratedAutoExpandingLastLevelFilter().filter(TREE, NODE, NotCoveredSpecification() & FullTextRequirementSpecification(text))
 
+def _show_only_items_covered_with_text(TREE, NODE, text):
+    DecoratedAutoExpandingLastLevelFilter().filter(TREE, NODE, CoveredSpecification() & FullTextRequirementSpecification(text))
 
 def _show_all_items_with_text(TREE, NODE, text):
-    DecoratedRecursiveFilter().filter(TREE, NODE, AllSpecification() & FullTextRequirementSpecification(text))    
+    DecoratedAutoExpandingLastLevelFilter().filter(TREE, NODE, AllSpecification() & FullTextRequirementSpecification(text))    
 
 
 
 COVERAGE_VIEWS_NO_TEXT: dict = {
-    "All": _show_all_items,
-    "Not Covered": _show_only_items_not_covered,
-    "Coverage": _show_only_items_with_coverage,
+    constants.ViewCoverageFilter.ALL: _show_all_items,
+    constants.ViewCoverageFilter.COVERED_AND_NOT_COVERED: _show_only_items_with_coverage,
+    constants.ViewCoverageFilter.COVERED : _show_only_items_covered,
+    constants.ViewCoverageFilter.NOT_COVERED : _show_only_items_not_covered,
 }
 
 COVERAGE_VIEWS_WITH_TEXT: dict = {
-    "All": _show_all_items_with_text,
-    "Not Covered": _show_only_items_not_covered_with_text,
-    "Coverage": _show_only_items_with_coverage_with_text,
+    constants.ViewCoverageFilter.ALL: _show_all_items_with_text,
+    constants.ViewCoverageFilter.COVERED_AND_NOT_COVERED: _show_only_items_with_coverage_with_text,
+    constants.ViewCoverageFilter.COVERED : _show_only_items_covered_with_text,
+    constants.ViewCoverageFilter.NOT_COVERED : _show_only_items_not_covered_with_text,
 }
 
 
@@ -187,22 +195,22 @@ def filter(TREE, item, text, coverage, reset_filter):
 ######################################################################################################################################
 ### SPECIFIC FILTERS:
 
-def _filter_requirement_file(TREE, item, text, coverage):
+def _filter_requirement_file(TREE, item, text, coverage_string):
     if text == "":
-        coverage_func = COVERAGE_VIEWS_NO_TEXT[coverage]
+        coverage_func = COVERAGE_VIEWS_NO_TEXT[constants.ViewCoverageFilter(coverage_string)]
         coverage_func(TREE, item)
     else:      
-        coverage_func = COVERAGE_VIEWS_WITH_TEXT[coverage]
+        coverage_func = COVERAGE_VIEWS_WITH_TEXT[constants.ViewCoverageFilter(coverage_string)]
         coverage_func(TREE, item, text)
 
 
 def _filter_dspace_file(TREE, item, text, coverage):
-    DecoratedRecursiveFilter().filter(TREE, item, FullTextSpecification(text))
+    DecoratedAutoExpandingLastLevelFilter().filter(TREE, item, FullTextSpecification(text)) if text else _reset_filter(TREE, item, text)
 
 
 
 def _filter_condition_or_a2l_file(TREE, item, text, coverage):
-    StandardFilter().filter(TREE, item, FullTextSpecification(text))
+    StandardOneLevelFilter().filter(TREE, item, FullTextSpecification(text))
 
 
 
@@ -211,7 +219,7 @@ def _filter_condition_or_a2l_file(TREE, item, text, coverage):
 # RULES FOR SPECIFIC FILTERS:
 
 TYPES_2_FILTERS: dict = {
-    RequirementFileNode: _filter_requirement_file,
+    RequirementModule: _filter_requirement_file,
     DspaceFileNode: _filter_dspace_file,
     A2lFileNode: _filter_condition_or_a2l_file,
     ConditionFileNode: _filter_condition_or_a2l_file,    

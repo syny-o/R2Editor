@@ -3,10 +3,10 @@ from typing import Callable
 from PyQt5.QtCore import Qt, QItemSelection
 from PyQt5.QtWidgets import QPushButton, QAction, QMenu, QLineEdit, QComboBox
 from PyQt5.QtGui import QStandardItem
-from data_manager.requirement_nodes import RequirementFileNode, RequirementNode
-from data_manager.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
-from data_manager.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
-from data_manager.a2l_nodes import A2lFileNode, A2lNode
+from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
+from data_manager.nodes.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
+from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
+from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
 
 
 @dataclass(kw_only=True)
@@ -37,7 +37,7 @@ class ActionsHandler:
 
     def __post_init__(self):
         self.NODES_2_VIEW: dict = {
-            RequirementFileNode: self._context_menu_requirement_module,
+            RequirementModule: self._context_menu_requirement_module,
             RequirementNode: self._context_menu_requirement_node,
             ConditionFileNode: self._context_menu_condition_dspace_file_node,
             ConditionNode: self._context_menu_condition_value_test_step_ds_variable_node,
@@ -95,6 +95,7 @@ class ActionsHandler:
     def _context_menu_requirement_node(self, node) -> QMenu:
         menu = self._create_menu()
         activate_action(self.action_edit_node, menu)
+        menu.addSeparator()
         if not node.hasChildren():
             if node.reference in node.MODULE.ignore_list:                
                 activate_action(self.action_remove_from_ignore_list, menu)

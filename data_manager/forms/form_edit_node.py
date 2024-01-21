@@ -9,10 +9,10 @@ import ui
 from ui.form_general_ui import Ui_Form
 
 
-from data_manager.requirement_nodes import RequirementFileNode, RequirementNode
-from data_manager.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
-from data_manager.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
-from data_manager.a2l_nodes import A2lFileNode, A2lNode
+from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
+from data_manager.nodes.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
+from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
+from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
 
 from components.helper_functions import layout_generate_one_row as generate_one_row, validate_line_edits
 from components.my_list_widget import MyListWidget
@@ -30,7 +30,7 @@ class FormEditNode(QWidget, Ui_Form):
     def __init__(self, NODE, DATA_MANAGER):
         super().__init__()
         self.setupUi(self)
-        if not isinstance(NODE, RequirementFileNode):
+        if not isinstance(NODE, RequirementModule):
             self.setMaximumSize(800, 600)
         else:
             self.resize(1000, 800)
@@ -64,10 +64,10 @@ class FormEditNode(QWidget, Ui_Form):
             TestStepNode:       test_step_node_layout_generator,
             DspaceVariableNode: dspace_variable_node_layout_generator,
             RequirementNode:    requirement_node_layout_generator,
-            RequirementFileNode: requirement_module_layout_generator,
+            RequirementModule: requirement_module_layout_generator,
         }
 
-        if type(self.NODE) == RequirementFileNode:
+        if type(self.NODE) == RequirementModule:
             self.uiMainLayout_1.addLayout(self.NODES_2_LAYOUTS[type(self.NODE)].provide_layout())
         else:
             self.uiMainLayout_2.addLayout(self.NODES_2_LAYOUTS[type(self.NODE)].provide_layout())
@@ -75,14 +75,20 @@ class FormEditNode(QWidget, Ui_Form):
 
 
     def _ok_clicked(self):
-        if self.NODES_2_LAYOUTS[type(self.NODE)].update_data():
-            self.node_was_updated.emit()
-        self.close()
+        try:
+            if self.NODES_2_LAYOUTS[type(self.NODE)].update_data():
+                self.node_was_updated.emit()
+            self.close()
+        except Exception as ex:
+            dialog_message(self, str(ex), "Error")
 
 
     def _apply_clicked(self):
-        if self.NODES_2_LAYOUTS[type(self.NODE)].update_data():
-            self.node_was_updated.emit()
+        try:
+            if self.NODES_2_LAYOUTS[type(self.NODE)].update_data():
+                self.node_was_updated.emit()
+        except Exception as ex:
+            dialog_message(self, str(ex), "Error")
 
 
 
@@ -232,12 +238,11 @@ class RequirementNodeLayoutGenerator:
 
 
 class RequirementModuleLayoutGenerator:
-    def __init__(self, NODE: RequirementFileNode) -> None:
+    def __init__(self, NODE: RequirementModule) -> None:
         self.uiMainLayout = QVBoxLayout()
         self.uiMainLayout.setContentsMargins(10, 10, 10, 10)
         self.uiMainLayout.setSpacing(10)
         self.NODE = NODE  
-        self.DATA_MANAGER = NODE.data_manager  # TODO: REMOVE THIS LINE AND PASS DATA_MANAGER AS ARGUMENT TO THIS CLASS  
 
 
     def _create_layout(self):
@@ -275,7 +280,7 @@ class RequirementModuleLayoutGenerator:
             self.uiListWidgetModuleColumns.setEnabled(False)
             # self.uiLineEditPath.setEnabled(False)
             self.uiWidgetBaselines.setEnabled(False)
-            self. uiLabelWarning = QLabel("Remove coverage filter to edit this module.")
+            self. uiLabelWarning = QLabel("Remove coverage filter to edit columns/baseline.")
             self.uiLabelWarning.setStyleSheet("color: red;")
             self.uiLabelWarning.setAlignment(Qt.AlignCenter)
             self.uiMainLayout.addWidget(self.uiLabelWarning)
@@ -311,7 +316,8 @@ class RequirementModuleLayoutGenerator:
         if self._evaluate_filter_changes():
             if self._save_filter_changes():
                 change = True
-            change = True
+            else:
+                change = False
         return change
 
 
@@ -344,13 +350,16 @@ class RequirementModuleLayoutGenerator:
         filter_string = self.uiTexEditCoverageFilter.toPlainText().strip()
         if filter_string:
             try:
-                self.NODE._apply_coverage_filter(filter_string)
-                return True
+                self._apply_coverage_filter(filter_string)
+                success = True
                 
             except Exception as ex:
                 self.uiLabelNumberOfFilteredRequirements.setText("Wrong Filter: " + str(ex))
                 self.uiLabelNumberOfFilteredRequirements.setStyleSheet("color: red; font-size: 20px; margin-top: 10px;")
-                return False
+                success = False
+                raise
+            
+            return success
 
         else:
             self._remove_coverage_filter()
@@ -359,7 +368,6 @@ class RequirementModuleLayoutGenerator:
 
     def _apply_coverage_filter(self, filter_string):
         self.NODE.apply_coverage_filter(filter_string)  
-        self.DATA_MANAGER._update_data_summary()      
         self.uiLabelNumberOfFilteredRequirements.setText(f"Filtered: {self.NODE.number_of_calculated_requirements}")
         self.uiLabelNumberOfFilteredRequirements.setStyleSheet("color: green; font-size: 20px; margin-top: 10px;")
         self.uiListWidgetModuleColumns.setEnabled(False)
@@ -368,7 +376,6 @@ class RequirementModuleLayoutGenerator:
 
     def _remove_coverage_filter(self):
         self.NODE.remove_coverage_filter()
-        self.DATA_MANAGER._update_data_summary()
         self.uiLabelNumberOfFilteredRequirements.setText("")
         self.uiListWidgetModuleColumns.setEnabled(True)
         self.uiWidgetBaselines.setEnabled(True)

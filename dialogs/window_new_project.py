@@ -1,10 +1,10 @@
 from PyQt5.QtWidgets import QWidget, QFileDialog, QListWidget, QInputDialog
 from PyQt5.QtCore import Qt, pyqtSignal
 from ui.ui_project_config import Ui_Form
-from data_manager.condition_nodes import ConditionFileNode
-from data_manager.dspace_nodes import DspaceFileNode
-from data_manager.a2l_nodes import A2lFileNode
-from data_manager.requirement_nodes import RequirementFileNode
+from data_manager.nodes.condition_nodes import ConditionFileNode
+from data_manager.nodes.dspace_nodes import DspaceFileNode
+from data_manager.nodes.a2l_nodes import A2lFileNode
+from data_manager.nodes.requirement_module import RequirementModule
 import os
 
 
@@ -114,7 +114,7 @@ class ProjectConfig(QWidget, Ui_Form):
                 self.lw_cond_file.addItem(current_item.path)
             elif isinstance(current_item, A2lFileNode):
                 self.lw_a2l_file.addItem(current_item.path)
-            elif isinstance(current_item, RequirementFileNode):
+            elif isinstance(current_item, RequirementModule):
                 self.lw_req_file.addItem(current_item.path)
             elif isinstance(current_item, DspaceFileNode):
                 self.le_dspace_file.setText(current_item.path)

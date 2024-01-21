@@ -413,7 +413,6 @@ class Ui_Form(object):
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
         self.frame_31 = QtWidgets.QFrame(self.splitter)
-        self.frame_31.setMaximumSize(QtCore.QSize(1000, 16777215))
         self.frame_31.setStyleSheet("QLineEdit, QPushButton{\n"
 "    padding: 5;\n"
 "    border: 1px solid rgb(39, 44, 54);\n"

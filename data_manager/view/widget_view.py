@@ -1,11 +1,11 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QToolBar, QPushButton, QLineEdit, QComboBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QToolBar, QPushButton, QLineEdit, QComboBox, QStyle
 from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtGui import QIcon, QCursor
 
-from data_manager.requirement_nodes import RequirementFileNode
-from data_manager.condition_nodes import ConditionFileNode
-from data_manager.dspace_nodes import DspaceFileNode
-from data_manager.a2l_nodes import A2lFileNode
+from data_manager.nodes.requirement_module import RequirementModule
+from data_manager.nodes.condition_nodes import ConditionFileNode
+from data_manager.nodes.dspace_nodes import DspaceFileNode
+from data_manager.nodes.a2l_nodes import A2lFileNode
 
 from data_manager.view.tree import DataTreeView
 from data_manager.view import filter
@@ -13,6 +13,7 @@ from data_manager.view.styles import styles
 from data_manager.view import help_func
 from data_manager.view.actions_handler import ActionsHandler
 from data_manager.view.display_manager import DisplayManager
+from data_manager import constants
 
 
 class View(QWidget):
@@ -30,9 +31,10 @@ class View(QWidget):
         selection_model.selectionChanged.connect(self._update_view)  # update line edits on Up/Down Arrows          
         # FILTER - COMBO
         self.COMBO_ITEMS = [
-            ("All", QIcon(":/16x16/icons/16x16/cil-library.png")), 
-            ("Coverage", QIcon("ui/icons/xcheck.png")),
-            ("Not Covered", QIcon("ui/icons/cross.png")),
+            (constants.ViewCoverageFilter.ALL.value , QIcon(":/16x16/icons/16x16/cil-library.png")), 
+            (constants.ViewCoverageFilter.COVERED_AND_NOT_COVERED.value, QIcon("ui/icons/xcheck.png")),
+            (constants.ViewCoverageFilter.NOT_COVERED.value, QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton)),
+            (constants.ViewCoverageFilter.COVERED.value, QIcon("ui/icons/check.png")),
         ]        
         self.uiComboCoverageFilter = QComboBox()
         for text, icon in self.COMBO_ITEMS:
@@ -140,13 +142,13 @@ class View(QWidget):
         self.uiLineEditTextFilter.setVisible(False)
         self.uiComboCoverageFilter.setVisible(False)
 
-        if isinstance(item, (RequirementFileNode, ConditionFileNode, DspaceFileNode, A2lFileNode)):
+        if isinstance(item, (RequirementModule, ConditionFileNode, DspaceFileNode, A2lFileNode)):
             self.uiLineEditTextFilter.setVisible(True)
             self.uiLineEditTextFilter.setText(item.data(Qt.UserRole))
-        if isinstance(item, (RequirementFileNode)) and item.coverage_filter:            
+        if isinstance(item, RequirementModule) and item.coverage_filter:            
             self.uiComboCoverageFilter.setVisible(True)
-        if isinstance(item, (RequirementFileNode)):
-            self.uiComboCoverageFilter.setCurrentText(item.view_filter)         
+        if isinstance(item, RequirementModule):
+            self.uiComboCoverageFilter.setCurrentText(item.view_filter.value)         
             
 
         self.ACTIONS_HANDLER.update_actions(item)
@@ -160,7 +162,7 @@ class View(QWidget):
         if not selected_item_index.isValid():
             return
 
-        if isinstance(selected_item, RequirementFileNode) and selected_item in self.DATA_MANAGER._module_locker.locked_modules:
+        if isinstance(selected_item, RequirementModule) and selected_item in self.DATA_MANAGER._module_locker.locked_modules:
             return
         
         menu = self.ACTIONS_HANDLER.get_context_menu(selected_item)
@@ -206,7 +208,7 @@ class View(QWidget):
             return
         item = self.MODEL.itemFromIndex(current_index)
 
-        item.view_filter = coverage
+        item.view_filter = constants.ViewCoverageFilter(coverage)
         item.setData(text, Qt.UserRole)
 
         filter.filter(self.uiDataTreeView, item, text, coverage, reset_filter=reset_filter)

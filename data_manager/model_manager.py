@@ -2,10 +2,10 @@ from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtCore import Qt
 
 from text_editor.completer import Completer
-from data_manager.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
-from data_manager.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
-from data_manager.requirement_nodes import RequirementNode
-from data_manager.a2l_nodes import A2lFileNode, A2lNode
+from data_manager.nodes.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
+from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
+from data_manager.nodes.requirement_node import RequirementNode
+from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
 from text_editor.tooltips import tooltips
 
 

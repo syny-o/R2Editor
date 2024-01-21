@@ -1,25 +1,27 @@
 from importlib import reload
 from pathlib import Path
+from data_manager.nodes import a2l_nodes, dspace_nodes, requirement_module
 from ui.model_editor_ui import Ui_Form
 import json, re, os
 from PyQt5.QtWidgets import QWidget, QFileDialog, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QMessageBox
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QStandardItemModel
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QObject, QRunnable, QThreadPool, QPropertyAnimation, QEasingCurve
-from data_manager.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
-from data_manager.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
-from data_manager.a2l_nodes import A2lFileNode, A2lNode
-from data_manager import a2l_nodes, condition_nodes, requirement_nodes, dspace_nodes
-from data_manager.requirement_nodes import RequirementFileNode, RequirementNode
-from data_manager.form_add_module import FormAddModule
+from data_manager.nodes.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
+from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
+from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
+from data_manager.nodes import condition_nodes
+from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
+from data_manager.forms.form_add_module import FormAddModule
 from progress_bar.widget_modern_progress_bar import ModernProgressBar
 from components.template_test_case import TemplateTestCase
 from dialogs.dialog_message import dialog_message
 from doors.doors_connection import DoorsConnection
-import data_manager.form_a2l_norm_report        
+import data_manager.forms.form_a2l_norm_report   
+import data_manager.forms.form_validate_html_report
 from data_manager import model_manager
-from data_manager.form_edit_node import FormEditNode
+from data_manager.forms.form_edit_node import FormEditNode
 from components.module_locker import ModuleLocker
-from data_manager.form_doors_inputs import FormDoorsInputs
+from data_manager.forms.form_doors_inputs import FormDoorsInputs
 from data_manager.view.widget_view import View
 # from my_logging import logger
 # logger.debug(f"{__name__} --> Init")
@@ -109,7 +111,7 @@ class DataManager(QWidget, Ui_Form):
         condition_nodes.initialise(data, self.ROOT)
         dspace_nodes.initialise(data, self.ROOT)
         a2l_nodes.initialise(data, self.ROOT)
-        requirement_nodes.initialise(data, self.ROOT)   
+        requirement_module.initialise(data, self.ROOT)   
         self.TREE.setCurrentIndex(self.MODEL.indexFromItem(self.ROOT.child(0)))     
 
         self._update_data_summary()
@@ -154,7 +156,7 @@ class DataManager(QWidget, Ui_Form):
 
     @pyqtSlot(str, list)
     def receive_data_from_add_req_module_dialog(self, module_path, columns_names):
-        r = RequirementFileNode(self.ROOT, module_path, columns_names, attributes=[], baseline={}, coverage_filter=None, coverage_dict=None, update_time=None, ignore_list=None, notes=None, current_baseline=None)
+        r = RequirementModule(self.ROOT, module_path, columns_names, attributes=[], baseline={}, coverage_filter=None, coverage_dict=None, update_time=None, ignore_list=None, notes=None, current_baseline=None)
         self.ROOT.appendRow(r)
 
     #####################################################################################################################################################
@@ -173,12 +175,12 @@ class DataManager(QWidget, Ui_Form):
         if all_modules:  # if Button from Upper Menu was pushed (Update All Requirements)
             for row in range(self.ROOT.rowCount()):
                 node = self.ROOT.child(row)
-                if isinstance(node, RequirementFileNode):
+                if isinstance(node, RequirementModule):
                     self._module_locker.lock_module(node)
         else:  # if Button from Context Menu was pushed (Update Module)
             selected_item_index = self.TREE.currentIndex()
             selected_item = self.MODEL.itemFromIndex(selected_item_index)
-            if isinstance(selected_item, RequirementFileNode):
+            if isinstance(selected_item, RequirementModule):
                 self._module_locker.lock_module(selected_item)
            
         module_paths = []
@@ -237,7 +239,7 @@ class DataManager(QWidget, Ui_Form):
             for req_reference in req_references:            
                 for row in range(self.ROOT.rowCount()):
                     current_item = self.ROOT.child(row)
-                    if isinstance(current_item, RequirementFileNode) and current_item.coverage_filter:
+                    if isinstance(current_item, RequirementModule) and current_item.coverage_filter:
                         change = current_item.update_script_in_coverage_dict(req_reference, script_path)
                         # print(req_reference, script_path, change)
                         
@@ -263,7 +265,7 @@ class DataManager(QWidget, Ui_Form):
         if self.PROJECT_MANAGER.disk_project_path():
             for row in range(self.ROOT.rowCount()):
                 current_item = self.ROOT.child(row)
-                if isinstance(current_item, RequirementFileNode):
+                if isinstance(current_item, RequirementModule):
                     change = current_item.check_coverage_with_file_pointers(file_content_dict)
                     if change:
                         self.set_project_saved(False)
@@ -279,7 +281,7 @@ class DataManager(QWidget, Ui_Form):
         calculated_number, covered_number = 0, 0
         for row in range(self.ROOT.rowCount()):
             current_node = self.ROOT.child(row)
-            if isinstance(current_node, RequirementFileNode) and current_node.coverage_filter:                          
+            if isinstance(current_node, RequirementModule) and current_node.coverage_filter:                          
                 calculated_number += current_node.number_of_calculated_requirements
                 covered_number += current_node.number_of_covered_requirements
                 
@@ -327,7 +329,8 @@ class DataManager(QWidget, Ui_Form):
                 if node.reference == reference:
                     # print(node)
                     # print("FOUND: ", node.reference)
-                    FOUND_LINK_TEXT = "\n".join(node.columns_data)
+                    # FOUND_LINK_TEXT = "\n".join(node.columns_data)
+                    FOUND_LINK_TEXT = node.columns_data[-1]
                     if node.note:
                         FOUND_LINK_TEXT += f"\n\n<User Note>: {node.note}"
                     break
@@ -348,7 +351,29 @@ class DataManager(QWidget, Ui_Form):
                     find_node_by_reference(node, full_reference)
 
 
-        return FOUND_LINK_TEXT                      
+        return FOUND_LINK_TEXT     
+
+
+    def set_tooltip_2_list_widget_item(self, item):
+        identifier = item.data(Qt.UserRole)
+        module = self.MODEL.itemFromIndex(self.TREE.currentIndex())
+        FOUND_LINK_TEXT = ""
+
+        def find_node_by_reference(parent_node, reference):
+            nonlocal FOUND_LINK_TEXT
+            for row in range(parent_node.rowCount()):
+                node = parent_node.child(row)
+                if node.reference.lower() == reference.lower():
+                    FOUND_LINK_TEXT = node.columns_data[-1]
+                    break
+                else:
+                    find_node_by_reference(node, reference)
+
+        find_node_by_reference(module, identifier)
+        # return FOUND_LINK_TEXT
+        item.setToolTip(FOUND_LINK_TEXT)
+              
+
                 
 
 
@@ -357,7 +382,7 @@ class DataManager(QWidget, Ui_Form):
     def _doubleclick_on_ignored_reference(self, reference_item):
         selected_item_index = self.TREE.currentIndex()
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
-        reference = reference_item.text()
+        reference = reference_item.data(Qt.UserRole)
 
         FOUND_NODE = None
         def find_node_by_reference(parent_node, reference):
@@ -365,7 +390,6 @@ class DataManager(QWidget, Ui_Form):
             for row in range(parent_node.rowCount()):
                 node = parent_node.child(row)
                 if node.reference.lower() == reference.lower():
-                    print(reference)
                     FOUND_NODE = node
                     break
                 else:
@@ -508,7 +532,7 @@ class DataManager(QWidget, Ui_Form):
             self.MAIN.show_notification("Item is not Editable!")
             return
         
-        if isinstance(selected_item, RequirementFileNode) and selected_item in self._module_locker.locked_modules:
+        if isinstance(selected_item, RequirementModule) and selected_item in self._module_locker.locked_modules:
             self.MAIN.show_notification("Module is being downloaded from Doors. Please wait...")
             return
         
@@ -548,9 +572,7 @@ class DataManager(QWidget, Ui_Form):
     # HTML REPORT CHECK:
     ####################################################################################################################
     def check_HTML_report(self):
-        import data_manager.form_validate_html_report
-        from importlib import reload
-        reload(data_manager.form_validate_html_report)
+        # reload(data_manager.form_validate_html_report)
         
         path, _ = QFileDialog.getOpenFileName(
             parent=self,
@@ -572,7 +594,7 @@ class DataManager(QWidget, Ui_Form):
 
         for row in range(self.ROOT.rowCount()):
             file_node = self.ROOT.child(row)
-            if isinstance(file_node, RequirementFileNode) and file_node.coverage_filter:
+            if isinstance(file_node, RequirementModule) and file_node.coverage_filter:
                 for k in file_node.coverage_dict.keys():
                     if k.lower() in html_report_string.lower():
                         covered_requirements.append(k)
@@ -603,7 +625,7 @@ class DataManager(QWidget, Ui_Form):
 
         for row in range(self.ROOT.rowCount()):
             node = self.ROOT.child(row)
-            if isinstance(node, RequirementFileNode) and node.coverage_filter:
+            if isinstance(node, RequirementModule) and node.coverage_filter:
                 find_node_by_reference(node, req_identifier)
 
 

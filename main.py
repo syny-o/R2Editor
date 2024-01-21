@@ -25,10 +25,10 @@ from config.font import font
 from dashboard.dashboard import Dashboard
 from data_manager import project_manager
 from data_manager.data_manager import DataManager
-from data_manager.requirement_nodes import RequirementFileNode
+from data_manager.nodes.requirement_module import RequirementModule
 from dialogs.dialog_message import dialog_message
 from dialogs.form_find_replace import FindAndReplace
-from dialogs.window_project_config import ProjectConfig
+from dialogs.window_new_project import ProjectConfig
 from file_browser.tree_file_browser import FileSystemView
 from tabs import Tabs
 from text_editor import text_management
