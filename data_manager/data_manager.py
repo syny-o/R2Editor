@@ -165,15 +165,8 @@ class DataManager(QWidget, Ui_Form):
         if self._module_locker.locked_modules:  # Dialog message when Doors is now connected  
             dialog_message(self, "Requirements are being downloaded from Doors. Please wait...")
             return   
-         
-        modules_are_present = False
-        for row in range(self.ROOT.rowCount()):
-            node = self.ROOT.child(row)
-            if isinstance(node, RequirementModule):
-                modules_are_present = True
-                break
     
-        if not modules_are_present:
+        if not tree_walker.at_least_one_module_is_present(self.ROOT):
             # dialog_message(self, "There are no Requirement Modules. Add at least one.")
             self._open_add_requirement_module_form()
             return
@@ -372,6 +365,16 @@ class DataManager(QWidget, Ui_Form):
         reference = outlink_item.data(Qt.UserRole).split(":")[1]
         found_node = None
 
+        if not tree_walker.is_module_present(self.ROOT, module_path):
+            add_module = QMessageBox.question(self,
+                                        f"Module is missing.",
+                                        f"Module {module_path} is N/A.\n\nDo you want to add it?",
+                                        QMessageBox.Yes | QMessageBox.No)
+            if add_module == QMessageBox.Yes:            
+                self.receive_data_from_add_req_module_dialog(module_path, [])        
+        
+            return
+
         for row in range(self.ROOT.rowCount()):
             node = self.ROOT.child(row)
             if node.path == module_path:
@@ -385,13 +388,8 @@ class DataManager(QWidget, Ui_Form):
             self.TREE.setCurrentIndex(found_node.index())
             self.TREE.scrollTo(found_node.index())
         else:
-            # dialog_message(self, f"Module {module_path} is missing.")
-            add_module = QMessageBox.question(self,
-                                        f"Module is missing.",
-                                        f"Module {module_path} is N/A.\n\nDo you want to add it?",
-                                        QMessageBox.Yes | QMessageBox.No)
-            if add_module == QMessageBox.Yes:            
-                self.receive_data_from_add_req_module_dialog(module_path, [])
+            self.MAIN.show_notification(f"{reference} is not present in {module_path}.")
+
 
 
 
