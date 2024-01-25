@@ -141,6 +141,8 @@ class FormAddModule(QWidget, Ui_Form):
         self.uiBtnTitleBarClose.clicked.connect(self.close)
         self.uiBtnStatusBarClose.clicked.connect(self.close)
         self.uiBtnOK.clicked.connect(self._ok_clicked)
+        self.uiBtnOK.setText("Add")
+        
 
         
         self.input = QInputDialog(self)
@@ -327,10 +329,10 @@ class FormAddModule(QWidget, Ui_Form):
         columns = self.uiListFinalColumns.get_all_items()
 
         # Form check if all mandatory items are filled
-        if self.uiListFinalColumns.count() == 0:
-            self.uiListFinalColumns.setStyleSheet('border-color: red')
+        # if self.uiListFinalColumns.count() == 0:
+            # self.uiListFinalColumns.setStyleSheet('border-color: red')
 
-        elif self.uiComboModuleLocation.currentText() == '':
+        if self.uiComboModuleLocation.currentText() == '':
             self.uiComboModuleLocation.setStyleSheet('border-color: red')
 
         else:

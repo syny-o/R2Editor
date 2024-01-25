@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt, QObject, pyqtSignal, pyqtSlot, QSettings, QRunnable
 from ui.form_general_ui import Ui_Form
 from components.reduce_path_string import reduce_path_string
 
-from file_browser.pbc_patterns_scripts import patterns
+from config.pbc_patterns_scripts import patterns
 from dialogs.dialog_message import dialog_message
 
 
@@ -38,6 +38,8 @@ class ScriptNormReport(QWidget, Ui_Form):
         self.uiBtnStatusBarClose.clicked.connect(self.close)
         # self.uiBtnOK.clicked.connect(self.close)     
         self.uiBtnStatusBarClose.setEnabled(False) 
+        self.uiBtnStatusBarClose.setText("Close") 
+
 
         # THREAD CONFIGURATION
         self.threadpool = QThreadPool()
@@ -50,6 +52,7 @@ class ScriptNormReport(QWidget, Ui_Form):
         if Path(self.path).is_file():
             results = self._normalise_one_script()
             self._create_ui_output_from_one_script(results)
+            self.uiBtnStatusBarClose.setEnabled(True)
 
         else:
             self.file_count = 0
@@ -134,8 +137,8 @@ class ScriptNormReport(QWidget, Ui_Form):
         self.uiLabHeadingUpdates = QLabel(f"Following files have been updated:")
         self.uiTreeWidgetSummaryUpdates = QTreeWidget()
         self.uiTreeWidgetSummaryUpdates.setHeaderHidden(True) 
-        self.uiMainLayout_5.addWidget(self.uiLabHeadingUpdates)
-        self.uiMainLayout_5.addWidget(self.uiTreeWidgetSummaryUpdates)   
+        self.uiMainLayout_4.addWidget(self.uiLabHeadingUpdates)
+        self.uiMainLayout_4.addWidget(self.uiTreeWidgetSummaryUpdates)   
 
         self.uiLabProgressStatus = QLabel()
         self.uiMainLayout_1.addWidget(self.uiLabProgressStatus) 
@@ -158,6 +161,9 @@ class ScriptNormReport(QWidget, Ui_Form):
     def finished(self):
         self.uiBtnStatusBarClose.setEnabled(True)
         self.uiLabProgressStatus.setText("Checking files:   Finished")
+        if self.file_count == 0:
+            self.uiLabHeadingUpdates.setText(f"Following files have been updated: 0")
+            # self.uiTreeWidgetSummaryUpdates.setVisible(False)
 
 
 
@@ -176,8 +182,6 @@ class ScriptNormReport(QWidget, Ui_Form):
             for r in replacements:
                 temp_item = QTreeWidgetItem(item)
                 temp_item.setText(0, f"{r[0]}   -->   {r[1]}")
-
-            
 
 
 

@@ -1,15 +1,16 @@
+from operator import is_
 import os
 import shutil
 from pathlib import Path
+from sys import path
 
-from PyQt5.QtWidgets import QWidget, QTreeView, QFileSystemModel, QVBoxLayout, QLabel, \
-    QFileIconProvider, QToolBar, QAction, QFileDialog, QMenu, QInputDialog, QLineEdit, QToolTip, QMessageBox
-from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal, QSortFilterProxyModel, QDir, QEvent, QPoint
-from PyQt5.QtGui import QFont, QIcon, QCursor
+from PyQt5.QtWidgets import QWidget, QFileSystemModel, \
+    QMenu, QInputDialog, QLineEdit, QMessageBox, QShortcut
+from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal, QDir, QEvent, QPoint
+from PyQt5.QtGui import QFont, QIcon, QCursor, QKeySequence
 
 from ui.ui_file_system import Ui_Form
-from dialogs.form_find_replace import FindAndReplace
-from file_browser.pbc_patterns_scripts import patterns
+from file_browser.form_find_replace import FindAndReplace
 from dialogs.dialog_message import dialog_message
 
 
@@ -89,7 +90,8 @@ class FileSystemView(QWidget, Ui_Form):
         self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tree.customContextMenuRequested.connect(self.context_menu)
 
-        ################## FILTER LINE EDIT ###########################
+        QShortcut( 'Del', self.tree ).activated.connect(self.delete_file)
+        QShortcut( 'F2', self.tree ).activated.connect(self.rename)
 
     
     # INTERFACE TO PROJECT MANAGER
@@ -130,24 +132,19 @@ class FileSystemView(QWidget, Ui_Form):
         file_suffix = Path(file_path).suffix
         is_directory = index.model().isDir(index)
         menu = QMenu()
-        # ACTION OPEN
-        if not is_directory:
-            action_open = menu.addAction(QIcon(u"ui/icons/16x16/cil-exit-to-app.png"), 'Open')
-            action_open.triggered.connect(lambda: self.double_click_on_item(index))
-            menu.addSeparator()
-        # ACTION NEW FILE
-        action_create_file = menu.addAction(QIcon(u"ui/icons/file-new.png"), 'New File')
-        action_create_file.triggered.connect(lambda: self.create_file(index))
+        # # ACTION NEW FILE
+        # action_create_file = menu.addAction(QIcon(u"ui/icons/file-new.png"), 'New File')
+        # action_create_file.triggered.connect(lambda: self.create_file(index))
         # ACTION NEW FOLDER
-        action_create_folder = menu.addAction(QIcon(u"ui/icons/folder-new.png"), 'New Folder')
-        action_create_folder.triggered.connect(lambda: self.create_folder(index))
-        menu.addSeparator()
+        if is_directory:
+            action_create_folder = menu.addAction(QIcon(u"ui/icons/folder-new.png"), 'New Folder')
+            action_create_folder.triggered.connect(lambda: self.create_folder(index))
+            menu.addSeparator()
         # ACTION RENAME
         action_rename = menu.addAction(QIcon(u"ui/icons/16x16/cil-description.png"), 'Rename..')
-        action_rename.triggered.connect(lambda: self.rename(index))
-        # ACTION DELETE
-        action_delete = menu.addAction(QIcon(u"ui/icons/20x20/cil-trash.png"), 'Delete')
-        action_delete.triggered.connect(lambda: self.delete_file(index))  
+        action_rename.triggered.connect(self.rename)
+        action_rename.setShortcut('F2')
+
  
 
         if is_directory:
@@ -158,23 +155,31 @@ class FileSystemView(QWidget, Ui_Form):
             # ACTION SET PROJECT LOCATION
             action_set_project_location = menu.addAction(QIcon(u"ui/icons/16x16/cil-layers.png"), 'Set as Project Location')
             action_set_project_location.triggered.connect(lambda: self.disk_project_path_was_changed(file_path))
-        elif (file_suffix.lower() in ('.con','.a2l')) or file_path.lower().endswith('dspacemapping.py'): 
-            # ACTION ADD TO MODEL
-            menu.addSeparator()
-            action_add_to_model = menu.addAction(QIcon(u"ui/icons/16x16/cil-dialpad.png"), 'Add to Model')   
-            action_add_to_model.triggered.connect(lambda: self.send_file_to_model(file_path))  
-        if file_suffix.lower() in ('.par', '.txt') or is_directory:
-            # ACTION NORMALISE SCRIPT(S)
-            menu.addSeparator()
-            action_normalise_file = menu.addAction(QIcon(u"ui/icons/16x16/cil-chart-line.png"), 'Normalise Script(s)')                     
-            action_normalise_file.triggered.connect(lambda: self.normalise_script(file_path))
+        
 
         # ACTION CREATE COPY OF SCRIPT (DUPLICATE)
         if file_suffix.lower() in ('.par', '.txt'):
             action_duplicate_script = menu.addAction(QIcon(u"ui/icons/20x20/cil-copy.png"), 'Create Copy')                     
-            action_duplicate_script.triggered.connect(lambda: self.duplicate_script(file_path))            
+            action_duplicate_script.triggered.connect(lambda: self.duplicate_script(file_path)) 
 
-                
+        if (file_suffix.lower() in ('.con','.a2l')) or file_path.lower().endswith('dspacemapping.py'): 
+            # ACTION ADD TO MODEL
+            menu.addSeparator()
+            action_add_to_model = menu.addAction(QIcon(u"ui/icons/16x16/cil-dialpad.png"), 'Add to Model')   
+            action_add_to_model.triggered.connect(lambda: self.send_file_to_model(file_path))                        
+
+        if file_suffix.lower() in ('.par', '.txt') or is_directory:
+            # ACTION NORMALISE SCRIPT(S)
+            menu.addSeparator()
+            action_normalise_file = menu.addAction(QIcon(u"ui/icons/16x16/cil-chart-line.png"), 'Normalise Script(s)')                     
+            action_normalise_file.triggered.connect(lambda: self.normalise_script(file_path))                
+
+        # ACTION DELETE
+        menu.addSeparator()
+        action_delete = menu.addAction(QIcon(u"ui/icons/20x20/cil-trash.png"), 'Delete')
+        action_delete.triggered.connect(self.delete_file)  
+        action_delete.setShortcut('Del')    
+
         menu.exec_(QCursor().pos())
 
 
@@ -213,7 +218,8 @@ class FileSystemView(QWidget, Ui_Form):
     ########################################################################################################################################################    
 
     
-    def delete_file(self, index):
+    def delete_file(self):
+        index = self.tree.currentIndex()
         file_path = index.model().filePath(index)
         popup = QMessageBox(self)
         popup.setIcon(QMessageBox.Question)
@@ -224,40 +230,28 @@ class FileSystemView(QWidget, Ui_Form):
         popup.setDefaultButton(QMessageBox.Yes)
         answer = popup.exec_()
 
-        if answer == QMessageBox.Yes:        
-            self.model.remove(index)
+
+        opened_files = self.main_window.get_all_opened_files()  # get dict {Path(str): (QTextEdit, QTabWidget)}
+        if (key := Path(file_path)) in opened_files:
+            my_text_edit, my_tabs = opened_files[key]
+            tab_index = my_tabs.indexOf(my_text_edit)
+            my_tabs.removeTab(tab_index)        
+
+        if answer == QMessageBox.Yes:  
+            try:      
+                self.model.remove(index)
+            except Exception as e:
+                dialog_message(self, str(e))
 
 
     def create_folder(self, index):
         text, ok = QInputDialog.getText(self, 'Create Folder', 'Name:')
         if ok and text != '':
-            self.model.mkdir(index, text)
-
-
-
-    def create_file(self, index):
-        is_directory = self.model.isDir(index)
-
-        if is_directory:
-            file_path = self.model.filePath(index)
-            text, ok = QInputDialog.getText(self, 'Create File', 'Name:')
-        else:
-            file_path = self.model.filePath(index.parent())
-            text, ok = QInputDialog.getText(self, 'Create File', 'Name:', QLineEdit.Normal, index.data())   
-
-        if ok and text != '':
-            new_file_path = file_path + '/' + text
-            if Path(new_file_path).exists():
-                dialog_message(self, "File exists!")
-                return
             try:
-                with open(new_file_path, 'w', encoding='utf8') as new_file:
-                    pass
-                index = self.model.index(new_file_path)  
-                self.tree.setCurrentIndex(index)                
-                self.send_file_path.emit(Path(new_file_path))
+                self.model.mkdir(index, text)
             except Exception as e:
-                dialog_message(self, f"Error: {str(e)}")
+                dialog_message(self, str(e))
+
 
 
 
@@ -270,29 +264,69 @@ class FileSystemView(QWidget, Ui_Form):
         # CREATE DUPLICATED FILE
         new_file_name = name_wo_suffix + " - Copy" + suffix
         new_full_path = parent / new_file_name
-        shutil.copyfile(path, new_full_path)
-        # SET TREE POSITION TO THIS NEW FILE
-        index = self.model.index(str(new_full_path))  
-        self.tree.setCurrentIndex(index)
-        # OPEN IT IN EDITOR
-        self.send_file_path.emit(new_full_path)         
+        try:
+            shutil.copyfile(path, new_full_path)
+            # SET TREE POSITION TO THIS NEW FILE
+            index = self.model.index(str(new_full_path))  
+            self.tree.setCurrentIndex(index)
+            # OPEN IT IN EDITOR
+            self.send_file_path.emit(new_full_path) 
+        except Exception as e:
+            dialog_message(self, str(e))        
  
 
     
-    def rename(self, index):
-        full_path = index.model().filePath(index)
-        path_to_folder = '/'.join(full_path.split('/')[:-1])
-        # original_folder_name = index.data()
-        new_folder_name, ok = QInputDialog.getText(self, 'Rename', 'New Name:', QLineEdit.Normal, index.data())        
+    def rename(self):
+        index = self.tree.currentIndex()
+        path = Path(index.model().filePath(index))
 
-        if ok and new_folder_name != '':
-            new_path = path_to_folder + '/' + new_folder_name
+        new_name, ok = QInputDialog.getText(self, 'Rename', 'New Name:', QLineEdit.Normal, str(path.stem))      
+
+        if ok and new_name.strip() != '':
+            new_path = path.with_stem(new_name)
             try:
-                os.rename(full_path, new_path)
+                os.rename(path, new_path)
                 index = self.model.index(str(new_path))  
-                self.tree.setCurrentIndex(index)                
+                self.tree.setCurrentIndex(index)
+                # self.model.setReadOnly(False)
+                # self.model.setData(index, str(new_name) + path.suffix)
+                # self.model.setReadOnly(True)
+                opened_files = self.main_window.get_all_opened_files()  # get dict {Path(str): (QTextEdit, QTabWidget)}
+                if (key := Path(path)) in opened_files:
+                    my_text_edit, my_tabs = opened_files[key]
+                    tab_index = my_tabs.indexOf(my_text_edit)
+                    my_text_edit.file_path = Path(new_path)
+                    my_tabs.setTabText(tab_index, Path(new_path).name)
+
+
             except Exception as e:
                 dialog_message(self, str(e))
+
+
+
+    # def create_file(self, index):
+    #     is_directory = self.model.isDir(index)
+
+    #     if is_directory:
+    #         file_path = self.model.filePath(index)
+    #         text, ok = QInputDialog.getText(self, 'Create File', 'Name:')
+    #     else:
+    #         file_path = self.model.filePath(index.parent())
+    #         text, ok = QInputDialog.getText(self, 'Create File', 'Name:', QLineEdit.Normal, index.data())   
+
+    #     if ok and text != '':
+    #         new_file_path = file_path + '/' + text
+    #         if Path(new_file_path).exists():
+    #             dialog_message(self, "File exists!")
+    #             return
+    #         try:
+    #             with open(new_file_path, 'w', encoding='utf8') as new_file:
+    #                 pass
+    #             index = self.model.index(new_file_path)  
+    #             self.tree.setCurrentIndex(index)                
+    #             self.send_file_path.emit(Path(new_file_path))
+    #         except Exception as e:
+    #             dialog_message(self, f"Error: {str(e)}")                
 
 
 

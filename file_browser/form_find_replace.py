@@ -77,7 +77,9 @@ class FindAndReplace(QWidget, Ui_Form):
         self.uiLabelTitle.setText(f"Find and Replace in {folder_path}")
         self.uiBtnTitleBarClose.clicked.connect(self.close)
         self.uiBtnStatusBarClose.clicked.connect(self.close)
-        self.uiBtnOK.clicked.connect(self._run_clicked)        
+        self.uiBtnStatusBarClose.setText("Close")
+        self.uiBtnOK.clicked.connect(self._run_clicked) 
+        self.uiBtnOK.setText("Run")       
 
         self.folder_path = folder_path
 

@@ -1,14 +1,12 @@
 from PyQt5.QtWidgets import QWidget, QLineEdit
 from PyQt5.QtCore import Qt, pyqtSignal, QSettings
 
-
 from ui.app_settings_ui import Ui_Form
 
+
 class AppSettings(QWidget, Ui_Form):
-    """
-    This "window" will appear after Settings
-    """
-    def __init__(self, main_window):
+
+    def __init__(self, MAIN):
         super().__init__()
         self.setupUi(self)
 
@@ -24,17 +22,27 @@ class AppSettings(QWidget, Ui_Form):
         UI_COMBOBOX_INPUTS = [
             self.ui_cb_database,
         ]
+         
+
+        self._load_data_from_disk()
+        self._fill_line_edits_with_data()
+
+        # Connect Save Button with SAVE SLOT 
+        self.btn_save.clicked.connect(self.save_settings_2_disk)
+        self.ui_checkBox_format_code_when_save.stateChanged.connect(self._save_data_from_form_2_memory)
 
         for line_edit_input in UI_LINEEDITS_INPUTS:
-            line_edit_input.editingFinished.connect(self.save_settings)
+            line_edit_input.editingFinished.connect(self.save_settings_2_disk)
 
         for combo_box_input in UI_COMBOBOX_INPUTS:
-            combo_box_input.currentTextChanged.connect(self.save_settings)            
+            combo_box_input.currentTextChanged.connect(self.save_settings_2_disk)           
 
+
+
+
+    def _load_data_from_disk(self):
         # OPEN CONFIG FILE INI:
         self.settings = QSettings(r'.\app_config.ini', QSettings.IniFormat)
-
-
         # LOAD ALL DATA and SET to INSTANCE VARIABLES
         # 1. Doors
         self.doors_app_path = self.settings.value('doors/doors_app_path', r'C:\app\tools\IBM\DOORS\9.6_64\bin\doors.exe')
@@ -45,26 +53,12 @@ class AppSettings(QWidget, Ui_Form):
         self.format_code_when_save = bool(self.settings.value('editor/format_code_when_save', True))
 
         # 3. Recent Projects
-        self.recent_projects = self.settings.value('project/recent')
-        
-        # 4. Print All Data --> CHECK IF OK
-        # print(self.doors_app_path)
-        # print(self.doors_database_path)
-        # print(self.doors_user_name)
-        # print(self.format_code_when_save)
-        # print(self.recent_projects)
-
-        # 5. Display loaded data to GUI components
-        self.fill_line_edits_with_saved_settings()
-
-        # Connect Save Button with SAVE SLOT 
-        self.btn_save.clicked.connect(self.save_settings)
-        self.ui_checkBox_format_code_when_save.stateChanged.connect(self.get_data_from_form)
+        self.recent_projects = self.settings.value('project/recent')        
 
 
 
 
-    def fill_line_edits_with_saved_settings(self):
+    def _fill_line_edits_with_data(self):
         # DOORS
         self.le_app_path.setText(self.doors_app_path)
         self.ui_cb_database.setCurrentText(self.doors_database_path)
@@ -74,10 +68,10 @@ class AppSettings(QWidget, Ui_Form):
         self.ui_checkBox_format_code_when_save.setChecked(self.format_code_when_save)
 
 
-    def get_data_from_form(self):
+
+    def _save_data_from_form_2_memory(self):
         """
         METHOD for reading texts from all line_edits
-        :return: values from line edits
         """
         # DOORS
         self.doors_app_path = self.le_app_path.text()
@@ -90,9 +84,8 @@ class AppSettings(QWidget, Ui_Form):
 
 
 
-    def save_settings(self):
+    def save_settings_2_disk(self):
         """ METHOD is triggered after pressing Apply/OK --> settings are saved to MEMORY """
-        self.get_data_from_form()
 
         self.settings.beginGroup("project")
         self.settings.setValue('recent', self.recent_projects)
@@ -106,13 +99,5 @@ class AppSettings(QWidget, Ui_Form):
         self.settings.setValue('doors_database_path', self.doors_database_path)
         self.settings.setValue('doors_user_name', self.doors_user_name)
         self.settings.endGroup()
-
-
-
-
-
-
-
-
 
 

@@ -4,9 +4,7 @@ from PyQt5.QtGui import QFont, QPalette, QIcon
 
 from ui.form_general_ui import Ui_Form
 
-from components.helper_functions import validate_line_edits
-
-
+from components.helper_functions import validate_line_edits, layout_generate_one_row
 
 
 
@@ -23,8 +21,7 @@ class FormDoorsInputs(QWidget, Ui_Form):
         self.setWindowModality(Qt.ApplicationModal)        
         self.setMaximumSize(500, 500)                 
         self.uiLabelTitle.setText("Doors Connection")
-        
-        # self.setStyleSheet(style)
+        # self.setStyleSheet(STYLES)
         self.uiLabelTitle.setStyleSheet("")
 
         self.uiBtnTitleBarClose.clicked.connect(self.close)
@@ -36,10 +33,10 @@ class FormDoorsInputs(QWidget, Ui_Form):
 
         self.all_modules = all_modules
 
-        self.settings = QSettings(r'.\app_config.ini', QSettings.IniFormat)
-        self.app_path = self.settings.value('doors/doors_app_path')
-        self.database_path = self.settings.value('doors/doors_database_path')
-        self.user_name = self.settings.value('doors/doors_user_name')        
+        self.settigs = DATA_MANAGER.MAIN.app_settings
+        self.app_path = self.settigs.doors_app_path
+        self.database_path = self.settigs.doors_database_path
+        self.user_name = self.settigs.doors_user_name
 
         self._generate_layout()
 
@@ -55,6 +52,8 @@ class FormDoorsInputs(QWidget, Ui_Form):
 
     def _ok_clicked(self):
         success = validate_line_edits(self.uiLineEditUser, self.uiLineEditPassword, self.uiLineEditApplicationPath, invalid_chars=())
+        self._update_settings()
+        
         if success:
             self.send_inputs_from_doors_connection_form.emit(
                 self.all_modules, 
@@ -65,35 +64,40 @@ class FormDoorsInputs(QWidget, Ui_Form):
             self.close()
 
 
+    def _update_settings(self):
+        self.settigs.doors_app_path = self.uiLineEditApplicationPath.text()
+        self.settigs.doors_database_path = self.uiComboDatabase.currentText()
+        self.settigs.doors_user_name = self.uiLineEditUser.text()
+        self.settigs._fill_line_edits_with_data()
+
+
 
 
     def _generate_layout(self):
-        self.uiMainLayout_2.setSpacing(10)
+        self.uiMainLayout_3.setSpacing(10)
 
-        uiLayoutApplicationPath = QHBoxLayout()
-        self.uiLineEditApplicationPath = QLineEdit()
+        self.uiLineEditApplicationPath = layout_generate_one_row("Path:", self.uiMainLayout_3)
         self.uiLineEditApplicationPath.setText(self.app_path)
-        uiLayoutApplicationPath.addWidget(QLabel("Path:"))
-        uiLayoutApplicationPath.addWidget(self.uiLineEditApplicationPath)        
 
         uiLayoutDatabase = QHBoxLayout()
         self.uiComboDatabase = QComboBox()
         self.uiComboDatabase.addItems(["36677@skobde-doors9db.ad.trw.com", "36677@ssh2cn-doors9db.ad.trw.com"])
         self.uiComboDatabase.setCurrentText(self.database_path)
         self.uiComboDatabase.setMinimumWidth(450)
-        uiLayoutDatabase.addWidget(QLabel("Database:"))
+        uiLabelDatabase = QLabel("Database:")
+        uiLabelDatabase.setMinimumWidth(100)
+        uiLayoutDatabase.addWidget(uiLabelDatabase)
         uiLayoutDatabase.addWidget(self.uiComboDatabase)
+        self.uiMainLayout_3.addLayout(uiLayoutDatabase)
 
-        uiLayoutUser = QHBoxLayout()
-        self.uiLineEditUser = QLineEdit()
+        self.uiLineEditUser = layout_generate_one_row("User:", self.uiMainLayout_3)
         self.uiLineEditUser.setText(self.user_name)
-        uiLayoutUser.addWidget(QLabel("User:"))
-        uiLayoutUser.addWidget(self.uiLineEditUser)
 
         uiLayoutPassword = QHBoxLayout()
-        self.uiLineEditPassword = QLineEdit()
-        uiLayoutPassword.addWidget(QLabel("Password:"))
-        uiLayoutPassword.addWidget(self.uiLineEditPassword)
+        # self.uiLineEditPassword = QLineEdit()
+        # uiLayoutPassword.addWidget(QLabel("Password:"))
+        # uiLayoutPassword.addWidget(self.uiLineEditPassword)
+        self.uiLineEditPassword = layout_generate_one_row("Password:", uiLayoutPassword)
         self.uiLineEditPassword.setEchoMode(QLineEdit.Password)
         self.uiLineEditPassword.setPlaceholderText("Enter password")
         self.uiBtnShowPassword = QPushButton(QIcon(u"ui/icons/16x16/cil-low-vision"), "")
@@ -105,9 +109,7 @@ class FormDoorsInputs(QWidget, Ui_Form):
         self.uiBtnShowPassword.setCursor(Qt.PointingHandCursor)
         uiLayoutPassword.addWidget(self.uiBtnShowPassword)
 
-        self.uiMainLayout_2.addLayout(uiLayoutApplicationPath)
-        self.uiMainLayout_2.addLayout(uiLayoutDatabase)
-        self.uiMainLayout_2.addLayout(uiLayoutUser)
-        self.uiMainLayout_2.addLayout(uiLayoutPassword)
+
+        self.uiMainLayout_3.addLayout(uiLayoutPassword)
 
 

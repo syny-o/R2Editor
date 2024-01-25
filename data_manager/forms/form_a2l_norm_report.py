@@ -24,7 +24,6 @@ class A2lNormReport(QWidget, Ui_Form):
         self.uiMainLayout_2.setContentsMargins(0,0,0,0)
         self.uiMainLayout_3.setContentsMargins(0,0,0,0)
         self.uiMainLayout_4.setContentsMargins(0,0,0,0)
-        self.uiMainLayout_5.setContentsMargins(0,0,0,0)
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.resize(1024, 768)

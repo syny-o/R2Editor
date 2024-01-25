@@ -105,6 +105,8 @@ class TextEdit(QCodeEditor):
 
         self.data_manager_widget = DataManagerWidget(self.main_window, self)
 
+        # print(self.file_path)
+
         # from components.pyqt_find_text_widget.findReplaceTextWidget import FindReplaceTextWidget
         # try:
         #     w = self.main_window.ui_hLayout_findReplace.itemAt(0)

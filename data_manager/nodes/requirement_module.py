@@ -4,7 +4,7 @@ from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtGui import QIcon, QColor, QStandardItem
 from data_manager.nodes.requirement_node import RequirementNode
 from components.reduce_path_string import reduce_path_string
-from data_manager import constants
+from config import constants
 
 # PATTERN_REQ_REFERENCE = re.compile(r"""(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*""", re.IGNORECASE)
 # PATTERN_REQ_REFERENCE = re.compile(r'(?:REFERENCE|\$REF:)\s*"(?P<req_reference>.+)"\s*\$', re.IGNORECASE)

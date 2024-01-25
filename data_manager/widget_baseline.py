@@ -106,9 +106,10 @@ class WidgetBaseline(QWidget):
 
     def _switch_baseline(self):
         item = self.uiListWidgetBaselines.currentItem()
-        self._remove_all_icons()
-        item.setIcon(QIcon(u"ui/icons/check.png"))
-        self.switched_baseline = item.text()
+        if item:
+            self._remove_all_icons()
+            item.setIcon(QIcon(u"ui/icons/check.png"))
+            self.switched_baseline = item.text()
 
 
     def _remove_all_icons(self):

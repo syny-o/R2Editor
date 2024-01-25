@@ -2,7 +2,7 @@ from PyQt5.Qt import QStandardItem, QStandardItemModel
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 import re, os, stat
-from ..pbc_patterns import patterns, signals_to_check
+from config.pbc_patterns import patterns, signals_to_check
 from dialogs.dialog_message import dialog_message
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QSettings, QRunnable, QThreadPool
 import time

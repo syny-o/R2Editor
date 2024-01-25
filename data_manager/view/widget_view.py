@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QToolBar, QPushButton, QLineEdit, QComboBox, QStyle
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QToolBar, QPushButton, QLineEdit, QComboBox, QStyle, QToolButton, QAction
 from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtGui import QIcon, QCursor
 
@@ -9,11 +9,11 @@ from data_manager.nodes.a2l_nodes import A2lFileNode
 
 from data_manager.view.tree import DataTreeView
 from data_manager.view import filter
-from data_manager.view.styles import styles
+from config.styles import STYLES
 from data_manager.view import help_func
 from data_manager.view.actions_handler import ActionsHandler
 from data_manager.view.display_manager import DisplayManager
-from data_manager import constants
+from config import constants
 
 
 class View(QWidget):
@@ -39,10 +39,14 @@ class View(QWidget):
         self.uiComboCoverageFilter = QComboBox()
         for text, icon in self.COMBO_ITEMS:
             self.uiComboCoverageFilter.addItem(icon, text)              
-        self.uiComboCoverageFilter.currentTextChanged.connect(self.uiComboCoverageFilter_currentTextChanged)        
+        self.uiComboCoverageFilter.currentTextChanged.connect(lambda: self._trigger_filtering(reset_filter=False))        
         # FILTER - LINE EDIT
         self.uiLineEditTextFilter = QLineEdit()
-        self.uiLineEditTextFilter.textChanged.connect(self.uiLineEditTextFilter_textChanged)
+        # self.uiLineEditTextFilter.setTextMargins(20, 20, 20, 20)
+        # self.uiLineEditTextFilter.addAction(QIcon(":/16x16/icons/16x16/cil-magnifying-glass.png"), QLineEdit.LeadingPosition)
+        self.uiLineEditTextFilter.setClearButtonEnabled(True)
+        self.uiLineEditTextFilter.findChild(QToolButton).setIcon(QIcon(":/20x20/icons/20x20/cil-x.png"))
+        self.uiLineEditTextFilter.textChanged.connect(lambda: self._trigger_filtering(reset_filter=True))
 
         self._setup_ui() 
         self._create_actions()    
@@ -52,8 +56,8 @@ class View(QWidget):
     # CREATE ACTIONS
     ##############################################################################################################             
     def _create_actions(self):     
-        self.action_expand_all_children = help_func.create_action(':/16x16/icons/16x16/cil-expand-down.png', 'Expand', slot=self.uiDataTreeView.expand_all_children, toolbar=None)
-        self.action_collapse_all_children = help_func.create_action(':/16x16/icons/16x16/cil-expand-up.png', 'Collapse', slot=self.uiDataTreeView.collapse_all_children, toolbar=None)
+        self.action_expand_all_children = help_func.create_action(':/16x16/icons/16x16/cil-expand-down.png', 'Expand All', slot=self.uiDataTreeView.expand_all_children, toolbar=None)
+        self.action_collapse_all_children = help_func.create_action(':/16x16/icons/16x16/cil-expand-up.png', 'Collapse All', slot=self.uiDataTreeView.collapse_all_children, toolbar=None)
         self.action_goto_previous_index = help_func.create_action(':/16x16/icons/16x16/cil-chevron-left.png', 'Previous', slot=self.uiDataTreeView.goto_previous_index, toolbar=None)
         # Standard operations with nodes:
         self.action_move_up = help_func.create_action(':/16x16/icons/16x16/cil-chevron-top.png', 'Move Up', slot=lambda: self.DATA_MANAGER.move_node(direction='up'), shortcut="Ctrl+Up", toolbar=self.uiControlToolbar)
@@ -95,17 +99,17 @@ class View(QWidget):
     # SETUP UI
     ##############################################################################################################
     def _setup_ui(self):
-        self.setStyleSheet(styles)                
+        self.setStyleSheet(STYLES)                
         # FILTER + TREE NAVIGATION AREA
         uiBtnPreviousView = QPushButton(QIcon(":/16x16/icons/16x16/cil-chevron-left.png"), "")
         uiBtnPreviousView.clicked.connect(self.uiDataTreeView.goto_previous_index)
-        uiBtnPreviousView.setToolTip("Previous")
+        uiBtnPreviousView.setToolTip("Previous View (Backspace)")
         uiBtnExpandAllChildren = QPushButton(QIcon(":/16x16/icons/16x16/cil-expand-down.png"), "")
         uiBtnExpandAllChildren.clicked.connect(self.uiDataTreeView.expand_all_children)
-        uiBtnExpandAllChildren.setToolTip("Expand")
+        uiBtnExpandAllChildren.setToolTip("Expand All")
         uiBtnCollapseAllChildren = QPushButton(QIcon(":/16x16/icons/16x16/cil-expand-up.png"), "")
         uiBtnCollapseAllChildren.clicked.connect(self.uiDataTreeView.collapse_all_children)
-        uiBtnCollapseAllChildren.setToolTip("Collapse")
+        uiBtnCollapseAllChildren.setToolTip("Collapse All")
         # TEXT FILTER LINE EDIT
         self.uiLineEditTextFilter.setPlaceholderText('Filter')
         self.uiLineEditTextFilter.setVisible(False)
@@ -178,7 +182,7 @@ class View(QWidget):
     # EVENTS FROM DATA TREE VIEW
     def uiDataTreeView_received_files(self, data):
         """ Emits signal to DATA_MANAGER to load data from file or drop event """
-        pass
+        self.DATA_MANAGER.receive_data_from_drop_or_file_manager(data)
 
     def uiDataTreeView_current_index_changed(self, current_index: QModelIndex, previous_index: QModelIndex):
         """ Updates view"""
@@ -188,14 +192,14 @@ class View(QWidget):
 
 
     # FILTER EVENTS
-    def uiLineEditTextFilter_textChanged(self, text):
-        """ Filters data by text """
-        self._trigger_filtering(reset_filter=True)
+    # def uiLineEditTextFilter_textChanged(self, text):
+    #     """ Filters data by text """
+    #     self._trigger_filtering(reset_filter=True)
 
 
-    def uiComboCoverageFilter_currentTextChanged(self, text):
-        """ Filters data by coverage """
-        self._trigger_filtering(reset_filter=False)
+    # def uiComboCoverageFilter_currentTextChanged(self, text):
+    #     """ Filters data by coverage """
+    #     self._trigger_filtering(reset_filter=False)
 
 
     def _trigger_filtering(self, *, reset_filter: bool):

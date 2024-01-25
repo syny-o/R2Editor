@@ -1460,7 +1460,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_app_version.sizePolicy().hasHeightForWidth())
         self.frame_app_version.setSizePolicy(sizePolicy)
-        self.frame_app_version.setMinimumSize(QtCore.QSize(100, 0))
+        self.frame_app_version.setMaximumSize(QtCore.QSize(0, 16777215))
         self.frame_app_version.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.frame_app_version.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_app_version.setObjectName("frame_app_version")

@@ -1,4 +1,4 @@
-styles = \
+STYLES = \
 """
 QPushButton{
     background-color: rgb(58, 89, 245);
@@ -14,12 +14,17 @@ QPushButton:hover{
 
 QLineEdit{
     background-color: rgb(35, 35, 25);
-    background-image: url(:/16x16/icons/16x16/cil-magnifying-glass.png);
+    /*background-image: url(:/16x16/icons/16x16/cil-magnifying-glass.png);
     background-position: left center;
-    background-repeat: no-repeat;
-    padding: 8px;
-    padding-left: 20px;
+    background-repeat: no-repeat;*/
+    padding: 10px;
+
     margin: 0 5px;
+}
+
+QLineEdit QToolButton{
+    padding-left: 10px;
+    margin-left: 50px;
 }
 
 QLineEdit:focus
@@ -32,7 +37,7 @@ QLineEdit:focus
 QComboBox
 {
     min-width: 25px;
-	padding: 8px;
+	padding: 10px;
 	border: 1px solid rgb(39, 44, 54);
     background-color: rgb(35, 35, 25);
     selection-background-color: rgb(58, 89, 245);

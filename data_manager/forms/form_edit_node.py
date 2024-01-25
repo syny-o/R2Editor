@@ -280,7 +280,7 @@ class RequirementModuleLayoutGenerator:
             self.uiListWidgetModuleColumns.setEnabled(False)
             # self.uiLineEditPath.setEnabled(False)
             self.uiWidgetBaselines.setEnabled(False)
-            self. uiLabelWarning = QLabel("Remove coverage filter to edit columns/baseline.")
+            self.uiLabelWarning = QLabel("Remove coverage filter to edit columns/baseline.")
             self.uiLabelWarning.setStyleSheet("color: red;")
             self.uiLabelWarning.setAlignment(Qt.AlignCenter)
             self.uiMainLayout.addWidget(self.uiLabelWarning)
@@ -333,6 +333,9 @@ class RequirementModuleLayoutGenerator:
         return False
     
     def _evaluate_filter_changes(self):
+        if not self.NODE.coverage_filter:
+            return False
+            
         if self.uiTexEditCoverageFilter.toPlainText().strip() != self.NODE.coverage_filter:
             return True
         return False

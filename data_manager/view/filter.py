@@ -6,7 +6,7 @@ from data_manager.nodes.condition_nodes import ConditionFileNode, ConditionNode,
 from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
 from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
 from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
-from data_manager import constants
+from config import constants
 
 
 ######################################################################################################################################

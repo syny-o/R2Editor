@@ -27,13 +27,13 @@ from data_manager import project_manager
 from data_manager.data_manager import DataManager
 from data_manager.nodes.requirement_module import RequirementModule
 from dialogs.dialog_message import dialog_message
-from dialogs.form_find_replace import FindAndReplace
 from dialogs.window_new_project import ProjectConfig
 from file_browser.tree_file_browser import FileSystemView
 from tabs import Tabs
 from text_editor import text_management
 from text_editor.text_editor import TextEdit
 from ui.main_ui import Ui_MainWindow
+from config import constants
 
 # from dialogs.dialog_recent_projects import RecentProjects
 
@@ -541,10 +541,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     
     def find_reference_in_string(self, string):
-        # PATTERN_REQ_REFERENCE = re.compile(r'(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*', re.IGNORECASE)
-        PATTERN_REQ_REFERENCE = re.compile(r'(?:REFERENCE|\$REF:)\s*"(?P<req_reference>.+)"\s*\$', re.IGNORECASE)
-        match_list = PATTERN_REQ_REFERENCE.findall(string)
-        # print(match_list)
+        match_list = constants.PATTERN_REQ_REFERENCE.findall(string)
         references = set()
         for match_string in match_list:
             matches = match_string.split(",")
@@ -587,7 +584,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     text_to_save = self.actual_text_edit.toPlainText()
                     with open(self.actual_text_edit.file_path, 'w') as file_to_save:
                         file_to_save.write(text_to_save)
-                        file_to_save.close()
+                        # file_to_save.close()
 
                         self.update_coverage(self.actual_text_edit.toPlainText(), self.actual_text_edit.original_file_content, self.actual_text_edit.file_path)
 
@@ -622,14 +619,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 text_to_save = self.actual_text_edit.toPlainText()
                 with open(path, 'w') as file_to_save:
                     file_to_save.write(text_to_save)
-                    file_to_save.close()
+                    # file_to_save.close()
 
                     self.update_coverage(self.actual_text_edit.toPlainText(), self.actual_text_edit.original_file_content, path)
 
                     self.actual_text_edit.original_file_content = text_to_save
                     self.actual_text_edit.file_was_modified = False
                     self.set_actual_tab_icon(False)
-                    self.actual_text_edit.file_path = path
+                    self.actual_text_edit.file_path = Path(path)
                     current_tab_index = self.actual_tabs.indexOf(self.actual_text_edit)
                     self.actual_tabs.setTabText(current_tab_index, path.split('/')[-1])                    
 
@@ -645,8 +642,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         text = template.generate_tc_template()
         file_path = None
         tab_name = 'Untitled'
-        self.left_tabs.addTab(TextEdit(self, text, file_path), QIcon(u"ui/icons/16x16/cil-description.png"), tab_name)
+        self.left_tabs.addTab(TextEdit(self, "", file_path), QIcon(u"ui/icons/16x16/cil-description.png"), tab_name)
         self.actual_text_edit.setFocus()
+        tc = self.actual_text_edit.textCursor()
+        tc.insertText(text)
+        self.actual_text_edit.selectAll()
 
 
     def file_lock_unlock(self):
@@ -896,7 +896,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.settings.setValue('position', self.pos())
         # self.settings.setValue('last_opened_project', self.opened_project_path)
 
-        self.app_settings.save_settings()
+        self.app_settings.save_settings_2_disk()
         opened_files = self.get_all_opened_files()
         for path, val in opened_files.items():
             text_edit = val[0]

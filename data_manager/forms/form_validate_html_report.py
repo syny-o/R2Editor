@@ -27,7 +27,7 @@ class FormValidatedHTMLReport(QWidget, Ui_Form):
         
         uiListWidgetIdentifiers = QListWidget()
         uiListWidgetIdentifiers.itemDoubleClicked.connect(lambda item: data_manager.doubleclicked_on_requirement_in_HTML_report_form(item.text()))
-        lw_items = [QListWidgetItem(QIcon(u"ui/icons/cross.png"), item, uiListWidgetIdentifiers) for item in not_covered_requirements]
+        _ = [QListWidgetItem(QIcon(u"ui/icons/cross.png"), item, uiListWidgetIdentifiers) for item in not_covered_requirements]
 
 
 

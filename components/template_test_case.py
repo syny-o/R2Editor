@@ -34,8 +34,7 @@ class TemplateTestCase:
         ReadDTC = NoDTC
 
     $COM: "HIL reset" $
-        HIL = Reset
-                """
+        HIL = Reset"""
 
     test_case_body_not_testable = """\
 
