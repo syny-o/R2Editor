@@ -235,10 +235,45 @@ class Ui_Form(object):
         self.ui_lab_project_path.setMinimumSize(QtCore.QSize(30, 0))
         font = QtGui.QFont()
         font.setPointSize(10)
+        font.setBold(True)
+        font.setWeight(75)
         self.ui_lab_project_path.setFont(font)
         self.ui_lab_project_path.setStyleSheet("color: rgb(200,200,200);")
         self.ui_lab_project_path.setObjectName("ui_lab_project_path")
         self.horizontalLayout_33.addWidget(self.ui_lab_project_path)
+        self.uiBtnSetProjectPath = QtWidgets.QPushButton(self.frame_35)
+        self.uiBtnSetProjectPath.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.uiBtnSetProjectPath.setStyleSheet("QPushButton {    \n"
+"    border: none;\n"
+"    padding: 5;\n"
+"    /*border-right: 5px solid rgb(44, 49, 60);*/\n"
+"    background-color: rgb(58, 89, 245);\n"
+"\n"
+"\n"
+"}\n"
+"QPushButton:hover {\n"
+"    background-color: rgb(85, 170, 255);\n"
+"\n"
+"}\n"
+"QPushButton:pressed {    \n"
+"    background-color: rgb(85, 170, 255);\n"
+"\n"
+"}\n"
+"\n"
+"QPushButton:checked {    \n"
+"    background-color: rgb(85, 170, 255);\n"
+"}\n"
+"\n"
+"QPushButton:disabled {    \n"
+"    color: rgb(80, 80, 80);\n"
+"\n"
+"}")
+        self.uiBtnSetProjectPath.setText("")
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap(":/16x16/icons/16x16/cil-options-horizontal.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.uiBtnSetProjectPath.setIcon(icon5)
+        self.uiBtnSetProjectPath.setObjectName("uiBtnSetProjectPath")
+        self.horizontalLayout_33.addWidget(self.uiBtnSetProjectPath)
         self.verticalLayout_11.addWidget(self.frame_35, 0, QtCore.Qt.AlignLeft)
         self.frame_38 = QtWidgets.QFrame(self.frame_33)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum)
@@ -511,6 +546,7 @@ class Ui_Form(object):
         self.lab_requirements.setText(_translate("Form", "Requirements"))
         self.name_2.setText(_translate("Form", "Project Path:"))
         self.ui_lab_project_path.setText(_translate("Form", "?"))
+        self.uiBtnSetProjectPath.setToolTip(_translate("Form", "Set Project Path"))
         self.name_5.setText(_translate("Form", "Total:"))
         self.ui_lab_req_total.setText(_translate("Form", "0"))
         self.name_4.setText(_translate("Form", "Covered:"))

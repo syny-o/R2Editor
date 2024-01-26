@@ -1,11 +1,8 @@
 import re
-from tkinter import N
 from PyQt5.QtWidgets import QWidget, QLabel, QListWidget, QLineEdit, QVBoxLayout, QHBoxLayout, QTextEdit, QShortcut, QPushButton
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
-from PyQt5.QtGui import QFont, QPalette
 
 from dialogs.dialog_message import dialog_message
-import ui
 from ui.form_general_ui import Ui_Form
 
 
@@ -265,6 +262,7 @@ class RequirementModuleLayoutGenerator:
         self.uiMainLayout.addLayout(uiLayoutBaseline)
 
         self.uiListWidgetModuleColumns = MyListWidget()
+        self.uiListWidgetModuleColumns.setDefaultDropAction(Qt.MoveAction)
         QShortcut( 'Del', self.uiListWidgetModuleColumns ).activated.connect(self.uiListWidgetModuleColumns.remove_item)
         # self.uiListWidgetModuleColumns.setDefaultDropAction(Qt.MoveAction)
         uiLayoutModuleColumns.addWidget(self.uiListWidgetModuleColumns)        
@@ -274,13 +272,15 @@ class RequirementModuleLayoutGenerator:
         self.uiListWidgetModuleColumns.insertItems(0, self.NODE.columns_names)
         self.uiListWidgetModuleAttributes.insertItems(0, self.NODE.attributes)
 
+        self.uiLabelWarning = QLabel()
+
         # QTimer.singleShot(100, lambda: self.uiLineEditPath.setFocus())         
 
         if self.NODE.coverage_filter:
             self.uiListWidgetModuleColumns.setEnabled(False)
             # self.uiLineEditPath.setEnabled(False)
             self.uiWidgetBaselines.setEnabled(False)
-            self.uiLabelWarning = QLabel("Remove coverage filter to edit columns/baseline.")
+            self.uiLabelWarning.setText("Remove coverage filter to edit columns/baseline.")
             self.uiLabelWarning.setStyleSheet("color: red;")
             self.uiLabelWarning.setAlignment(Qt.AlignCenter)
             self.uiMainLayout.addWidget(self.uiLabelWarning)
@@ -288,6 +288,7 @@ class RequirementModuleLayoutGenerator:
         uiLayoutCoverageFilter = QHBoxLayout()
         uiLayoutCoverageFilter.addWidget(QLabel("Cv. Filter:"))
         self.uiTexEditCoverageFilter = QTextEdit()
+        self.uiTexEditCoverageFilter.setAcceptDrops(True)
         self.uiTexEditCoverageFilter.setMaximumHeight(100)
         uiLayoutCoverageFilter.addWidget(self.uiTexEditCoverageFilter)
         if f := self.NODE.coverage_filter:
@@ -334,6 +335,8 @@ class RequirementModuleLayoutGenerator:
     
     def _evaluate_filter_changes(self):
         if not self.NODE.coverage_filter:
+            if self.uiTexEditCoverageFilter.toPlainText().strip():
+                return True
             return False
             
         if self.uiTexEditCoverageFilter.toPlainText().strip() != self.NODE.coverage_filter:

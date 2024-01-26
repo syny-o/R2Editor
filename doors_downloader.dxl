@@ -48,7 +48,7 @@
         out << "<REQUIREMENTS_START>" "\n"
 
         for o in entire(m) do {
-            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMN_START>"o."010_Object Type""<COLUMN_END>""<COLUMN_START>"o."011_Object State""<COLUMN_END>""<COLUMN_START>"o."808_OEM - Detection Condition English""<COLUMN_END>""<COLUMNS_END>"
+            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMN_START>"o."010_Object Type""<COLUMN_END>""<COLUMN_START>"o."011_Object State""<COLUMN_END>""<COLUMN_START>"o."803_OEM/OES - Diagnostic Event Number""<COLUMN_END>""<COLUMN_START>"o."805_OEM - Event Description""<COLUMN_END>""<COLUMN_START>"o."808_OEM - Detection Condition English""<COLUMN_END>""<COLUMN_START>"o."810_OEM - Detection Description English""<COLUMN_END>""<COLUMN_START>"o."815_OEM/OES - ReEvaluation English""<COLUMN_END>""<COLUMN_START>"o."Object Text""<COLUMN_END>""<COLUMNS_END>"
             
             out << "<OUTLINKS_START>"
             for outLink in (o -> "*") do {

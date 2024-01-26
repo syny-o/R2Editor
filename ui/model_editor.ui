@@ -468,6 +468,8 @@ background-color: rgb(39, 44, 54);
                  <property name="font">
                   <font>
                    <pointsize>10</pointsize>
+                   <weight>75</weight>
+                   <bold>true</bold>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -475,6 +477,50 @@ background-color: rgb(39, 44, 54);
                  </property>
                  <property name="text">
                   <string>?</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="uiBtnSetProjectPath">
+                 <property name="cursor">
+                  <cursorShape>PointingHandCursor</cursorShape>
+                 </property>
+                 <property name="toolTip">
+                  <string>Set Project Path</string>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">QPushButton {	
+	border: none;
+	padding: 5;
+	/*border-right: 5px solid rgb(44, 49, 60);*/
+	background-color: rgb(58, 89, 245);
+
+
+}
+QPushButton:hover {
+	background-color: rgb(85, 170, 255);
+
+}
+QPushButton:pressed {	
+	background-color: rgb(85, 170, 255);
+
+}
+
+QPushButton:checked {	
+	background-color: rgb(85, 170, 255);
+}
+
+QPushButton:disabled {	
+	color: rgb(80, 80, 80);
+
+}</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="files.qrc">
+                   <normaloff>:/16x16/icons/16x16/cil-options-horizontal.png</normaloff>:/16x16/icons/16x16/cil-options-horizontal.png</iconset>
                  </property>
                 </widget>
                </item>

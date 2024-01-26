@@ -12,7 +12,7 @@ from data_manager.nodes.condition_nodes import ConditionFileNode, ConditionNode,
 from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
 from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
 from components.reduce_path_string import reduce_path_string
-from data_manager.req_text_edit import RequirementTextEdit
+from data_manager.widget_req_text_edit import RequirementTextEdit
 from data_manager.widget_baseline import WidgetBaseline
 
 from components.helper_functions import layout_generate_one_row as generate_one_row

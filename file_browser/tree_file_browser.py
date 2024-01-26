@@ -1,8 +1,6 @@
-from operator import is_
 import os
 import shutil
 from pathlib import Path
-from sys import path
 
 from PyQt5.QtWidgets import QWidget, QFileSystemModel, \
     QMenu, QInputDialog, QLineEdit, QMessageBox, QShortcut

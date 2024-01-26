@@ -32,6 +32,16 @@ def at_least_one_module_is_present(root: QStandardItem) -> bool:
     return False
 
 
+def at_least_one_module_with_coverage_is_present(root: QStandardItem) -> bool:
+    for row in range(root.rowCount()):
+        node = root.child(row)
+        if type(node) == RequirementModule and node.coverage_filter:
+            return True
+    return False
+
+
+
+
 
 def is_module_present(root: QStandardItem, module_path: str) -> bool:
     for row in range(root.rowCount()):

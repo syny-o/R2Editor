@@ -63,6 +63,7 @@ class DataManager(QWidget, Ui_Form):
         self.uiBtnNewModule.clicked.connect(self._open_add_requirement_module_form)
         self.uiBtnCheckCoverage.clicked.connect(self._create_dict_from_scripts_for_coverage_check)
         self.uiBtnCheckHtmlReport.clicked.connect(self.check_HTML_report)
+        self.uiBtnSetProjectPath.clicked.connect(self._set_project_path)
 
         # POINTER TO REQ MODULE(S) WHICH ARE DOWNLOADING
         # self._currently_downloaded_modules = []
@@ -95,6 +96,14 @@ class DataManager(QWidget, Ui_Form):
     ################################################################################################
     #  PROJECT HANDLING
     ################################################################################################
+
+    def _set_project_path(self):
+        folder = QFileDialog.getExistingDirectory(self, "Set Project Path", "", QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks)
+        if folder:
+            self.PROJECT_MANAGER.receive_parameters_from_listeners(dict(disk_project_path=folder))
+            return True
+        return False
+    
 
     # @interface --> PROJECT MANAGER
     def set_project_saved(self, is_modified: bool) -> None:
@@ -226,7 +235,6 @@ class DataManager(QWidget, Ui_Form):
                 self.set_project_saved(False)
         
         self._module_locker.unlock_all_modules()
-        # self._display_values()
         self._update_data_summary()
         self.uiBtnCheckCoverage.setEnabled(True)
         if global_success: 
@@ -251,17 +259,24 @@ class DataManager(QWidget, Ui_Form):
                             self._update_data_summary()            
                             self.set_project_saved(False)
                             self.MAIN.show_notification("Coverage Updated.")
-                            self._display_values()
+                            # self._display_values()
 
 
     #####################################################################################################################################################
     #   PHYSICAL COVERAGE CHECK
     #####################################################################################################################################################
-    def _create_dict_from_scripts_for_coverage_check(self):
-        if self.PROJECT_MANAGER.disk_project_path():
-            self.uiBtnCheckCoverage.setEnabled(False)        
-            worker = Worker(self)
-            self.threadpool.start(worker)
+    def _create_dict_from_scripts_for_coverage_check(self): # PushButton Check Coverage clicked
+        if not tree_walker.at_least_one_module_with_coverage_is_present(self.ROOT):
+            dialog_message(self, "There are no Requirement Modules with Coverage Filter. Add at least one.")
+            return
+        
+        if self.PROJECT_MANAGER.disk_project_path() is None:
+            succes = self._set_project_path()
+            if not succes: return
+        
+        self.uiBtnCheckCoverage.setEnabled(False)        
+        worker = Worker(self)
+        self.threadpool.start(worker)
 
 
     @pyqtSlot(dict)
@@ -318,8 +333,6 @@ class DataManager(QWidget, Ui_Form):
             selected_item.remove_from_ignore_list()    
             self._update_data_summary()   
             self.set_project_saved(False)      
-
-
 
 
     ####################################################################################################################
@@ -497,7 +510,6 @@ class DataManager(QWidget, Ui_Form):
     @pyqtSlot()
     def edit_node_response(self):
         self.MAIN.show_notification("Data Updated")
-        # self._display_values()
         self._update_data_summary()
         self.set_project_saved(False)
         self.send_data_2_completer()
@@ -522,10 +534,10 @@ class DataManager(QWidget, Ui_Form):
         self._update_data_summary()
 
 
-
     ####################################################################################################################
     # HTML REPORT CHECK:
     ####################################################################################################################
+    
     def check_HTML_report(self):
         # reload(data_manager.form_validate_html_report)
         
