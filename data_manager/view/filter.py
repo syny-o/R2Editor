@@ -87,7 +87,7 @@ class FullTextRequirementSpecification(iSpecification):
 ######################################################################################################################################
 ### DEFINE FILTERS:
 
-class StandardOneLevelFilter(iFilter):
+class StandardFirstLevelFilter(iFilter):
     def filter(self, TREE, node: ConditionFileNode|A2lFileNode, specification: iSpecification):
         for row in range(node.rowCount()):
             subnode = node.child(row)
@@ -138,18 +138,18 @@ class DecoratedAutoExpandingLastLevelFilter(iFilter):
 
 
 def _show_only_items_with_coverage(TREE, NODE):
-    StandardOneLevelFilter().filter(TREE, NODE, CoveredSpecification() | NotCoveredSpecification())    
+    StandardLastLevelFilter().filter(TREE, NODE, CoveredSpecification() | NotCoveredSpecification())    
 
 
 def _show_only_items_not_covered(TREE, NODE):
-    StandardOneLevelFilter().filter(TREE, NODE, NotCoveredSpecification())
+    StandardLastLevelFilter().filter(TREE, NODE, NotCoveredSpecification())
 
 def _show_only_items_covered(TREE, NODE):
     StandardLastLevelFilter().filter(TREE, NODE, CoveredSpecification())
 
 
 def _show_all_items(TREE, NODE):
-    StandardOneLevelFilter().filter(TREE, NODE, AllSpecification())
+    StandardLastLevelFilter().filter(TREE, NODE, AllSpecification())
 
 def _show_only_items_with_coverage_with_text(TREE, NODE, text):
     DecoratedAutoExpandingLastLevelFilter().filter(TREE, NODE, (CoveredSpecification() | NotCoveredSpecification()) & FullTextRequirementSpecification(text))    
@@ -210,7 +210,7 @@ def _filter_dspace_file(TREE, item, text, coverage):
 
 
 def _filter_condition_or_a2l_file(TREE, item, text, coverage):
-    StandardOneLevelFilter().filter(TREE, item, FullTextSpecification(text))
+    StandardFirstLevelFilter().filter(TREE, item, FullTextSpecification(text))
 
 
 
