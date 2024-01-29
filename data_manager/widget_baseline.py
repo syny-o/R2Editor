@@ -24,6 +24,7 @@ class WidgetBaseline(QWidget):
         uiVLayout = QVBoxLayout()
 
         self.uiTextEditBaseLineDetails = QTextEdit()
+        self.uiTextEditBaseLineDetails.setReadOnly(True)
         self.uiListWidgetBaselines = QListWidget()
         self.uiListWidgetBaselines.setMaximumWidth(200)
         self.uiBtnSwitchBaseLine = QPushButton("Switch")

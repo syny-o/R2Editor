@@ -265,7 +265,7 @@ class RequirementModule(QStandardItem):
                         
                     except Exception as ex:
                         self.coverage_filter = None
-                        raise Exception(f"Wrong Filter: {ex}")
+                        raise Exception(str(ex))
 
     
                     if evaluation:

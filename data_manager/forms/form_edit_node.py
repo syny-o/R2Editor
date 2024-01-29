@@ -288,7 +288,8 @@ class RequirementModuleLayoutGenerator:
         uiLayoutCoverageFilter = QHBoxLayout()
         uiLayoutCoverageFilter.addWidget(QLabel("Cv. Filter:"))
         self.uiTexEditCoverageFilter = QTextEdit()
-        self.uiTexEditCoverageFilter.setAcceptDrops(True)
+        if not self.NODE.columns_names:
+            self.uiTexEditCoverageFilter.setEnabled(False)        
         self.uiTexEditCoverageFilter.setMaximumHeight(100)
         uiLayoutCoverageFilter.addWidget(self.uiTexEditCoverageFilter)
         if f := self.NODE.coverage_filter:

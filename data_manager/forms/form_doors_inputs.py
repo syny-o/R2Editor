@@ -42,6 +42,9 @@ class FormDoorsInputs(QWidget, Ui_Form):
 
         self.show()  
 
+        self.uiLineEditPassword.setFocus()
+        self.uiBtnOK.setShortcut("Return")
+
 
 
     def _show_password(self):

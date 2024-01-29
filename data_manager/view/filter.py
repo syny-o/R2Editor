@@ -95,7 +95,7 @@ class StandardOneLevelFilter(iFilter):
                 TREE.setRowHidden(row, node.index(), False)
             else:
                 TREE.setRowHidden(row, node.index(), True)
-            self.filter(TREE, subnode, specification)
+            # self.filter(TREE, subnode, specification)
 
 
 class StandardLastLevelFilter(iFilter):

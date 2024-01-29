@@ -411,15 +411,7 @@ class Ui_Form(object):
 "    letter-spacing: 1.3px;\n"
 "}\n"
 "\n"
-"")
-        self.frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_3.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_3.setObjectName("frame_3")
-        self.verticalLayout_13 = QtWidgets.QVBoxLayout(self.frame_3)
-        self.verticalLayout_13.setContentsMargins(-1, -1, 0, 0)
-        self.verticalLayout_13.setObjectName("verticalLayout_13")
-        self.splitter = QtWidgets.QSplitter(self.frame_3)
-        self.splitter.setStyleSheet("QWidget{\n"
+"QWidget{\n"
 "    font-size: 16px;\n"
 "}\n"
 "\n"
@@ -442,13 +434,9 @@ class Ui_Form(object):
 "            QToolTip{\n"
 "                font-size: 16px;\n"
 "                padding: 15px;\n"
-"                } \"\"\")               \n"
-"       \n"
-"")
-        self.splitter.setOrientation(QtCore.Qt.Horizontal)
-        self.splitter.setObjectName("splitter")
-        self.frame_31 = QtWidgets.QFrame(self.splitter)
-        self.frame_31.setStyleSheet("QLineEdit, QPushButton{\n"
+"                }\n"
+"\n"
+"QLineEdit, QPushButton{\n"
 "    padding: 5;\n"
 "    border: 1px solid rgb(39, 44, 54);\n"
 "}\n"
@@ -466,7 +454,22 @@ class Ui_Form(object):
 "     margin: 2px 5px 2px 4px;\n"
 "    background-color: red;\n"
 "    color: red;\n"
-" }")
+" }\n"
+"")
+        self.frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_3.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_3.setObjectName("frame_3")
+        self.verticalLayout_13 = QtWidgets.QVBoxLayout(self.frame_3)
+        self.verticalLayout_13.setContentsMargins(-1, -1, 0, 0)
+        self.verticalLayout_13.setObjectName("verticalLayout_13")
+        self.splitter = QtWidgets.QSplitter(self.frame_3)
+        self.splitter.setStyleSheet("         \n"
+"       \n"
+"")
+        self.splitter.setOrientation(QtCore.Qt.Horizontal)
+        self.splitter.setObjectName("splitter")
+        self.frame_31 = QtWidgets.QFrame(self.splitter)
+        self.frame_31.setStyleSheet("")
         self.frame_31.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_31.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_31.setObjectName("frame_31")
@@ -494,43 +497,6 @@ class Ui_Form(object):
         self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.verticalLayout.addWidget(self.frame_4)
-        self.ui_frame_progress_status = QtWidgets.QFrame(Form)
-        self.ui_frame_progress_status.setMinimumSize(QtCore.QSize(0, 0))
-        self.ui_frame_progress_status.setMaximumSize(QtCore.QSize(16777215, 0))
-        self.ui_frame_progress_status.setStyleSheet("background-color: rgb(33, 37, 43);")
-        self.ui_frame_progress_status.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.ui_frame_progress_status.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.ui_frame_progress_status.setObjectName("ui_frame_progress_status")
-        self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.ui_frame_progress_status)
-        self.horizontalLayout_6.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_6.setSpacing(0)
-        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
-        self.frame_28 = QtWidgets.QFrame(self.ui_frame_progress_status)
-        self.frame_28.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_28.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_28.setObjectName("frame_28")
-        self.horizontalLayout_6.addWidget(self.frame_28)
-        self.frame_5 = QtWidgets.QFrame(self.ui_frame_progress_status)
-        self.frame_5.setStyleSheet("background-color: rgb(58, 89, 245);\n"
-"color: rgb(200,200,200);\n"
-"border-radius: 5px;")
-        self.frame_5.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_5.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_5.setObjectName("frame_5")
-        self.horizontalLayout_22 = QtWidgets.QHBoxLayout(self.frame_5)
-        self.horizontalLayout_22.setContentsMargins(50, 0, 50, 5)
-        self.horizontalLayout_22.setSpacing(0)
-        self.horizontalLayout_22.setObjectName("horizontalLayout_22")
-        self.ui_label_progress_status = QtWidgets.QLabel(self.frame_5)
-        self.ui_label_progress_status.setObjectName("ui_label_progress_status")
-        self.horizontalLayout_22.addWidget(self.ui_label_progress_status)
-        self.horizontalLayout_6.addWidget(self.frame_5, 0, QtCore.Qt.AlignHCenter)
-        self.frame_30 = QtWidgets.QFrame(self.ui_frame_progress_status)
-        self.frame_30.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_30.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_30.setObjectName("frame_30")
-        self.horizontalLayout_6.addWidget(self.frame_30)
-        self.verticalLayout.addWidget(self.ui_frame_progress_status, 0, QtCore.Qt.AlignTop)
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
@@ -554,5 +520,4 @@ class Ui_Form(object):
         self.name_3.setText(_translate("Form", "Not Covered:"))
         self.ui_lab_req_not_covered.setText(_translate("Form", "?"))
         self.lab_project_files.setText(_translate("Form", "Project Files"))
-        self.ui_label_progress_status.setText(_translate("Form", "No Action"))
 import files_rc
