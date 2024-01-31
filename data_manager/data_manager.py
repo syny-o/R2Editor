@@ -393,8 +393,11 @@ class DataManager(QWidget, Ui_Form):
             if node.path == module_path:
                 if node.hasChildren():
                     first_child_reference = node.child(0).reference
-                    prefix = first_child_reference.split("_")[:-1]
-                    full_reference = "_".join(prefix) + "_" + reference
+                    if "_" in first_child_reference:  # LP3 has identifier just plain number
+                        prefix = first_child_reference.split("_")[:-1]
+                        full_reference = "_".join(prefix) + "_" + reference
+                    else:
+                        full_reference = reference
                     found_node = tree_walker.find_node_by_identifier(node, full_reference)
 
         if found_node:

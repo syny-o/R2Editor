@@ -16,6 +16,7 @@ from data_manager.widget_req_text_edit import RequirementTextEdit
 from data_manager.widget_baseline import WidgetBaseline
 
 from components.helper_functions import layout_generate_one_row as generate_one_row
+from data_manager.widgets.list_widget_event_filter import ListWidgetWithEventFilter
 
 
 @dataclass
@@ -122,8 +123,8 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
 
 
     def _connect_signals(self):
-        self.uiListWidgetLinks.itemDoubleClicked.connect(self.DATA_MANAGER._doubleclick_on_outlink)
-        self.uiListWidgetScripts.itemDoubleClicked.connect(self.DATA_MANAGER._doubleclick_on_tc_reference) 
+        self.uiListWidgetLinks.itemClicked.connect(self.DATA_MANAGER._doubleclick_on_outlink)
+        self.uiListWidgetScripts.itemClicked.connect(self.DATA_MANAGER._doubleclick_on_tc_reference) 
         self.uiBtnCopyReqRef.clicked.connect(self._copy_to_clipboard)    
 
 
@@ -159,11 +160,11 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
     def _generate_links_scripts_layout(self):
         uiLinksScriptsLayout = QHBoxLayout()
         uiLinksScriptsLayout.addWidget(QLabel("Links:"))
-        self.uiListWidgetLinks = QListWidget() 
+        self.uiListWidgetLinks = ListWidgetWithEventFilter() 
         self.uiListWidgetLinks.setMaximumHeight(120)
         uiLinksScriptsLayout.addWidget(self.uiListWidgetLinks)
         uiLinksScriptsLayout.addWidget(QLabel("Scripts:"))
-        self.uiListWidgetScripts = QListWidget() 
+        self.uiListWidgetScripts = ListWidgetWithEventFilter()
         self.uiListWidgetScripts.setMaximumHeight(120)
         uiLinksScriptsLayout.addWidget(self.uiListWidgetScripts)        
         self.uiMainLayout.addLayout(uiLinksScriptsLayout)
@@ -191,6 +192,7 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
             ref_lw_item = QListWidgetItem()
             ref_lw_item.setData(Qt.DisplayRole, reduce_path_string(file_reference))
             ref_lw_item.setData(Qt.UserRole, file_reference)
+            ref_lw_item.setIcon(QIcon(u"ui/icons/16x16/cil-file.png"))
             self.uiListWidgetScripts.addItem(ref_lw_item)  
 
 
@@ -272,9 +274,9 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
 
 
     def _connect_signals(self):
-        self.uiListWidgetIgnoreList.itemDoubleClicked.connect(self.DATA_MANAGER._doubleclick_on_identifier)
-        self.uiListWidgetNotCoveredList.itemDoubleClicked.connect(self.DATA_MANAGER._doubleclick_on_identifier)
-        self.uiListWidgetCoveredList.itemDoubleClicked.connect(self.DATA_MANAGER._doubleclick_on_identifier)
+        self.uiListWidgetIgnoreList.itemClicked.connect(self.DATA_MANAGER._doubleclick_on_identifier)
+        self.uiListWidgetNotCoveredList.itemClicked.connect(self.DATA_MANAGER._doubleclick_on_identifier)
+        self.uiListWidgetCoveredList.itemClicked.connect(self.DATA_MANAGER._doubleclick_on_identifier)
 
 
     def _generate_header_layout(self):
@@ -292,7 +294,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
         # self.uiAllListLayout.setSpacing(10)
         self.uiMainLayout.addLayout(self.uiAllListLayout)
 
-        self.uiListWidgetCoveredList = QListWidget()
+        self.uiListWidgetCoveredList = ListWidgetWithEventFilter()
         uiCoveredListLayout = QVBoxLayout()
         self.uiLabelCovered = QLabel()
         self.uiLabelCovered.setStyleSheet("QLabel {color: rgb(0, 179, 0); min-width: 120px}")
@@ -315,7 +317,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
             # self.uiListWidgetCoveredList.insertItem(0, covered_lw_item)   
 
     def _generate_not_covered_list_layout(self):
-        self.uiListWidgetNotCoveredList = QListWidget()
+        self.uiListWidgetNotCoveredList = ListWidgetWithEventFilter()
         uiNotCoveredListLayout = QVBoxLayout()
         self.uiLabelNotCovered = QLabel()
         self.uiLabelNotCovered.setStyleSheet("QLabel {color: rgb(250,50,50); min-width: 120px}")
@@ -339,7 +341,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
 
 
     def _generate_ignore_list_layout(self):
-        self.uiListWidgetIgnoreList = QListWidget()
+        self.uiListWidgetIgnoreList = ListWidgetWithEventFilter()
         uiIgnoreListLayout = QVBoxLayout()
         self.uiLabelIgnored = QLabel()
         self.uiLabelIgnored.setStyleSheet("QLabel {min-width: 120px}")
@@ -348,7 +350,8 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
         self.uiAllListLayout.addLayout(uiIgnoreListLayout)
 
         self.uiListWidgetIgnoreList.setMouseTracking(True)
-        self.uiListWidgetIgnoreList.itemEntered.connect(self.DATA_MANAGER.set_tooltip_2_list_widget_item)        
+        self.uiListWidgetIgnoreList.itemEntered.connect(self.DATA_MANAGER.set_tooltip_2_list_widget_item) 
+
 
     def _fill_ignore_list_layout(self, NODE):
         self.uiLabelIgnored.setText(f"Ignored: {len(NODE.ignore_list)}")        
@@ -358,6 +361,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
             ignore_lw_item.setData(Qt.DisplayRole, str_identifier.split('-')[-1])
             ignore_lw_item.setData(Qt.UserRole, str_identifier)
             ignore_lw_item.setData(Qt.DecorationRole, QIcon(u"ui/icons/16x16/cil-low-vision.png"))
+            
             self.uiListWidgetIgnoreList.insertItem(0, ignore_lw_item)   
 
 

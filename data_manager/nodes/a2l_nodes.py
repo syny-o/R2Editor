@@ -60,6 +60,7 @@ class A2lFileNode(QStandardItem):
         self.setEditable(False)
 
         self.file_2_tree()
+        self.root_node.appendRow(self)  # APPEND NODE AS A CHILD
 
         # THREAD CONFIGURATION
         self.threadpool = QThreadPool()
@@ -83,7 +84,7 @@ class A2lFileNode(QStandardItem):
                     a2l_node = A2lNode(signal_name, signal_address)
                     self.appendRow(a2l_node)    # APPEND NODE AS A CHILD
 
-            self.root_node.appendRow(self)  # APPEND NODE AS A CHILD
+            # self.root_node.appendRow(self)  # APPEND NODE AS A CHILD
 
         except Exception as e:
             print(f'Unable to open file {self.path}, reason: {str(e)}')
@@ -289,9 +290,9 @@ class A2lNormWorker(QRunnable):
             with open(self.a2l_file_node.path, 'w') as f:
                 f.write(normalised_text)
 
-                self.a2l_file_node.remove_all_children()
-                self.a2l_file_node.file_2_tree()
-                self.signals.finished.emit(data_4_report, missing_signals, duplicated_signals)
+            self.a2l_file_node.remove_all_children()
+            self.a2l_file_node.file_2_tree()
+            self.signals.finished.emit(data_4_report, missing_signals, duplicated_signals)
 
 
         except Exception as e:

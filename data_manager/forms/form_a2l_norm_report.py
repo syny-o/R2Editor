@@ -32,6 +32,7 @@ class A2lNormReport(QWidget, Ui_Form):
         self.uiLabelTitle.setText(f"A2L Normalisation Finished")
         self.uiBtnTitleBarClose.clicked.connect(self.close)
         self.uiBtnStatusBarClose.clicked.connect(self.close)
+        self.uiBtnStatusBarClose.setText("Close")
         # self.uiBtnOK.clicked.connect(self.close)        
         uiLabHeadingUpdates = QLabel(f"Following variables have been updated ({len(data_4_report)}):")
         uiTextEditSummaryUpdates = QPlainTextEdit()
