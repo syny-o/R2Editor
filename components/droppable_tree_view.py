@@ -1,11 +1,6 @@
 from PyQt5.QtWidgets import QTreeView, QSizePolicy
 from PyQt5.QtCore import pyqtSignal, Qt
 
-style = """
-        QTreeView {
-            font-size: 16px;
-            }            
-    """   
 
 
 MAX_STORED_INDEXES = 40
@@ -29,7 +24,6 @@ class DroppableTreeView(QTreeView):
         self.setAcceptDrops(True)
         self.setDragDropMode(QTreeView.DropOnly)
         self.setDropIndicatorShown(True)
-        self.setStyleSheet(style)
 
         self.expanded.connect(self.node_was_expanded)
         self.collapsed.connect(self.node_was_collapsed)

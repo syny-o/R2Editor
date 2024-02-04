@@ -102,7 +102,7 @@ class RequirementModule(QStandardItem):
         self.setIcon(self.ICON_DOORS)
         self.setText(reduce_path_string(self.path))
         self.setEditable(False)
-        self.setForeground(QColor(200, 200, 200)) 
+        # self.setForeground(QColor(200, 200, 200)) 
         self.view_filter = constants.ViewCoverageFilter.ALL    
         self.columns_names_backup = [*columns_names] 
         self.current_baseline_backup = current_baseline

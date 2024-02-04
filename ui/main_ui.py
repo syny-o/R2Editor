@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1870, 1244)
+        MainWindow.resize(1610, 1077)
         MainWindow.setMinimumSize(QtCore.QSize(1000, 720))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
@@ -184,15 +184,14 @@ class Ui_MainWindow(object):
         font.setFamily("Segoe UI")
         font.setPointSize(10)
         MainWindow.setFont(font)
-        MainWindow.setStyleSheet("QMainWindow {background: transparent; }\n"
+        MainWindow.setStyleSheet("\n"
 "\n"
 "\n"
 "")
         MainWindow.setAnimated(True)
         MainWindow.setDockOptions(QtWidgets.QMainWindow.AllowTabbedDocks|QtWidgets.QMainWindow.AnimatedDocks)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.centralwidget.setStyleSheet("background: transparent;\n"
-"color: rgb(210, 210, 210);\n"
+        self.centralwidget.setStyleSheet("\n"
 "")
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
@@ -442,7 +441,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addWidget(self.frame_top_right)
         self.verticalLayout.addWidget(self.frame_top)
         self.frame_center = QtWidgets.QFrame(self.frame_main)
-        self.frame_center.setStyleSheet("background-color: rgb(40, 44, 52);")
+        self.frame_center.setStyleSheet("")
         self.frame_center.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.frame_center.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_center.setObjectName("frame_center")
@@ -450,54 +449,31 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_2.setSpacing(0)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.frame_left_menu = QtWidgets.QFrame(self.frame_center)
+        self.uiFrameLeftMenu = QtWidgets.QFrame(self.frame_center)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.frame_left_menu.sizePolicy().hasHeightForWidth())
-        self.frame_left_menu.setSizePolicy(sizePolicy)
-        self.frame_left_menu.setMinimumSize(QtCore.QSize(70, 0))
-        self.frame_left_menu.setMaximumSize(QtCore.QSize(70, 16777215))
-        self.frame_left_menu.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.frame_left_menu.setStyleSheet("QFrame{\n"
-"background-color: rgb(27, 29, 35);\n"
-"background-color: rgb(58, 89, 245);\n"
-"}\n"
-"\n"
-"QPushButton {    \n"
-"    background-position: left center;\n"
-"    background-repeat: no-repeat;\n"
-"    border: none;\n"
-"    border-left: 28px solid rgb(58, 89, 245);\n"
-"    background-color: rgb(58, 89, 245);\n"
-"    text-align: left;\n"
-"    padding-left: 45px;\n"
-"}\n"
-"QPushButton:hover {\n"
-"    background-color: rgb(33, 37, 43);\n"
-"    border-left: 28px solid rgb(33, 37, 43);\n"
-"}\n"
-"QPushButton:pressed {    \n"
-"    background-color: rgb(85, 170, 255);\n"
-"    border-left: 28px solid rgb(85, 170, 255);\n"
-"}")
-        self.frame_left_menu.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.frame_left_menu.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_left_menu.setObjectName("frame_left_menu")
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.frame_left_menu)
+        sizePolicy.setHeightForWidth(self.uiFrameLeftMenu.sizePolicy().hasHeightForWidth())
+        self.uiFrameLeftMenu.setSizePolicy(sizePolicy)
+        self.uiFrameLeftMenu.setMinimumSize(QtCore.QSize(70, 0))
+        self.uiFrameLeftMenu.setMaximumSize(QtCore.QSize(70, 16777215))
+        self.uiFrameLeftMenu.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.uiFrameLeftMenu.setStyleSheet("")
+        self.uiFrameLeftMenu.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.uiFrameLeftMenu.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.uiFrameLeftMenu.setObjectName("uiFrameLeftMenu")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.uiFrameLeftMenu)
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_3.setSpacing(0)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.frame_menus = QtWidgets.QFrame(self.frame_left_menu)
+        self.frame_menus = QtWidgets.QFrame(self.uiFrameLeftMenu)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_menus.sizePolicy().hasHeightForWidth())
         self.frame_menus.setSizePolicy(sizePolicy)
         self.frame_menus.setMinimumSize(QtCore.QSize(210, 0))
-        self.frame_menus.setStyleSheet("QFrame{\n"
-"    border-top: 0.5px solid  rgb(58, 89, 145);\n"
-"}")
+        self.frame_menus.setStyleSheet("")
         self.frame_menus.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.frame_menus.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_menus.setObjectName("frame_menus")
@@ -589,7 +565,7 @@ class Ui_MainWindow(object):
         self.btn_project_new.setObjectName("btn_project_new")
         self.verticalLayout_5.addWidget(self.btn_project_new)
         self.verticalLayout_3.addWidget(self.frame_menus, 0, QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
-        self.frame_extra_menus = QtWidgets.QFrame(self.frame_left_menu)
+        self.frame_extra_menus = QtWidgets.QFrame(self.uiFrameLeftMenu)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -617,33 +593,19 @@ class Ui_MainWindow(object):
         self.btn_app_exit.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.btn_app_exit.setStyleSheet("QPushButton {    \n"
 "    background-image: url(:/20x20/icons/20x20/cil-power-standby.png);\n"
-"    background-position: left center;\n"
-"    background-repeat: no-repeat;\n"
-"    border: none;\n"
-"    border-left: 26px solid rgb(58, 89, 245);\n"
-"    background-color rgb(58, 89, 245);\n"
-"    text-align: left;\n"
-"    padding-left: 45px;\n"
 "}\n"
-"QPushButton:hover {\n"
-"    background-color: rgb(33, 37, 43);\n"
-"    border-left: 26px solid rgb(33, 37, 43);\n"
-"}\n"
-"QPushButton:pressed {    \n"
-"    background-color: rgb(85, 170, 255);\n"
-"    border-left: 26px solid rgb(85, 170, 255);\n"
-"}")
+"")
         self.btn_app_exit.setObjectName("btn_app_exit")
         self.verticalLayout_9.addWidget(self.btn_app_exit)
         self.verticalLayout_3.addWidget(self.frame_extra_menus, 0, QtCore.Qt.AlignLeft|QtCore.Qt.AlignBottom)
-        self.horizontalLayout_2.addWidget(self.frame_left_menu)
+        self.horizontalLayout_2.addWidget(self.uiFrameLeftMenu)
         self.frame_content_right = QtWidgets.QFrame(self.frame_center)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_content_right.sizePolicy().hasHeightForWidth())
         self.frame_content_right.setSizePolicy(sizePolicy)
-        self.frame_content_right.setStyleSheet("background-color: rgb(44, 49, 60);")
+        self.frame_content_right.setStyleSheet("")
         self.frame_content_right.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.frame_content_right.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_content_right.setObjectName("frame_content_right")
@@ -684,7 +646,7 @@ class Ui_MainWindow(object):
         self.frame_file_manager.setStyleSheet("")
         self.frame_file_manager.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_file_manager.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_file_manager.setLineWidth(1)
+        self.frame_file_manager.setLineWidth(0)
         self.frame_file_manager.setObjectName("frame_file_manager")
         self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.frame_file_manager)
         self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
@@ -712,58 +674,16 @@ class Ui_MainWindow(object):
         self.verticalLayout_15.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_15.setSpacing(0)
         self.verticalLayout_15.setObjectName("verticalLayout_15")
-        self.frame_7 = QtWidgets.QFrame(self.frame_2)
-        self.frame_7.setStyleSheet("QPushButton {    \n"
-"    border: none;\n"
-"    padding: 5 15;\n"
-"    /*border-right: 5px solid rgb(44, 49, 60);*/\n"
-"\n"
-"    text-align: left;\n"
-"background-color: rgb(27, 29, 35);\n"
-"background-color: rgb(33, 37, 43);\n"
-"    background-color: rgb(39, 44, 54);\n"
-"\n"
-"}\n"
-"QPushButton:hover {\n"
-"    background-color: rgb(33, 37, 43);\n"
-"\n"
-"}\n"
-"QPushButton:pressed {    \n"
-"    background-color: rgb(85, 170, 255);\n"
-"\n"
-"}\n"
-"\n"
-"QPushButton:checked {    \n"
-"    background-color: rgb(85, 170, 255);\n"
-"\n"
-"}\n"
-"\n"
-"QLineEdit{\n"
-"    padding: 5;\n"
-"    border: 1px solid transparent;\n"
-"background-color: rgb(27, 29, 35);\n"
-"color:white;\n"
-"}\n"
-"\n"
-"QLineEdit:focus, QLineEdit:hover{\n"
-"    border: 1px solid rgb(58, 89, 245);\n"
-"}\n"
-"\n"
-"QFrame{\n"
-"\n"
-"background-color: rgb(27, 29, 35);\n"
-"background-color: rgb(33, 37, 43);\n"
-"background-color: rgb(39, 44, 54);\n"
-"\n"
-"}")
-        self.frame_7.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_7.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_7.setObjectName("frame_7")
-        self.horizontalLayout_22 = QtWidgets.QHBoxLayout(self.frame_7)
+        self.uiFrameEditorTitleBar = QtWidgets.QFrame(self.frame_2)
+        self.uiFrameEditorTitleBar.setStyleSheet("")
+        self.uiFrameEditorTitleBar.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.uiFrameEditorTitleBar.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.uiFrameEditorTitleBar.setObjectName("uiFrameEditorTitleBar")
+        self.horizontalLayout_22 = QtWidgets.QHBoxLayout(self.uiFrameEditorTitleBar)
         self.horizontalLayout_22.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_22.setSpacing(0)
         self.horizontalLayout_22.setObjectName("horizontalLayout_22")
-        self.frame_4 = QtWidgets.QFrame(self.frame_7)
+        self.frame_4 = QtWidgets.QFrame(self.uiFrameEditorTitleBar)
         self.frame_4.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_4.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_4.setObjectName("frame_4")
@@ -811,7 +731,7 @@ class Ui_MainWindow(object):
         self.btn_lock_unlock.setObjectName("btn_lock_unlock")
         self.horizontalLayout_11.addWidget(self.btn_lock_unlock)
         self.horizontalLayout_22.addWidget(self.frame_4, 0, QtCore.Qt.AlignLeft)
-        self.frame_3 = QtWidgets.QFrame(self.frame_7)
+        self.frame_3 = QtWidgets.QFrame(self.uiFrameEditorTitleBar)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -887,67 +807,9 @@ class Ui_MainWindow(object):
         self.btn_zoom_default.setObjectName("btn_zoom_default")
         self.horizontalLayout_14.addWidget(self.btn_zoom_default)
         self.horizontalLayout_22.addWidget(self.frame_3, 0, QtCore.Qt.AlignRight)
-        self.verticalLayout_15.addWidget(self.frame_7)
+        self.verticalLayout_15.addWidget(self.uiFrameEditorTitleBar)
         self.frame_6 = QtWidgets.QFrame(self.frame_2)
-        self.frame_6.setStyleSheet("QPushButton {    \n"
-"    border: none;\n"
-"    padding: 5 15;\n"
-"    /*border-right: 5px solid rgb(44, 49, 60);*/\n"
-"    \n"
-"    background-color: rgb(39, 44, 54);\n"
-"    background-color: rgb(27, 29, 35);\n"
-"background-color: rgb(33, 37, 43);\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"    text-align: left;\n"
-"\n"
-"}\n"
-"QPushButton:hover {\n"
-"    background-color: rgb(33, 37, 43);\n"
-"    background-color: rgb(39, 44, 54);\n"
-"    background-color: rgb(85, 170, 255);\n"
-"\n"
-"}\n"
-"QPushButton:pressed {    \n"
-"    background-color: rgb(85, 170, 255);\n"
-"\n"
-"}\n"
-"\n"
-"QPushButton:checked {    \n"
-"    background-color: rgb(85, 170, 255);\n"
-"\n"
-"}\n"
-"\n"
-"QLineEdit{\n"
-"    padding: 5;\n"
-"    border: 1px solid transparent;\n"
-"\n"
-"color:white;\n"
-"    padding-left: 30px;\n"
-"    border-radius: 1px;\n"
-"background-color: rgb(33, 37, 43);\n"
-"}\n"
-"QLineEdit:focus, QLineEdit:hover\n"
-"{\n"
-"     border: 1px solid rgb(58, 89, 245);\n"
-"}\n"
-"\n"
-"QFrame{\n"
-"background-color: rgb(39, 44, 54);\n"
-"background-color: rgb(27, 29, 35);\n"
-"background-color: rgb(39, 44, 54);\n"
-"background-color: rgb(33, 37, 43);\n"
-"background-color: rgb(27, 29, 35);\n"
-"background-color: rgb(33, 37, 43);\n"
-"\n"
-"\n"
-"\n"
-"border-bottom: 2px solid rgb(33, 37, 43);;\n"
-"}\n"
-"\n"
-"\n"
+        self.frame_6.setStyleSheet("\n"
 "")
         self.frame_6.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_6.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -1065,13 +927,14 @@ class Ui_MainWindow(object):
         self.verticalLayout_15.addWidget(self.frame_8)
         self.verticalLayout_8.addWidget(self.frame_2)
         self.stackedWidget = QtWidgets.QStackedWidget(self.frame)
-        self.stackedWidget.setStyleSheet("background: transparent;\n"
+        self.stackedWidget.setStyleSheet("\n"
 "\n"
 "")
         self.stackedWidget.setObjectName("stackedWidget")
         self.page_home_2 = QtWidgets.QWidget()
         self.page_home_2.setObjectName("page_home_2")
         self.verticalLayout_11 = QtWidgets.QVBoxLayout(self.page_home_2)
+        self.verticalLayout_11.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_11.setObjectName("verticalLayout_11")
         self.stackedWidget.addWidget(self.page_home_2)
         self.page_settings_2 = QtWidgets.QWidget()
@@ -1083,57 +946,23 @@ class Ui_MainWindow(object):
         self.horizontalLayout_8.addWidget(self.splitter)
         self.verticalLayout_4.addWidget(self.frame_content)
         self.horizontalLayout_2.addWidget(self.frame_content_right)
-        self.frame_right_menu = QtWidgets.QFrame(self.frame_center)
+        self.uiFrameRightMenu = QtWidgets.QFrame(self.frame_center)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.frame_right_menu.sizePolicy().hasHeightForWidth())
-        self.frame_right_menu.setSizePolicy(sizePolicy)
-        self.frame_right_menu.setMaximumSize(QtCore.QSize(70, 16777215))
-        self.frame_right_menu.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.frame_right_menu.setStyleSheet("QFrame{\n"
-"    background-color: rgb(58, 89, 245);\n"
-"    background-color: rgb(39, 44, 54);\n"
-"\n"
-"    padding-top: 23px;\n"
-"}\n"
-"QPushButton {    \n"
-"    background-position: left center;\n"
-"    background-repeat: no-repeat;\n"
-"    border: none;\n"
-"    border-left: 28px solid rgb(58, 89, 245);\n"
-"    border-left: 25px solid rgb(39, 44, 54);\n"
-"\n"
-"    /*border-right: 5px solid rgb(44, 49, 60);*/\n"
-"    background-color: rgb(58, 89, 245);\n"
-"    background-color: rgb(39, 44, 54);\n"
-"\n"
-"    color: red;\n"
-"\n"
-"    text-align: left;\n"
-"    padding-left: 45px;\n"
-"}\n"
-"QPushButton:hover {\n"
-"    background-color: rgb(33, 37, 43);\n"
-"    border-left: 25px solid rgb(33, 37, 43);\n"
-"}\n"
-"QPushButton:pressed {    \n"
-"    background-color: rgb(33, 37, 43);\n"
-"    border-left: 25px solid rgb(33, 37, 43);\n"
-"}\n"
-"QPushButton:checked {    \n"
-"    background-color: rgb(33, 37, 43);\n"
-"    border-left: 25px solid rgb(33, 37, 43);\n"
-"    border-right: 3px solid rgb(58, 89, 245);\n"
-"}")
-        self.frame_right_menu.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.frame_right_menu.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_right_menu.setObjectName("frame_right_menu")
-        self.verticalLayout_14 = QtWidgets.QVBoxLayout(self.frame_right_menu)
+        sizePolicy.setHeightForWidth(self.uiFrameRightMenu.sizePolicy().hasHeightForWidth())
+        self.uiFrameRightMenu.setSizePolicy(sizePolicy)
+        self.uiFrameRightMenu.setMaximumSize(QtCore.QSize(70, 16777215))
+        self.uiFrameRightMenu.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.uiFrameRightMenu.setStyleSheet("")
+        self.uiFrameRightMenu.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.uiFrameRightMenu.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.uiFrameRightMenu.setObjectName("uiFrameRightMenu")
+        self.verticalLayout_14 = QtWidgets.QVBoxLayout(self.uiFrameRightMenu)
         self.verticalLayout_14.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_14.setSpacing(0)
         self.verticalLayout_14.setObjectName("verticalLayout_14")
-        self.frame_menus_2 = QtWidgets.QFrame(self.frame_right_menu)
+        self.frame_menus_2 = QtWidgets.QFrame(self.uiFrameRightMenu)
         self.frame_menus_2.setStyleSheet("")
         self.frame_menus_2.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.frame_menus_2.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -1198,7 +1027,7 @@ class Ui_MainWindow(object):
         self.ui_btn_data_manager.setObjectName("ui_btn_data_manager")
         self.verticalLayout_10.addWidget(self.ui_btn_data_manager)
         self.verticalLayout_14.addWidget(self.frame_menus_2, 0, QtCore.Qt.AlignTop)
-        self.frame_extra_menus_2 = QtWidgets.QFrame(self.frame_right_menu)
+        self.frame_extra_menus_2 = QtWidgets.QFrame(self.uiFrameRightMenu)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -1231,21 +1060,12 @@ class Ui_MainWindow(object):
         self.btn_app_settings.setObjectName("btn_app_settings")
         self.verticalLayout_13.addWidget(self.btn_app_settings, 0, QtCore.Qt.AlignLeft)
         self.verticalLayout_14.addWidget(self.frame_extra_menus_2, 0, QtCore.Qt.AlignBottom)
-        self.horizontalLayout_2.addWidget(self.frame_right_menu)
+        self.horizontalLayout_2.addWidget(self.uiFrameRightMenu)
         self.verticalLayout.addWidget(self.frame_center)
         self.frame_grip = QtWidgets.QFrame(self.frame_main)
         self.frame_grip.setMinimumSize(QtCore.QSize(0, 28))
         self.frame_grip.setMaximumSize(QtCore.QSize(16777215, 28))
-        self.frame_grip.setStyleSheet("QFrame{\n"
-"background-color: rgb(33, 37, 43);\n"
-"background-color: rgb(27, 29, 35);\n"
-"}\n"
-"Line{\n"
-"background-color: rgb(50, 50, 50);\n"
-"}\n"
-"QLabel{\n"
-"    color: rgb(98, 103, 111);\n"
-"}")
+        self.frame_grip.setStyleSheet("")
         self.frame_grip.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.frame_grip.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_grip.setObjectName("frame_grip")

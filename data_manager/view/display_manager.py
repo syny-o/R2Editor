@@ -4,7 +4,7 @@ from typing import Callable, Type
 from abc import ABC, abstractmethod
 
 from PyQt5.QtGui import QStandardItem, QIcon, QTextCursor, QTextCharFormat, QColor, QCursor
-from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QLayout, QFrame, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QTextEdit, QPushButton, QApplication, QStyle
+from PyQt5.QtWidgets import QToolButton, QListWidgetItem, QLayout, QFrame, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QTextEdit, QPushButton, QApplication, QStyle
 from PyQt5.QtCore import Qt
 
 from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
@@ -12,11 +12,11 @@ from data_manager.nodes.condition_nodes import ConditionFileNode, ConditionNode,
 from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
 from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
 from components.reduce_path_string import reduce_path_string
-from data_manager.widget_req_text_edit import RequirementTextEdit
-from data_manager.widget_baseline import WidgetBaseline
+from components.widgets.widget_req_text_edit import RequirementTextEdit
+from components.widgets.widget_baseline import WidgetBaseline
 
 from components.helper_functions import layout_generate_one_row as generate_one_row
-from data_manager.widgets.list_widget_event_filter import ListWidgetWithEventFilter
+from components.widgets.list_widget_event_filter import ListWidgetEventFilter
 
 
 @dataclass
@@ -125,18 +125,22 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
     def _connect_signals(self):
         self.uiListWidgetLinks.itemClicked.connect(self.DATA_MANAGER._doubleclick_on_outlink)
         self.uiListWidgetScripts.itemClicked.connect(self.DATA_MANAGER._doubleclick_on_tc_reference) 
-        self.uiBtnCopyReqRef.clicked.connect(self._copy_to_clipboard)    
+        # self.uiBtnCopyReqRef.clicked.connect(self._copy_to_clipboard)    
 
 
     def _generate_header_layout(self):
         uiHeaderLayout = QHBoxLayout()
         self.uiLineEditIdentifier = QLineEdit()
-        self.uiBtnCopyReqRef = QPushButton(QIcon(u"ui/icons/20x20/cil-copy.png"), "")
-        self.uiBtnCopyReqRef.setCursor(QCursor(Qt.PointingHandCursor))
-        self.uiBtnCopyReqRef.setToolTip("Copy Identifier")
-        uiHeaderLayout.addWidget(QLabel("Identifier:"))
-        uiHeaderLayout.addWidget(self.uiBtnCopyReqRef)
+        # self.uiBtnCopyReqRef = QPushButton(QIcon(u"ui/icons/20x20/cil-copy.png"), "")
+        # self.uiBtnCopyReqRef.setCursor(QCursor(Qt.PointingHandCursor))
+        # self.uiBtnCopyReqRef.setToolTip("Copy Identifier")
+        uiHeaderLayout.addWidget(QLabel("Id:    "))
+        # uiHeaderLayout.addWidget(self.uiBtnCopyReqRef)
         uiHeaderLayout.addWidget(self.uiLineEditIdentifier)
+        self.action_copy_identifier = self.uiLineEditIdentifier.addAction(QIcon(u"ui/icons/20x20/cil-copy.png"), QLineEdit.LeadingPosition)
+        self.action_copy_identifier.triggered.connect(self._copy_to_clipboard)
+        for widget in self.uiLineEditIdentifier.findChildren(QToolButton):
+            widget.setCursor(Qt.PointingHandCursor)
         self.uiMainLayout.addLayout(uiHeaderLayout)
 
     def _fill_header_layout(self, NODE):
@@ -154,17 +158,18 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
         text_to_display = ''
         for name, value in zip(NODE.MODULE.columns_names_backup, NODE.columns_data):
             text_to_display += f'<{name}>:\n{value} \n\n'
-        self.uiRequirementTextEdit.setPlainText(text_to_display)        
+        # self.uiRequirementTextEdit.setPlainText(text_to_display)        
+        self.uiRequirementTextEdit.set_text(text_to_display)        
 
 
     def _generate_links_scripts_layout(self):
         uiLinksScriptsLayout = QHBoxLayout()
         uiLinksScriptsLayout.addWidget(QLabel("Links:"))
-        self.uiListWidgetLinks = ListWidgetWithEventFilter() 
+        self.uiListWidgetLinks = ListWidgetEventFilter() 
         self.uiListWidgetLinks.setMaximumHeight(120)
         uiLinksScriptsLayout.addWidget(self.uiListWidgetLinks)
         uiLinksScriptsLayout.addWidget(QLabel("Scripts:"))
-        self.uiListWidgetScripts = ListWidgetWithEventFilter()
+        self.uiListWidgetScripts = ListWidgetEventFilter()
         self.uiListWidgetScripts.setMaximumHeight(120)
         uiLinksScriptsLayout.addWidget(self.uiListWidgetScripts)        
         self.uiMainLayout.addLayout(uiLinksScriptsLayout)
@@ -280,8 +285,8 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
 
 
     def _generate_header_layout(self):
-        self.uiLineEditModulePath = generate_one_row("Path:", self.uiMainLayout, extend_label_width=False)
-        self.uiLineEditTimestamp = generate_one_row("Updated:", self.uiMainLayout, extend_label_width=False)
+        self.uiLineEditModulePath = generate_one_row("Path:", self.uiMainLayout, extend_label_width=True)
+        self.uiLineEditTimestamp = generate_one_row("Updated:", self.uiMainLayout, extend_label_width=True)
 
 
     def _fill_header_layout(self, NODE):
@@ -294,7 +299,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
         # self.uiAllListLayout.setSpacing(10)
         self.uiMainLayout.addLayout(self.uiAllListLayout)
 
-        self.uiListWidgetCoveredList = ListWidgetWithEventFilter()
+        self.uiListWidgetCoveredList = ListWidgetEventFilter()
         uiCoveredListLayout = QVBoxLayout()
         self.uiLabelCovered = QLabel()
         self.uiLabelCovered.setStyleSheet("QLabel {color: rgb(0, 179, 0); min-width: 120px}")
@@ -317,7 +322,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
             # self.uiListWidgetCoveredList.insertItem(0, covered_lw_item)   
 
     def _generate_not_covered_list_layout(self):
-        self.uiListWidgetNotCoveredList = ListWidgetWithEventFilter()
+        self.uiListWidgetNotCoveredList = ListWidgetEventFilter()
         uiNotCoveredListLayout = QVBoxLayout()
         self.uiLabelNotCovered = QLabel()
         self.uiLabelNotCovered.setStyleSheet("QLabel {color: rgb(250,50,50); min-width: 120px}")
@@ -341,7 +346,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
 
 
     def _generate_ignore_list_layout(self):
-        self.uiListWidgetIgnoreList = ListWidgetWithEventFilter()
+        self.uiListWidgetIgnoreList = ListWidgetEventFilter()
         uiIgnoreListLayout = QVBoxLayout()
         self.uiLabelIgnored = QLabel()
         self.uiLabelIgnored.setStyleSheet("QLabel {min-width: 120px}")

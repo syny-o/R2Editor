@@ -33,18 +33,10 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QFrame" name="uiFrameGlobal">
+    <widget class="QFrame" name="uiFrameFormWidget">
      <property name="styleSheet">
-      <string notr="true">QWidget{
-font-size: 16px;
-background-color: rgb(58, 89, 245);
-background-color: rgb(20, 20, 30);
-}
+      <string notr="true">
 
-QFrame, QPushButton, QLineEdit, QComboBox, QCheckBox{
-	color: rgb(200, 200, 200);
-
-}
 
 QPushButton {	
 	border: none;
@@ -118,7 +110,8 @@ QCheckBox::indicator:checked {background-color: rgb(50,50,250);}
          </sizepolicy>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(58, 89, 245);</string>
+         <string notr="true">background-color: rgb(58, 89, 245);
+color: rgb(200, 200, 200);</string>
         </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
@@ -241,9 +234,7 @@ QPushButton:pressed {
                   </size>
                  </property>
                  <property name="font">
-                  <font>
-                   <pointsize>-1</pointsize>
-                  </font>
+                  <font/>
                  </property>
                  <property name="styleSheet">
                   <string notr="true">color: rgb(58, 89, 245);</string>
@@ -295,9 +286,7 @@ QPushButton:pressed {
                   </sizepolicy>
                  </property>
                  <property name="font">
-                  <font>
-                   <pointsize>-1</pointsize>
-                  </font>
+                  <font/>
                  </property>
                  <property name="text">
                   <string>Title</string>

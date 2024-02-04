@@ -6,9 +6,26 @@ from PyQt5.QtWidgets import QWidget, QFileSystemModel, QMenu, QInputDialog, QLin
 from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal, QDir
 from PyQt5.QtGui import QFont, QIcon, QCursor
 
-from ui.ui_file_system import Ui_Form
+from ui.file_system_ui import Ui_Form
 from file_browser.form_find_replace import FindAndReplace
 from dialogs.dialog_message import dialog_message
+
+styles = """
+
+QWidget{
+border: none;
+}
+
+QFrame{
+    background-color: rgb(39, 44, 54);
+    padding: 2px;
+    border: none;
+    background-color: rgb(33, 37, 43);
+    background-color: rgb(39, 44, 54);
+    background-color: rgb(40, 44, 52);
+}
+
+"""
 
 
 class FileSystemView(QWidget, Ui_Form):
@@ -19,7 +36,8 @@ class FileSystemView(QWidget, Ui_Form):
     def __init__(self, main_window, project_manager):
         super().__init__()
         self.setupUi(self)
-        self.ui_le_filter.setVisible(False)
+
+        # self.setStyleSheet(styles)
 
         self.MAIN = main_window
         self.PROJECT_MANAGER = project_manager

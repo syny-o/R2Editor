@@ -13,7 +13,7 @@ from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
 
 from components.helper_functions import layout_generate_one_row as generate_one_row, validate_line_edits
 from components.my_list_widget import MyListWidget
-from data_manager.widget_baseline import WidgetBaseline
+from components.widgets.widget_baseline import WidgetBaseline
 
 stylesheet ="""
     QTextEdit {border: 1px solid rgb(50, 50, 50);}

@@ -9,11 +9,11 @@ from data_manager.nodes.a2l_nodes import A2lFileNode
 
 from data_manager.view.tree import DataTreeView
 from data_manager.view import filter
-from config.styles import STYLES
 from data_manager.view import help_func
 from data_manager.view.actions_handler import ActionsHandler
 from data_manager.view.display_manager import DisplayManager
 from config import constants
+import ui
 
 
 class View(QWidget):
@@ -49,7 +49,10 @@ class View(QWidget):
         self.uiLineEditTextFilter.textChanged.connect(lambda: self._trigger_filtering(reset_filter=True))
 
         self._setup_ui() 
-        self._create_actions()    
+        self._create_actions() 
+        for toolbutton in self.uiControlToolbar.children():
+            if isinstance(toolbutton, QToolButton):
+                toolbutton.setCursor(QCursor(Qt.PointingHandCursor))  
 
 
     ##############################################################################################################
@@ -99,17 +102,19 @@ class View(QWidget):
     # SETUP UI
     ##############################################################################################################
     def _setup_ui(self):
-        self.setStyleSheet(STYLES)                
         # FILTER + TREE NAVIGATION AREA
         uiBtnPreviousView = QPushButton(QIcon(":/16x16/icons/16x16/cil-chevron-left.png"), "")
         uiBtnPreviousView.clicked.connect(self.uiDataTreeView.goto_previous_index)
         uiBtnPreviousView.setToolTip("Previous View (Backspace)")
+        uiBtnPreviousView.setCursor(QCursor(Qt.PointingHandCursor))
         uiBtnExpandAllChildren = QPushButton(QIcon(":/16x16/icons/16x16/cil-expand-down.png"), "")
         uiBtnExpandAllChildren.clicked.connect(self.uiDataTreeView.expand_all_children)
         uiBtnExpandAllChildren.setToolTip("Expand All")
+        uiBtnExpandAllChildren.setCursor(QCursor(Qt.PointingHandCursor))
         uiBtnCollapseAllChildren = QPushButton(QIcon(":/16x16/icons/16x16/cil-expand-up.png"), "")
         uiBtnCollapseAllChildren.clicked.connect(self.uiDataTreeView.collapse_all_children)
         uiBtnCollapseAllChildren.setToolTip("Collapse All")
+        uiBtnCollapseAllChildren.setCursor(QCursor(Qt.PointingHandCursor))
         # TEXT FILTER LINE EDIT
         self.uiLineEditTextFilter.setPlaceholderText('Filter')
         self.uiLineEditTextFilter.setVisible(False)

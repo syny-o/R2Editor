@@ -20,17 +20,9 @@ class Ui_Form(object):
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.uiFrameGlobal = QtWidgets.QFrame(Form)
-        self.uiFrameGlobal.setStyleSheet("QWidget{\n"
-"font-size: 16px;\n"
-"background-color: rgb(58, 89, 245);\n"
-"background-color: rgb(20, 20, 30);\n"
-"}\n"
+        self.uiFrameFormWidget = QtWidgets.QFrame(Form)
+        self.uiFrameFormWidget.setStyleSheet("\n"
 "\n"
-"QFrame, QPushButton, QLineEdit, QComboBox, QCheckBox{\n"
-"    color: rgb(200, 200, 200);\n"
-"\n"
-"}\n"
 "\n"
 "QPushButton {    \n"
 "    border: none;\n"
@@ -72,20 +64,21 @@ class Ui_Form(object):
 "\n"
 "\n"
 "")
-        self.uiFrameGlobal.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.uiFrameGlobal.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.uiFrameGlobal.setObjectName("uiFrameGlobal")
-        self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.uiFrameGlobal)
+        self.uiFrameFormWidget.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.uiFrameFormWidget.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.uiFrameFormWidget.setObjectName("uiFrameFormWidget")
+        self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.uiFrameFormWidget)
         self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_5.setSpacing(0)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
-        self.uiFrameTitleBar = QtWidgets.QFrame(self.uiFrameGlobal)
+        self.uiFrameTitleBar = QtWidgets.QFrame(self.uiFrameFormWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.uiFrameTitleBar.sizePolicy().hasHeightForWidth())
         self.uiFrameTitleBar.setSizePolicy(sizePolicy)
-        self.uiFrameTitleBar.setStyleSheet("background-color: rgb(58, 89, 245);")
+        self.uiFrameTitleBar.setStyleSheet("background-color: rgb(58, 89, 245);\n"
+"color: rgb(200, 200, 200);")
         self.uiFrameTitleBar.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.uiFrameTitleBar.setFrameShadow(QtWidgets.QFrame.Raised)
         self.uiFrameTitleBar.setLineWidth(0)
@@ -136,7 +129,6 @@ class Ui_Form(object):
         self.logo.setMinimumSize(QtCore.QSize(0, 0))
         self.logo.setMaximumSize(QtCore.QSize(0, 16777215))
         font = QtGui.QFont()
-        font.setPointSize(-1)
         self.logo.setFont(font)
         self.logo.setStyleSheet("color: rgb(58, 89, 245);")
         self.logo.setObjectName("logo")
@@ -162,7 +154,6 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.uiLabelTitle.sizePolicy().hasHeightForWidth())
         self.uiLabelTitle.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
-        font.setPointSize(-1)
         self.uiLabelTitle.setFont(font)
         self.uiLabelTitle.setObjectName("uiLabelTitle")
         self.horizontalLayout_4.addWidget(self.uiLabelTitle)
@@ -200,7 +191,7 @@ class Ui_Form(object):
         self.horizontalLayout_3.addWidget(self.frame_close, 0, QtCore.Qt.AlignRight)
         self.verticalLayout_2.addWidget(self.frame_top)
         self.verticalLayout_5.addWidget(self.uiFrameTitleBar)
-        self.uiFrameContent = QtWidgets.QFrame(self.uiFrameGlobal)
+        self.uiFrameContent = QtWidgets.QFrame(self.uiFrameFormWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -232,7 +223,7 @@ class Ui_Form(object):
         self.uiMainLayout_4.setObjectName("uiMainLayout_4")
         self.verticalLayout_3.addLayout(self.uiMainLayout_4)
         self.verticalLayout_5.addWidget(self.uiFrameContent)
-        self.uiFrameStatusBar = QtWidgets.QFrame(self.uiFrameGlobal)
+        self.uiFrameStatusBar = QtWidgets.QFrame(self.uiFrameFormWidget)
         self.uiFrameStatusBar.setMinimumSize(QtCore.QSize(0, 40))
         self.uiFrameStatusBar.setMaximumSize(QtCore.QSize(16777215, 55))
         self.uiFrameStatusBar.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -266,7 +257,7 @@ class Ui_Form(object):
         self.uiBtnApply.setObjectName("uiBtnApply")
         self.horizontalLayout.addWidget(self.uiBtnApply)
         self.verticalLayout_5.addWidget(self.uiFrameStatusBar, 0, QtCore.Qt.AlignRight)
-        self.verticalLayout.addWidget(self.uiFrameGlobal)
+        self.verticalLayout.addWidget(self.uiFrameFormWidget)
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)

@@ -18,7 +18,7 @@ class NotificationWidget(QWidget):
         self.palette.setColor(QPalette.Window, QColor(23, 27, 33))
         self.palette.setColor(QPalette.Text, QColor(200, 200, 200))
         self.palette.setColor(QPalette.WindowText, QColor(200, 200, 200))
-        self.setPalette(self.palette)
+        # self.setPalette(self.palette)
 
         self.create_layout()
 
@@ -31,10 +31,11 @@ class NotificationWidget(QWidget):
         self.layout_global.setContentsMargins(50, 30, 50, 30)
         self.layout_global.setSpacing(20)
         picture = QLabel()
-        picture.setPixmap(QPixmap("ui\icons\check.png"))
+        # picture.setPixmap(QPixmap("ui\icons\check.png"))
+        picture.setPixmap(QPixmap(r"ui/icons/info.png"))
         # picture.setScaledContents(True)
         picture.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-        self.layout_global.addWidget(picture)
+        # self.layout_global.addWidget(picture)
         
         self.ui_notification_text = QLabel()
         font = self.ui_notification_text.font()

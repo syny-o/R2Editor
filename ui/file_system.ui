@@ -32,14 +32,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">border: None;
-background-color: rgb(33, 37, 43);
-background-color: rgb(39, 44, 54);
-background-color: rgb(40, 44, 52);
-
-
-
-</string>
+   <string notr="true"/>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <property name="leftMargin">
@@ -55,21 +48,15 @@ background-color: rgb(40, 44, 52);
     <number>0</number>
    </property>
    <item>
-    <widget class="QFrame" name="frame">
+    <widget class="QFrame" name="uiFrameFileSystem">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="baseSize">
-      <size>
-       <width>500</width>
-       <height>0</height>
-      </size>
-     </property>
      <property name="styleSheet">
-      <string notr="true">/*border-right: 1px solid rgb(39, 44, 54);*/</string>
+      <string notr="true"/>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -78,8 +65,35 @@ background-color: rgb(40, 44, 52);
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
-      <item alignment="Qt::AlignHCenter">
-       <widget class="QFrame" name="frame_3">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QFrame" name="uiFrameFileSystemTitleBar">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>40</height>
+         </size>
+        </property>
         <property name="cursor">
          <cursorShape>ArrowCursor</cursorShape>
         </property>
@@ -87,21 +101,7 @@ background-color: rgb(40, 44, 52);
          <string>Reset Project Folder</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">QFrame{
-background-color: rgb(39, 44, 54);
-padding: 2px;
-}
-
-QToolButton{
-	border: 1px solid rgb(100, 100, 100);
-	border-radius: 3px;
- 	padding: 10;
-	border-color: rgb(40, 44, 52);
-}
-
-QToolButton:hover{
-	border-color: rgb(250, 100, 100);
-}</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
@@ -126,47 +126,6 @@ QToolButton:hover{
           <number>0</number>
          </property>
          <item>
-          <widget class="QFrame" name="frame_7">
-           <property name="maximumSize">
-            <size>
-             <width>0</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_7">
-            <item>
-             <widget class="QLabel" name="label_symbol_3">
-              <property name="styleSheet">
-               <string notr="true"/>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="pixmap">
-               <pixmap resource="files.qrc">:/16x16/icons/16x16/cil-folder.png</pixmap>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="ui_lab_root_path">
-              <property name="styleSheet">
-               <string notr="true">font-weight: bold;</string>
-              </property>
-              <property name="text">
-               <string>No Project</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item alignment="Qt::AlignRight">
           <widget class="QFrame" name="frame_8">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -184,9 +143,7 @@ QToolButton:hover{
             <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">QFrame{
-background-color: rgb(39, 44, 54);
-}</string>
+            <string notr="true"/>
            </property>
            <property name="frameShape">
             <enum>QFrame::StyledPanel</enum>
@@ -195,7 +152,7 @@ background-color: rgb(39, 44, 54);
             <enum>QFrame::Raised</enum>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_8">
-            <item>
+            <item alignment="Qt::AlignHCenter">
              <widget class="QToolButton" name="ui_btn_disconnect_project_folder">
               <property name="enabled">
                <bool>true</bool>
@@ -219,8 +176,8 @@ background-color: rgb(39, 44, 54);
                <string>J://Projects/Lixiang_X03</string>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>icons/close.png</normaloff>icons/close.png</iconset>
+               <iconset resource="files.qrc">
+                <normaloff>:/20x20/icons/20x20/cil-x.png</normaloff>:/20x20/icons/20x20/cil-x.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -229,7 +186,7 @@ background-color: rgb(39, 44, 54);
                </size>
               </property>
               <property name="toolButtonStyle">
-               <enum>Qt::ToolButtonTextUnderIcon</enum>
+               <enum>Qt::ToolButtonTextBesideIcon</enum>
               </property>
              </widget>
             </item>
@@ -240,80 +197,7 @@ background-color: rgb(39, 44, 54);
        </widget>
       </item>
       <item>
-       <widget class="QFrame" name="frame_2">
-        <property name="styleSheet">
-         <string notr="true">QFrame{
-background-color: rgb(39, 44, 54);
-padding: 2px;
-}</string>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="QFrame" name="frame_6">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QLineEdit" name="ui_le_filter">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">margin-right: 5px;
-background-image: url(:/16x16/icons/16x16/cil-find-in-page.png);
-background-position: left center;
-background-repeat: no-repeat;
-padding: 5px;
-padding-left: 30px;
-border-radius: 1px;
-
-background-color: rgb(44, 49, 60);
-</string>
-              </property>
-              <property name="placeholderText">
-               <string>Filter</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QFrame" name="frame_4">
+       <widget class="QFrame" name="frame_1">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -341,6 +225,9 @@ background-color: rgb(44, 49, 60);
          </property>
          <item>
           <widget class="QTreeView" name="tree">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>

@@ -3,8 +3,8 @@ from pathlib import Path
 from data_manager.nodes import a2l_nodes, dspace_nodes, requirement_module
 from ui.model_editor_ui import Ui_Form
 import json, re, os
-from PyQt5.QtWidgets import QWidget, QFileDialog, QInputDialog, QMenu, QAction, QLineEdit, QShortcut, QMessageBox, QListWidgetItem
-from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QStandardItemModel
+from PyQt5.QtWidgets import QWidget, QFileDialog, QInputDialog, QLabel, QAction, QLineEdit, QShortcut, QMessageBox, QListWidgetItem
+from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QStandardItemModel, QColor, QPainter
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QObject, QRunnable, QThreadPool, QPropertyAnimation, QEasingCurve
 from data_manager.nodes.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
 from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
@@ -25,8 +25,114 @@ from data_manager.forms.form_doors_inputs import FormDoorsInputs
 from data_manager.view.widget_view import View
 import data_manager.tree_walker as tree_walker
 from config import constants
+from components.chart.chart_bar import ChartBar
+
+
 # from my_logging import logger
 # logger.debug(f"{__name__} --> Init")
+
+style = """
+QWidget, QFrame{
+    font-size: 16px;
+    border: none;
+}
+
+QFrame, QLineEdit{
+	background-color: rgb(33, 37, 43);
+
+	font-family: "Arial Narrow", Arial, "Helvetica Condensed", Helvetica, sans-serif;	
+
+	letter-spacing: 1.3px;
+}
+
+
+
+QLabel{
+    color: rgb(95, 180, 255);
+    color: rgb(150, 150, 150);
+    font-weight: bold;
+    min-width: 20px;
+}
+
+QListWidget, QTextEdit{
+	border: 1px solid rgb(50,50,50);
+}
+
+
+QListWidget::item{
+    padding:1px;
+    font-size: 14px;
+    } 
+
+QListWidget::item:hover {
+    background-color: rgb(58, 89, 245);
+}
+
+
+QToolTip{
+    font-size: 16px;
+    padding: 15px;
+    }
+
+QLineEdit, QPushButton{
+	padding: 5;
+	border: 1px solid rgb(39, 44, 54);
+}
+
+QPushButton:hover{
+	background-color:rgb(39, 44, 54);
+}
+
+
+QMenu::separator {
+     height: 2px;
+     margin: 2px 5px 2px 4px;
+	background-color: red;
+	color: red;
+ }
+
+
+
+
+
+QPushButton {	
+	border: none;
+	padding: 10;
+	border-right: 5px solid rgb(44, 49, 60);
+	background-color: rgb(39, 44, 54);
+	text-align: left;
+
+}
+QPushButton:hover {
+	background-color: rgb(33, 37, 43);
+
+}
+QPushButton:pressed {	
+	background-color: rgb(85, 170, 255);
+
+}
+
+QPushButton:checked {	
+	background-color: rgb(85, 170, 255);
+}
+
+QPushButton:disabled {	
+	color: rgb(80, 80, 80);
+
+}
+
+
+#uiLayoutTitleBar, #uiFrameTitleBar{
+    background-color: rgb(39, 44, 54);
+}
+
+#uiFrameTitleBar QPushButton{
+    font-size: 12px;
+}
+
+
+
+"""
 
 
 class DataManager(QWidget, Ui_Form):
@@ -36,6 +142,7 @@ class DataManager(QWidget, Ui_Form):
     def __init__(self, main_window, project_manager):
         super().__init__()
         self.setupUi(self)
+        # self.setStyleSheet(style)
         # node copied into memory by action COPY
         self.node_2_paste = None        
 
@@ -52,7 +159,9 @@ class DataManager(QWidget, Ui_Form):
         self.TREE = self.VIEW.uiDataTreeView  # TODO: REFACTOR
 
         self.progress_bar = ModernProgressBar('rgb(0, 179, 0)', 'COVERED')
-        self.ui_layout_data_summary.addWidget(self.progress_bar)                
+        # self.ui_layout_data_summary.addWidget(self.progress_bar)   
+        self.widget_chart = ChartBar()
+        self.ui_layout_data_summary.addWidget(self.widget_chart)
 
         # self.MODEL.itemChanged.connect(lambda: self.set_project_saved(False))
         self.MODEL.rowsInserted.connect(lambda: self.set_project_saved(False))
@@ -311,6 +420,7 @@ class DataManager(QWidget, Ui_Form):
         self.ui_lab_req_not_covered.setText(str(calculated_number - covered_number))
         # self._display_values()
         self.VIEW._update_view()
+        self.widget_chart.set_value(covered_number, calculated_number)
     
 
 

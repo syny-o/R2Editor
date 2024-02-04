@@ -21,6 +21,7 @@ class AppSettings(QWidget, Ui_Form):
 
         UI_COMBOBOX_INPUTS = [
             self.ui_cb_database,
+            self.uiComboTheme,
         ]
          
 
@@ -32,10 +33,12 @@ class AppSettings(QWidget, Ui_Form):
         self.ui_checkBox_format_code_when_save.stateChanged.connect(self._save_data_from_form_2_memory)
 
         for line_edit_input in UI_LINEEDITS_INPUTS:
-            line_edit_input.editingFinished.connect(self.save_settings_2_disk)
+            line_edit_input.editingFinished.connect(self._save_data_from_form_2_memory)
 
         for combo_box_input in UI_COMBOBOX_INPUTS:
-            combo_box_input.currentTextChanged.connect(self.save_settings_2_disk)           
+            combo_box_input.currentTextChanged.connect(self._save_data_from_form_2_memory)           
+
+        self.uiComboTheme.currentTextChanged.connect(MAIN.change_theme)
 
 
 
@@ -53,7 +56,10 @@ class AppSettings(QWidget, Ui_Form):
         self.format_code_when_save = bool(self.settings.value('editor/format_code_when_save', True))
 
         # 3. Recent Projects
-        self.recent_projects = self.settings.value('project/recent')        
+        self.recent_projects = self.settings.value('project/recent')    
+
+        # 4. Appearance
+        self.theme = self.settings.value('appearance/theme', 'Light')    
 
 
 
@@ -66,6 +72,9 @@ class AppSettings(QWidget, Ui_Form):
 
         # TEXT EDITOR
         self.ui_checkBox_format_code_when_save.setChecked(self.format_code_when_save)
+
+        # THEME
+        self.uiComboTheme.setCurrentText(self.theme)
 
 
 
@@ -81,6 +90,9 @@ class AppSettings(QWidget, Ui_Form):
         # TEXT EDITOR
         self.format_code_when_save = self.ui_checkBox_format_code_when_save.isChecked()
 
+        # THEME
+        self.theme = self.uiComboTheme.currentText()
+
 
 
 
@@ -90,6 +102,10 @@ class AppSettings(QWidget, Ui_Form):
         self.settings.beginGroup("project")
         self.settings.setValue('recent', self.recent_projects)
         self.settings.endGroup()
+
+        self.settings.beginGroup("appearance")
+        self.settings.setValue('theme', self.theme)
+        self.settings.endGroup()        
         
         self.settings.beginGroup("editor")
         self.settings.setValue('format_code_when_save', self.format_code_when_save)

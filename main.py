@@ -3,6 +3,7 @@ import re
 import stat
 import sys
 from pathlib import Path
+from importlib import reload
 
 import pywinstyles
 from PyQt5.QtCore import (QEasingCurve, QEvent, QFile, QPoint,
@@ -16,6 +17,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QHBoxLayout,
                              QToolTip, QVBoxLayout, QWidget)
 
 from app_settings import AppSettings
+from components import syntax_highlighter
 from components.notification_widget import NotificationWidget
 from components.pyqt_find_text_widget.findReplaceTextWidget import \
     FindReplaceTextWidget
@@ -34,8 +36,10 @@ from text_editor import text_management
 from text_editor.text_editor import TextEdit
 from ui.main_ui import Ui_MainWindow
 from config import constants
-
+# from config.app_styles import STYLES
+import config.app_styles
 # from dialogs.dialog_recent_projects import RecentProjects
+from components.syntax_highlighter import python_highlighter, rapit_two_highlighter
 
 
 
@@ -54,23 +58,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.setupUi(self)
+        
+        
+        # self.timer = QTimer()
+        # self.timer.start(1000)
+        # self.timer.timeout.connect(lambda: self.change_theme(self.app_settings.theme))
 
         self.resize(1920, 1080)
 
         self.setWindowIcon(QIcon('R2Editor.ico'))
         self.setWindowTitle("Editor")
 
-        self.splitter.setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:horizontal:hover {background-color:rgb(58,89,245);}")
+        # self.setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:horizontal, QSplitter::handle:horizontal:hover {background-color:rgb(58,89,245);}")
+        # self.frame_file_manager.setStyleSheet("border:None;")
         
         # self.setWindowFlags(Qt.FramelessWindowHint)
         # self.setAttribute(Qt.WA_TranslucentBackground)
         self.frame_top.setVisible(False)
 
         self.palette = QPalette()
-        self.palette.setColor(QPalette.Window, QColor(58,89,245))
+        self.palette.setColor(QPalette.Window, QColor("red"))
         self.palette.setColor(QPalette.Text, QColor(200, 200, 200))
-        self.palette.setColor(QPalette.WindowText, QColor(200, 200, 200))
-        self.setPalette(self.palette)
+        # self.palette.setColor(QPalette.WindowText, QColor(200, 200, 200))
+        # self.setPalette(self.palette)
         
         # QSizeGrip(self.frame_size_grip)
 
@@ -126,6 +136,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         QShortcut( 'Ctrl+f', self ).activated.connect((lambda: self.find_replace(only_find=True)))            
         QShortcut( 'Ctrl+h', self ).activated.connect((lambda: self.find_replace(only_find=False)))   
+        QShortcut( 'Ctrl+r', self ).activated.connect(self.change_theme)   
                
 
         self.frame_file_manager.setVisible(False)
@@ -173,7 +184,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         ## TOGGLE/BURGUER MENU
         ########################################################################
-        self.btn_toggle_menu.clicked.connect(lambda: self.toggle_menu(self.frame_left_menu, 70, 210))
+        self.btn_toggle_menu.clicked.connect(lambda: self.toggle_menu(self.uiFrameLeftMenu, 70, 210))
         # self.btn_show_hide_file_manager.clicked.connect(lambda: self.toggleMenu(self.frame_file_manager, 0, 350))
         self.btn_close.clicked.connect(self.close)
         # self.btn_maximize_restore.clicked.connect(maximize_restore)
@@ -209,6 +220,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ################################################################################################################
         self.tree_file_browser = FileSystemView(self, project_manager)
         self.verticalLayout_7.addWidget(self.tree_file_browser)
+        
 
 
         ################################################################################################################
@@ -247,7 +259,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tabs_splitter.addWidget(self.left_tabs)
         self.tabs_splitter.addWidget(self.right_tabs)
         self.tabs_splitter.setStretchFactor(2, 1)
-        self.tabs_splitter.setStyleSheet('background-color: rgb(33, 37, 43); border:None;')
+        # self.tabs_splitter.setStyleSheet('background-color: rgb(33, 37, 43); border:None;')
 
 
         ################################################################################################################
@@ -275,6 +287,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     #     self.btn_find_replace.setChecked(False)
 
         self.notification_widget = NotificationWidget(self)
+        self.change_theme(self.app_settings.theme)
+
 
     @property
     def actual_text_edit(self):
@@ -524,11 +538,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if file_path not in opened_files:
                     with open(file_path, 'r') as file_to_open:
                         text = file_to_open.read()
-                        # file_to_open.close()
 
-                    # tab_name = file_path.split('/')[-1]
+                    if file_suffix.lower() == '.py':
+                        syntax_highlighter = python_highlighter.PythonHighlighter
+                    else:
+                        syntax_highlighter = rapit_two_highlighter.RapitTwoHighlighter
+
                     tab_name = file_path.name
-                    self.left_tabs.addTab(TextEdit(self, text, file_path), QIcon(u"ui/icons/16x16/cil-file.png"), tab_name)
+                    self.left_tabs.addTab(TextEdit(self, text, file_path, syntax_highlighter), QIcon(u"ui/icons/16x16/cil-file.png"), tab_name)
 
                 else:
                     opened_files[file_path][1].setCurrentWidget(opened_files[file_path][0])
@@ -642,7 +659,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         text = template.generate_tc_template()
         file_path = None
         tab_name = 'Untitled'
-        self.left_tabs.addTab(TextEdit(self, "", file_path), QIcon(u"ui/icons/16x16/cil-description.png"), tab_name)
+        self.left_tabs.addTab(TextEdit(self, "", file_path, rapit_two_highlighter.RapitTwoHighlighter), QIcon(u"ui/icons/16x16/cil-description.png"), tab_name)
         self.actual_text_edit.setFocus()
         tc = self.actual_text_edit.textCursor()
         tc.insertText(text)
@@ -922,6 +939,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 
+    def change_theme(self, theme):
+        reload(config.app_styles)
+        styles = config.app_styles.switch_theme(theme.upper())
+        app.setStyleSheet(styles)
+
+        
+
+
+
 
 
 if __name__ == "__main__":
@@ -934,13 +960,14 @@ if __name__ == "__main__":
 
     # app.setFont(font)
 
-    QFontDatabase.addApplicationFont('ui/fonts/segoeui.ttf')
-    QFontDatabase.addApplicationFont('ui/fonts/segoeuib.ttf')
-    file = QFile("ui/dark.qss")
-    file.open(QFile.ReadOnly | QFile.Text)
-    stream = QTextStream(file)
-    app.setStyleSheet(stream.readAll())
+    # QFontDatabase.addApplicationFont('ui/fonts/segoeui.ttf')p
+    # QFontDatabase.addApplicationFont('ui/fonts/segoeuib.ttf')
+    # file = QFile("ui/dark.qss")
+    # file.open(QFile.ReadOnly | QFile.Text)
+    # stream = QTextStream(file)
+    # app.setStyleSheet(stream.readAll())
     app.setStyle('Fusion')
+    # app.setStyleSheet(config.app_styles.STYLES)
     
 
     

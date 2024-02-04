@@ -5,20 +5,13 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QMainWindow, QApplication, QWidget, QVBoxLayout, QLabel
 
 
-styles = """
-QListWidget::item:hover {
-    background-color: rgb(58, 89, 245);
-}
-"""
 
-
-class ListWidgetWithEventFilter(QListWidget):
+class ListWidgetEventFilter(QListWidget):
     
     def __init__(self):
         super().__init__()
         self.installEventFilter(self)
         self.setMouseTracking(True)
-        self.setStyleSheet(styles)
 
     # def eventFilter(self, source, event):
     #     if event.type() == QEvent.MouseMove:

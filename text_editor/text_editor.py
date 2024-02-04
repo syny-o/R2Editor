@@ -1,23 +1,27 @@
+from ast import main
 import os
+import time
 from PyQt5.QtWidgets import QWidget, QPlainTextEdit, QToolTip, QStyledItemDelegate, QStyleOptionViewItem, QMessageBox, QApplication, QPushButton, QToolBar, QVBoxLayout, QTextEdit
-import importlib
+
 from text_editor.code_editor import QCodeEditor
 import text_editor.text_management as text_management
 
 from PyQt5.QtCore import pyqtSignal, Qt, pyqtSlot, QPoint, QModelIndex, QStringListModel, QTimer
 from PyQt5.QtGui import QFont, QTextCursor, QStandardItem, QStandardItemModel, QIcon, QPainter, QPixmap, QImage, QScreen
 
-from text_editor.syntax_highlighter import Highlighter
 
 from config.font import font
 
-from text_editor.completer import Completer
+from text_editor.completer import Completer, CompleterDelegate
 from text_editor.text_edit_tooltip_widget import TextEditTooltipWidget
 from text_editor.data_manager_widget import DataManagerWidget
 
 from text_editor.tooltips import tooltips
 
 from components.text_functions import get_word_under_cursor
+
+from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighter
+from importlib import reload
 
 
 class TextEdit(QCodeEditor):
@@ -47,23 +51,25 @@ class TextEdit(QCodeEditor):
         cls.ctrl_pressed = is_pressed
 
 
-    def __init__(self, main_window=None, text=None, file_path=None):
+    def __init__(self, main_window, text, file_path, syntax_highlighter: ISyntaxHighlighter):
         super().__init__(text)
+        self.main_window = main_window
 
         TextEdit.append_child(self)
+
 
         self.file_path = file_path
         self.original_file_content = text
         self.file_was_modified = False
 
 
+        self.update_syntax_highlighter(syntax_highlighter)
 
         if self.file_path:
             self.is_read_only = not(os.access(self.file_path, os.W_OK))
         else:
             self.is_read_only = False
         
-        self.main_window = main_window
 
         # self.font = font
         self.setFont(TextEdit.font)
@@ -83,14 +89,16 @@ class TextEdit(QCodeEditor):
         self.textChanged.connect(self.text_changed)
 
 
-        # CONNECT SYNTAX HIGHLIGHTER
-        self.highlighter = Highlighter(self.document())
+
 
         # CONNECT COMPLETER - INSTANCE CONFIGURATION
         self.completer = Completer()
         self.completer.setWidget(self)
         self.completer.insert_text.connect(self.insert_completion)
         self.current_model = None
+
+        delegate = CompleterDelegate(self)
+        self.completer.popup.setItemDelegate(delegate)
 
 
         self.actual_text = ''
@@ -104,6 +112,15 @@ class TextEdit(QCodeEditor):
         self.remember_special_char = False
 
         self.data_manager_widget = DataManagerWidget(self.main_window, self)
+
+
+    def update_syntax_highlighter(self, syntax_highlighter: ISyntaxHighlighter):
+        # CONNECT SYNTAX HIGHLIGHTER    
+        # reload(syntax_highlighter)
+        if self.main_window.app_settings.theme == 'Dark':
+            self.syntax_highlighter = syntax_highlighter(self.document(), dark_mode=True)
+        else:
+            self.syntax_highlighter = syntax_highlighter(self.document(), dark_mode=False)
 
         # print(self.file_path)
 

@@ -2,7 +2,6 @@ from PyQt5.QtCore import QRegExp
 from PyQt5.QtGui import QColor, QTextCharFormat, QFont, QSyntaxHighlighter
 
 
-
 def format(color, style='', background_color = None):
 # Return a QTextCharFormat with the given attributes.
     _color = QColor()
@@ -27,9 +26,8 @@ def format(color, style='', background_color = None):
 
 
 
-color_keyword_primary = ("#000000")
 
-STYLES = {
+STYLES_DARK_MODE = {
     'keyword': format('#ff0040', 'bold'),
     'keyword_primary': format('#fff', 'bold', '#e30e0e'),
     'keyword_secondary': format('orange', 'bold'),
@@ -48,7 +46,24 @@ STYLES = {
 
 }
 
-class Highlighter(QSyntaxHighlighter):
+STYLES_LIGHT_MODE = {
+    'keyword': format('#ff0040', 'bold'),
+    'keyword_primary': format('#fff', 'bold', '#e30e0e'),
+    'keyword_secondary': format('brown', 'bold'),
+    'keyword_if': format('#2dbdd6', 'bold'),
+    'keyword_for': format('#e3a736', 'bold'),
+    'pbc_variables': format('grey', 'italic'),
+    # 'comment': format('#00ffff', 'italic'),
+    'comment': format('#777', 'italic'),
+    'string': format('#dd2222'),
+    'numbers': format('blue'),
+    'values': format('#C82C2C'),
+    'operator': format('black'),
+    'brace': format('#C82C2C'),
+}
+
+
+class RapitTwoHighlighter(QSyntaxHighlighter):
 
     # RapitTwo keywords
     keywords = [
@@ -91,26 +106,33 @@ class Highlighter(QSyntaxHighlighter):
         '\{', '\}', '\(', '\)', '\[', '\]',
     ]
 
-    def __init__(self, document):
+    def __init__(self, document, dark_mode = True):
         QSyntaxHighlighter.__init__(self, document)
+
+
+        if dark_mode:
+            STYLES = STYLES_DARK_MODE
+        else:
+            STYLES = STYLES_LIGHT_MODE
+
 
         rules = []
 
         # Keyword, operator, and brace rules
         rules += [(r'\b%s\b' % w, 0, STYLES['keyword'])
-            for w in Highlighter.keywords]
+            for w in RapitTwoHighlighter.keywords]
         rules += [(r'\b%s\b' % s, 0, STYLES['keyword_primary'])
-            for s in Highlighter.keywords_primary]
+            for s in RapitTwoHighlighter.keywords_primary]
         rules += [(r'\b%s\b' % t, 0, STYLES['keyword_secondary'])
-            for t in Highlighter.keywords_secondary]
+            for t in RapitTwoHighlighter.keywords_secondary]
         rules += [(r'\b%s\b' % i, 0, STYLES['keyword_if'])
-            for i in Highlighter.keywords_if]            
+            for i in RapitTwoHighlighter.keywords_if]            
         rules += [(r'\b%s\b' % f, 0, STYLES['keyword_for'])
-            for f in Highlighter.keywords_for]                        
+            for f in RapitTwoHighlighter.keywords_for]                        
         rules += [(r'%s' % o, 0, STYLES['operator'])
-            for o in Highlighter.operators]
+            for o in RapitTwoHighlighter.operators]
         rules += [(r'%s' % b, 0, STYLES['brace'])
-            for b in Highlighter.braces]
+            for b in RapitTwoHighlighter.braces]
 
         # All other rules
         rules += [

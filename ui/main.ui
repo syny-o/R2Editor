@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1870</width>
-    <height>1244</height>
+    <width>1610</width>
+    <height>1077</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -523,10 +523,7 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QMainWindow {background: transparent; }
-
-
-</string>
+   <string notr="true"/>
   </property>
   <property name="animated">
    <bool>true</bool>
@@ -536,9 +533,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
-    <string notr="true">background: transparent;
-color: rgb(210, 210, 210);
-</string>
+    <string notr="true"/>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <property name="spacing">
@@ -1060,7 +1055,7 @@ QPushButton:pressed {
        <item>
         <widget class="QFrame" name="frame_center">
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(40, 44, 52);</string>
+          <string notr="true"/>
          </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
@@ -1085,7 +1080,7 @@ QPushButton:pressed {
            <number>0</number>
           </property>
           <item>
-           <widget class="QFrame" name="frame_left_menu">
+           <widget class="QFrame" name="uiFrameLeftMenu">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -1108,28 +1103,7 @@ QPushButton:pressed {
              <enum>Qt::LeftToRight</enum>
             </property>
             <property name="styleSheet">
-             <string notr="true">QFrame{
-background-color: rgb(27, 29, 35);
-background-color: rgb(58, 89, 245);
-}
-
-QPushButton {	
-	background-position: left center;
-    background-repeat: no-repeat;
-	border: none;
-	border-left: 28px solid rgb(58, 89, 245);
-	background-color: rgb(58, 89, 245);
-	text-align: left;
-	padding-left: 45px;
-}
-QPushButton:hover {
-	background-color: rgb(33, 37, 43);
-	border-left: 28px solid rgb(33, 37, 43);
-}
-QPushButton:pressed {	
-	background-color: rgb(85, 170, 255);
-	border-left: 28px solid rgb(85, 170, 255);
-}</string>
+             <string notr="true"/>
             </property>
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
@@ -1168,9 +1142,7 @@ QPushButton:pressed {
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">QFrame{
-	border-top: 0.5px solid  rgb(58, 89, 145);
-}</string>
+                <string notr="true"/>
                </property>
                <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
@@ -1213,8 +1185,8 @@ QPushButton:pressed {
                     <family>Segoe UI</family>
                    </font>
                   </property>
-                  <property name="toolTip">
-                   <string>Show/Hide Menu</string>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
                   </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
@@ -1252,6 +1224,9 @@ QPushButton:pressed {
                     <family>Segoe UI</family>
                    </font>
                   </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
                   <property name="toolTip">
                    <string>Open Project</string>
                   </property>
@@ -1286,6 +1261,9 @@ QPushButton:pressed {
                    <font>
                     <family>Segoe UI</family>
                    </font>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
                   </property>
                   <property name="toolTip">
                    <string>Save Project</string>
@@ -1322,6 +1300,9 @@ QPushButton:pressed {
                     <family>Segoe UI</family>
                    </font>
                   </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
                   <property name="toolTip">
                    <string>Save Project As..</string>
                   </property>
@@ -1356,6 +1337,9 @@ QPushButton:pressed {
                    <font>
                     <family>Segoe UI</family>
                    </font>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
                   </property>
                   <property name="toolTip">
                    <string>New Project</string>
@@ -1440,22 +1424,8 @@ QPushButton:pressed {
                   <property name="styleSheet">
                    <string notr="true">QPushButton {	
 	background-image: url(:/20x20/icons/20x20/cil-power-standby.png);
-	background-position: left center;
-    background-repeat: no-repeat;
-	border: none;
-	border-left: 26px solid rgb(58, 89, 245);
-	background-color rgb(58, 89, 245);
-	text-align: left;
-	padding-left: 45px;
 }
-QPushButton:hover {
-	background-color: rgb(33, 37, 43);
-	border-left: 26px solid rgb(33, 37, 43);
-}
-QPushButton:pressed {	
-	background-color: rgb(85, 170, 255);
-	border-left: 26px solid rgb(85, 170, 255);
-}</string>
+</string>
                   </property>
                   <property name="text">
                    <string>Exit</string>
@@ -1477,7 +1447,7 @@ QPushButton:pressed {
              </sizepolicy>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color: rgb(44, 49, 60);</string>
+             <string notr="true"/>
             </property>
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
@@ -1574,7 +1544,7 @@ QPushButton:pressed {
                     <enum>QFrame::Raised</enum>
                    </property>
                    <property name="lineWidth">
-                    <number>1</number>
+                    <number>0</number>
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_6">
                     <property name="spacing">
@@ -1655,51 +1625,9 @@ QPushButton:pressed {
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="QFrame" name="frame_7">
+                        <widget class="QFrame" name="uiFrameEditorTitleBar">
                          <property name="styleSheet">
-                          <string notr="true">QPushButton {	
-	border: none;
-	padding: 5 15;
-	/*border-right: 5px solid rgb(44, 49, 60);*/
-
-	text-align: left;
-background-color: rgb(27, 29, 35);
-background-color: rgb(33, 37, 43);
-	background-color: rgb(39, 44, 54);
-
-}
-QPushButton:hover {
-	background-color: rgb(33, 37, 43);
-
-}
-QPushButton:pressed {	
-	background-color: rgb(85, 170, 255);
-
-}
-
-QPushButton:checked {	
-	background-color: rgb(85, 170, 255);
-
-}
-
-QLineEdit{
-	padding: 5;
-	border: 1px solid transparent;
-background-color: rgb(27, 29, 35);
-color:white;
-}
-
-QLineEdit:focus, QLineEdit:hover{
-	border: 1px solid rgb(58, 89, 245);
-}
-
-QFrame{
-
-background-color: rgb(27, 29, 35);
-background-color: rgb(33, 37, 43);
-background-color: rgb(39, 44, 54);
-
-}</string>
+                          <string notr="true"/>
                          </property>
                          <property name="frameShape">
                           <enum>QFrame::StyledPanel</enum>
@@ -1749,6 +1677,9 @@ background-color: rgb(39, 44, 54);
                              </property>
                              <item>
                               <widget class="QPushButton" name="btn_script_new">
+                               <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                               </property>
                                <property name="text">
                                 <string>New</string>
                                </property>
@@ -1763,6 +1694,9 @@ background-color: rgb(39, 44, 54);
                              </item>
                              <item>
                               <widget class="QPushButton" name="btn_script_save">
+                               <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                               </property>
                                <property name="text">
                                 <string>Save</string>
                                </property>
@@ -1774,6 +1708,9 @@ background-color: rgb(39, 44, 54);
                              </item>
                              <item>
                               <widget class="QPushButton" name="btn_script_save_as">
+                               <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                               </property>
                                <property name="text">
                                 <string>Save As</string>
                                </property>
@@ -1785,6 +1722,9 @@ background-color: rgb(39, 44, 54);
                              </item>
                              <item>
                               <widget class="QPushButton" name="btn_script_open">
+                               <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                               </property>
                                <property name="text">
                                 <string>Open</string>
                                </property>
@@ -1806,6 +1746,9 @@ background-color: rgb(39, 44, 54);
                              </item>
                              <item>
                               <widget class="QPushButton" name="btn_lock_unlock">
+                               <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                               </property>
                                <property name="text">
                                 <string>Locked</string>
                                </property>
@@ -1859,6 +1802,9 @@ background-color: rgb(39, 44, 54);
                              </property>
                              <item>
                               <widget class="QPushButton" name="btn_insert_chapter">
+                               <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                               </property>
                                <property name="text">
                                 <string>Chapter</string>
                                </property>
@@ -1870,6 +1816,9 @@ background-color: rgb(39, 44, 54);
                              </item>
                              <item>
                               <widget class="QPushButton" name="btn_insert_testcase">
+                               <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                               </property>
                                <property name="text">
                                 <string>Testcase</string>
                                </property>
@@ -1906,6 +1855,9 @@ background-repeat: no-repeat;</string>
                              </item>
                              <item>
                               <widget class="QPushButton" name="btn_insert_command">
+                               <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                               </property>
                                <property name="text">
                                 <string>Command</string>
                                </property>
@@ -1917,6 +1869,9 @@ background-repeat: no-repeat;</string>
                              </item>
                              <item>
                               <widget class="QPushButton" name="btn_comment_uncomment">
+                               <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                               </property>
                                <property name="text">
                                 <string>(Un)comment</string>
                                </property>
@@ -1928,6 +1883,9 @@ background-repeat: no-repeat;</string>
                              </item>
                              <item>
                               <widget class="QPushButton" name="btn_format_code">
+                               <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                               </property>
                                <property name="text">
                                 <string>Format</string>
                                </property>
@@ -1939,6 +1897,9 @@ background-repeat: no-repeat;</string>
                              </item>
                              <item>
                               <widget class="QPushButton" name="btn_zoom_in">
+                               <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                               </property>
                                <property name="toolTip">
                                 <string>Zoom In</string>
                                </property>
@@ -1956,6 +1917,9 @@ background-repeat: no-repeat;</string>
                              </item>
                              <item>
                               <widget class="QPushButton" name="btn_zoom_out">
+                               <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                               </property>
                                <property name="toolTip">
                                 <string>Zoom Out</string>
                                </property>
@@ -1970,6 +1934,9 @@ background-repeat: no-repeat;</string>
                              </item>
                              <item>
                               <widget class="QPushButton" name="btn_zoom_default">
+                               <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                               </property>
                                <property name="toolTip">
                                 <string>Reset Zoom</string>
                                </property>
@@ -1991,66 +1958,7 @@ background-repeat: no-repeat;</string>
                        <item>
                         <widget class="QFrame" name="frame_6">
                          <property name="styleSheet">
-                          <string notr="true">QPushButton {	
-	border: none;
-	padding: 5 15;
-	/*border-right: 5px solid rgb(44, 49, 60);*/
-	
-	background-color: rgb(39, 44, 54);
-	background-color: rgb(27, 29, 35);
-background-color: rgb(33, 37, 43);
-
-
-
-
-	text-align: left;
-
-}
-QPushButton:hover {
-	background-color: rgb(33, 37, 43);
-	background-color: rgb(39, 44, 54);
-	background-color: rgb(85, 170, 255);
-
-}
-QPushButton:pressed {	
-	background-color: rgb(85, 170, 255);
-
-}
-
-QPushButton:checked {	
-	background-color: rgb(85, 170, 255);
-
-}
-
-QLineEdit{
-	padding: 5;
-	border: 1px solid transparent;
-
-color:white;
-	padding-left: 30px;
-	border-radius: 1px;
-background-color: rgb(33, 37, 43);
-}
-QLineEdit:focus, QLineEdit:hover
-{
-	 border: 1px solid rgb(58, 89, 245);
-}
-
-QFrame{
-background-color: rgb(39, 44, 54);
-background-color: rgb(27, 29, 35);
-background-color: rgb(39, 44, 54);
-background-color: rgb(33, 37, 43);
-background-color: rgb(27, 29, 35);
-background-color: rgb(33, 37, 43);
-
-
-
-border-bottom: 2px solid rgb(33, 37, 43);;
-}
-
-
-</string>
+                          <string notr="true"/>
                          </property>
                          <property name="frameShape">
                           <enum>QFrame::StyledPanel</enum>
@@ -2296,15 +2204,26 @@ background-color: rgb(39, 44, 54);
                     <item>
                      <widget class="QStackedWidget" name="stackedWidget">
                       <property name="styleSheet">
-                       <string notr="true">background: transparent;
-
-</string>
+                       <string notr="true"/>
                       </property>
                       <property name="currentIndex">
                        <number>0</number>
                       </property>
                       <widget class="QWidget" name="page_home_2">
-                       <layout class="QVBoxLayout" name="verticalLayout_11"/>
+                       <layout class="QVBoxLayout" name="verticalLayout_11">
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                       </layout>
                       </widget>
                       <widget class="QWidget" name="page_settings_2">
                        <layout class="QHBoxLayout" name="horizontalLayout_12"/>
@@ -2322,7 +2241,7 @@ background-color: rgb(39, 44, 54);
            </widget>
           </item>
           <item>
-           <widget class="QFrame" name="frame_right_menu">
+           <widget class="QFrame" name="uiFrameRightMenu">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -2339,41 +2258,7 @@ background-color: rgb(39, 44, 54);
              <enum>Qt::LeftToRight</enum>
             </property>
             <property name="styleSheet">
-             <string notr="true">QFrame{
-	background-color: rgb(58, 89, 245);
-	background-color: rgb(39, 44, 54);
-
-	padding-top: 23px;
-}
-QPushButton {	
-	background-position: left center;
-    background-repeat: no-repeat;
-	border: none;
-	border-left: 28px solid rgb(58, 89, 245);
-	border-left: 25px solid rgb(39, 44, 54);
-
-	/*border-right: 5px solid rgb(44, 49, 60);*/
-	background-color: rgb(58, 89, 245);
-	background-color: rgb(39, 44, 54);
-
-	color: red;
-
-	text-align: left;
-	padding-left: 45px;
-}
-QPushButton:hover {
-	background-color: rgb(33, 37, 43);
-	border-left: 25px solid rgb(33, 37, 43);
-}
-QPushButton:pressed {	
-	background-color: rgb(33, 37, 43);
-	border-left: 25px solid rgb(33, 37, 43);
-}
-QPushButton:checked {	
-	background-color: rgb(33, 37, 43);
-	border-left: 25px solid rgb(33, 37, 43);
-	border-right: 3px solid rgb(58, 89, 245);
-}</string>
+             <string notr="true"/>
             </property>
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
@@ -2484,6 +2369,9 @@ QPushButton:checked {
                    <font>
                     <family>Segoe UI</family>
                    </font>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
                   </property>
                   <property name="toolTip">
                    <string>Editor</string>
@@ -2634,16 +2522,7 @@ QPushButton:checked {
           </size>
          </property>
          <property name="styleSheet">
-          <string notr="true">QFrame{
-background-color: rgb(33, 37, 43);
-background-color: rgb(27, 29, 35);
-}
-Line{
-background-color: rgb(50, 50, 50);
-}
-QLabel{
-	color: rgb(98, 103, 111);
-}</string>
+          <string notr="true"/>
          </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
