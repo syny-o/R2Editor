@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QToolBar, QVBoxLayout, QTextEdit
+from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QToolBar, QVBoxLayout, QTextEdit, QSizePolicy
 from PyQt5.QtGui import QIcon, QScreen, QPalette, QColor
 from PyQt5.QtCore import Qt, QTimer
 
@@ -24,11 +24,11 @@ class TextEditTooltipWidget(QWidget):
         self.palette.setColor(QPalette.Window, QColor(58,89,245))
         self.palette.setColor(QPalette.Text, QColor(200, 200, 200))
         self.palette.setColor(QPalette.WindowText, QColor(200, 200, 200))
-        self.setPalette(self.palette)
+        # self.setPalette(self.palette)
 
         self.resize(*self.calculate_size(text))
 
-        self.setStyleSheet("color: #edf; background-color: #222; font-size: 12px;")
+        # self.setStyleSheet("color: #edf; background-color: #222; font-size: 12px;")
 
 
 
@@ -37,13 +37,16 @@ class TextEditTooltipWidget(QWidget):
         
         
 
-        btn = QPushButton(QIcon(u"ui/icons/check.png"), "Back")
+        btn = QPushButton(QIcon(u"ui/icons/16x16/cil-x.png"), " Close (Esc)")
         btn.setCursor(Qt.PointingHandCursor)
         btn.clicked.connect(self.close)
 
         toolbar = QToolBar()
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        toolbar.addWidget(spacer)
         toolbar.addWidget(btn)
-
+        
 
         # self.te = QTextEdit()
         self.te = QTextEdit()

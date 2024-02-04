@@ -55,7 +55,7 @@ STYLES_LIGHT_MODE = {
     'pbc_variables': format('grey', 'italic'),
     # 'comment': format('#00ffff', 'italic'),
     'comment': format('#777', 'italic'),
-    'string': format('#dd2222'),
+    'string': format('green'),
     'numbers': format('blue'),
     'values': format('#C82C2C'),
     'operator': format('black'),

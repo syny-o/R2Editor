@@ -23,7 +23,7 @@ THEMES = {
 
 "LIGHT" : dict(
     RGB_BACKGROUND_2 = "199, 194, 194",
-    RGB_BACKGROUND_1 = "233, 237, 243",
+    RGB_BACKGROUND_1 = "233, 233, 243",
     RGB_BACKGROUND_0 = "133, 135, 135",
     RGB_HOVER = RGB_BLUE_HOVER,
     RGB_MAIN = RGB_BLUE,
@@ -48,13 +48,50 @@ QWidget {
 
 #uiFrameFileSystem #uiFrameFileSystemTitleBar{
     background-color: rgb(RGB_BACKGROUND_0);
+    border-bottom: 1px solid rgb(RGB_BORDER);
+    border-right: 1px solid rgb(RGB_BORDER);
+    
+}
+
+
+#uiFrameFileSystem QToolButton{
+    border: 1px solid rgb(RGB_BACKGROUND_0);
+    color: rgb(200, 200, 200);
+
+}
+
+
+#uiFrameFileSystem QToolButton:hover{
+    border: 1px solid rgb(200, 0, 0);
 }
 
 #uiFrameFileSystem #tree{
-    background-color: rgb(RGB_BACKGROUND_1);
+    background-color: rgb(RGB_BACKGROUND_2);
     /*background-color: rgb(220, 220, 220);*/
     padding: 10px;
 
+}
+
+
+
+
+#uiFrameTitleBar, #uiFrameEditorTitleBar{
+    background-color: rgb(RGB_BACKGROUND_0);
+    min-height: 35px;
+    border-bottom: 1px solid rgb(RGB_BORDER);
+    border-left: 1px solid rgb(RGB_BORDER);
+    border-right: 1px solid rgb(RGB_BORDER);
+    margin-right: 2px;
+    
+}
+
+#uiFrameTitleBar{
+    margin-left: 2px;
+}
+
+
+#uiFrameTitleBar QPushButton, #uiFrameEditorTitleBar QPushButton{
+    padding: 10px;
 }
 
 
@@ -172,41 +209,28 @@ QTreeView::branch:open:has-children:has-siblings  {
 
 /* ############### QTabs ################## */
 
-QTabWidget::pane
-{
-    padding: 0.5ex;
-    margin: 0.1ex;
-}
+
 
 QTabWidget::pane:top
 {
-    border: 0.1ex solid #76797c;
-    top: 0ex;
+    border: none;
+    
 }
 
 
-QTabBar
-{
-    qproperty-drawBase: 0;
-    left: 0.5ex; /* move to the right by 0.5ex */
-    border-radius: 0.3ex;
-}
 
-QTabBar:focus
-{
-    border: 0ex transparent black;
-}
+
+
 
 QTabBar::close-button
 {
-    border-image: url(./ui/icons/svg/close.svg);
     border-image: url(./ui/icons/24x24/cil-x.png);   
     background: transparent;
 }
 
 QTabBar::close-button:hover
 {
-    background: rgb(100,100,100);
+    border-image: url(./ui/icons/close.png);    
 }
 
 
@@ -216,7 +240,7 @@ QTabBar::tab:top
     border: 0.1ex transparent black;
     border-left: 0.1ex solid #76797c;
     border-top: 0.1ex solid #76797c;
-    background-color: #31363b;
+    /*background-color: #31363b;*/
     padding: 1.5ex;
     padding: 2.5ex;
     min-width: 50px;
@@ -224,6 +248,7 @@ QTabBar::tab:top
     border-top-right-radius: 0.2ex;
     border-bottom: 3px solid #31363b;
     background-color: rgb(RGB_BACKGROUND_0);
+    border-right: 1px solid rgb(RGB_BORDER);
 }
 
 QTabBar::tab:top:selected
@@ -246,8 +271,8 @@ QTabBar::tab:top:selected
 
 
 QMenu{
-    background-color: rgb(RGB_BACKGROUND_0);
-    color: #eff0f1;
+    background-color: rgb(RGB_BACKGROUND_2);
+    color: rgb(RGB_TEXT);
     padding: 0.5ex;
     padding-left: 1ex;
     opacity: 200;
@@ -371,8 +396,8 @@ QSplitter::handle:horizontal:hover {background-color:rgb(RGB_HOVER);}
 
 QSplitterHandle {} 
 QSplitter::handle:horizontal {
-    image: url(:/20x20/icons/20x20/cil-options.png);
-    background-color: rgb(58, 59, 55);
+    /*image: url(:/20x20/icons/20x20/cil-options.png);*/
+    background-color: rgb(RGB_BORDER);
     border-top: 60ex solid rgb(RGB_BACKGROUND_1);
     border-bottom: 60ex solid rgb(RGB_BACKGROUND_1);
      }
@@ -413,15 +438,7 @@ QSplitter::handle:horizontal {
     border: 1px solid rgb(RGB_BORDER);
 }
 
-#uiLayoutTitleBar, #uiFrameTitleBar, #uiFrameEditorTitleBar{
-    background-color: rgb(RGB_BACKGROUND_0);
-    min-height: 40px;
-    
-}
 
-#uiFrameTitleBar QPushButton, #uiFrameEditorTitleBar QPushButton{
-    padding: 10px;
-}
 
 
 QToolBar QToolButton{
@@ -536,8 +553,12 @@ TextEdit{
 
 
 NotificationWidget{
-    background-color: rgb(RGB_BACKGROUND_2);
-    color: rgb(RGB_MAIN);
+    background-color: rgb(RGB_MAIN);
+    color: rgb(200, 200, 200);
+}
+
+NotificationWidget QLabel{
+    color: rgb(200, 200, 200);
 }
 
 QDialog QPushButton{
@@ -561,6 +582,31 @@ QListWidget{
 
 QListWidget::item:hover{
     background-color: rgb(RGB_MAIN);
+}
+
+
+TextEditTooltipWidget{
+    background-color: rgb(RGB_BACKGROUND_0);
+    color: rgb(RGB_TEXT);
+}
+
+TextEditTooltipWidget QTextEdit{
+    background-color: rgb(RGB_BACKGROUND_0);
+    color: rgb(RGB_TEXT);
+    border: none;
+    font-size: 14px;
+}
+
+TextEditTooltipWidget QPushButton{
+    font-size: 14px;
+    padding: 10px;
+    background-color: rgb(RGB_MAIN);
+    color: rgb(200, 200, 200);
+}
+
+TextEditTooltipWidget QPushButton:hover{
+    background-color: rgb(RGB_HOVER);
+
 }
 
 """

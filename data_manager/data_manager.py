@@ -25,7 +25,7 @@ from data_manager.forms.form_doors_inputs import FormDoorsInputs
 from data_manager.view.widget_view import View
 import data_manager.tree_walker as tree_walker
 from config import constants
-from components.chart.chart_bar import ChartBar
+from components.widgets.chart_bar import ChartBar
 
 
 # from my_logging import logger
@@ -414,7 +414,7 @@ class DataManager(QWidget, Ui_Form):
                 covered_number += current_node.number_of_covered_requirements
                 
         # VIEW PART
-        self.progress_bar.update_value(calculated_number, covered_number)
+        # self.progress_bar.update_value(calculated_number, covered_number)
         self.ui_lab_req_total.setText(str(calculated_number))
         self.ui_lab_req_covered.setText(str(covered_number))
         self.ui_lab_req_not_covered.setText(str(calculated_number - covered_number))

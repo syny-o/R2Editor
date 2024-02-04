@@ -60,9 +60,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         
         
-        # self.timer = QTimer()
-        # self.timer.start(1000)
-        # self.timer.timeout.connect(lambda: self.change_theme(self.app_settings.theme))
+        self.timer = QTimer()
+        self.timer.start(1000)
+        self.timer.timeout.connect(lambda: self.change_theme(self.app_settings.theme))
 
         self.resize(1920, 1080)
 

@@ -45,8 +45,8 @@ class FileSystemView(QWidget, Ui_Form):
         self.send_file_path.connect(main_window.file_open_from_tree)
 
         self.is_data_manager_connected = False
-        self.ui_btn_disconnect_project_folder.setVisible(False)
-        self.ui_btn_disconnect_project_folder.clicked.connect(self._user_disconnected_path)
+        self.uiBtnDisconnectProjectFolder.setVisible(False)
+        self.uiBtnDisconnectProjectFolder.clicked.connect(self._user_disconnected_path)
     
         # self._dir_path = QDir.rootPath()
         self._dir_path = r'c:/!!! Projects'
@@ -129,8 +129,8 @@ class FileSystemView(QWidget, Ui_Form):
 
 
     def _connect_project_folder(self, path: str):        
-        self.ui_btn_disconnect_project_folder.setVisible(True)
-        self.ui_btn_disconnect_project_folder.setText(path)
+        self.uiBtnDisconnectProjectFolder.setVisible(True)
+        self.uiLabelProjectFolder.setText(path)
         self.model.setRootPath(path)
         self.tree.setRootIndex(self.model.index(path))
         self.current_path = path
@@ -138,7 +138,8 @@ class FileSystemView(QWidget, Ui_Form):
 
 
     def _disconnect_project_folder(self):
-        self.ui_btn_disconnect_project_folder.setVisible(False)
+        self.uiBtnDisconnectProjectFolder.setVisible(False)
+        self.uiLabelProjectFolder.setText("No Project Folder")
         self.model.setRootPath(self._dir_path)
         self.tree.setRootIndex(self.model.index(self._dir_path))
         self.current_path = None

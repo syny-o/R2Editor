@@ -93,7 +93,10 @@ class ChartBar(QWidget):
     def set_value(self, number_covered, number_total):
         self.number_covered = number_covered
         self.number_total = number_total
-        self.value = int((number_covered / number_total) * 100)
+        if number_total == 0:
+            self.value = 0
+        else:
+            self.value = int((number_covered / number_total) * 100)
         self.repaint()
 
     def add_shadow(self):
