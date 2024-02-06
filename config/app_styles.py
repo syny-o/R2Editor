@@ -6,6 +6,9 @@ RGB_RED = "200, 20, 20"
 RGB_GREEN = "0, 255, 0"
 RGB_BLACK = "20, 20, 20"
 
+RGB_BORDER_LIGHT = "50, 50, 50"
+RGB_BORDER_DARK = "100, 100, 100"
+
 
 
 THEMES = {
@@ -17,7 +20,7 @@ THEMES = {
     RGB_HOVER = RGB_BLUE_HOVER,
     RGB_MAIN = RGB_BLUE,
     RGB_TEXT = "200, 200, 200",
-    RGB_BORDER = "50, 50, 50"
+    RGB_BORDER = RGB_BORDER_DARK
 ),
 
 
@@ -28,7 +31,7 @@ THEMES = {
     RGB_HOVER = RGB_BLUE_HOVER,
     RGB_MAIN = RGB_BLUE,
     RGB_TEXT = "20, 20, 20",
-    RGB_BORDER = "50, 50, 50"
+    RGB_BORDER = RGB_BORDER_LIGHT
 )
 
 
@@ -77,11 +80,11 @@ QWidget {
 
 #uiFrameTitleBar, #uiFrameEditorTitleBar{
     background-color: rgb(RGB_BACKGROUND_0);
-    min-height: 35px;
     border-bottom: 1px solid rgb(RGB_BORDER);
     border-left: 1px solid rgb(RGB_BORDER);
     border-right: 1px solid rgb(RGB_BORDER);
     margin-right: 2px;
+    max-height: 35px;
     
 }
 
@@ -92,6 +95,11 @@ QWidget {
 
 #uiFrameTitleBar QPushButton, #uiFrameEditorTitleBar QPushButton{
     padding: 10px;
+    color: rgb(200, 200, 200);
+}
+
+#uiFrameEditorTitleBar QPushButton:checked{
+    background-color: rgb(RGB_HOVER);
 }
 
 
@@ -119,6 +127,7 @@ QWidget {
 
 #uiFrameRightMenu{
     background-color: rgb(RGB_BACKGROUND_0);
+    padding: 0;
 }
 
 #uiFrameRightMenu QFrame{
@@ -126,25 +135,26 @@ QWidget {
 	padding-top: 37px;
 }
 #uiFrameRightMenu QPushButton {	
-	background-position: left center;
-    background-repeat: no-repeat;
 	border: none;
 	border-left: 25px solid rgb(RGB_BACKGROUND_0);
+    border-right: 5px solid rgb(RGB_BACKGROUND_0);
 	color: red;
 	text-align: left;
-	padding-left: 45px;
+
 }
 #uiFrameRightMenu QPushButton:hover {
 	background-color: rgb(RGB_HOVER);
 	border-left: 25px solid rgb(RGB_HOVER);
+    border-right: 5px solid rgb(RGB_HOVER);
 }
 #uiFrameRightMenu QPushButton:pressed {	
 	background-color: rgb(RGB_BACKGROUND_1);
 	border-left: 25px solid rgb(RGB_BACKGROUND_1);
+    border-right: 5px solid rgb(RGB_BACKGROUND_1);
 }
 #uiFrameRightMenu QPushButton:checked {	
-	background-color: rgb(RGB_BACKGROUND_2);
-	border-left: 25px solid rgb(RGB_BACKGROUND_2);
+	background-color: rgb(RGB_BACKGROUND_1);
+	border-left: 25px solid rgb(RGB_BACKGROUND_1);
 	border-right: 5px solid rgb(RGB_MAIN);
 }
 
@@ -179,6 +189,7 @@ QComboBox
     selection-background-color: rgb(RGB_MAIN);
     border-radius: 3px;
     margin:0;
+    margin-right: 2px;
 }
 
 
@@ -406,6 +417,7 @@ QSplitter::handle:horizontal {
 
 
 
+
 #uiFrameControlTree QPushButton{
     background-color: transparent;
     background-color: rgb(RGB_BACKGROUND_2);
@@ -418,10 +430,10 @@ QSplitter::handle:horizontal {
     font-size: 12px;
 }
 
-
-#uiFrameControlTree QPushButton:hover{
-    background-color: rgb(RGB_MAIN);
-}  
+#uiFrameControlTree QLineEdit QToolButton{
+    padding: 5px;
+    margin: 5px;
+}
 
  #uiFrameControlTree{
     background-color: rgb(RGB_BACKGROUND_2);
@@ -430,12 +442,28 @@ QSplitter::handle:horizontal {
 }
 
 #uiFrameControlTree QPushButton:disabled, #uiFrameControlTree QToolButton:disabled{
-    color: rgb(RGB_BACKGROUND_1); 
+    color: rgb(120,120,120); 
 }
 
 #uiFrameControlTree QTreeView{
     background-color: rgb(RGB_BACKGROUND_1);
-    border: 1px solid rgb(RGB_BORDER);
+    border: 1px solid rgb(RGB_BORDER);   
+}
+
+#uiFrameControlTree QTreeView::item:selected{
+    background-color: rgb(RGB_HOVER);
+    color: rgb(250, 250, 250);
+}
+
+#uiFrameControlTree QPushButton, #uiFrameControlTree QLineEdit, #uiFrameControlTree QComboBox{
+    border-color: rgb(RGB_MAIN);
+    border-color: rgb(RGB_BORDER);
+    font-size: 14px;
+}
+
+#uiFrameControlTree QLineEdit:focus, #uiFrameControlTree QComboBox:focus, #uiFrameControlTree QPushButton:hover, #uiFrameControlTree QToolButton:hover{
+    background-color: rgb(200, 200, 250);
+    color: rgb(20, 20, 20);
 }
 
 
@@ -447,9 +475,9 @@ QToolBar QToolButton{
     min-width: 40px;
 }  
 
-QToolBar QToolButton:hover, QToolBar QToolButton:checked, QToolBar QToolButton:pressed{
+/*QToolBar QToolButton:hover, QToolBar QToolButton:checked, QToolBar QToolButton:pressed{
     background-color: rgb(RGB_HOVER);
-}
+}*/
 
 
 
@@ -524,6 +552,12 @@ QListWidget, QTextEdit{
     border: 1px solid rgb(RGB_BORDER)
 }   
 
+QListWidget::item{
+    padding: 0px;
+    max-height: 20px;
+    padding: 3px;
+}
+
 
 
 QDialog{
@@ -563,8 +597,8 @@ NotificationWidget QLabel{
 
 QDialog QPushButton{
     background-color: rgb(RGB_BACKGROUND_2);
-    padding: 10px 20px;
-    margin: 5px;
+    padding: 10px 25px;
+    margin: 2px;
 }
 
 #uiFrameFormWidget{

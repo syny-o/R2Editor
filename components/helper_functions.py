@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 
 def layout_generate_one_row(label_text: str, main_layout: QVBoxLayout, extend_label_width: bool = True) -> QLineEdit:
     
-    MINIMUM_LABEL_WIDTH = 100
+    MINIMUM_LABEL_WIDTH = 70
 
     uiOneRowLayout = QHBoxLayout()
     line_edit = QLineEdit()

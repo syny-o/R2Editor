@@ -1,3 +1,4 @@
+from re import I
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QToolBar, QPushButton, QLineEdit, QComboBox, QStyle, QToolButton, QAction
 from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtGui import QIcon, QCursor
@@ -13,7 +14,7 @@ from data_manager.view import help_func
 from data_manager.view.actions_handler import ActionsHandler
 from data_manager.view.display_manager import DisplayManager
 from config import constants
-import ui
+from config.icon_manager import IconManager
 
 
 class View(QWidget):
@@ -45,8 +46,12 @@ class View(QWidget):
         # self.uiLineEditTextFilter.setTextMargins(20, 20, 20, 20)
         # self.uiLineEditTextFilter.addAction(QIcon(":/16x16/icons/16x16/cil-magnifying-glass.png"), QLineEdit.LeadingPosition)
         self.uiLineEditTextFilter.setClearButtonEnabled(True)
-        self.uiLineEditTextFilter.findChild(QToolButton).setIcon(QIcon(":/20x20/icons/20x20/cil-x.png"))
+        # self.uiLineEditTextFilter.findChild(QToolButton).setIcon(IconManager().ICON_SEARCH_BOX_CLEAR)
         self.uiLineEditTextFilter.textChanged.connect(lambda: self._trigger_filtering(reset_filter=True))
+        # TEXT FILTER LINE EDIT
+        self.uiLineEditTextFilter.setPlaceholderText('Filter')
+        self.uiLineEditTextFilter.addAction(IconManager().ICON_SEARCH_BOX_FIND, QLineEdit.LeadingPosition)        
+        self.uiLineEditTextFilter.setMaximumHeight(0)        
 
         self._setup_ui() 
         self._create_actions() 
@@ -71,7 +76,7 @@ class View(QWidget):
         self.action_edit = help_func.create_action(':/16x16/icons/16x16/cil-pencil.png', 'Edit', slot=self.DATA_MANAGER.edit_node_request, shortcut="F4", toolbar=self.uiControlToolbar)
         self.action_remove = help_func.create_action(':/16x16/icons/16x16/cil-x.png', 'Remove', slot=self.DATA_MANAGER.remove_node, shortcut="Del", toolbar=self.uiControlToolbar)
         # File Nodes:
-        self.action_export = help_func.create_action(':/16x16/icons/16x16/cil-save.png', 'Export', slot=self.DATA_MANAGER.tree_2_file, toolbar=None)
+        self.action_export = help_func.create_action(':/16x16/icons/16x16/cil-save.png', 'Export', slot=self.DATA_MANAGER.tree_2_file, shortcut="Ctrl+E",toolbar=self.uiControlToolbar)
         self.action_normalise_a2l_file = help_func.create_action(':/16x16/icons/16x16/cil-chart-line.png', 'Normalise (VDA spec.)', slot=self.DATA_MANAGER._normalise_a2l_file, toolbar=None)
         self.action_update_module = help_func.create_action(':/16x16/icons/16x16/cil-cloud-download.png', 'Update', slot=lambda: self.DATA_MANAGER._open_form_for_doors_connection_inputs(all_modules=False), toolbar=None)
         self.action_add_to_ignore_list = help_func.create_action(':/16x16/icons/16x16/cil-task.png', 'Add To Ignore List', slot=self.DATA_MANAGER._add_to_ignore_list, toolbar=None)
@@ -103,30 +108,35 @@ class View(QWidget):
     ##############################################################################################################
     def _setup_ui(self):
         # FILTER + TREE NAVIGATION AREA
-        uiBtnPreviousView = QPushButton(QIcon(":/16x16/icons/16x16/cil-chevron-left.png"), "")
+        uiBtnPreviousView = QPushButton()
+        uiBtnPreviousView.setIcon(IconManager().ICON_PREVIOUS_VIEW)
         uiBtnPreviousView.clicked.connect(self.uiDataTreeView.goto_previous_index)
         uiBtnPreviousView.setToolTip("Previous View (Backspace)")
         uiBtnPreviousView.setCursor(QCursor(Qt.PointingHandCursor))
-        uiBtnExpandAllChildren = QPushButton(QIcon(":/16x16/icons/16x16/cil-expand-down.png"), "")
+        uiBtnPreviousView.setMinimumWidth(150)
+        uiBtnPreviousView.setText(" Previous View")
+        # uiBtnPreviousView.setStyleSheet("font-size: 14px;")
+        uiBtnExpandAllChildren = QPushButton()
+        uiBtnExpandAllChildren.setIcon(IconManager().ICON_EXPAND_ALL_CHILDREN)
         uiBtnExpandAllChildren.clicked.connect(self.uiDataTreeView.expand_all_children)
-        uiBtnExpandAllChildren.setToolTip("Expand All")
+        uiBtnExpandAllChildren.setToolTip("Expand All Children")
         uiBtnExpandAllChildren.setCursor(QCursor(Qt.PointingHandCursor))
-        uiBtnCollapseAllChildren = QPushButton(QIcon(":/16x16/icons/16x16/cil-expand-up.png"), "")
+        uiBtnCollapseAllChildren = QPushButton()
+        uiBtnCollapseAllChildren.setIcon(IconManager().ICON_COLLAPSE_ALL_CHILDREN)
         uiBtnCollapseAllChildren.clicked.connect(self.uiDataTreeView.collapse_all_children)
         uiBtnCollapseAllChildren.setToolTip("Collapse All")
         uiBtnCollapseAllChildren.setCursor(QCursor(Qt.PointingHandCursor))
-        # TEXT FILTER LINE EDIT
-        self.uiLineEditTextFilter.setPlaceholderText('Filter')
-        self.uiLineEditTextFilter.setVisible(False)
+
+
         # COVERAGE FILTER COMBO
         self.uiComboCoverageFilter.setVisible(False) 
         # FILTER LAYOUT
         uiFilterLayout = QHBoxLayout()
-        uiFilterLayout.addWidget(uiBtnPreviousView)
         uiFilterLayout.addWidget(uiBtnExpandAllChildren)
         uiFilterLayout.addWidget(uiBtnCollapseAllChildren)
         uiFilterLayout.addWidget(self.uiLineEditTextFilter)
         uiFilterLayout.addWidget(self.uiComboCoverageFilter) 
+        uiFilterLayout.addWidget(uiBtnPreviousView)
         uiFilterLayout.setAlignment(Qt.AlignLeft)       
         # CONTROL TOOLBAR
         self.uiControlToolbar = QToolBar()
@@ -148,11 +158,12 @@ class View(QWidget):
         if not index.isValid():
             return
         item = self.MODEL.itemFromIndex(index)
-        self.uiLineEditTextFilter.setVisible(False)
+        self.uiLineEditTextFilter.setMaximumHeight(0)
         self.uiComboCoverageFilter.setVisible(False)
 
         if isinstance(item, (RequirementModule, ConditionFileNode, DspaceFileNode, A2lFileNode)):
-            self.uiLineEditTextFilter.setVisible(True)
+            # self.uiLineEditTextFilter.setVisible(True)
+            self.uiLineEditTextFilter.setMaximumHeight(500)
             self.uiLineEditTextFilter.setText(item.data(Qt.UserRole))
         if isinstance(item, RequirementModule) and item.coverage_filter:            
             self.uiComboCoverageFilter.setVisible(True)

@@ -69,7 +69,7 @@ class DataManagerWidget(QWidget):
 
             self.main_window.stackedWidget.removeWidget(self.main_window.data_manager)
             self.layout_global.addWidget(self.main_window.data_manager)
-            self.main_window.data_manager.frame_17.setVisible(False)  
+            # self.main_window.data_manager.frame_17.setVisible(False)  
             # self.main_window.data_manager.frame_2.setVisible(False)      
             self.main_window.data_manager.show()
 

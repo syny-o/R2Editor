@@ -1,33 +1,22 @@
 import os
-import re
 import stat
 import sys
 from pathlib import Path
 from importlib import reload
 
 import pywinstyles
-from PyQt5.QtCore import (QEasingCurve, QEvent, QFile, QPoint,
-                          QPropertyAnimation, QRect, QSettings, QSize, Qt,
-                          QTextStream, QTimer, pyqtSignal, pyqtSlot)
-from PyQt5.QtGui import (QColor, QFontDatabase, QIcon, QKeySequence, QPalette,
-                         QTextCursor)
-from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QHBoxLayout,
-                             QMainWindow, QMenu, QMessageBox, QPushButton,
-                             QShortcut, QSizeGrip, QSplitter, QTabWidget,
-                             QToolTip, QVBoxLayout, QWidget)
+from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QSettings, Qt, QTimer, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QColor, QFontDatabase, QIcon, QKeySequence
+from PyQt5.QtWidgets import (QApplication, QFileDialog, QMainWindow, QMessageBox, QShortcut, QSplitter)
 
 from app_settings import AppSettings
-from components import syntax_highlighter
 from components.notification_widget import NotificationWidget
-from components.pyqt_find_text_widget.findReplaceTextWidget import \
-    FindReplaceTextWidget
-from components.pyqt_find_text_widget.findTextWidget import FindTextWidget
+from components.pyqt_find_text_widget.findReplaceTextWidget import FindReplaceTextWidget
 from components.template_test_case import TemplateTestCase
 from config.font import font
 from dashboard.dashboard import Dashboard
 from data_manager import project_manager
 from data_manager.data_manager import DataManager
-from data_manager.nodes.requirement_module import RequirementModule
 from dialogs.dialog_message import dialog_message
 from dialogs.window_new_project import ProjectConfig
 from file_browser.tree_file_browser import FileSystemView
@@ -36,18 +25,15 @@ from text_editor import text_management
 from text_editor.text_editor import TextEdit
 from ui.main_ui import Ui_MainWindow
 from config import constants
-# from config.app_styles import STYLES
 import config.app_styles
-# from dialogs.dialog_recent_projects import RecentProjects
 from components.syntax_highlighter import python_highlighter, rapit_two_highlighter
-
-
+from config.icon_manager import IconManager
 
 
 _FILE_FILTER = 'RapitTwo Editor Project (*.json)'
 
-# pyinstaller -w --icon=R2Editor.ico main.py
 # pyinstaller -w --icon=R2Editor.ico --name=R2Editor main.py
+
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 
@@ -58,48 +44,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.setupUi(self)
+
+        self.ui_btn_home.setIcon(IconManager().ICON_DASHBOARD)
+        self.ui_btn_data_manager.setIcon(IconManager().ICON_DATA_MANAGER)
+        self.ui_btn_text_editor.setIcon(IconManager().ICON_CODE_EDITOR)
+        self.btn_app_settings.setIcon(IconManager().ICON_SETTINGS)
         
-        
-        self.timer = QTimer()
-        self.timer.start(1000)
-        self.timer.timeout.connect(lambda: self.change_theme(self.app_settings.theme))
+        # self.timer = QTimer()
+        # self.timer.start(1000)
+        # self.timer.timeout.connect(lambda: self.change_theme(self.app_settings.theme))
 
         self.resize(1920, 1080)
 
         self.setWindowIcon(QIcon('R2Editor.ico'))
         self.setWindowTitle("Editor")
-
-        # self.setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:horizontal, QSplitter::handle:horizontal:hover {background-color:rgb(58,89,245);}")
-        # self.frame_file_manager.setStyleSheet("border:None;")
-        
-        # self.setWindowFlags(Qt.FramelessWindowHint)
-        # self.setAttribute(Qt.WA_TranslucentBackground)
         self.frame_top.setVisible(False)
-
-        self.palette = QPalette()
-        self.palette.setColor(QPalette.Window, QColor("red"))
-        self.palette.setColor(QPalette.Text, QColor(200, 200, 200))
-        # self.palette.setColor(QPalette.WindowText, QColor(200, 200, 200))
-        # self.setPalette(self.palette)
-        
-        # QSizeGrip(self.frame_size_grip)
-
-        ## HIDE NOT-WORKING UI COMPONENTS
-        # self.btn_project_recent.setVisible(False)
-        # self.btn_undo.setVisible(False)
-        # self.btn_redo.setVisible(False) 
-        # self.frame_11.setVisible(False)       
-        
-        ## CONNECT BUTTONS
-        
+          
+        ## CONNECT BUTTONS        
         self.btn_app_exit.clicked.connect(self.close)
 
         self.btn_project_open.clicked.connect(self.project_open)
         self.btn_project_new.clicked.connect(self.project_new)
         self.btn_project_save.clicked.connect(self.project_save)
         self.btn_project_save_as.clicked.connect(self.project_save_as)
-        # self.btn_project_recent.clicked.connect(self.show_recent_projects)
-
 
         self.btn_script_new.clicked.connect(self.file_new)
         self.btn_script_new.setShortcut('Ctrl+n')
@@ -125,8 +92,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.btn_find_replace.clicked.connect(lambda is_pressed: self.find_replace(is_pressed, only_find=False))
         # self.btn_find_replace.setShortcut('Ctrl+h')
         # self.btn_find_replace.setToolTip('Ctrl + "H"')
-        self.btn_undo.clicked.connect(self.perform_undo)
-        self.btn_redo.clicked.connect(self.perform_redo)
+        # self.btn_undo.clicked.connect(self.perform_undo)
+        # self.btn_redo.clicked.connect(self.perform_redo)
         self.btn_zoom_in.clicked.connect(self.font_increase)
         self.btn_zoom_in.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Plus))
         self.btn_zoom_out.clicked.connect(self.font_decrease)
@@ -135,77 +102,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_zoom_default.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_0))    
 
         QShortcut( 'Ctrl+f', self ).activated.connect((lambda: self.find_replace(only_find=True)))            
-        QShortcut( 'Ctrl+h', self ).activated.connect((lambda: self.find_replace(only_find=False)))   
-        QShortcut( 'Ctrl+r', self ).activated.connect(self.change_theme)   
-               
+        QShortcut( 'Ctrl+h', self ).activated.connect((lambda: self.find_replace(only_find=False)))              
 
         self.frame_file_manager.setVisible(False)
         self.frame_2.setVisible(False)
         self.actual_find_box = None
 
 
-
-
-
-        
-
-        # def maximize_restore():
-        #     if self.isMaximized():
-        #         self.showNormal()
-        #         self.btn_maximize_restore.setIcon(QIcon(u"ui/icons/16x16/cil-window-maximize.png"))
-        #     else:
-        #         self.showMaximized()
-        #         self.btn_maximize_restore.setIcon(QIcon(u"ui/icons/16x16/cil-window-restore.png"))
-
-        # def doubleClickMaximizeRestore(event):
-        #     # IF DOUBLE CLICK CHANGE STATUS
-        #     if event.type() == QEvent.MouseButtonDblClick:
-        #         QTimer.singleShot(50, maximize_restore)                
-
-        # def moveWindow(e):
-        #     # Detect if the window is  normal size
-        #     # ###############################################
-        #     if self.isMaximized() == False: #Not maximized
-        #         # Move window only when window is normal size
-        #         # ###############################################
-        #         #if left mouse button is clicked (Only accept left mouse button clicks)
-        #         if e.buttons() == Qt.LeftButton:
-        #             #Move window
-        #             self.move(self.pos() + e.globalPos() - self.clickPosition)
-        #             self.clickPosition = e.globalPos()
-        #             e.accept()
-
-        # #######################################################################
-        # # Add click event/Mouse move event/drag event to the top header to move the window
-        # #######################################################################
-        # self.frame_top_btns.mouseMoveEvent = moveWindow
-        # self.frame_top_btns.mouseDoubleClickEvent = doubleClickMaximizeRestore
-        # #######################################################################                
-
         ## TOGGLE/BURGUER MENU
         ########################################################################
         self.btn_toggle_menu.clicked.connect(lambda: self.toggle_menu(self.uiFrameLeftMenu, 70, 210))
         # self.btn_show_hide_file_manager.clicked.connect(lambda: self.toggleMenu(self.frame_file_manager, 0, 350))
         self.btn_close.clicked.connect(self.close)
-        # self.btn_maximize_restore.clicked.connect(maximize_restore)
-        # self.btn_minimize.clicked.connect(lambda: self.showMinimized())
-
-
-
-
-
-
-
 
         self.VERSION = '2021-03-04'
         # FILTER FOR OPENING/SAVING SCRIPTS AND PROJECTS
         self.filter_script = 'RapitTwo Script (*.par)'
-
-
-        ################################################################################################################
-        # APP SETTINGS CONFIGURATION
-        ################################################################################################################
-        self.app_settings = AppSettings(self)        
 
         ################################################################################################################
         # POINTER TO ACTUAL TEXTEDIT, ACTUAL TABS
@@ -213,22 +125,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._actual_text_edit = None
         self.actual_tabs = None
 
-        self.opened_project_path = None
+        ################################################################################################################
+        # APP SETTINGS CONFIGURATION
+        ################################################################################################################
+        self.app_settings = AppSettings(self)   
+        self.change_theme(self.app_settings.theme)     
 
         ################################################################################################################
         # TREE FILE BROWSER CONFIGURATION
         ################################################################################################################
         self.tree_file_browser = FileSystemView(self, project_manager)
         self.verticalLayout_7.addWidget(self.tree_file_browser)
-        
-
 
         ################################################################################################################
         # DATA MANAGER CONFIGURATION
         ################################################################################################################
         self.data_manager = DataManager(self, project_manager)
         self.script_requirement_reference_changed.connect(self.data_manager.script_requirement_reference_changed)
-
 
         ################################################################################################################
         # DASHBOARD CONFIGURATION
@@ -259,12 +172,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tabs_splitter.addWidget(self.left_tabs)
         self.tabs_splitter.addWidget(self.right_tabs)
         self.tabs_splitter.setStretchFactor(2, 1)
-        # self.tabs_splitter.setStyleSheet('background-color: rgb(33, 37, 43); border:None;')
-
 
         ################################################################################################################
         # STACKEDWIDGET CONFIGURATION
-        # ########################################################################
+        ################################################################################################################
         
         self.stackedWidget.addWidget(self.tabs_splitter)
         self.stackedWidget.addWidget(self.data_manager)
@@ -272,22 +183,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.stackedWidget.addWidget(self.dashboard)
         self.stackedWidget.setCurrentWidget(self.dashboard)
 
-
         self.ui_btn_text_editor.clicked.connect(lambda: self.manage_right_menu(self.tabs_splitter, self.ui_btn_text_editor))
         self.ui_btn_data_manager.clicked.connect(lambda: self.manage_right_menu(self.data_manager, self.ui_btn_data_manager))
         self.ui_btn_home.clicked.connect(lambda: self.manage_right_menu(self.dashboard, self.ui_btn_home))
         self.btn_app_settings.clicked.connect(lambda: self.manage_right_menu(self.app_settings, self.btn_app_settings))
 
-    #     QShortcut( 'Esc', self.tabs_splitter).activated.connect(self.press_esc)
-
-
-    # def press_esc(self):
-    #     # Close FindNReplace Widget if it is Visible
-    #     self.find_replace(False)
-    #     self.btn_find_replace.setChecked(False)
-
+        ################################################################################################################
+        # NOTIFICATION WIDGET CONFIGURATION
+        ################################################################################################################
         self.notification_widget = NotificationWidget(self)
-        self.change_theme(self.app_settings.theme)
 
 
     @property
@@ -311,8 +215,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.actual_text_edit.setFocus()
         return super().keyPressEvent(e)
 
-    def manage_right_menu(self, widget, button):
 
+
+    def manage_right_menu(self, widget, button):
         self.ui_btn_home.setChecked(False)
         self.ui_btn_text_editor.setChecked(False)
         self.ui_btn_data_manager.setChecked(False)
@@ -326,18 +231,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.frame_file_manager.setVisible(True)
             self.frame_2.setVisible(True)
 
-
-
-    #######################################################################
-    # Add mouse events to the window
-    #######################################################################
-    # def mousePressEvent(self, event):
-    #     # ###############################################
-    #     # Get the current position of the mouse
-    #     self.clickPosition = event.globalPos()
-    #     # For moving window
-    #######################################################################
-    #######################################################################
 
     def toggle_menu(self, toggled_frame, min_width, max_width):
         # GET ACTUAL WIDTH
@@ -355,13 +248,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.btn_toggle_menu.setStyleSheet("background-image: url(:/20x20/icons/20x20/cil-x.png);")
         else:
             self.btn_toggle_menu.setStyleSheet("background-image: url(:/20x20/icons/20x20/cil-menu.png);")
-
-
-
-
-
-
-
 
 
 
@@ -684,8 +570,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 # FILE MANAGEMENT METHODS:  END
 ########################################################################################################################
 
+
+
 ########################################################################################################################
-# PROJECT MANAGEMENT METHODS:  START
+# UPDATES:  START
 ########################################################################################################################
     def receive_parameters_from_project_manager(self, parameters: dict):
         self.update_project_title(parameters)
@@ -729,8 +617,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def _update_script_label(self):
         self.setWindowTitle(f"Editor - {self.actual_text_edit.file_path}" if self.actual_text_edit else "Editor")
-
-
    
     
     def show_notification(self, notification_text):
@@ -738,9 +624,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 
+########################################################################################################################
+# UPDATES:  END
+########################################################################################################################
+
+########################################################################################################################
+# PROJECT MANAGEMENT METHODS:  START
+########################################################################################################################
+
 
     def project_new(self):
-        # self.opened_project_path = None
         # self.window = ProjectConfig(self, is_new_project=True)
         # self.window.show()
         if not project_manager.is_project_saved():
@@ -881,16 +774,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 print(str(exc))
                 
 
-    def perform_undo(self):
-        if self.actual_text_edit:
-            self.actual_text_edit.undo()
-            self.actual_text_edit.setFocus()
-
-    def perform_redo(self):
-        if self.actual_text_edit:
-            self.actual_text_edit.redo()
-            self.actual_text_edit.setFocus()
-
     def font_increase(self):
         if self.actual_text_edit: self.actual_text_edit.font_increase()
 
@@ -909,9 +792,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     # SAVE WINDOW SIZE, POSITION BEFORE CLOSE APP AND CHECK IF ALL SCRIPTS ARE SAVED
     def closeEvent(self, event):
-        # self.settings.setValue('size', self.size())
-        # self.settings.setValue('position', self.pos())
-        # self.settings.setValue('last_opened_project', self.opened_project_path)
 
         self.app_settings.save_settings_2_disk()
         opened_files = self.get_all_opened_files()

@@ -1,6 +1,8 @@
-from PyQt5.QtWidgets import QWidget, QPushButton, QToolBar, QVBoxLayout, QLabel, QListWidget, QLineEdit, QComboBox, QHBoxLayout, QInputDialog, QListWidgetItem
-from PyQt5.QtCore import Qt, pyqtSignal, QSettings
+from PyQt5.QtWidgets import QWidget, QPushButton, QToolBar, QVBoxLayout, QLabel, QListWidget, QLineEdit, QComboBox, QHBoxLayout, QSizePolicy, QToolButton
+from PyQt5.QtCore import Qt, pyqtSignal, QSettings, QSize
 from PyQt5.QtGui import QFont, QPalette, QIcon
+
+import qtawesome as qta
 
 from ui.form_general_ui import Ui_Form
 
@@ -38,6 +40,9 @@ class FormDoorsInputs(QWidget, Ui_Form):
         self.database_path = self.settigs.doors_database_path
         self.user_name = self.settigs.doors_user_name
 
+        COLOR = '#8888c8'
+        self.ICON_PASSWORD_HIDDEN = qta.icon('fa5s.eye-slash', color=COLOR)
+        self.ICON_PASSWORD_VISIBLE = qta.icon('fa5s.eye', color=COLOR)
         self._generate_layout()
 
         self.show()  
@@ -47,11 +52,15 @@ class FormDoorsInputs(QWidget, Ui_Form):
 
 
 
+
+
     def _show_password(self):
-        if self.uiBtnShowPassword.isChecked():
+        if self.uiLineEditPassword.echoMode() == QLineEdit.Normal:
             self.uiLineEditPassword.setEchoMode(QLineEdit.Password)
+            self.action_show_password.setIcon(self.ICON_PASSWORD_HIDDEN)
         else:
             self.uiLineEditPassword.setEchoMode(QLineEdit.Normal)
+            self.action_show_password.setIcon(self.ICON_PASSWORD_VISIBLE)
 
     def _ok_clicked(self):
         success = validate_line_edits(self.uiLineEditUser, self.uiLineEditPassword, self.uiLineEditApplicationPath, invalid_chars=())
@@ -86,9 +95,9 @@ class FormDoorsInputs(QWidget, Ui_Form):
         self.uiComboDatabase = QComboBox()
         self.uiComboDatabase.addItems(["36677@skobde-doors9db.ad.trw.com", "36677@ssh2cn-doors9db.ad.trw.com"])
         self.uiComboDatabase.setCurrentText(self.database_path)
-        self.uiComboDatabase.setMinimumWidth(450)
+        self.uiComboDatabase.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         uiLabelDatabase = QLabel("Database:")
-        uiLabelDatabase.setMinimumWidth(100)
+        uiLabelDatabase.setMinimumWidth(75)
         uiLayoutDatabase.addWidget(uiLabelDatabase)
         uiLayoutDatabase.addWidget(self.uiComboDatabase)
         self.uiMainLayout_3.addLayout(uiLayoutDatabase)
@@ -103,16 +112,12 @@ class FormDoorsInputs(QWidget, Ui_Form):
         self.uiLineEditPassword = layout_generate_one_row("Password:", uiLayoutPassword)
         self.uiLineEditPassword.setEchoMode(QLineEdit.Password)
         self.uiLineEditPassword.setPlaceholderText("Enter password")
-        self.uiBtnShowPassword = QPushButton(QIcon(u"ui/icons/16x16/cil-low-vision"), "")
-        self.uiBtnShowPassword.setCheckable(True)
-        self.uiBtnShowPassword.clicked.connect(self._show_password)
-        self.uiBtnShowPassword.setMaximumWidth(30)
-        self.uiBtnShowPassword.setChecked(True)
-        self.uiBtnShowPassword.setToolTip("Show password")
-        self.uiBtnShowPassword.setCursor(Qt.PointingHandCursor)
-        uiLayoutPassword.addWidget(self.uiBtnShowPassword)
 
+        self.action_show_password = self.uiLineEditPassword.addAction(self.ICON_PASSWORD_HIDDEN, QLineEdit.TrailingPosition)
+        # self.action_show_password.setIcon(self.ICON_PASSWORD_HIDDEN)
+        self.action_show_password.triggered.connect(self._show_password)
+        for widget in self.uiLineEditPassword.findChildren(QToolButton):
+            widget.setCursor(Qt.PointingHandCursor)
 
         self.uiMainLayout_3.addLayout(uiLayoutPassword)
-
 

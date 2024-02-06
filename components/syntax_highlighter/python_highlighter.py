@@ -2,6 +2,8 @@ import sys
 from PyQt5.QtCore import QRegExp
 from PyQt5.QtGui import QColor, QTextCharFormat, QFont, QSyntaxHighlighter
 
+from components.syntax_highlighter.rapit_two_highlighter import STYLES_DARK_MODE
+
 
 def format(color, style=''):
     """
@@ -25,15 +27,27 @@ def format(color, style=''):
 
 # Syntax styles that can be shared by all languages
 
-STYLES = {
-    'keyword': format([200, 120, 50], 'bold'),
+STYLES_DARK_MODE = {
+    'keyword': format([150, 250, 150]),
     'operator': format([150, 150, 150]),
     'brace': format('darkGray'),
-    'defclass': format([220, 220, 255], 'bold'),
+    'defclass': format([250, 120, 125]),
+    'string': format([120, 210, 200]),
+    'string2': format([130, 220, 210]),
+    'comment': format([128, 128, 128], 'italic'),
+    'self': format([250, 185, 240]),
+    'numbers': format([130, 180, 255]),
+}
+
+STYLES_LIGHT_MODE = {
+    'keyword': format([60, 200, 20]),
+    'operator': format([150, 150, 150]),
+    'brace': format('darkGray'),
+    'defclass': format([220, 20, 25]),
     'string': format([20, 110, 100]),
     'string2': format([30, 120, 110]),
-    'comment': format([128, 128, 128]),
-    'self': format([150, 85, 140], 'italic'),
+    'comment': format([128, 128, 128], 'italic'),
+    'self': format([150, 85, 140]),
     'numbers': format([100, 150, 190]),
 }
 
@@ -73,6 +87,12 @@ class PythonHighlighter(QSyntaxHighlighter):
 
     def __init__(self, document, dark_mode=True):
         QSyntaxHighlighter.__init__(self, document)
+
+
+        if dark_mode:
+            STYLES = STYLES_DARK_MODE
+        else:
+            STYLES = STYLES_LIGHT_MODE        
 
         # Multi-line strings (expression, flag, style)
         # FIXME: The triple-quotes in these two lines will mess up the

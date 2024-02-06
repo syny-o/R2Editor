@@ -37,7 +37,7 @@ class TextEditTooltipWidget(QWidget):
         
         
 
-        btn = QPushButton(QIcon(u"ui/icons/16x16/cil-x.png"), " Close (Esc)")
+        btn = QPushButton("Close (Esc)")
         btn.setCursor(Qt.PointingHandCursor)
         btn.clicked.connect(self.close)
 

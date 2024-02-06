@@ -1,12 +1,20 @@
 from dataclasses import dataclass, fields
+from re import I
+from turtle import color
 from typing import Callable
 from PyQt5.QtCore import Qt, QItemSelection
 from PyQt5.QtWidgets import QPushButton, QAction, QMenu, QLineEdit, QComboBox
 from PyQt5.QtGui import QStandardItem
+import qtawesome as qta
 from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
 from data_manager.nodes.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
 from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
 from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
+from config.icon_manager import IconManager
+
+
+COLOR_ENABLED_ACTION = '#2222c8'
+COLOR_DISABLED_ACTION = '#ccc'
 
 
 @dataclass(kw_only=True)
@@ -54,9 +62,26 @@ class ActionsHandler:
         }
 
         self._disable_all_actions()
+        self._set_up_icons()
 
 
 
+
+    def _set_up_icons(self) -> None:       
+        self.action_remove_node.setIcon(IconManager().ICON_NODE_REMOVE)
+        self.action_edit_node.setIcon(IconManager().ICON_NODE_EDIT)
+        self.action_duplicate_node.setIcon(IconManager().ICON_NODE_DUPLICATE)
+        self.action_copy_node.setIcon(IconManager().ICON_NODE_COPY)
+        self.action_paste_node.setIcon(IconManager().ICON_NODE_PASTE)
+        self.action_move_down_node.setIcon(IconManager().ICON_NODE_MOVE_DOWN)
+        self.action_move_up_node.setIcon(IconManager().ICON_NODE_MOVE_UP)
+        self.action_export_node.setIcon(IconManager().ICON_NODE_EXPORT)
+        self.action_expand_all_children.setIcon(IconManager().ICON_EXPAND_ALL_CHILDREN)
+        self.action_collapse_all_children.setIcon(IconManager().ICON_COLLAPSE_ALL_CHILDREN)
+        self.action_normalise_a2l_file.setIcon(IconManager().ICON_NORMALISE_A2L_FILE)
+        self.action_update_module.setIcon(IconManager().ICON_UPDATE_MODULE)
+        self.action_add_to_ignore_list.setIcon(IconManager().ICON_ADD_TO_IGNORE_LIST)
+        self.action_remove_from_ignore_list.setIcon(IconManager().ICON_REMOVE_FROM_IGNORE_LIST)
 
     # INTERFACE FROM DATA_MANAGER
     def get_context_menu(self, node: QStandardItem) -> Callable | None:

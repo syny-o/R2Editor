@@ -299,10 +299,10 @@ class TextEdit(QCodeEditor):
             TextEdit.ctrl_pressed = True
             return
 
-        if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Q:
-            # self.show_conditions_in_tooltip()
-            self.data_manager_widget.show()
-            return
+        # if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Q:
+        #     # self.show_conditions_in_tooltip()
+        #     self.data_manager_widget.show()
+        #     return
 
         # "ESC" Cancel Selection
         if event.key() == Qt.Key_Escape:

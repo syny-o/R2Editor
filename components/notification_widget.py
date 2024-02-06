@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QToolBar, QVBoxLayout, QHBoxLayout, QTextEdit, QTreeView, QLineEdit, QLabel
 from PyQt5.QtGui import QIcon, QScreen, QPalette, QColor, QPixmap
-from PyQt5.QtCore import Qt, QTimer, QRunnable, QThreadPool, pyqtSlot
+from PyQt5.QtCore import Qt, QTimer, QRunnable, QThreadPool, pyqtSlot, QSize
+
+# import qtawesome as qta
 
 
 class NotificationWidget(QWidget):    
@@ -36,6 +38,20 @@ class NotificationWidget(QWidget):
         # picture.setScaledContents(True)
         picture.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         # self.layout_global.addWidget(picture)
+
+
+        # # Spining icon widget
+        # spin_widget = qta.IconWidget()
+        # animation = qta.Spin(spin_widget, autostart=True)
+        # spin_icon = qta.icon('mdi.loading', color='red', animation=animation)
+        # spin_widget.setIcon(spin_icon)
+
+
+        # # Start and stop the animation when needed
+        # animation.start()
+        # # animation.stop()
+        # self.layout_global.addWidget(spin_widget)
+
         
         self.ui_notification_text = QLabel()
         font = self.ui_notification_text.font()

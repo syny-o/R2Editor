@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1552</width>
-    <height>979</height>
+    <height>833</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -735,11 +735,17 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_13">
+      <property name="leftMargin">
+       <number>5</number>
+      </property>
+      <property name="topMargin">
+       <number>5</number>
+      </property>
       <property name="rightMargin">
-       <number>0</number>
+       <number>5</number>
       </property>
       <property name="bottomMargin">
-       <number>0</number>
+       <number>5</number>
       </property>
       <item>
        <widget class="QSplitter" name="uiSplitterDataManager">
@@ -760,8 +766,17 @@
           <enum>QFrame::Raised</enum>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
+          <property name="leftMargin">
+           <number>3</number>
+          </property>
+          <property name="topMargin">
+           <number>3</number>
+          </property>
           <property name="rightMargin">
-           <number>9</number>
+           <number>3</number>
+          </property>
+          <property name="bottomMargin">
+           <number>3</number>
           </property>
           <item>
            <layout class="QVBoxLayout" name="ui_layout_tree"/>
@@ -777,7 +792,7 @@
            <enum>QLayout::SetMaximumSize</enum>
           </property>
           <property name="leftMargin">
-           <number>50</number>
+           <number>40</number>
           </property>
           <property name="rightMargin">
            <number>0</number>

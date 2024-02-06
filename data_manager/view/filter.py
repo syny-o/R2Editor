@@ -119,7 +119,7 @@ class DecoratedAutoExpandingLastLevelFilter(iFilter):
             subnode = node.child(row)
             if specification.is_satisfied(subnode):
                 TREE.setRowHidden(row, node.index(), False)
-                subnode.setForeground(QColor(255, 255, 255))
+                subnode.setForeground(QColor(0, 150, 0))
                 parent = subnode.parent()
                 while parent and parent.parent():
                     TREE.setRowHidden(parent.row(), parent.parent().index(), False)

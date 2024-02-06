@@ -99,6 +99,7 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
         self.DATA_MANAGER = DATA_MANAGER
         
         self.uiMainLayout = QVBoxLayout()
+        self.uiMainLayout.setContentsMargins(0, 0, 0, 0)
         self.uiFrame = QFrame()
         self.uiFrame.setVisible(False)
         self.uiFrame.setLayout(self.uiMainLayout)
@@ -224,7 +225,7 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
                 for _ in range(match.end() - match.start()):
                     tc.movePosition(QTextCursor.Right, QTextCursor.KeepAnchor)
                 f = QTextCharFormat()
-                f.setBackground(QColor(255, 0, 0))
+                f.setBackground(QColor(0, 150, 0))
                 tc.setCharFormat(f) 
 
     
@@ -244,6 +245,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
         self.DATA_MANAGER = DATA_MANAGER 
         self.uiMainLayout = QVBoxLayout()
         self.uiMainLayout.setSpacing(20)
+        self.uiMainLayout.setContentsMargins(0, 0, 0, 0)
         self.uiFrame = QFrame()
         self.uiFrame.setLayout(self.uiMainLayout)
         self.uiFrame.setVisible(False)
