@@ -46,7 +46,7 @@ class RequirementTextEdit(QTextEdit):
 
         
         # self.setFont(font)
-        # self.setStyleSheet("font-size: 16px;")
+        self.setStyleSheet("font-size: 13px;")
 
     
     def mouseMoveEvent(self, event):

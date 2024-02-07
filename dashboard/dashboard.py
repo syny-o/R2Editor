@@ -6,7 +6,7 @@ from PyQt5.QtGui import QIcon
 
 from ui.dashboard_ui import Ui_Form
 from dialogs.dialog_message import dialog_message
-from components.widgets.list_widget_event_filter import ListWidgetEventFilter
+from components.widgets.widgets_pointing_hand import ListWidgetPointingHand
 
 
 class Dashboard(QWidget, Ui_Form):
@@ -25,7 +25,7 @@ class Dashboard(QWidget, Ui_Form):
 
         self.recent_projects = main_window.app_settings.recent_projects
 
-        self.uiListWidgetRecentProjects = ListWidgetEventFilter()
+        self.uiListWidgetRecentProjects = ListWidgetPointingHand()
         self.uiLayoutRecentProjects.addWidget(self.uiListWidgetRecentProjects)
         self.uiListWidgetRecentProjects.itemClicked.connect(self.open_project)
 

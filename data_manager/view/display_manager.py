@@ -16,7 +16,7 @@ from components.widgets.widget_req_text_edit import RequirementTextEdit
 from components.widgets.widget_baseline import WidgetBaseline
 
 from components.helper_functions import layout_generate_one_row as generate_one_row
-from components.widgets.list_widget_event_filter import ListWidgetEventFilter
+from components.widgets.widgets_pointing_hand import ListWidgetPointingHand
 
 
 @dataclass
@@ -166,11 +166,11 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
     def _generate_links_scripts_layout(self):
         uiLinksScriptsLayout = QHBoxLayout()
         uiLinksScriptsLayout.addWidget(QLabel("Links:"))
-        self.uiListWidgetLinks = ListWidgetEventFilter() 
+        self.uiListWidgetLinks = ListWidgetPointingHand() 
         self.uiListWidgetLinks.setMaximumHeight(120)
         uiLinksScriptsLayout.addWidget(self.uiListWidgetLinks)
         uiLinksScriptsLayout.addWidget(QLabel("Scripts:"))
-        self.uiListWidgetScripts = ListWidgetEventFilter()
+        self.uiListWidgetScripts = ListWidgetPointingHand()
         self.uiListWidgetScripts.setMaximumHeight(120)
         uiLinksScriptsLayout.addWidget(self.uiListWidgetScripts)        
         self.uiMainLayout.addLayout(uiLinksScriptsLayout)
@@ -301,7 +301,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
         # self.uiAllListLayout.setSpacing(10)
         self.uiMainLayout.addLayout(self.uiAllListLayout)
 
-        self.uiListWidgetCoveredList = ListWidgetEventFilter()
+        self.uiListWidgetCoveredList = ListWidgetPointingHand()
         uiCoveredListLayout = QVBoxLayout()
         self.uiLabelCovered = QLabel()
         self.uiLabelCovered.setStyleSheet("QLabel {color: rgb(0, 179, 0); min-width: 120px}")
@@ -324,7 +324,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
             # self.uiListWidgetCoveredList.insertItem(0, covered_lw_item)   
 
     def _generate_not_covered_list_layout(self):
-        self.uiListWidgetNotCoveredList = ListWidgetEventFilter()
+        self.uiListWidgetNotCoveredList = ListWidgetPointingHand()
         uiNotCoveredListLayout = QVBoxLayout()
         self.uiLabelNotCovered = QLabel()
         self.uiLabelNotCovered.setStyleSheet("QLabel {color: rgb(250,50,50); min-width: 120px}")
@@ -348,7 +348,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
 
 
     def _generate_ignore_list_layout(self):
-        self.uiListWidgetIgnoreList = ListWidgetEventFilter()
+        self.uiListWidgetIgnoreList = ListWidgetPointingHand()
         uiIgnoreListLayout = QVBoxLayout()
         self.uiLabelIgnored = QLabel()
         self.uiLabelIgnored.setStyleSheet("QLabel {min-width: 120px}")

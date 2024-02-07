@@ -68,11 +68,36 @@ QWidget {
     border: 1px solid rgb(200, 0, 0);
 }
 
-#uiFrameFileSystem #tree{
+#uiFrameFileSystem QTreeView{
     background-color: rgb(RGB_BACKGROUND_2);
     /*background-color: rgb(220, 220, 220);*/
     padding: 10px;
+    font-size: 13px;
+}
 
+
+
+QSplitter #objNameFrameOutline{
+    background-color: rgb(RGB_BACKGROUND_0);
+}
+
+QSplitter #objNameFrameOutline QLabel{
+    padding: 5px;   
+    font-weight: bold;
+}
+
+QSplitter QTreeWidget{
+    background-color: rgb(RGB_BACKGROUND_2);
+    border: 1px solid rgb(RGB_BORDER);
+    padding: 10px;
+    font-size: 13px;
+    selection-background-color: rgb(170,170,170);
+    /*selection-color: rgb(250, 250, 250);*/
+}
+
+QSplitter QTreeWidget::item:hover, #uiFrameFileSystem QTreeView::item:hover{
+    background-color: rgb(170,170,170);
+    color: rgb(20, 20, 20);
 }
 
 
@@ -404,6 +429,7 @@ QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical
 
 QSplitterHandle:hover {} 
 QSplitter::handle:horizontal:hover {background-color:rgb(RGB_HOVER);}
+QSplitter::handle:vertical:hover {background-color:rgb(RGB_HOVER);}
 
 QSplitterHandle {} 
 QSplitter::handle:horizontal {
@@ -413,6 +439,10 @@ QSplitter::handle:horizontal {
     border-bottom: 60ex solid rgb(RGB_BACKGROUND_1);
      }
 
+QSplitter::handle:vertical {
+    background-color: rgb(RGB_BORDER);
+    
+     }     
 
 
 
@@ -447,7 +477,13 @@ QSplitter::handle:horizontal {
 
 #uiFrameControlTree QTreeView{
     background-color: rgb(RGB_BACKGROUND_1);
-    border: 1px solid rgb(RGB_BORDER);   
+    border: 1px solid rgb(RGB_BORDER);  
+    font-size: 13px; 
+    selection-background-color: rgb(RGB_MAIN);
+}
+
+#uiFrameControlTree QTreeView::item:hover{
+    background-color: rgb(RGB_MAIN);
 }
 
 #uiFrameControlTree QTreeView::item:selected{
@@ -553,9 +589,7 @@ QListWidget, QTextEdit{
 }   
 
 QListWidget::item{
-    padding: 0px;
     max-height: 20px;
-    padding: 3px;
 }
 
 
@@ -642,6 +676,37 @@ TextEditTooltipWidget QPushButton:hover{
     background-color: rgb(RGB_HOVER);
 
 }
+
+#uiFrameFindReplace {
+    background-color: rgb(RGB_BACKGROUND_0);
+    border-right: 1.5px solid rgb(RGB_BACKGROUND_1);
+    color: rgb(200, 200, 200);
+}
+
+#uiFrameFindReplace QWidget{
+    padding: 10px;
+    color:white;
+}
+
+#uiFrameFindReplace QPushButton{
+	padding: 5 15;
+	background-color: rgb(RGB_BACKGROUND_2);
+    color:white;
+}
+
+#uiFrameFindReplace QPushButton:hover, #uiFrameFindReplace QPushButton:checked{
+    background-color: rgb(RGB_HOVER);
+}
+
+#uiFrameFindReplace QLineEdit{
+	padding: 5;
+	border: 1px solid transparent;
+    background-color: rgb(RGB_BACKGROUND_2);
+    color:white;
+}
+
+
+
 
 """
 

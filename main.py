@@ -1,13 +1,14 @@
-import os
+import os, re
 import stat
 import sys
 from pathlib import Path
 from importlib import reload
+import qtawesome as qta
 
 import pywinstyles
 from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QSettings, Qt, QTimer, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QColor, QFontDatabase, QIcon, QKeySequence
-from PyQt5.QtWidgets import (QApplication, QFileDialog, QMainWindow, QMessageBox, QShortcut, QSplitter)
+from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QMessageBox, QShortcut, QSplitter, QTreeWidget, QTreeWidgetItem, QPushButton, QVBoxLayout, QLabel, QFrame
 
 from app_settings import AppSettings
 from components.notification_widget import NotificationWidget
@@ -28,6 +29,8 @@ from config import constants
 import config.app_styles
 from components.syntax_highlighter import python_highlighter, rapit_two_highlighter
 from config.icon_manager import IconManager
+from components.widgets.widgets_pointing_hand import TreeWidgetPointingHand
+
 
 
 _FILE_FILTER = 'RapitTwo Editor Project (*.json)'
@@ -76,18 +79,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_script_open.clicked.connect(self.file_open_from_dialog)
         self.btn_insert_chapter.clicked.connect(self.insert_chapter)
         self.btn_insert_chapter.setShortcut('Ctrl+Shift+a')
-        self.btn_insert_chapter.setToolTip('Ctrl + Shift + "A"')
+        self.btn_insert_chapter.setToolTip('Chapter (Ctrl+Shift+A)')
         self.btn_insert_testcase.clicked.connect(self.insert_testcase)
         self.btn_insert_testcase.setShortcut('Ctrl+Shift+t')
-        self.btn_insert_testcase.setToolTip('Ctrl + Shift + "T"')
+        self.btn_insert_testcase.setToolTip('Testcase (Ctrl+Shift+T)')
         self.btn_insert_command.clicked.connect(self.insert_command)
         self.btn_insert_command.setShortcut('Ctrl+Shift+c')
-        self.btn_insert_command.setToolTip('Ctrl + Shift + "C"')
+        self.btn_insert_command.setToolTip('Command (Ctrl+Shift+C)')
         self.btn_comment_uncomment.clicked.connect(self.comment_uncomment)
         self.btn_comment_uncomment.setShortcut('Ctrl+/')
-        self.btn_comment_uncomment.setToolTip('Ctrl + "/"')
+        self.btn_comment_uncomment.setToolTip('(Un)Comment (Ctrl+"/")')
         self.btn_format_code.clicked.connect(self.format_code)
         self.btn_format_code.setShortcut(('Ctrl+Shift+f'))
+        self.btn_format_code.setToolTip(('Format Code (Ctrl+Shift+F)'))
         self.btn_lock_unlock.clicked.connect(self.file_lock_unlock)
         # self.btn_find_replace.clicked.connect(lambda is_pressed: self.find_replace(is_pressed, only_find=False))
         # self.btn_find_replace.setShortcut('Ctrl+h')
@@ -96,15 +100,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.btn_redo.clicked.connect(self.perform_redo)
         self.btn_zoom_in.clicked.connect(self.font_increase)
         self.btn_zoom_in.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Plus))
+        self.btn_zoom_in.setToolTip("Zoom In (Ctrl+Plus)")
         self.btn_zoom_out.clicked.connect(self.font_decrease)
         self.btn_zoom_out.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Minus))        
+        self.btn_zoom_out.setToolTip("Zoom Out (Ctrl+Minus)")
         self.btn_zoom_default.clicked.connect(self.font_reset)
-        self.btn_zoom_default.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_0))    
+        self.btn_zoom_default.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_0))
+        self.btn_zoom_default.setToolTip("Reset Zoom (Ctrl+0)")
 
         QShortcut( 'Ctrl+f', self ).activated.connect((lambda: self.find_replace(only_find=True)))            
         QShortcut( 'Ctrl+h', self ).activated.connect((lambda: self.find_replace(only_find=False)))              
 
-        self.frame_file_manager.setVisible(False)
+        self.uiFrameFileManager.setVisible(False)
         self.frame_2.setVisible(False)
         self.actual_find_box = None
 
@@ -134,8 +141,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ################################################################################################################
         # TREE FILE BROWSER CONFIGURATION
         ################################################################################################################
+        uiLeftPanelSplitter = QSplitter()
+        uiLeftPanelSplitter.setOrientation(Qt.Vertical)
+        self.uiLayoutFileManager.addWidget(uiLeftPanelSplitter)
         self.tree_file_browser = FileSystemView(self, project_manager)
-        self.verticalLayout_7.addWidget(self.tree_file_browser)
+        # self.uiLayoutFileManager.addWidget(self.tree_file_browser)
+        uiLeftPanelSplitter.addWidget(self.tree_file_browser)
+
+        ################################################################################################################
+        # TREE OUTLINE CONFIGURATION
+        ################################################################################################################
+        
+        uiLayoutOutline = QVBoxLayout()
+        uiLayoutOutline.setContentsMargins(0, 0, 0, 0)
+        uiLayoutOutline.addWidget(QLabel("Outline"), alignment=Qt.AlignCenter)
+        self.uiTreeOutline = TreeWidgetPointingHand()
+        uiLayoutOutline.addWidget(self.uiTreeOutline)
+        self.uiTreeOutline.setHeaderHidden(True)
+        self.uiTreeOutline.itemClicked.connect(self.click_on_outline)
+        uiFrameOutline = QFrame()
+        uiFrameOutline.setObjectName("objNameFrameOutline")
+        uiFrameOutline.setLayout(uiLayoutOutline)
+        # self.uiLayoutFileManager.addWidget(QPushButton("Outline"))
+        # self.uiLayoutFileManager.addWidget(self.uiTreeOutline)
+        uiLeftPanelSplitter.addWidget(uiFrameOutline)
 
         ################################################################################################################
         # DATA MANAGER CONFIGURATION
@@ -193,6 +222,117 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ################################################################################################################
         self.notification_widget = NotificationWidget(self)
 
+    # @pyqtSlot(list)
+    # def get_outline(self, sections: list[str, int]):
+    #     # print(sections)
+    #     self.uiTreeOutline.clear()
+    #     for section in sections:
+    #         item = QTreeWidgetItem(self.uiTreeOutline)
+    #         item.setData(0, Qt.DisplayRole, section[0])
+    #         item.setData(0, Qt.UserRole, section[1])
+
+    #     current_position = self.actual_text_edit.textCursor().position()
+    #     for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard):
+    #         if item.data(0, Qt.UserRole) > current_position:
+    #             item_above = self.uiTreeOutline.itemAbove(item)
+    #             self.uiTreeOutline.setCurrentItem(item_above if item_above else item)
+    #             break
+    #         else:
+    #             item_below = self.uiTreeOutline.itemBelow(item)
+    #             self.uiTreeOutline.setCurrentItem(item_below if item_below else item)
+    
+    
+    # def update_outline(self):
+    #     self.uiTreeOutline.clear()
+    #     if not self.actual_text_edit:
+    #         return
+        
+    #     # EXTRACT CHAPTERS AND TESTCASES FROM TEXT
+    #     text = self.actual_text_edit.toPlainText()
+    #     # results = re.finditer(r'(?:CHAPTER|TESTCASE)\s*"(.+)"', text)
+    #     results = re.finditer(r".*(?:END CHAPTER|CHAPTER|TESTCASE).*", text)
+    #     if results:
+    #         results = list(results)                        
+    #         sections = [(result.group().strip(), result.start()) for result in results if not result.group().strip().startswith("'")]
+
+    #     for section in sections:
+    #         item = QTreeWidgetItem(self.uiTreeOutline)
+    #         item.setData(0, Qt.DisplayRole, section[0])
+    #         item.setData(0, Qt.UserRole, section[1])
+
+    #     current_position = self.actual_text_edit.textCursor().position()
+    #     for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard):
+    #         if item.data(0, Qt.UserRole) > current_position:
+    #             item_above = self.uiTreeOutline.itemAbove(item)
+    #             self.uiTreeOutline.setCurrentItem(item_above if item_above else item)
+    #             break
+    #         else:
+    #             item_below = self.uiTreeOutline.itemBelow(item)
+    #             self.uiTreeOutline.setCurrentItem(item_below if item_below else item)
+
+
+    def update_outline(self):
+        self.uiTreeOutline.clear()
+        if not self.actual_text_edit or Path(self.actual_text_edit.file_path).suffix.lower() != '.par':
+            return
+        
+        try:
+            # EXTRACT CHAPTERS AND TESTCASES FROM TEXT
+            text = self.actual_text_edit.toPlainText()
+            # results = re.finditer(r'(?:CHAPTER|TESTCASE)\s*"(.+)"', text)
+            results = re.finditer(r".*(?:END CHAPTER|CHAPTER|TESTCASE).*", text, re.IGNORECASE)
+            if results:
+                results = list(results)                        
+                sections = [(result.group().strip(), result.start()) for result in results if not result.group().strip().startswith("'")]
+
+            parent = self.uiTreeOutline
+            for section in sections:
+                text = section[0]
+                if re.search(r'^\s*CHAPTER\s+".*"', text, re.IGNORECASE):
+                    parent = QTreeWidgetItem(self.uiTreeOutline)
+                    parent.setData(0, Qt.DisplayRole, section[0].split('"')[1])
+                    parent.setData(0, Qt.UserRole, section[1])
+                    parent.setData(0, Qt.DecorationRole, qta.icon('fa5s.book-open', color='#E5A031', scale_factor=1.5))
+                    continue
+                elif re.search(r'^\s*END CHAPTER\s+', text, re.IGNORECASE):
+                    parent = self.uiTreeOutline
+                    continue
+
+                elif re.search(r'^\s*TESTCASE\s+".*".*EXPECTEDRESULT', text, re.IGNORECASE):                    
+                    item = QTreeWidgetItem(parent)
+                    item.setData(0, Qt.DisplayRole, section[0].split('"')[1])
+                    item.setData(0, Qt.UserRole, section[1])
+                    item.setData(0, Qt.DecorationRole, qta.icon('ph.test-tube-fill', color='#9B59B6', scale_factor=1.5))
+
+            current_position = self.actual_text_edit.textCursor().position()
+            temp_item = self.uiTreeOutline.topLevelItem(0)
+            for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard | Qt.MatchRecursive):
+                if item.data(0, Qt.UserRole) > current_position:
+                    self.uiTreeOutline.setCurrentItem(temp_item)
+                    break
+                else:
+                    temp_item = item
+                    self.uiTreeOutline.setCurrentItem(item)
+        
+        except Exception as e:
+            print(str(e))
+            # self.uiTreeOutline.clear()
+            return
+
+        # self.uiTreeOutline.expandAll() 
+
+
+
+
+    def click_on_outline(self, item):
+        self.uiTreeOutline.expandItem(item) if not item.isExpanded() else self.uiTreeOutline.collapseItem(item)
+        cursor = self.actual_text_edit.textCursor()
+        cursor.setPosition(len(self.actual_text_edit.toPlainText())-1)
+        self.actual_text_edit.setTextCursor(cursor)
+        cursor.setPosition(item.data(0, Qt.UserRole))
+        self.actual_text_edit.setTextCursor(cursor)
+        self.actual_text_edit.setFocus()
+
 
     @property
     def actual_text_edit(self):
@@ -225,10 +365,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.stackedWidget.setCurrentWidget(widget)
         button.setChecked(True)
         if button is not self.ui_btn_text_editor:
-            self.frame_file_manager.setVisible(False)
+            self.uiFrameFileManager.setVisible(False)
             self.frame_2.setVisible(False)
         else:
-            self.frame_file_manager.setVisible(True)
+            self.uiFrameFileManager.setVisible(True)
             self.frame_2.setVisible(True)
 
 
@@ -598,6 +738,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._update_btn_lock_unlock()
         self._update_tabs_color()
         self._update_script_label()
+        self.update_outline()
 
 
     def _update_btn_lock_unlock(self):

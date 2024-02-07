@@ -18,6 +18,7 @@ class DataTreeView(QTreeView):
         self.setHeaderHidden(True)
         self.setExpandsOnDoubleClick(True)
         self.setAnimated(True) 
+        self.setMouseTracking(True)
         self.setContextMenuPolicy(Qt.CustomContextMenu)        
 
 
@@ -28,6 +29,7 @@ class DataTreeView(QTreeView):
 
         self.expanded.connect(self._node_was_expanded)
         self.collapsed.connect(self._node_was_collapsed)
+        self.clicked.connect(lambda index: self.setExpanded(index, False) if self.isExpanded(index) else self.setExpanded(index, True))
         
         self.send_data_from_drop.connect(self.PARENT.uiDataTreeView_received_files)  # TODO: REFACTOR
 
@@ -62,6 +64,15 @@ class DataTreeView(QTreeView):
                         {'A2L Files': [path]}
                     )
                     event.accept()
+
+
+    def mouseMoveEvent(self, event):
+        if self.indexAt(self.viewport().mapFromGlobal(event.globalPos())).isValid():
+            self.setCursor(Qt.PointingHandCursor)
+        else:
+            self.setCursor(Qt.ArrowCursor)
+
+        return super().mouseMoveEvent(event)                        
 
 
     def currentChanged(self, current, previous) -> None:

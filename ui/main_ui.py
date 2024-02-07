@@ -637,27 +637,27 @@ class Ui_MainWindow(object):
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setHandleWidth(3)
         self.splitter.setObjectName("splitter")
-        self.frame_file_manager = QtWidgets.QFrame(self.splitter)
+        self.uiFrameFileManager = QtWidgets.QFrame(self.splitter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.frame_file_manager.sizePolicy().hasHeightForWidth())
-        self.frame_file_manager.setSizePolicy(sizePolicy)
-        self.frame_file_manager.setSizeIncrement(QtCore.QSize(0, 0))
-        self.frame_file_manager.setBaseSize(QtCore.QSize(0, 0))
-        self.frame_file_manager.setStyleSheet("")
-        self.frame_file_manager.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_file_manager.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_file_manager.setLineWidth(0)
-        self.frame_file_manager.setObjectName("frame_file_manager")
-        self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.frame_file_manager)
+        sizePolicy.setHeightForWidth(self.uiFrameFileManager.sizePolicy().hasHeightForWidth())
+        self.uiFrameFileManager.setSizePolicy(sizePolicy)
+        self.uiFrameFileManager.setSizeIncrement(QtCore.QSize(0, 0))
+        self.uiFrameFileManager.setBaseSize(QtCore.QSize(0, 0))
+        self.uiFrameFileManager.setStyleSheet("")
+        self.uiFrameFileManager.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.uiFrameFileManager.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.uiFrameFileManager.setLineWidth(0)
+        self.uiFrameFileManager.setObjectName("frame_file_manager")
+        self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.uiFrameFileManager)
         self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_6.setSpacing(0)
         self.verticalLayout_6.setObjectName("verticalLayout_6")
-        self.verticalLayout_7 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_7.setSpacing(0)
-        self.verticalLayout_7.setObjectName("verticalLayout_7")
-        self.verticalLayout_6.addLayout(self.verticalLayout_7)
+        self.uiLayoutFileManager = QtWidgets.QVBoxLayout()
+        self.uiLayoutFileManager.setSpacing(0)
+        self.uiLayoutFileManager.setObjectName("verticalLayout_7")
+        self.verticalLayout_6.addLayout(self.uiLayoutFileManager)
         self.frame = QtWidgets.QFrame(self.splitter)
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -895,61 +895,19 @@ class Ui_MainWindow(object):
         self.horizontalLayout_13.addWidget(self.frame_9, 0, QtCore.Qt.AlignLeft)
         self.horizontalLayout_24.addWidget(self.frame_10)
         self.verticalLayout_15.addWidget(self.frame_6)
-        self.frame_8 = QtWidgets.QFrame(self.frame_2)
-        self.frame_8.setStyleSheet("QPushButton {    \n"
-"    border: none;\n"
-"    padding: 5 15;\n"
-"    /*border-right: 5px solid rgb(44, 49, 60);*/\n"
-"\n"
-"    text-align: left;\n"
-"background-color: rgb(27, 29, 35);\n"
-"background-color: rgb(33, 37, 43);\n"
-"    background-color: rgb(39, 44, 54);\n"
-"\n"
-"}\n"
-"QPushButton:hover {\n"
-"    background-color: rgb(33, 37, 43);\n"
-"\n"
-"}\n"
-"QPushButton:pressed {    \n"
-"    background-color: rgb(85, 170, 255);\n"
-"\n"
-"}\n"
-"\n"
-"QPushButton:checked {    \n"
-"    background-color: rgb(85, 170, 255);\n"
-"\n"
-"}\n"
-"\n"
-"QLineEdit{\n"
-"    padding: 5;\n"
-"    border: 1px solid transparent;\n"
-"background-color: rgb(27, 29, 35);\n"
-"color:white;\n"
-"}\n"
-"\n"
-"QLineEdit:focus, QLineEdit:hover{\n"
-"    border: 1px solid rgb(58, 89, 245);\n"
-"}\n"
-"\n"
-"QFrame{\n"
-"\n"
-"background-color: rgb(27, 29, 35);\n"
-"background-color: rgb(33, 37, 43);\n"
-"background-color: rgb(39, 44, 54);\n"
-"\n"
-"}")
-        self.frame_8.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_8.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_8.setObjectName("frame_8")
-        self.horizontalLayout_25 = QtWidgets.QHBoxLayout(self.frame_8)
+        self.uiFrameFindReplace = QtWidgets.QFrame(self.frame_2)
+        self.uiFrameFindReplace.setStyleSheet("")
+        self.uiFrameFindReplace.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.uiFrameFindReplace.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.uiFrameFindReplace.setObjectName("uiFrameFindReplace")
+        self.horizontalLayout_25 = QtWidgets.QHBoxLayout(self.uiFrameFindReplace)
         self.horizontalLayout_25.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_25.setSpacing(0)
         self.horizontalLayout_25.setObjectName("horizontalLayout_25")
         self.ui_hLayout_findReplace = QtWidgets.QHBoxLayout()
         self.ui_hLayout_findReplace.setObjectName("ui_hLayout_findReplace")
         self.horizontalLayout_25.addLayout(self.ui_hLayout_findReplace)
-        self.verticalLayout_15.addWidget(self.frame_8)
+        self.verticalLayout_15.addWidget(self.uiFrameFindReplace)
         self.verticalLayout_8.addWidget(self.frame_2)
         self.stackedWidget = QtWidgets.QStackedWidget(self.frame)
         self.stackedWidget.setStyleSheet("")

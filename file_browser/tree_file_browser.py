@@ -10,23 +10,7 @@ from ui.file_system_ui import Ui_Form
 from file_browser.form_find_replace import FindAndReplace
 from dialogs.dialog_message import dialog_message
 
-styles = """
-
-QWidget{
-border: none;
-}
-
-QFrame{
-    background-color: rgb(39, 44, 54);
-    padding: 2px;
-    border: none;
-    background-color: rgb(33, 37, 43);
-    background-color: rgb(39, 44, 54);
-    background-color: rgb(40, 44, 52);
-}
-
-"""
-
+from components.widgets.widgets_pointing_hand import TreeViewPointingHand
 
 class FileSystemView(QWidget, Ui_Form):
 
@@ -37,7 +21,9 @@ class FileSystemView(QWidget, Ui_Form):
         super().__init__()
         self.setupUi(self)
 
-        # self.setStyleSheet(styles)
+        self.tree = TreeViewPointingHand()
+        self.tree.setHeaderHidden(True)
+        self.uiLayoutTree.addWidget(self.tree)
 
         self.MAIN = main_window
         self.PROJECT_MANAGER = project_manager
@@ -170,6 +156,9 @@ class FileSystemView(QWidget, Ui_Form):
     def _update_current_path(self, index):
         file_path = index.model().filePath(index)
         self.current_path = file_path
+
+        self._double_click_on_item(index)
+        self.tree.setExpanded(index, False) if self.tree.isExpanded(index) else self.tree.setExpanded(index, True)
 
 
     

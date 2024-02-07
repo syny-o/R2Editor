@@ -1518,7 +1518,7 @@ QPushButton:pressed {
                   <property name="handleWidth">
                    <number>3</number>
                   </property>
-                  <widget class="QFrame" name="frame_file_manager">
+                  <widget class="QFrame" name="uiFrameFileManager">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -1566,7 +1566,7 @@ QPushButton:pressed {
                      <number>0</number>
                     </property>
                     <item>
-                     <layout class="QVBoxLayout" name="verticalLayout_7">
+                     <layout class="QVBoxLayout" name="uiLayoutFileManager">
                       <property name="spacing">
                        <number>0</number>
                       </property>
@@ -2137,51 +2137,9 @@ background-repeat: no-repeat;</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QFrame" name="frame_8">
+                        <widget class="QFrame" name="uiFrameFindReplace">
                          <property name="styleSheet">
-                          <string notr="true">QPushButton {	
-	border: none;
-	padding: 5 15;
-	/*border-right: 5px solid rgb(44, 49, 60);*/
-
-	text-align: left;
-background-color: rgb(27, 29, 35);
-background-color: rgb(33, 37, 43);
-	background-color: rgb(39, 44, 54);
-
-}
-QPushButton:hover {
-	background-color: rgb(33, 37, 43);
-
-}
-QPushButton:pressed {	
-	background-color: rgb(85, 170, 255);
-
-}
-
-QPushButton:checked {	
-	background-color: rgb(85, 170, 255);
-
-}
-
-QLineEdit{
-	padding: 5;
-	border: 1px solid transparent;
-background-color: rgb(27, 29, 35);
-color:white;
-}
-
-QLineEdit:focus, QLineEdit:hover{
-	border: 1px solid rgb(58, 89, 245);
-}
-
-QFrame{
-
-background-color: rgb(27, 29, 35);
-background-color: rgb(33, 37, 43);
-background-color: rgb(39, 44, 54);
-
-}</string>
+                          <string notr="true"/>
                          </property>
                          <property name="frameShape">
                           <enum>QFrame::StyledPanel</enum>

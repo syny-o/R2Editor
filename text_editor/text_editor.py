@@ -1,13 +1,11 @@
-from ast import main
-import os
-import time
-from PyQt5.QtWidgets import QWidget, QPlainTextEdit, QToolTip, QStyledItemDelegate, QStyleOptionViewItem, QMessageBox, QApplication, QPushButton, QToolBar, QVBoxLayout, QTextEdit
+import os, re
+from PyQt5.QtWidgets import QPlainTextEdit, QToolTip
 
 from text_editor.code_editor import QCodeEditor
 import text_editor.text_management as text_management
 
-from PyQt5.QtCore import pyqtSignal, Qt, pyqtSlot, QPoint, QModelIndex, QStringListModel, QTimer
-from PyQt5.QtGui import QFont, QTextCursor, QStandardItem, QStandardItemModel, QIcon, QPainter, QPixmap, QImage, QScreen
+from PyQt5.QtCore import pyqtSignal, Qt, pyqtSlot
+from PyQt5.QtGui import QFont, QTextCursor, QStandardItem, QStandardItemModel, QPalette, QColor
 
 
 from config.font import font
@@ -35,6 +33,7 @@ class TextEdit(QCodeEditor):
     # SIGNAL FOR HANDLING PRESSING MOUSE AT TEXTEDIT
     signal_clicked_on_text_edit = pyqtSignal(object)
     signal_modified_file_content = pyqtSignal(bool)
+    signal_send_outline = pyqtSignal(list)
 
     
     @classmethod
@@ -57,6 +56,11 @@ class TextEdit(QCodeEditor):
 
         TextEdit.append_child(self)
 
+
+        palette = QPalette()
+        palette.setColor(QPalette.HighlightedText, QColor("white"))
+        palette.setColor(QPalette.Highlight, QColor("blue"))
+        self.setPalette(palette)
 
         self.file_path = file_path
         self.original_file_content = text
@@ -87,6 +91,11 @@ class TextEdit(QCodeEditor):
         self.signal_clicked_on_text_edit.connect(main_window.clicked_on_text_edit)
         self.signal_modified_file_content.connect(main_window.set_actual_tab_icon)
         self.textChanged.connect(self.text_changed)
+        # self.textChanged.connect(self.main_window.update_outline)
+
+        # self.signal_send_outline.connect(main_window.get_outline)
+        # self.cursorPositionChanged.connect(self.send_outline)
+        # self.cursorPositionChanged.connect(lambda: print("Hello"))
 
 
 
@@ -238,12 +247,13 @@ class TextEdit(QCodeEditor):
 
 
 
-    def mousePressEvent(self, event):
-        self.signal_clicked_on_text_edit.emit(self)        
-        return super().mousePressEvent(event)
+    # def mousePressEvent(self, event):
+    #     self.signal_clicked_on_text_edit.emit(self)        
+    #     return super().mousePressEvent(event)
 
 
     def mouseReleaseEvent(self, event):
+        self.signal_clicked_on_text_edit.emit(self) 
         if TextEditTooltipWidget.selected_word and TextEdit.ctrl_pressed:
             self.show_tooltip(TextEditTooltipWidget.selected_word)
             # print(TextEdit.ctrl_pressed)
@@ -287,6 +297,7 @@ class TextEdit(QCodeEditor):
 ########################################################################################################################
 
     def keyReleaseEvent(self, event):
+        self.signal_clicked_on_text_edit.emit(self)
         if event.key() == Qt.Key_Control:
             TextEdit.ctrl_pressed = False
             # QToolTip.hideText()
