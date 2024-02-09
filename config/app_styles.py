@@ -73,6 +73,7 @@ QWidget {
     /*background-color: rgb(220, 220, 220);*/
     padding: 10px;
     font-size: 13px;
+    border: 1px solid rgb(RGB_BORDER);
 }
 
 
@@ -139,7 +140,6 @@ QSplitter QTreeWidget::item:hover, #uiFrameFileSystem QTreeView::item:hover{
 	background-position: left center;
     background-repeat: no-repeat;
 	text-align: left;
-	padding-left: 45px; 
     color: rgb(200, 200, 200);   
 }
 
@@ -420,9 +420,20 @@ QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical
 
 #uiFrameDataSummary QPushButton{
     padding: 8px;
-    border: 1px solid rgb(RGB_BORDER);
+    /*border: 1px solid rgb(RGB_BORDER);*/
     background-color: rgb(RGB_BACKGROUND_2);
     border-radius: 3px;
+}
+
+#uiFrameDataSummary QPushButton:hover{
+    background-color: rgb(RGB_HOVER);
+}
+
+#uiFrameDataSummary QLabel{
+    color: rgb(120, 120, 120);
+    font-size: 14px;    
+    text-transform: uppercase;
+    padding-left: 5px;
 }
 
 
@@ -479,16 +490,12 @@ QSplitter::handle:vertical {
     background-color: rgb(RGB_BACKGROUND_1);
     border: 1px solid rgb(RGB_BORDER);  
     font-size: 13px; 
-    selection-background-color: rgb(RGB_MAIN);
+    selection-background-color: rgb(170,170,170);
 }
 
-#uiFrameControlTree QTreeView::item:hover{
-    background-color: rgb(RGB_MAIN);
-}
-
-#uiFrameControlTree QTreeView::item:selected{
-    background-color: rgb(RGB_HOVER);
-    color: rgb(250, 250, 250);
+#uiFrameControlTree QTreeView::item:hover, #uiFrameControlTree QTreeView::item:selected{
+    background-color: rgb(170,170,170);
+    color: rgb(20, 20, 20);
 }
 
 #uiFrameControlTree QPushButton, #uiFrameControlTree QLineEdit, #uiFrameControlTree QComboBox{
@@ -540,7 +547,7 @@ QToolBar QToolButton{
 
 #uiDashboardFrameLeft QLabel, #uiDashboardFrameRight QLabel{
 	padding: 7 17;
-}
+}QListView
 
 
 #uiDashboardFrameRight{
@@ -638,6 +645,10 @@ QDialog QPushButton{
 #uiFrameFormWidget{
     background-color: rgb(RGB_BACKGROUND_2);
     border: 1px solid rgb(RGB_BORDER);
+}
+
+#uiFrameFormWidget *{
+    font-size: 13px;
 }
 
 #uiFrameFormWidget QPushButton{

@@ -17,6 +17,7 @@ from components.widgets.widget_baseline import WidgetBaseline
 
 from components.helper_functions import layout_generate_one_row as generate_one_row
 from components.widgets.widgets_pointing_hand import ListWidgetPointingHand
+from config.icon_manager import IconManager
 
 
 @dataclass
@@ -42,7 +43,9 @@ class DisplayManager:
         self.dspace_definition_node_layout = DspaceDefinitionNodeLayoutGenerator(self.DATA_MANAGER)
         self.ALL_WIDGETS.append(self.dspace_definition_node_layout)        
         self.dspace_variable_node_layout = DspaceVariableNodeLayoutGenerator(self.DATA_MANAGER)
-        self.ALL_WIDGETS.append(self.dspace_variable_node_layout)        
+        self.ALL_WIDGETS.append(self.dspace_variable_node_layout) 
+
+        self.ICON_MANAGER = IconManager()       
 
         
         # Add all widgets to Layout 
@@ -181,7 +184,7 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
             outlink_lw_item = QListWidgetItem()
             outlink_lw_item.setData(Qt.DisplayRole, reduce_path_string(outlink))
             outlink_lw_item.setData(Qt.UserRole, outlink)
-            outlink_lw_item.setData(Qt.DecorationRole, QIcon(u"ui/icons/20x20/cil-arrow-right.png"))
+            outlink_lw_item.setData(Qt.DecorationRole, self.DATA_MANAGER.MAIN.ICON_MANAGER.ICON_OUTLINK)
             outlink_lw_item.setData(Qt.ToolTipRole, self.DATA_MANAGER._get_tooltip_from_link(outlink))
             self.uiListWidgetLinks.addItem(outlink_lw_item)
         for inlink in NODE.inlinks:
@@ -189,7 +192,7 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
             inlink_lw_item.setData(Qt.DisplayRole, reduce_path_string(inlink))
             inlink_lw_item.setData(Qt.UserRole, inlink)
             inlink_lw_item.setData(Qt.ToolTipRole, self.DATA_MANAGER._get_tooltip_from_link(inlink))
-            inlink_lw_item.setData(Qt.DecorationRole, QIcon(u"ui/icons/20x20/cil-arrow-left.png"))
+            inlink_lw_item.setData(Qt.DecorationRole, self.DATA_MANAGER.MAIN.ICON_MANAGER.ICON_INLINK)
             self.uiListWidgetLinks.addItem(inlink_lw_item)         
 
     def _fill_scripts_layout(self, NODE):
@@ -198,7 +201,7 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
             ref_lw_item = QListWidgetItem()
             ref_lw_item.setData(Qt.DisplayRole, reduce_path_string(file_reference))
             ref_lw_item.setData(Qt.UserRole, file_reference)
-            ref_lw_item.setIcon(QIcon(u"ui/icons/16x16/cil-file.png"))
+            ref_lw_item.setIcon(self.DATA_MANAGER.MAIN.ICON_MANAGER.ICON_SCRIPT_REFERENCE)
             self.uiListWidgetScripts.addItem(ref_lw_item)  
 
 
@@ -367,7 +370,7 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
             ignore_lw_item = QListWidgetItem()    
             ignore_lw_item.setData(Qt.DisplayRole, str_identifier.split('-')[-1])
             ignore_lw_item.setData(Qt.UserRole, str_identifier)
-            ignore_lw_item.setData(Qt.DecorationRole, QIcon(u"ui/icons/16x16/cil-low-vision.png"))
+            ignore_lw_item.setData(Qt.DecorationRole, self.DATA_MANAGER.MAIN.ICON_MANAGER.ICON_IGNORED_ITEM)
             
             self.uiListWidgetIgnoreList.insertItem(0, ignore_lw_item)   
 

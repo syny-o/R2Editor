@@ -418,6 +418,7 @@ class Ui_Form(object):
         self.label_3.setObjectName("label_3")
         self.verticalLayout_5.addWidget(self.label_3)
         self.ui_btn_new_project = QtWidgets.QToolButton(self.frame_9)
+        self.ui_btn_new_project.setMaximumSize(QtCore.QSize(16777215, 0))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.ui_btn_new_project.setFont(font)
@@ -504,4 +505,3 @@ class Ui_Form(object):
         self.ui_btn_open_project.setText(_translate("Form", "Open Project..."))
         self.ui_btn_editor.setText(_translate("Form", "Script Editor..."))
         self.ui_btn_configuration.setText(_translate("Form", "Configuration..."))
-import files_rc

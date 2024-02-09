@@ -1,4 +1,3 @@
-from re import I
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QToolBar, QPushButton, QLineEdit, QComboBox, QStyle, QToolButton, QAction
 from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtGui import QIcon, QCursor
@@ -32,7 +31,7 @@ class View(QWidget):
         selection_model.selectionChanged.connect(self._update_view)  # update line edits on Up/Down Arrows          
         # FILTER - COMBO
         self.COMBO_ITEMS = [
-            (constants.ViewCoverageFilter.ALL.value , QIcon(":/16x16/icons/16x16/cil-library.png")), 
+            (constants.ViewCoverageFilter.ALL.value , IconManager().ICON_COMBO_All_ITEMS), 
             (constants.ViewCoverageFilter.COVERED_AND_NOT_COVERED.value, QIcon("ui/icons/xcheck.png")),
             (constants.ViewCoverageFilter.NOT_COVERED.value, QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton)),
             (constants.ViewCoverageFilter.COVERED.value, QIcon("ui/icons/check.png")),
@@ -108,35 +107,35 @@ class View(QWidget):
     ##############################################################################################################
     def _setup_ui(self):
         # FILTER + TREE NAVIGATION AREA
-        uiBtnPreviousView = QPushButton()
-        uiBtnPreviousView.setIcon(IconManager().ICON_PREVIOUS_VIEW)
-        uiBtnPreviousView.clicked.connect(self.uiDataTreeView.goto_previous_index)
-        uiBtnPreviousView.setToolTip("Previous View (Backspace)")
-        uiBtnPreviousView.setCursor(QCursor(Qt.PointingHandCursor))
-        uiBtnPreviousView.setMinimumWidth(150)
-        uiBtnPreviousView.setText(" Previous View")
+        self.uiBtnPreviousView = QPushButton()
+        self.uiBtnPreviousView.setIcon(IconManager().ICON_PREVIOUS_VIEW)
+        self.uiBtnPreviousView.clicked.connect(self.uiDataTreeView.goto_previous_index)
+        self.uiBtnPreviousView.setToolTip("Previous View")
+        self.uiBtnPreviousView.setCursor(QCursor(Qt.PointingHandCursor))
+        self.uiBtnPreviousView.setMinimumWidth(150)
+        self.uiBtnPreviousView.setText(" Previous View")
         # uiBtnPreviousView.setStyleSheet("font-size: 14px;")
-        uiBtnExpandAllChildren = QPushButton()
-        uiBtnExpandAllChildren.setIcon(IconManager().ICON_EXPAND_ALL_CHILDREN)
-        uiBtnExpandAllChildren.clicked.connect(self.uiDataTreeView.expand_all_children)
-        uiBtnExpandAllChildren.setToolTip("Expand All Children")
-        uiBtnExpandAllChildren.setCursor(QCursor(Qt.PointingHandCursor))
-        uiBtnCollapseAllChildren = QPushButton()
-        uiBtnCollapseAllChildren.setIcon(IconManager().ICON_COLLAPSE_ALL_CHILDREN)
-        uiBtnCollapseAllChildren.clicked.connect(self.uiDataTreeView.collapse_all_children)
-        uiBtnCollapseAllChildren.setToolTip("Collapse All")
-        uiBtnCollapseAllChildren.setCursor(QCursor(Qt.PointingHandCursor))
+        self.uiBtnExpandAllChildren = QPushButton()
+        self.uiBtnExpandAllChildren.setIcon(IconManager().ICON_EXPAND_ALL_CHILDREN)
+        self.uiBtnExpandAllChildren.clicked.connect(self.uiDataTreeView.expand_all_children)
+        self.uiBtnExpandAllChildren.setToolTip("Expand All Children")
+        self.uiBtnExpandAllChildren.setCursor(QCursor(Qt.PointingHandCursor))
+        self.uiBtnCollapseAllChildren = QPushButton()
+        self.uiBtnCollapseAllChildren.setIcon(IconManager().ICON_COLLAPSE_ALL_CHILDREN)
+        self.uiBtnCollapseAllChildren.clicked.connect(self.uiDataTreeView.collapse_all_children)
+        self.uiBtnCollapseAllChildren.setToolTip("Collapse All")
+        self.uiBtnCollapseAllChildren.setCursor(QCursor(Qt.PointingHandCursor))
 
 
         # COVERAGE FILTER COMBO
         self.uiComboCoverageFilter.setVisible(False) 
         # FILTER LAYOUT
         uiFilterLayout = QHBoxLayout()
-        uiFilterLayout.addWidget(uiBtnExpandAllChildren)
-        uiFilterLayout.addWidget(uiBtnCollapseAllChildren)
+        uiFilterLayout.addWidget(self.uiBtnExpandAllChildren)
+        uiFilterLayout.addWidget(self.uiBtnCollapseAllChildren)
         uiFilterLayout.addWidget(self.uiLineEditTextFilter)
         uiFilterLayout.addWidget(self.uiComboCoverageFilter) 
-        uiFilterLayout.addWidget(uiBtnPreviousView)
+        uiFilterLayout.addWidget(self.uiBtnPreviousView)
         uiFilterLayout.setAlignment(Qt.AlignLeft)       
         # CONTROL TOOLBAR
         self.uiControlToolbar = QToolBar()
@@ -154,22 +153,32 @@ class View(QWidget):
     ##############################################################################################################
 
     def _update_view(self):
-        index = self.uiDataTreeView.currentIndex()
-        if not index.isValid():
-            return
-        item = self.MODEL.itemFromIndex(index)
         self.uiLineEditTextFilter.setMaximumHeight(0)
         self.uiComboCoverageFilter.setVisible(False)
+        self.uiBtnPreviousView.setEnabled(False)
+        self.uiBtnExpandAllChildren.setEnabled(False)
+        self.uiBtnCollapseAllChildren.setEnabled(False)
+        index = self.uiDataTreeView.currentIndex()
+        if not index.isValid():
+            self.ACTIONS_HANDLER.update_actions(None)
+            self.DISPLAY_MANAGER.get_layout(None)
+            return
+        item = self.MODEL.itemFromIndex(index)
 
         if isinstance(item, (RequirementModule, ConditionFileNode, DspaceFileNode, A2lFileNode)):
-            # self.uiLineEditTextFilter.setVisible(True)
             self.uiLineEditTextFilter.setMaximumHeight(500)
             self.uiLineEditTextFilter.setText(item.data(Qt.UserRole))
         if isinstance(item, RequirementModule) and item.coverage_filter:            
             self.uiComboCoverageFilter.setVisible(True)
         if isinstance(item, RequirementModule):
             self.uiComboCoverageFilter.setCurrentText(item.view_filter.value)         
-            
+
+        if item.hasChildren():
+            self.uiBtnExpandAllChildren.setEnabled(True)
+            self.uiBtnCollapseAllChildren.setEnabled(True)
+
+        self.uiBtnPreviousView.setEnabled(True)
+
 
         self.ACTIONS_HANDLER.update_actions(item)
         self.DISPLAY_MANAGER.get_layout(item)

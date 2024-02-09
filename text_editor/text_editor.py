@@ -56,6 +56,9 @@ class TextEdit(QCodeEditor):
 
         TextEdit.append_child(self)
 
+        slider = self.verticalScrollBar()
+        slider.valueChanged.connect(self.main_window.update_selected_item_in_outline_by_scrollbar)
+
 
         palette = QPalette()
         palette.setColor(QPalette.HighlightedText, QColor("white"))

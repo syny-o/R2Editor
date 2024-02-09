@@ -271,4 +271,3 @@ class Ui_Form(object):
         self.uiBtnOK.setText(_translate("Form", "OK"))
         self.uiBtnStatusBarClose.setText(_translate("Form", "Cancel"))
         self.uiBtnApply.setText(_translate("Form", "Apply"))
-import files_rc

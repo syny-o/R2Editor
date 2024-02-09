@@ -30,9 +30,9 @@ def format(color, style='', background_color = None):
 STYLES_DARK_MODE = {
     'keyword': format('#ff0040', 'bold'),
     'keyword_primary': format('#fff', 'bold', '#e30e0e'),
-    'keyword_secondary': format('orange', 'bold'),
+    'keyword_secondary': format('violet', 'bold'),
     'keyword_if': format('#2dbdd6', 'bold'),
-    'keyword_for': format('#e3a736', 'bold'),
+    'keyword_for': format('violet', 'bold'),
     'pbc_variables': format('grey', 'italic'),
     # 'comment': format('#00ffff', 'italic'),
     'comment': format('#777', 'italic'),
@@ -80,7 +80,7 @@ class RapitTwoHighlighter(QSyntaxHighlighter):
     ]
 
     keywords_if = [
-        'IF', 'ELSE', 'ELSE IF','ENDIF', 'THEN', 'If', 'Else', 'Endif', 'Then', 'OR', 'or', 'Or', 'AND', 'and', 'And',
+        'IF', 'ELSE', 'ELSE IF','ENDIF', 'THEN', 'If', 'Else', 'Endif', 'Then', 'OR', 'or', 'Or', 'AND', 'and', 'And', 'if', 'else', 'endif'
     ]
 
     keywords_for = [
@@ -99,6 +99,8 @@ class RapitTwoHighlighter(QSyntaxHighlighter):
         '\+=', '-=', '\*=', '/=', '\%=',
         # Bitwise
         '\^', '\|', '\&', '\~', '>>', '<<',
+
+        '\$',
     ]
 
     # Braces

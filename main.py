@@ -1,11 +1,12 @@
 import os, re
 import stat
 import sys
+import functools
 from pathlib import Path
 from importlib import reload
 import qtawesome as qta
-
 import pywinstyles
+
 from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QSettings, Qt, QTimer, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QColor, QFontDatabase, QIcon, QKeySequence
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QMessageBox, QShortcut, QSplitter, QTreeWidget, QTreeWidgetItem, QPushButton, QVBoxLayout, QLabel, QFrame
@@ -19,7 +20,6 @@ from dashboard.dashboard import Dashboard
 from data_manager import project_manager
 from data_manager.data_manager import DataManager
 from dialogs.dialog_message import dialog_message
-from dialogs.window_new_project import ProjectConfig
 from file_browser.tree_file_browser import FileSystemView
 from tabs import Tabs
 from text_editor import text_management
@@ -30,6 +30,7 @@ import config.app_styles
 from components.syntax_highlighter import python_highlighter, rapit_two_highlighter
 from config.icon_manager import IconManager
 from components.widgets.widgets_pointing_hand import TreeWidgetPointingHand
+from components.smooth_scrolling import SmoothScrolling
 
 
 
@@ -47,15 +48,43 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.setupUi(self)
+        self.ICON_MANAGER = IconManager()
+        
 
         self.ui_btn_home.setIcon(IconManager().ICON_DASHBOARD)
         self.ui_btn_data_manager.setIcon(IconManager().ICON_DATA_MANAGER)
         self.ui_btn_text_editor.setIcon(IconManager().ICON_CODE_EDITOR)
         self.btn_app_settings.setIcon(IconManager().ICON_SETTINGS)
-        
+        self.btn_app_exit.setIcon(IconManager().ICON_APP_EXIT)
+        self.btn_project_open.setIcon(IconManager().ICON_PROJECT_OPEN)
+        self.btn_project_new.setIcon(IconManager().ICON_PROJECT_NEW)
+        self.btn_project_save.setIcon(IconManager().ICON_PROJECT_SAVE)
+        self.btn_project_save_as.setIcon(IconManager().ICON_PROJECT_SAVE_AS)
+        self.btn_toggle_menu.setIcon(IconManager().ICON_MENU)
+
+        self.btn_script_new.setIcon(IconManager().ICON_NEW_SCRIPT)
+        self.btn_script_open.setIcon(IconManager().ICON_OPEN_SCRIPT)
+        self.btn_script_save.setIcon(IconManager().ICON_SAVE_SCRIPT)
+        self.btn_script_save_as.setIcon(IconManager().ICON_SAVE_SCRIPT_AS)
+
+        self.btn_insert_chapter.setIcon(IconManager().ICON_INSERT_CHAPTER)
+        self.btn_insert_testcase.setIcon(IconManager().ICON_INSERT_TESTCASE)
+        self.btn_insert_command.setIcon(IconManager().ICON_INSERT_COMMAND)
+        self.btn_comment_uncomment.setIcon(IconManager().ICON_COMMENT_UNCOMMENT)        
+        self.btn_format_code.setIcon(IconManager().ICON_FORMAT_CODE)
+
+        self.btn_zoom_in.setIcon(IconManager().ICON_ZOOM_IN)
+        self.btn_zoom_out.setIcon(IconManager().ICON_ZOOM_OUT)
+        self.btn_zoom_default.setIcon(IconManager().ICON_ZOOM_RESET)
+
+
         # self.timer = QTimer()
         # self.timer.start(1000)
         # self.timer.timeout.connect(lambda: self.change_theme(self.app_settings.theme))
+
+        self.timer_4_updating_outline = QTimer()
+        self.timer_4_updating_outline.start(500)
+        self.timer_4_updating_outline.timeout.connect(self.update_outline)
 
         self.resize(1920, 1080)
 
@@ -222,6 +251,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ################################################################################################################
         self.notification_widget = NotificationWidget(self)
 
+        self.last_text_4_outline = ""
+        self.update_actual_information()
+
     # @pyqtSlot(list)
     # def get_outline(self, sections: list[str, int]):
     #     # print(sections)
@@ -271,22 +303,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     #             self.uiTreeOutline.setCurrentItem(item_below if item_below else item)
 
 
+    def line_number_from_position(self, position):
+        return self.actual_text_edit.toPlainText()[:position].count("\n") + 1
+
+
     def update_outline(self):
-        self.uiTreeOutline.clear()
-        if not self.actual_text_edit or Path(self.actual_text_edit.file_path).suffix.lower() != '.par':
+
+        if not self.actual_text_edit:
+            self.uiTreeOutline.clear()
+            self.last_text_4_outline = ""
             return
         
-        try:
-            # EXTRACT CHAPTERS AND TESTCASES FROM TEXT
-            text = self.actual_text_edit.toPlainText()
-            # results = re.finditer(r'(?:CHAPTER|TESTCASE)\s*"(.+)"', text)
-            results = re.finditer(r".*(?:END CHAPTER|CHAPTER|TESTCASE).*", text, re.IGNORECASE)
-            if results:
-                results = list(results)                        
-                sections = [(result.group().strip(), result.start()) for result in results if not result.group().strip().startswith("'")]
-
+        if self.actual_text_edit.file_path and Path(self.actual_text_edit.file_path).suffix.lower() != '.par':
+            self.uiTreeOutline.clear()
+            self.last_text_4_outline = ""
+            return
+        
+        text = self.actual_text_edit.toPlainText()
+        
+        if text != self.last_text_4_outline:
+            self.last_text_4_outline = text
+            self.uiTreeOutline.clear()
+            chapters_testcases = self.extract_chapters_testcases_from_text(text)
             parent = self.uiTreeOutline
-            for section in sections:
+            for section in chapters_testcases:
                 text = section[0]
                 if re.search(r'^\s*CHAPTER\s+".*"', text, re.IGNORECASE):
                     parent = QTreeWidgetItem(self.uiTreeOutline)
@@ -304,34 +344,76 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     item.setData(0, Qt.UserRole, section[1])
                     item.setData(0, Qt.DecorationRole, qta.icon('ph.test-tube-fill', color='#9B59B6', scale_factor=1.5))
 
-            current_position = self.actual_text_edit.textCursor().position()
-            temp_item = self.uiTreeOutline.topLevelItem(0)
-            for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard | Qt.MatchRecursive):
-                if item.data(0, Qt.UserRole) > current_position:
-                    self.uiTreeOutline.setCurrentItem(temp_item)
-                    break
-                else:
-                    temp_item = item
-                    self.uiTreeOutline.setCurrentItem(item)
+            self.update_selected_item_in_outline()
+            self.uiTreeOutline.expandAll()
+
+
+    def update_selected_item_in_outline_by_scrollbar(self, scrollbar_value):
         
-        except Exception as e:
-            print(str(e))
-            # self.uiTreeOutline.clear()
-            return
+        if not self.actual_text_edit: return
 
-        # self.uiTreeOutline.expandAll() 
+        current_position = scrollbar_value + int(self.number_of_visible_lines()/2)
+        temp_item = self.uiTreeOutline.topLevelItem(0)
+        for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard | Qt.MatchRecursive):
+            if self.line_number_from_position(item.data(0, Qt.UserRole)) > current_position:
+                self.uiTreeOutline.setCurrentItem(temp_item)
+                break
+            
+            temp_item = item
+            self.uiTreeOutline.setCurrentItem(item)     
 
 
+    def number_of_visible_lines(self):
+        return self.actual_text_edit.height() / self.actual_text_edit.fontMetrics().lineSpacing()
+
+        # doc = popup.document()
+        # margin = doc.documentMargin()
+        # num_lines = (doc.size().height() - 2*margin)/popup.fontMetrics().height()               
+
+
+
+    def update_selected_item_in_outline(self):
+        if not self.actual_text_edit: return
+
+        current_position = self.actual_text_edit.textCursor().position()
+        temp_item = self.uiTreeOutline.topLevelItem(0)
+        for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard | Qt.MatchRecursive):
+            if item.data(0, Qt.UserRole) > current_position:
+                self.uiTreeOutline.setCurrentItem(temp_item)
+                break
+            
+            temp_item = item
+            self.uiTreeOutline.setCurrentItem(item)
+    
+
+    @functools.cache
+    def extract_chapters_testcases_from_text(self, text):
+        results = re.finditer(r".*(?:END CHAPTER|CHAPTER|TESTCASE).*", text, re.IGNORECASE)
+        if results:
+            sections = self.extract_sections_from_matches(results)
+            return sections
+        return []
+    
+
+    @functools.cache
+    def extract_sections_from_matches(self, matches: list):
+        return [(result.group().strip(), result.start()) for result in matches if not result.group().strip().startswith("'")]
 
 
     def click_on_outline(self, item):
         self.uiTreeOutline.expandItem(item) if not item.isExpanded() else self.uiTreeOutline.collapseItem(item)
         cursor = self.actual_text_edit.textCursor()
-        cursor.setPosition(len(self.actual_text_edit.toPlainText())-1)
-        self.actual_text_edit.setTextCursor(cursor)
+        line =self.line_number_from_position(item.data(0, Qt.UserRole))
+        self.smooth_scrolling = SmoothScrolling(self.actual_text_edit)
+        self.smooth_scrolling.move_2_line(line-1)
+        # cursor.setPosition(len(self.actual_text_edit.toPlainText())-1)
+        # self.actual_text_edit.setTextCursor(cursor)
         cursor.setPosition(item.data(0, Qt.UserRole))
         self.actual_text_edit.setTextCursor(cursor)
         self.actual_text_edit.setFocus()
+
+
+
 
 
     @property
@@ -385,9 +467,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.animation.setEasingCurve(QEasingCurve.InOutQuart)
         self.animation.start()
         if self.btn_toggle_menu.isChecked():
-            self.btn_toggle_menu.setStyleSheet("background-image: url(:/20x20/icons/20x20/cil-x.png);")
+            self.btn_toggle_menu.setIcon(IconManager().ICON_MENU_CLOSE)
         else:
-            self.btn_toggle_menu.setStyleSheet("background-image: url(:/20x20/icons/20x20/cil-menu.png);")
+            self.btn_toggle_menu.setIcon(IconManager().ICON_MENU)
 
 
 
@@ -698,9 +780,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if self.actual_text_edit.is_read_only:
                     os.chmod(self.actual_text_edit.file_path, stat.S_IWRITE)
                     self.actual_text_edit.is_read_only = False
+                    self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_UNLOCKED)
                 else: 
                     os.chmod(self.actual_text_edit.file_path, stat.S_IREAD)
                     self.actual_text_edit.is_read_only = True
+                    self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_LOCKED)
             except TypeError as e:
                 dialog_message(self, f"File is not saved! Save the file first. {str(e)}.")
                 self.actual_text_edit.setFocus()
@@ -723,7 +807,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         json_project_path = project_params.get("json_project_path")
         is_project_saved = project_params.get("is_project_saved")
         str_modified_status = "" if is_project_saved else "[*Modified]"
-        str_project_path = str(json_project_path) if json_project_path else "New Project"  
+        str_project_path = str(json_project_path) if json_project_path else "No Project Loaded"  
         
         # self.setWindowTitle(f"{str_project_path} {str_modified_status} - R2 Script Editor")
 
@@ -738,14 +822,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._update_btn_lock_unlock()
         self._update_tabs_color()
         self._update_script_label()
-        self.update_outline()
+        # self.update_outline()
+        self.update_selected_item_in_outline()
 
 
     def _update_btn_lock_unlock(self):
-        if self.actual_text_edit:
-            self.btn_lock_unlock.setChecked(self.actual_text_edit.is_read_only)
+        if not self.actual_text_edit:
+            self.btn_lock_unlock.setVisible(False)
+            return
+        self.btn_lock_unlock.setVisible(True)
+        if self.actual_text_edit.is_read_only:
+            self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_LOCKED)
         else:
-           self.btn_lock_unlock.setChecked(False)  
+            self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_UNLOCKED)
+
 
 
     def _update_tabs_color(self):

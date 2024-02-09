@@ -359,7 +359,7 @@ QPushButton:pressed {
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../R6EditorDoors/ui/files.qrc">
+                  <iconset>
                    <normaloff>:/20x20/icons/20x20/cil-x.png</normaloff>:/20x20/icons/20x20/cil-x.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -547,8 +547,6 @@ QPushButton:pressed {
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../R6EditorDoors/ui/files.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

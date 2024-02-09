@@ -29,7 +29,6 @@ class AppSettings(QWidget, Ui_Form):
         self._fill_line_edits_with_data()
 
         # Connect Save Button with SAVE SLOT 
-        self.btn_save.clicked.connect(self.save_settings_2_disk)
         self.ui_checkBox_format_code_when_save.stateChanged.connect(self._save_data_from_form_2_memory)
 
         for line_edit_input in UI_LINEEDITS_INPUTS:

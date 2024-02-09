@@ -240,10 +240,11 @@ class RequirementModule(QStandardItem):
 
     def translate_filter(self, filter_string):
         """ Translates filter string to python code """
-        filter_string = filter_string.strip()
+        filter_string = f" {filter_string} "
+        # filter_string = filter_string.strip()
         for i in range(len(self.columns_names)):
-            filter_string = filter_string.replace(self.columns_names[i], f"column[{i}]")
-        return filter_string
+            filter_string = filter_string.replace(f" {self.columns_names[i]} ", f" column[{i}] ")
+        return filter_string.strip()
 
 
 

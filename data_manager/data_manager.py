@@ -26,113 +26,12 @@ from data_manager.view.widget_view import View
 import data_manager.tree_walker as tree_walker
 from config import constants
 from components.widgets.chart_bar import ChartBar
+from config.icon_manager import IconManager
 
 
 # from my_logging import logger
 # logger.debug(f"{__name__} --> Init")
 
-style = """
-QWidget, QFrame{
-    font-size: 16px;
-    border: none;
-}
-
-QFrame, QLineEdit{
-	background-color: rgb(33, 37, 43);
-
-	font-family: "Arial Narrow", Arial, "Helvetica Condensed", Helvetica, sans-serif;	
-
-	letter-spacing: 1.3px;
-}
-
-
-
-QLabel{
-    color: rgb(95, 180, 255);
-    color: rgb(150, 150, 150);
-    font-weight: bold;
-    min-width: 20px;
-}
-
-QListWidget, QTextEdit{
-	border: 1px solid rgb(50,50,50);
-}
-
-
-QListWidget::item{
-    padding:1px;
-    font-size: 14px;
-    } 
-
-QListWidget::item:hover {
-    background-color: rgb(58, 89, 245);
-}
-
-
-QToolTip{
-    font-size: 16px;
-    padding: 15px;
-    }
-
-QLineEdit, QPushButton{
-	padding: 5;
-	border: 1px solid rgb(39, 44, 54);
-}
-
-QPushButton:hover{
-	background-color:rgb(39, 44, 54);
-}
-
-
-QMenu::separator {
-     height: 2px;
-     margin: 2px 5px 2px 4px;
-	background-color: red;
-	color: red;
- }
-
-
-
-
-
-QPushButton {	
-	border: none;
-	padding: 10;
-	border-right: 5px solid rgb(44, 49, 60);
-	background-color: rgb(39, 44, 54);
-	text-align: left;
-
-}
-QPushButton:hover {
-	background-color: rgb(33, 37, 43);
-
-}
-QPushButton:pressed {	
-	background-color: rgb(85, 170, 255);
-
-}
-
-QPushButton:checked {	
-	background-color: rgb(85, 170, 255);
-}
-
-QPushButton:disabled {	
-	color: rgb(80, 80, 80);
-
-}
-
-
-#uiLayoutTitleBar, #uiFrameTitleBar{
-    background-color: rgb(39, 44, 54);
-}
-
-#uiFrameTitleBar QPushButton{
-    font-size: 12px;
-}
-
-
-
-"""
 
 
 class DataManager(QWidget, Ui_Form):
@@ -142,7 +41,13 @@ class DataManager(QWidget, Ui_Form):
     def __init__(self, main_window, project_manager):
         super().__init__()
         self.setupUi(self)
-        # self.setStyleSheet(style)
+        self.uiBtnCheckCoverage.setIcon(IconManager().ICON_CHECK_COVERAGE)
+        self.uiBtnCheckHtmlReport.setIcon(IconManager().ICON_CHECK_REPORT)
+        self.uiBtnNewModule.setIcon(IconManager().ICON_NEW_MODULE)
+        self.uiBtnUpdateRequirements.setIcon(IconManager().ICON_UPDATE_REQUIREMENTS)
+        self.uiBtnSetProjectPath.setIcon(IconManager().ICON_SET_PROJECT_FOLDER)
+
+
         # node copied into memory by action COPY
         self.node_2_paste = None        
 
@@ -183,7 +88,7 @@ class DataManager(QWidget, Ui_Form):
         self.threadpool.setMaxThreadCount(1)  
 
         QShortcut( 'Ctrl+S', self ).activated.connect(self.MAIN.project_save)
-        QShortcut( 'Backspace', self ).activated.connect(self.TREE.goto_previous_index)
+        # QShortcut( 'Backspace', self ).activated.connect(self.TREE.goto_previous_index)
  
      
 

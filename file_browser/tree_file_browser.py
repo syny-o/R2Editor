@@ -11,6 +11,7 @@ from file_browser.form_find_replace import FindAndReplace
 from dialogs.dialog_message import dialog_message
 
 from components.widgets.widgets_pointing_hand import TreeViewPointingHand
+from config.icon_manager import IconManager
 
 class FileSystemView(QWidget, Ui_Form):
 
@@ -20,6 +21,7 @@ class FileSystemView(QWidget, Ui_Form):
     def __init__(self, main_window, project_manager):
         super().__init__()
         self.setupUi(self)
+        self.uiBtnDisconnectProjectFolder.setIcon(IconManager().ICON_DISCONNECT_FOLDER)
 
         self.tree = TreeViewPointingHand()
         self.tree.setHeaderHidden(True)

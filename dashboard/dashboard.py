@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PyQt5.QtWidgets import QWidget, QFileDialog, QListWidget, QInputDialog, QListWidgetItem, QMessageBox
+from PyQt5.QtWidgets import QWidget, QFileDialog, QListWidget, QInputDialog, QListWidgetItem, QMessageBox, QMenu
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QIcon
 
@@ -20,6 +20,7 @@ class Dashboard(QWidget, Ui_Form):
         super().__init__()
         self.setupUi(self)
 
+
         self.main_window = main_window
         self.PROJECT_MANAGER = project_manager
 
@@ -29,6 +30,11 @@ class Dashboard(QWidget, Ui_Form):
         self.uiLayoutRecentProjects.addWidget(self.uiListWidgetRecentProjects)
         self.uiListWidgetRecentProjects.itemClicked.connect(self.open_project)
 
+        _context_menu = QMenu()
+        action_remove = _context_menu.addAction("Remove")
+        action_remove.triggered.connect(self.remove_project)
+        self.uiListWidgetRecentProjects.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.uiListWidgetRecentProjects.customContextMenuRequested.connect(lambda: _context_menu.popup(self.cursor().pos()))
         # self.settings = {}
         # self.settings = QSettings(r'.\app-config.ini', QSettings.IniFormat)
         # self.recent_projects = self.settings.value('RECENT_PROJECTS')
@@ -100,7 +106,7 @@ class Dashboard(QWidget, Ui_Form):
         project_path = self.uiListWidgetRecentProjects.currentItem().data(Qt.DisplayRole)
         self.recent_projects.remove(project_path)
         self.uiListWidgetRecentProjects.takeItem(self.uiListWidgetRecentProjects.currentRow())
-        self.settings.setValue('RECENT_PROJECTS', self.recent_projects)
+        self.main_window.app_settings.settings.setValue('RECENT_PROJECTS', self.recent_projects)
         
         if len(self.recent_projects) == 0:
             self.ui_btn_remove.setEnabled(False)

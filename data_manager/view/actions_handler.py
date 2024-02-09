@@ -1,11 +1,8 @@
 from dataclasses import dataclass, fields
-from re import I
-from turtle import color
 from typing import Callable
 from PyQt5.QtCore import Qt, QItemSelection
 from PyQt5.QtWidgets import QPushButton, QAction, QMenu, QLineEdit, QComboBox
 from PyQt5.QtGui import QStandardItem
-import qtawesome as qta
 from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
 from data_manager.nodes.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
 from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
@@ -90,7 +87,10 @@ class ActionsHandler:
 
     def update_actions(self, node: QStandardItem):
         self._disable_all_actions()
-        self.NODES_2_VIEW[type(node)](node)
+        try:
+            self.NODES_2_VIEW[type(node)](node)
+        except KeyError:
+            pass
 
 
 

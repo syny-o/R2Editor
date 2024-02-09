@@ -14,6 +14,8 @@ from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
 from components.helper_functions import layout_generate_one_row as generate_one_row, validate_line_edits
 from components.my_list_widget import MyListWidget
 from components.widgets.widget_baseline import WidgetBaseline
+from components.widgets.widget_req_filter_text_edit import RequirementFilterTextEdit
+
 
 stylesheet ="""
     QTextEdit {border: 1px solid rgb(50, 50, 50);}
@@ -38,7 +40,8 @@ class FormEditNode(QWidget, Ui_Form):
         self.uiLabelTitle.setText("Edit")
         self.uiBtnStatusBarClose.clicked.connect(self.close)
         self.uiBtnTitleBarClose.clicked.connect(self.close)
-        self.uiBtnTitleBarClose.setShortcut('Esc')
+        if not isinstance(NODE, RequirementModule):
+            self.uiBtnTitleBarClose.setShortcut('Esc')
         self.uiBtnOK.clicked.connect(self._ok_clicked)
         self.uiBtnOK.setShortcut('Return')
         self.uiBtnApply.setMaximumWidth(500)
@@ -287,7 +290,8 @@ class RequirementModuleLayoutGenerator:
 
         uiLayoutCoverageFilter = QHBoxLayout()
         uiLayoutCoverageFilter.addWidget(QLabel("Cv. Filter:"))
-        self.uiTexEditCoverageFilter = QTextEdit()
+        # self.uiTexEditCoverageFilter = QTextEdit()
+        self.uiTexEditCoverageFilter = RequirementFilterTextEdit(self.NODE.columns_names)
         if not self.NODE.columns_names:
             self.uiTexEditCoverageFilter.setEnabled(False)        
         self.uiTexEditCoverageFilter.setMaximumHeight(100)
@@ -354,7 +358,13 @@ class RequirementModuleLayoutGenerator:
 
 
     def _save_filter_changes(self):
+        if self.NODE.columns_names != self.NODE.columns_names_backup:
+            self.uiLabelNumberOfFilteredRequirements.setText("Columns changed - Download data from Doors first.")
+            self.uiLabelNumberOfFilteredRequirements.setStyleSheet("color: red; font-size: 16px; margin-top: 10px;")
+            return False
+
         filter_string = self.uiTexEditCoverageFilter.toPlainText().strip()
+        filter_string = filter_string.replace("\n", " ")
         if filter_string:
             try:
                 self._apply_coverage_filter(filter_string)
@@ -362,7 +372,7 @@ class RequirementModuleLayoutGenerator:
                 
             except Exception as ex:
                 self.uiLabelNumberOfFilteredRequirements.setText("Wrong Filter: " + str(ex))
-                self.uiLabelNumberOfFilteredRequirements.setStyleSheet("color: red; font-size: 20px; margin-top: 10px;")
+                self.uiLabelNumberOfFilteredRequirements.setStyleSheet("color: red; font-size: 16px; margin-top: 10px;")
                 success = False
                 raise
             
@@ -376,7 +386,7 @@ class RequirementModuleLayoutGenerator:
     def _apply_coverage_filter(self, filter_string):
         self.NODE.apply_coverage_filter(filter_string)  
         self.uiLabelNumberOfFilteredRequirements.setText(f"Filtered: {self.NODE.number_of_calculated_requirements}")
-        self.uiLabelNumberOfFilteredRequirements.setStyleSheet("color: green; font-size: 20px; margin-top: 10px;")
+        self.uiLabelNumberOfFilteredRequirements.setStyleSheet("color: green; font-size: 16px; margin-top: 10px;")
         self.uiListWidgetModuleColumns.setEnabled(False)
         self.uiWidgetBaselines.setEnabled(False)
             

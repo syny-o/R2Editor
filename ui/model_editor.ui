@@ -164,7 +164,7 @@
                   <string>Edit</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="files.qrc">
+                  <iconset>
                    <normaloff>:/16x16/icons/16x16/cil-pencil.png</normaloff>:/16x16/icons/16x16/cil-pencil.png</iconset>
                  </property>
                  <property name="checkable">
@@ -220,7 +220,7 @@
                <string>Check Coverage</string>
               </property>
               <property name="icon">
-               <iconset resource="files.qrc">
+               <iconset>
                 <normaloff>:/16x16/icons/16x16/cil-task.png</normaloff>:/16x16/icons/16x16/cil-task.png</iconset>
               </property>
              </widget>
@@ -237,7 +237,7 @@
                <string>Check Report</string>
               </property>
               <property name="icon">
-               <iconset resource="files.qrc">
+               <iconset>
                 <normaloff>:/16x16/icons/16x16/cil-notes.png</normaloff>:/16x16/icons/16x16/cil-notes.png</iconset>
               </property>
              </widget>
@@ -254,7 +254,7 @@
                <string>Update All Requirements</string>
               </property>
               <property name="icon">
-               <iconset resource="files.qrc">
+               <iconset>
                 <normaloff>:/16x16/icons/16x16/cil-cloud-download.png</normaloff>:/16x16/icons/16x16/cil-cloud-download.png</iconset>
               </property>
              </widget>
@@ -268,7 +268,7 @@
                <string>New Module</string>
               </property>
               <property name="icon">
-               <iconset resource="files.qrc">
+               <iconset>
                 <normaloff>:/20x20/icons/20x20/cil-plus.png</normaloff>:/20x20/icons/20x20/cil-plus.png</iconset>
               </property>
              </widget>
@@ -422,7 +422,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap resource="files.qrc">:/16x16/icons/16x16/cil-folder.png</pixmap>
+                  <pixmap>:/16x16/icons/16x16/cil-folder.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -476,7 +476,7 @@
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="files.qrc">
+                  <iconset>
                    <normaloff>:/16x16/icons/16x16/cil-options-horizontal.png</normaloff>:/16x16/icons/16x16/cil-options-horizontal.png</iconset>
                  </property>
                 </widget>
@@ -511,7 +511,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap resource="files.qrc">:/16x16/icons/16x16/cil-library.png</pixmap>
+                  <pixmap>:/16x16/icons/16x16/cil-library.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -574,7 +574,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap resource="files.qrc">:/16x16/icons/16x16/cil-check-circle.png</pixmap>
+                  <pixmap>:/16x16/icons/16x16/cil-check-circle.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -637,7 +637,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap resource="files.qrc">:/16x16/icons/16x16/cil-x-circle.png</pixmap>
+                  <pixmap>:/16x16/icons/16x16/cil-x-circle.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -833,8 +833,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="files.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

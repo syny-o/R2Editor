@@ -389,4 +389,3 @@ class Ui_Form(object):
         self.name_3.setText(_translate("Form", "Not Covered:"))
         self.ui_lab_req_not_covered.setText(_translate("Form", "?"))
         self.lab_project_files.setText(_translate("Form", "Project Files"))
-import files_rc

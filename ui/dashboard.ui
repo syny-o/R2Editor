@@ -439,7 +439,7 @@ padding: 5px;
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="files.qrc">
+               <iconset>
                 <normaloff>:/16x16/icons/16x16/cil-x.png</normaloff>:/16x16/icons/16x16/cil-x.png</iconset>
               </property>
              </widget>
@@ -785,6 +785,12 @@ QToolButton:hover{
             </item>
             <item>
              <widget class="QToolButton" name="ui_btn_new_project">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
@@ -800,7 +806,7 @@ QToolButton:hover{
                <string>New Project...</string>
               </property>
               <property name="icon">
-               <iconset resource="files.qrc">
+               <iconset>
                 <normaloff>:/20x20/icons/20x20/cil-folder.png</normaloff>:/20x20/icons/20x20/cil-folder.png</iconset>
               </property>
               <property name="toolButtonStyle">
@@ -822,7 +828,7 @@ QToolButton:hover{
                <string>Open Project...</string>
               </property>
               <property name="icon">
-               <iconset resource="files.qrc">
+               <iconset>
                 <normaloff>:/20x20/icons/20x20/cil-folder-open.png</normaloff>:/20x20/icons/20x20/cil-folder-open.png</iconset>
               </property>
               <property name="toolButtonStyle">
@@ -844,7 +850,7 @@ QToolButton:hover{
                <string>Script Editor...</string>
               </property>
               <property name="icon">
-               <iconset resource="files.qrc">
+               <iconset>
                 <normaloff>:/20x20/icons/20x20/cil-file.png</normaloff>:/20x20/icons/20x20/cil-file.png</iconset>
               </property>
               <property name="toolButtonStyle">
@@ -866,7 +872,7 @@ QToolButton:hover{
                <string>Configuration...</string>
               </property>
               <property name="icon">
-               <iconset resource="files.qrc">
+               <iconset>
                 <normaloff>:/20x20/icons/20x20/cil-settings.png</normaloff>:/20x20/icons/20x20/cil-settings.png</iconset>
               </property>
               <property name="toolButtonStyle">
@@ -933,8 +939,6 @@ QToolButton:hover{
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="files.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

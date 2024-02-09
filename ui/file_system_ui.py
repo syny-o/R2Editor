@@ -90,9 +90,6 @@ class Ui_Form(object):
         self.uiBtnDisconnectProjectFolder.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.uiBtnDisconnectProjectFolder.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
         self.uiBtnDisconnectProjectFolder.setText("")
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/20x20/icons/20x20/cil-x.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.uiBtnDisconnectProjectFolder.setIcon(icon)
         self.uiBtnDisconnectProjectFolder.setIconSize(QtCore.QSize(16, 16))
         self.uiBtnDisconnectProjectFolder.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
         self.uiBtnDisconnectProjectFolder.setObjectName("uiBtnDisconnectProjectFolder")
@@ -125,4 +122,3 @@ class Ui_Form(object):
         Form.setWindowTitle(_translate("Form", "Form"))
         self.uiFrameFileSystemTitleBar.setToolTip(_translate("Form", "Reset Project Folder"))
         self.uiLabelProjectFolder.setText(_translate("Form", "No Project Folder"))
-import files_rc
