@@ -27,6 +27,7 @@ import data_manager.tree_walker as tree_walker
 from config import constants
 from components.widgets.chart_bar import ChartBar
 from config.icon_manager import IconManager
+from components.decorator_logging_exeptions import logged_exc
 
 
 # from my_logging import logger
@@ -630,8 +631,14 @@ class Worker(QRunnable):
 
                     self.signals.status.emit(True, f"Checking: <{full_path}>")
 
-                    with open(full_path, 'r') as f:
-                        text = f.read()
+                    try:
+                        with open(full_path, 'r', encoding="utf8") as f:
+                            text = f.read()
+                    except Exception as my_exception:
+                        with open("error_log_requirement_coverage.txt", "w") as f:
+                            f.write(str(my_exception) + "\n" + full_path)
+                        continue
+
                     reference_list = constants.PATTERN_REQ_REFERENCE.findall(text)
 
                     for ref_string in reference_list:

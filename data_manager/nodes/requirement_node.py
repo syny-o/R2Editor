@@ -58,9 +58,14 @@ class RequirementNode(QStandardItem):
     
 
     def update_icon(self):        
-        if self.is_covered == None:
+        if self.is_covered == None and self.reference in self.MODULE.ignore_list:
+            self.setIcon(self.MODULE.ICON_IGNORED)
+        
+        elif self.is_covered == None:
             self.setIcon(self.MODULE.ICON_NONE)
             self.node_icon = None
+        
+
         elif self.is_covered:
             self.setIcon(self.MODULE.ICON_COVERED)
             self.node_icon = "green"
@@ -68,6 +73,8 @@ class RequirementNode(QStandardItem):
             self.setIcon(self.MODULE.ICON_NOT_COVERED)
             self.node_icon = "red"
         self.update_parents_icons()
+
+
 
 
     def update_parents_icons(self):

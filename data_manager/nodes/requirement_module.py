@@ -6,6 +6,8 @@ from data_manager.nodes.requirement_node import RequirementNode
 from components.reduce_path_string import reduce_path_string
 from config import constants
 
+import qtawesome as qta
+
 # PATTERN_REQ_REFERENCE = re.compile(r"""(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*""", re.IGNORECASE)
 # PATTERN_REQ_REFERENCE = re.compile(r'(?:REFERENCE|\$REF:)\s*"(?P<req_reference>.+)"\s*\$', re.IGNORECASE)
 # PATTERN_REQ_DETERMINE = re.compile(r"the (component|safety mechanism) shall determine '(?P<keyword>[\w]+)'", re.IGNORECASE)
@@ -87,6 +89,7 @@ class RequirementModule(QStandardItem):
         self.ICON_NOT_COVERED = QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton)
         self.ICON_COVERED = QIcon(u"ui/icons/check.png")
         self.ICON_NONE = QIcon()  
+        self.ICON_IGNORED = qta.icon('fa5s.eye-slash', color='orange', scale_factor=0.8)
 
         self.path = path
         self.columns_names = columns_names
