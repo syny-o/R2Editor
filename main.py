@@ -452,6 +452,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.uiFrameFileManager.setVisible(True)
             self.frame_2.setVisible(True)
+            if self.actual_text_edit:
+                self.actual_text_edit.setFocus()
 
 
     def toggle_menu(self, toggled_frame, min_width, max_width):
@@ -494,8 +496,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.left_tabs.count() > 0:
             self.actual_tabs = self.left_tabs
             self.actual_text_edit = self.actual_tabs.widget(tab_index)
-            self.update_actual_information()
             self.actual_text_edit.setFocus()
+        self.update_actual_information()
 
 
 
@@ -542,8 +544,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.right_tabs.count() > 0:
             self.actual_tabs = self.right_tabs
             self.actual_text_edit = self.actual_tabs.widget(tab_index)
-            self.update_actual_information()
             self.actual_text_edit.setFocus()
+        self.update_actual_information()
 
 
     def right_tab_close_without_saving(self, tab_index):
@@ -819,6 +821,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
 
     def update_actual_information(self):
+        if self.left_tabs.count() == 0 and self.right_tabs.count() == 0:
+            self.actual_text_edit = None
+
         self._update_btn_lock_unlock()
         self._update_tabs_color()
         self._update_script_label()
@@ -827,7 +832,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def _update_btn_lock_unlock(self):
-        if not self.actual_text_edit:
+        if self.actual_text_edit is None:
             self.btn_lock_unlock.setVisible(False)
             return
         self.btn_lock_unlock.setVisible(True)
@@ -1160,5 +1165,21 @@ if __name__ == "__main__":
     # system_tray.setContextMenu(menu)
 
 
+    # # Running the aforementioned command and saving its output
+    # output = os.popen('wmic process get description, processid').read()
+    
+    # if len(re.findall("r2editor.exe", output, re.IGNORECASE)) > 1:
+    #     input = QMessageBox.question(window,
+    #                                 "R2Editor",
+    #                                 "R2Editor is already running in background.\n\nPress OK to close this instance.",
+    #                                 QMessageBox.Ok)
+
+    #     if input == QMessageBox.Ok:
+            
+    #         sys.exit()
+
+    # else:
+    #     sys.exit(app.exec_())
+    
     sys.exit(app.exec_())
 

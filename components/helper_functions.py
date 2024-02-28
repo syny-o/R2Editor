@@ -23,7 +23,7 @@ def layout_generate_one_row(label_text: str, main_layout: QVBoxLayout, extend_la
 
 
 def validate_line_edits(*line_edits: QLineEdit, 
-                        invalid_chars = ('\\', '?', '!', '<', '>', '&', '%', '#', '@', '^', '*', '$')) -> bool:
+                        invalid_chars = ('\\', '?', '!', '<', '>', '&', '#', '@', '^', '*', '$')) -> bool:
 
     success = True
   

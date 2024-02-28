@@ -250,6 +250,31 @@ def _reset_filter(TREE, selected_item, filtered_text):  # browse all nodes ->  c
 
 
 
+
+def stop_filtering(TREE, selected_item, coverage_string):  # cancels filter (show all items) and leaves selection on current node
+    
+    selected_item.MODULE.setData("", Qt.UserRole) 
+    selected_item_index = TREE.currentIndex()
+    _reset_filter(TREE, selected_item.MODULE, "")
+    
+    _filter_requirement_file(TREE, selected_item.MODULE, "", coverage_string)
+    
+    # TREE.collapse_all_children()
+    TREE.expand(selected_item_index)
+    TREE.setCurrentIndex(selected_item_index)
+    TREE.scrollTo(selected_item_index)
+
+
+
+
+
+
+
+
+
+
+
+
 # def stop_filtering(TREE, MODEL):  # cancels filter (show all items) and leaves selection on current node
 #     selected_item_index = TREE.currentIndex()
 #     selected_item = MODEL.itemFromIndex(selected_item_index)

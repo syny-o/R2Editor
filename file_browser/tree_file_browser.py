@@ -1,4 +1,5 @@
-import os
+from hmac import new
+import os, stat
 import shutil
 from pathlib import Path
 
@@ -181,10 +182,10 @@ class FileSystemView(QWidget, Ui_Form):
         is_directory = index.model().isDir(index)
         menu = QMenu()
         # # ACTION NEW FILE
-        # action_create_file = menu.addAction(QIcon(u"ui/icons/file-new.png"), 'New File')
-        # action_create_file.triggered.connect(lambda: self.create_file(index))
-        # ACTION NEW FOLDER
         if is_directory:
+            action_create_file = menu.addAction(QIcon(u"ui/icons/file-new.png"), 'New File')
+            action_create_file.triggered.connect(lambda: self.create_file(index))
+        # ACTION NEW FOLDER
             action_create_folder = menu.addAction(QIcon(u"ui/icons/folder-new.png"), 'New Folder')
             action_create_folder.triggered.connect(lambda: self._create_folder(index))
             menu.addSeparator()
@@ -226,7 +227,7 @@ class FileSystemView(QWidget, Ui_Form):
         menu.addSeparator()
         action_delete = menu.addAction(QIcon(u"ui/icons/20x20/cil-trash.png"), 'Delete')
         action_delete.triggered.connect(self._delete_file)  
-        action_delete.setShortcut('Del')    
+        # action_delete.setShortcut('Del')    
 
         menu.exec_(QCursor().pos())
 
@@ -235,10 +236,18 @@ class FileSystemView(QWidget, Ui_Form):
     ##################################################   FILE / FOLDER MANAGEMENT START  ###################################################################
     ########################################################################################################################################################    
 
+
+    def on_rm_error( self, func, path, exc_info):
+        # path contains the path of the file that couldn't be removed
+        # let's just assume that it's read-only and unlink it.
+        os.chmod( path, stat.S_IWRITE )
+        os.unlink( path )
+
     
     def _delete_file(self):
         index = self.tree.currentIndex()
-        file_path = index.model().filePath(index)
+        # file_path = index.model().filePath(index)
+        file_path = Path(index.model().filePath(index))
         popup = QMessageBox(self)
         popup.setIcon(QMessageBox.Question)
         popup.setWindowTitle("Delete File")
@@ -248,18 +257,37 @@ class FileSystemView(QWidget, Ui_Form):
         popup.setDefaultButton(QMessageBox.Yes)
         answer = popup.exec_()
 
+        if answer == QMessageBox.No:
+            return 
+        
 
-        opened_files = self.MAIN.get_all_opened_files()  # get dict {Path(str): (QTextEdit, QTabWidget)}
-        if (key := Path(file_path)) in opened_files:
-            my_text_edit, my_tabs = opened_files[key]
-            tab_index = my_tabs.indexOf(my_text_edit)
-            my_tabs.removeTab(tab_index)        
 
-        if answer == QMessageBox.Yes:  
-            try:      
-                self.model.remove(index)
-            except Exception as e:
-                dialog_message(self, str(e))
+    
+
+        try:      
+            # self.model.remove(index)
+            if index.model().isDir(index):
+                shutil.rmtree(file_path, onerror=self.on_rm_error)
+            else:
+                os.chmod( file_path, stat.S_IWRITE )
+                os.unlink(file_path)
+                
+
+
+            opened_files = self.MAIN.get_all_opened_files()  # get dict {Path(str): (QTextEdit, QTabWidget)}
+            # if (key := Path(file_path)) in opened_files:
+            #     my_text_edit, my_tabs = opened_files[key]
+            #     tab_index = my_tabs.indexOf(my_text_edit)
+            #     my_tabs.removeTab(tab_index) 
+
+            for key, value in opened_files.items():
+                if key == file_path or file_path in key.parents:
+                    my_text_edit, my_tabs = value
+                    tab_index = my_tabs.indexOf(my_text_edit)
+                    my_tabs.removeTab(tab_index)                   
+
+        except Exception as e:
+            dialog_message(self, str(e))
 
 
     def _create_folder(self, index):
@@ -301,20 +329,47 @@ class FileSystemView(QWidget, Ui_Form):
         new_name, ok = QInputDialog.getText(self, 'Rename', 'New Name:', QLineEdit.Normal, str(path.stem))      
 
         if ok and new_name.strip() != '':
+            new_name = new_name.strip()
             new_path = path.with_stem(new_name)
             try:
                 os.rename(path, new_path)
                 index = self.model.index(str(new_path))  
                 self.tree.setCurrentIndex(index)
-                # self.model.setReadOnly(False)
-                # self.model.setData(index, str(new_name) + path.suffix)
-                # self.model.setReadOnly(True)
+
                 opened_files = self.MAIN.get_all_opened_files()  # get dict {Path(str): (QTextEdit, QTabWidget)}
+
                 if (key := Path(path)) in opened_files:
                     my_text_edit, my_tabs = opened_files[key]
                     tab_index = my_tabs.indexOf(my_text_edit)
                     my_text_edit.file_path = Path(new_path)
                     my_tabs.setTabText(tab_index, Path(new_path).name)
+
+                else:
+
+                    for key, value in opened_files.items():
+                        if path in key.parents:
+                            my_text_edit, my_tabs = value
+                            # print(my_text_edit.file_path)
+                            print()
+                            print(path.parts)
+                            print(key.parts)
+                            print()
+
+                            original_parts = list(key.parts)
+                            folder_index = len(path.parts) - 1
+
+                            original_parts[folder_index] = new_name
+
+                            new_key = Path(*original_parts)
+
+                            my_text_edit.file_path = new_key
+                            self.MAIN.update_actual_information()
+
+
+
+
+
+                                             
 
 
             except Exception as e:
@@ -322,29 +377,31 @@ class FileSystemView(QWidget, Ui_Form):
 
 
 
-    # def create_file(self, index):
-    #     is_directory = self.model.isDir(index)
+    def create_file(self, index):
+        is_directory = self.model.isDir(index)
 
-    #     if is_directory:
-    #         file_path = self.model.filePath(index)
-    #         text, ok = QInputDialog.getText(self, 'Create File', 'Name:')
-    #     else:
-    #         file_path = self.model.filePath(index.parent())
-    #         text, ok = QInputDialog.getText(self, 'Create File', 'Name:', QLineEdit.Normal, index.data())   
+        if is_directory:
+            file_path = self.model.filePath(index)
+            text, ok = QInputDialog.getText(self, 'Create File', 'Name:')
+        else:
+            file_path = self.model.filePath(index.parent())
+            text, ok = QInputDialog.getText(self, 'Create File', 'Name:', QLineEdit.Normal, index.data())   
 
-    #     if ok and text != '':
-    #         new_file_path = file_path + '/' + text
-    #         if Path(new_file_path).exists():
-    #             dialog_message(self, "File exists!")
-    #             return
-    #         try:
-    #             with open(new_file_path, 'w', encoding='utf8') as new_file:
-    #                 pass
-    #             index = self.model.index(new_file_path)  
-    #             self.tree.setCurrentIndex(index)                
-    #             self.send_file_path.emit(Path(new_file_path))
-    #         except Exception as e:
-    #             dialog_message(self, f"Error: {str(e)}")                
+        if ok and text != '':
+            new_file_path = file_path + '/' + text
+            if not new_file_path.endswith( ('.par', '.txt', '.py') ):
+                new_file_path += '.par'
+            if Path(new_file_path).exists():
+                dialog_message(self, "File exists!")
+                return
+            try:
+                with open(new_file_path, 'w', encoding='utf8') as new_file:
+                    pass
+                index = self.model.index(new_file_path)  
+                self.tree.setCurrentIndex(index)                
+                self.send_file_path.emit(Path(new_file_path))
+            except Exception as e:
+                dialog_message(self, f"Error: {str(e)}")                
 
 
 

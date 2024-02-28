@@ -3,6 +3,7 @@ from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtGui import QIcon, QCursor
 
 from data_manager.nodes.requirement_module import RequirementModule
+from data_manager.nodes.requirement_node import RequirementNode
 from data_manager.nodes.condition_nodes import ConditionFileNode
 from data_manager.nodes.dspace_nodes import DspaceFileNode
 from data_manager.nodes.a2l_nodes import A2lFileNode
@@ -80,6 +81,8 @@ class View(QWidget):
         self.action_update_module = help_func.create_action(':/16x16/icons/16x16/cil-cloud-download.png', 'Update', slot=lambda: self.DATA_MANAGER._open_form_for_doors_connection_inputs(all_modules=False), toolbar=None)
         self.action_add_to_ignore_list = help_func.create_action(':/16x16/icons/16x16/cil-task.png', 'Add To Ignore List', slot=self.DATA_MANAGER._add_to_ignore_list, toolbar=None)
         self.action_remove_from_ignore_list = help_func.create_action(':/16x16/icons/16x16/cil-external-link.png', 'Remove From Ignore List', slot=self.DATA_MANAGER._remove_from_ignore_list, toolbar=None)
+        # Stop Filtering
+        self.action_stop_filtering = help_func.create_action(':/16x16/icons/16x16/cil-x.png', 'Remove Text Filter', slot=self._stop_filtering, toolbar=None)
         # Actions Handler:
         self.ACTIONS_HANDLER = ActionsHandler(
 
@@ -100,6 +103,10 @@ class View(QWidget):
             action_update_module=self.action_update_module,
             action_add_to_ignore_list=self.action_add_to_ignore_list,
             action_remove_from_ignore_list=self.action_remove_from_ignore_list,
+
+            action_stop_filtering=self.action_stop_filtering,
+
+
         )        
 
     ##############################################################################################################
@@ -237,8 +244,27 @@ class View(QWidget):
             return
         item = self.MODEL.itemFromIndex(current_index)
 
+        if isinstance(item, RequirementNode):  # just hack to avoid filtering of RequirementNode (when STOP FILTERING is clicked)
+            return
+
         item.view_filter = constants.ViewCoverageFilter(coverage)
         item.setData(text, Qt.UserRole)
 
         filter.filter(self.uiDataTreeView, item, text, coverage, reset_filter=reset_filter)
+
+
+
+
+    def _stop_filtering(self):
+        """ Stops filtering (just text filtering), COVERAGE view filter remains active"""
+        coverage = self.uiComboCoverageFilter.currentText()
+        current_index = self.uiDataTreeView.currentIndex()
+        if not current_index.isValid():
+            return
+
+        self.uiLineEditTextFilter.clear()
+
+        item = self.MODEL.itemFromIndex(current_index)
+        filter.stop_filtering(self.uiDataTreeView, item, coverage)
+
         

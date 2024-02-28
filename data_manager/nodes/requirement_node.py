@@ -60,6 +60,7 @@ class RequirementNode(QStandardItem):
     def update_icon(self):        
         if self.is_covered == None and self.reference in self.MODULE.ignore_list:
             self.setIcon(self.MODULE.ICON_IGNORED)
+            self.node_icon = None
         
         elif self.is_covered == None:
             self.setIcon(self.MODULE.ICON_NONE)
@@ -123,12 +124,14 @@ class RequirementNode(QStandardItem):
             self.update_icon()
             self.MODULE.update_title_text()
 
-    def remove_from_ignore_list(self):
+    def remove_from_ignore_list(self, remove_note=False):
         if not self.hasChildren():  # if it is not Heading
             if self.reference in self.MODULE.ignore_list:            
                 # self.update_coverage(False)
                 self.MODULE.ignore_list.remove(self.reference)   
                 self.MODULE._coverage_dict.update({self.reference.lower() : []})
+                if remove_note:
+                    self.MODULE.notes.pop(self.reference, None)
                 self.update_icon()
                 self.MODULE.update_title_text()
 

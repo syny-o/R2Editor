@@ -346,7 +346,11 @@ class DataManager(QWidget, Ui_Form):
         selected_item_index = self.TREE.currentIndex()
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
         if isinstance(selected_item, RequirementNode):
-            selected_item.remove_from_ignore_list()    
+            if selected_item.note:
+                remove_note = QMessageBox.question(self, "Remove Note", "Do you want to remove note?", QMessageBox.Yes | QMessageBox.No)
+                selected_item.remove_from_ignore_list(remove_note == QMessageBox.Yes)
+            else:
+                selected_item.remove_from_ignore_list()    
             self._update_data_summary()   
             self.set_project_saved(False)      
 
@@ -633,6 +637,9 @@ class Worker(QRunnable):
 
                     try:
                         with open(full_path, 'r', encoding="utf8") as f:
+                            text = f.read()
+                    except UnicodeDecodeError:
+                        with open(full_path, 'r', encoding="latin1") as f:
                             text = f.read()
                     except Exception as my_exception:
                         with open("error_log_requirement_coverage.txt", "w") as f:

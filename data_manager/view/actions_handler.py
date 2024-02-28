@@ -35,6 +35,8 @@ class ActionsHandler:
     action_update_module:                           QAction   
     action_add_to_ignore_list:                      QAction
     action_remove_from_ignore_list:                 QAction
+    # Stop Filtering
+    action_stop_filtering:                          QAction
 
 
   
@@ -79,6 +81,7 @@ class ActionsHandler:
         self.action_update_module.setIcon(IconManager().ICON_UPDATE_MODULE)
         self.action_add_to_ignore_list.setIcon(IconManager().ICON_ADD_TO_IGNORE_LIST)
         self.action_remove_from_ignore_list.setIcon(IconManager().ICON_REMOVE_FROM_IGNORE_LIST)
+        self.action_stop_filtering.setIcon(IconManager().ICON_STOP_FILTERING)
 
     # INTERFACE FROM DATA_MANAGER
     def get_context_menu(self, node: QStandardItem) -> Callable | None:
@@ -126,6 +129,10 @@ class ActionsHandler:
                 activate_action(self.action_remove_from_ignore_list, menu)
             elif node.is_covered == False:
                 activate_action(self.action_add_to_ignore_list, menu)
+        
+        if node.MODULE.data(Qt.UserRole):
+            menu.addSeparator()
+            activate_action(self.action_stop_filtering, menu)
         return menu
 
 

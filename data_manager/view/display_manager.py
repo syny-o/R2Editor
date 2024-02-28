@@ -154,6 +154,7 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
     def _generate_data_layout(self):
         uiDataLayout = QHBoxLayout()
         self.uiRequirementTextEdit = RequirementTextEdit(self.DATA_MANAGER)
+        self.uiRequirementTextEdit.setReadOnly(True)
         uiDataLayout.addWidget(QLabel("Data:"))
         uiDataLayout.addWidget(self.uiRequirementTextEdit)
         self.uiMainLayout.addLayout(uiDataLayout)
@@ -209,6 +210,7 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
         uiNoteLayout = QHBoxLayout()
         self.uiTextEditNote = QTextEdit()
         self.uiTextEditNote.setMaximumHeight(50)
+        self.uiTextEditNote.setReadOnly(True)
         uiNoteLayout.addWidget(QLabel("Note:"))
         uiNoteLayout.addWidget(self.uiTextEditNote)
         self.uiMainLayout.addLayout(uiNoteLayout)

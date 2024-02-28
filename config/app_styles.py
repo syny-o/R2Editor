@@ -717,6 +717,16 @@ TextEditTooltipWidget QPushButton:hover{
 }
 
 
+/* TABBAR SCROLLBAR - ARROWS */
+QTabBar::scroller { /* the width of the scroll buttons */
+    width: 40px;
+}
+
+QTabBar QToolButton { /* the scroll buttons are tool buttons */
+    width: 15px;
+    border-width: 2px;
+    background-color: rgb(0, 0, 0);
+}
 
 
 """

@@ -19,7 +19,7 @@
     Module mSpecificBaseline
     
         
-        m = read("/EPB FIAT Ducato MY22 Tailor/023 System Diagnostic Tables/DET - PBC",true)
+        m = read("/EPB FIAT Ducato MY22 Tailor/02 System Specifications/02 System Design/SyDesign",true)
 
         //b = getMostRecentBaseline(m)
 
@@ -48,7 +48,423 @@
         out << "<REQUIREMENTS_START>" "\n"
 
         for o in entire(m) do {
-            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMN_START>"o."010_Object Type""<COLUMN_END>""<COLUMN_START>"o."011_Object State""<COLUMN_END>""<COLUMN_START>"o."803_OEM/OES - Diagnostic Event Number""<COLUMN_END>""<COLUMN_START>"o."805_OEM - Event Description""<COLUMN_END>""<COLUMN_START>"o."808_OEM - Detection Condition English""<COLUMN_END>""<COLUMN_START>"o."810_OEM - Detection Description English""<COLUMN_END>""<COLUMN_START>"o."815_OEM/OES - ReEvaluation English""<COLUMN_END>""<COLUMN_START>"o."Object Text""<COLUMN_END>""<COLUMNS_END>"
+            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMN_START>"o."010_Object Type""<COLUMN_END>""<COLUMN_START>"o."011_Object State""<COLUMN_END>""<COLUMN_START>"o."011_DXL_Object State""<COLUMN_END>""<COLUMN_START>"o."820_EPBi Variant""<COLUMN_END>""<COLUMN_START>"o."050_Test Department""<COLUMN_END>""<COLUMN_START>"o."Object Text""<COLUMN_END>""<COLUMN_START>"o."Object Text_DXL""<COLUMN_END>""<COLUMNS_END>"
+            
+            out << "<OUTLINKS_START>"
+            for outLink in (o -> "*") do {
+                out << "<OUTLINK_START>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) "<OUTLINK_END>"         
+            }
+            out << "<OUTLINKS_END>"
+            out << "<INLINKS_START>"
+            for lrIn in each (o <- "*") do {            
+                out << "<INLINK_START>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "<INLINK_END>" 
+            }
+            out << "<INLINKS_END>"
+
+            out << "<REQUIREMENT_END>"        
+        }
+
+        out << "<REQUIREMENTS_END>" "\n"    
+
+        out << "<<<MODULE_END>>>" "\n"
+
+        
+
+        
+        m = read("/EPB FIAT Ducato MY22 Tailor/02 System Specifications/01 System Requirements/SyRS",true)
+
+        //b = getMostRecentBaseline(m)
+
+        module_name = name m
+        module_path = path m
+        
+        out << "<<<MODULE_START>>>\n<PATH_START>" module_path "/" module_name "<PATH_END>" "\n"
+
+        out << "<BASELINES_START>" "\n"
+
+        for b in m do {
+            out << "<BASELINE_START><VERSION_START>"(major b)"."(minor b)"."(suffix b)"<VERSION_END><USER_START>" (user b) "<USER_END><DATE_START>" (dateOf b)"<DATE_END><ANNOTATION_START>"(annotation b)"<ANNOTATION_END><BASELINE_END>\n"
+        }
+
+        out << "<BASELINES_END>" "\n"
+
+        out << "<ATTRIBUTES_START>" "\n"
+
+        for objAttrName in (m) do
+        { 
+            out << "<ATTRIBUTE_START>" objAttrName "<ATTRIBUTE_END>" 
+        }
+
+        out << "<ATTRIBUTES_END>" "\n"
+
+        out << "<REQUIREMENTS_START>" "\n"
+
+        for o in entire(m) do {
+            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMN_START>"o."010_Object Type""<COLUMN_END>""<COLUMN_START>"o."011_Object State""<COLUMN_END>""<COLUMN_START>"o."011_DXL_Object State""<COLUMN_END>""<COLUMN_START>"o."820_EPBi Variant""<COLUMN_END>""<COLUMN_START>"o."050_Test Department""<COLUMN_END>""<COLUMN_START>"o."Object Text""<COLUMN_END>""<COLUMN_START>"o."Object Text_DXL""<COLUMN_END>""<COLUMNS_END>"
+            
+            out << "<OUTLINKS_START>"
+            for outLink in (o -> "*") do {
+                out << "<OUTLINK_START>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) "<OUTLINK_END>"         
+            }
+            out << "<OUTLINKS_END>"
+            out << "<INLINKS_START>"
+            for lrIn in each (o <- "*") do {            
+                out << "<INLINK_START>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "<INLINK_END>" 
+            }
+            out << "<INLINKS_END>"
+
+            out << "<REQUIREMENT_END>"        
+        }
+
+        out << "<REQUIREMENTS_END>" "\n"    
+
+        out << "<<<MODULE_END>>>" "\n"
+
+        
+
+        
+        m = read("/EPB FIAT Ducato MY22 Tailor/02 System Specifications/01 System Requirements/VC-EPBi",true)
+
+        //b = getMostRecentBaseline(m)
+
+        module_name = name m
+        module_path = path m
+        
+        out << "<<<MODULE_START>>>\n<PATH_START>" module_path "/" module_name "<PATH_END>" "\n"
+
+        out << "<BASELINES_START>" "\n"
+
+        for b in m do {
+            out << "<BASELINE_START><VERSION_START>"(major b)"."(minor b)"."(suffix b)"<VERSION_END><USER_START>" (user b) "<USER_END><DATE_START>" (dateOf b)"<DATE_END><ANNOTATION_START>"(annotation b)"<ANNOTATION_END><BASELINE_END>\n"
+        }
+
+        out << "<BASELINES_END>" "\n"
+
+        out << "<ATTRIBUTES_START>" "\n"
+
+        for objAttrName in (m) do
+        { 
+            out << "<ATTRIBUTE_START>" objAttrName "<ATTRIBUTE_END>" 
+        }
+
+        out << "<ATTRIBUTES_END>" "\n"
+
+        out << "<REQUIREMENTS_START>" "\n"
+
+        for o in entire(m) do {
+            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMN_START>"o."000_Core_Veh-Var""<COLUMN_END>""<COLUMN_START>"o."Object Text""<COLUMN_END>""<COLUMNS_END>"
+            
+            out << "<OUTLINKS_START>"
+            for outLink in (o -> "*") do {
+                out << "<OUTLINK_START>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) "<OUTLINK_END>"         
+            }
+            out << "<OUTLINKS_END>"
+            out << "<INLINKS_START>"
+            for lrIn in each (o <- "*") do {            
+                out << "<INLINK_START>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "<INLINK_END>" 
+            }
+            out << "<INLINKS_END>"
+
+            out << "<REQUIREMENT_END>"        
+        }
+
+        out << "<REQUIREMENTS_END>" "\n"    
+
+        out << "<<<MODULE_END>>>" "\n"
+
+        
+
+        
+        m = read("/EPB FIAT Ducato MY22 Tailor/023 System Diagnostic Tables/DMT - PBC",true)
+
+        //b = getMostRecentBaseline(m)
+
+        module_name = name m
+        module_path = path m
+        
+        out << "<<<MODULE_START>>>\n<PATH_START>" module_path "/" module_name "<PATH_END>" "\n"
+
+        out << "<BASELINES_START>" "\n"
+
+        for b in m do {
+            out << "<BASELINE_START><VERSION_START>"(major b)"."(minor b)"."(suffix b)"<VERSION_END><USER_START>" (user b) "<USER_END><DATE_START>" (dateOf b)"<DATE_END><ANNOTATION_START>"(annotation b)"<ANNOTATION_END><BASELINE_END>\n"
+        }
+
+        out << "<BASELINES_END>" "\n"
+
+        out << "<ATTRIBUTES_START>" "\n"
+
+        for objAttrName in (m) do
+        { 
+            out << "<ATTRIBUTE_START>" objAttrName "<ATTRIBUTE_END>" 
+        }
+
+        out << "<ATTRIBUTES_END>" "\n"
+
+        out << "<REQUIREMENTS_START>" "\n"
+
+        for o in entire(m) do {
+            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMN_START>"o."TRW DTC Name""<COLUMN_END>""<COLUMN_START>"o."TRW Func Actuator Apply Left""<COLUMN_END>""<COLUMN_START>"o."TRW Func Actuator Apply Right""<COLUMN_END>""<COLUMN_START>"o."TRW Func Actuator Release Left""<COLUMN_END>""<COLUMN_START>"o."TRW Func Actuator Release Right""<COLUMN_END>""<COLUMN_START>"o."TRW Func Dynamic Apply RWU""<COLUMN_END>""<COLUMN_START>"o."TRW Func Auto Adjust""<COLUMN_END>""<COLUMN_START>"o."TRW Func GDA""<COLUMN_END>""<COLUMN_START>"o."TRW Func RAR""<COLUMN_END>""<COLUMN_START>"o."TRW Func HTR""<COLUMN_END>""<COLUMN_START>"o."TRW Func Rollerbench Apply""<COLUMN_END>""<COLUMN_START>"o."Object Text""<COLUMN_END>""<COLUMNS_END>"
+            
+            out << "<OUTLINKS_START>"
+            for outLink in (o -> "*") do {
+                out << "<OUTLINK_START>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) "<OUTLINK_END>"         
+            }
+            out << "<OUTLINKS_END>"
+            out << "<INLINKS_START>"
+            for lrIn in each (o <- "*") do {            
+                out << "<INLINK_START>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "<INLINK_END>" 
+            }
+            out << "<INLINKS_END>"
+
+            out << "<REQUIREMENT_END>"        
+        }
+
+        out << "<REQUIREMENTS_END>" "\n"    
+
+        out << "<<<MODULE_END>>>" "\n"
+
+        
+
+        
+        m = read("/EPB FIAT Ducato MY22 Tailor/02 System Specifications/02 System Design/TSC",true)
+
+        //b = getMostRecentBaseline(m)
+
+        module_name = name m
+        module_path = path m
+        
+        out << "<<<MODULE_START>>>\n<PATH_START>" module_path "/" module_name "<PATH_END>" "\n"
+
+        out << "<BASELINES_START>" "\n"
+
+        for b in m do {
+            out << "<BASELINE_START><VERSION_START>"(major b)"."(minor b)"."(suffix b)"<VERSION_END><USER_START>" (user b) "<USER_END><DATE_START>" (dateOf b)"<DATE_END><ANNOTATION_START>"(annotation b)"<ANNOTATION_END><BASELINE_END>\n"
+        }
+
+        out << "<BASELINES_END>" "\n"
+
+        out << "<ATTRIBUTES_START>" "\n"
+
+        for objAttrName in (m) do
+        { 
+            out << "<ATTRIBUTE_START>" objAttrName "<ATTRIBUTE_END>" 
+        }
+
+        out << "<ATTRIBUTES_END>" "\n"
+
+        out << "<REQUIREMENTS_START>" "\n"
+
+        for o in entire(m) do {
+            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMN_START>"o."010_Object Type""<COLUMN_END>""<COLUMN_START>"o."011_Object State""<COLUMN_END>""<COLUMN_START>"o."Object Text""<COLUMN_END>""<COLUMNS_END>"
+            
+            out << "<OUTLINKS_START>"
+            for outLink in (o -> "*") do {
+                out << "<OUTLINK_START>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) "<OUTLINK_END>"         
+            }
+            out << "<OUTLINKS_END>"
+            out << "<INLINKS_START>"
+            for lrIn in each (o <- "*") do {            
+                out << "<INLINK_START>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "<INLINK_END>" 
+            }
+            out << "<INLINKS_END>"
+
+            out << "<REQUIREMENT_END>"        
+        }
+
+        out << "<REQUIREMENTS_END>" "\n"    
+
+        out << "<<<MODULE_END>>>" "\n"
+
+        
+
+        
+        m = read("/EPB FIAT Ducato MY22 Tailor/025 System Component Interfaces/CT_Datatypes",true)
+
+        //b = getMostRecentBaseline(m)
+
+        module_name = name m
+        module_path = path m
+        
+        out << "<<<MODULE_START>>>\n<PATH_START>" module_path "/" module_name "<PATH_END>" "\n"
+
+        out << "<BASELINES_START>" "\n"
+
+        for b in m do {
+            out << "<BASELINE_START><VERSION_START>"(major b)"."(minor b)"."(suffix b)"<VERSION_END><USER_START>" (user b) "<USER_END><DATE_START>" (dateOf b)"<DATE_END><ANNOTATION_START>"(annotation b)"<ANNOTATION_END><BASELINE_END>\n"
+        }
+
+        out << "<BASELINES_END>" "\n"
+
+        out << "<ATTRIBUTES_START>" "\n"
+
+        for objAttrName in (m) do
+        { 
+            out << "<ATTRIBUTE_START>" objAttrName "<ATTRIBUTE_END>" 
+        }
+
+        out << "<ATTRIBUTES_END>" "\n"
+
+        out << "<REQUIREMENTS_START>" "\n"
+
+        for o in entire(m) do {
+            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMN_START>"o."300_Minimal Value""<COLUMN_END>""<COLUMN_START>"o."301_Maximal Value""<COLUMN_END>""<COLUMN_START>"o."303_Unit""<COLUMN_END>""<COLUMN_START>"o."110_Technical Comment""<COLUMN_END>""<COLUMN_START>"o."Object Text""<COLUMN_END>""<COLUMNS_END>"
+            
+            out << "<OUTLINKS_START>"
+            for outLink in (o -> "*") do {
+                out << "<OUTLINK_START>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) "<OUTLINK_END>"         
+            }
+            out << "<OUTLINKS_END>"
+            out << "<INLINKS_START>"
+            for lrIn in each (o <- "*") do {            
+                out << "<INLINK_START>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "<INLINK_END>" 
+            }
+            out << "<INLINKS_END>"
+
+            out << "<REQUIREMENT_END>"        
+        }
+
+        out << "<REQUIREMENTS_END>" "\n"    
+
+        out << "<<<MODULE_END>>>" "\n"
+
+        
+
+        
+        m = read("/EPB FIAT Ducato MY22 Tailor/025 System Component Interfaces/PBC-CT",true)
+
+        //b = getMostRecentBaseline(m)
+
+        module_name = name m
+        module_path = path m
+        
+        out << "<<<MODULE_START>>>\n<PATH_START>" module_path "/" module_name "<PATH_END>" "\n"
+
+        out << "<BASELINES_START>" "\n"
+
+        for b in m do {
+            out << "<BASELINE_START><VERSION_START>"(major b)"."(minor b)"."(suffix b)"<VERSION_END><USER_START>" (user b) "<USER_END><DATE_START>" (dateOf b)"<DATE_END><ANNOTATION_START>"(annotation b)"<ANNOTATION_END><BASELINE_END>\n"
+        }
+
+        out << "<BASELINES_END>" "\n"
+
+        out << "<ATTRIBUTES_START>" "\n"
+
+        for objAttrName in (m) do
+        { 
+            out << "<ATTRIBUTE_START>" objAttrName "<ATTRIBUTE_END>" 
+        }
+
+        out << "<ATTRIBUTES_END>" "\n"
+
+        out << "<REQUIREMENTS_START>" "\n"
+
+        for o in entire(m) do {
+            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMN_START>"o."300_Minimal Value""<COLUMN_END>""<COLUMN_START>"o."301_Maximal Value""<COLUMN_END>""<COLUMN_START>"o."302_Nominal Value""<COLUMN_END>""<COLUMN_START>"o."110_Technical Comment""<COLUMN_END>""<COLUMN_START>"o."Object Text""<COLUMN_END>""<COLUMNS_END>"
+            
+            out << "<OUTLINKS_START>"
+            for outLink in (o -> "*") do {
+                out << "<OUTLINK_START>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) "<OUTLINK_END>"         
+            }
+            out << "<OUTLINKS_END>"
+            out << "<INLINKS_START>"
+            for lrIn in each (o <- "*") do {            
+                out << "<INLINK_START>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "<INLINK_END>" 
+            }
+            out << "<INLINKS_END>"
+
+            out << "<REQUIREMENT_END>"        
+        }
+
+        out << "<REQUIREMENTS_END>" "\n"    
+
+        out << "<<<MODULE_END>>>" "\n"
+
+        
+
+        
+        m = read("/EPB FIAT Ducato MY22 Tailor/02 System Specifications/01 System Requirements/FSC",true)
+
+        //b = getMostRecentBaseline(m)
+
+        module_name = name m
+        module_path = path m
+        
+        out << "<<<MODULE_START>>>\n<PATH_START>" module_path "/" module_name "<PATH_END>" "\n"
+
+        out << "<BASELINES_START>" "\n"
+
+        for b in m do {
+            out << "<BASELINE_START><VERSION_START>"(major b)"."(minor b)"."(suffix b)"<VERSION_END><USER_START>" (user b) "<USER_END><DATE_START>" (dateOf b)"<DATE_END><ANNOTATION_START>"(annotation b)"<ANNOTATION_END><BASELINE_END>\n"
+        }
+
+        out << "<BASELINES_END>" "\n"
+
+        out << "<ATTRIBUTES_START>" "\n"
+
+        for objAttrName in (m) do
+        { 
+            out << "<ATTRIBUTE_START>" objAttrName "<ATTRIBUTE_END>" 
+        }
+
+        out << "<ATTRIBUTES_END>" "\n"
+
+        out << "<REQUIREMENTS_START>" "\n"
+
+        for o in entire(m) do {
+            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMN_START>"o."Object Text""<COLUMN_END>""<COLUMNS_END>"
+            
+            out << "<OUTLINKS_START>"
+            for outLink in (o -> "*") do {
+                out << "<OUTLINK_START>"(fullName targetVersion outLink) ":" (targetAbsNo (outLink)) "<OUTLINK_END>"         
+            }
+            out << "<OUTLINKS_END>"
+            out << "<INLINKS_START>"
+            for lrIn in each (o <- "*") do {            
+                out << "<INLINK_START>"(fullName sourceVersion lrIn) ":" (sourceAbsNo (lrIn)) "<INLINK_END>" 
+            }
+            out << "<INLINKS_END>"
+
+            out << "<REQUIREMENT_END>"        
+        }
+
+        out << "<REQUIREMENTS_END>" "\n"    
+
+        out << "<<<MODULE_END>>>" "\n"
+
+        
+
+        
+        m = read("/EPB FIAT Ducato MY22 Tailor/03 Software/010 SwRS EPB",true)
+
+        //b = getMostRecentBaseline(m)
+
+        module_name = name m
+        module_path = path m
+        
+        out << "<<<MODULE_START>>>\n<PATH_START>" module_path "/" module_name "<PATH_END>" "\n"
+
+        out << "<BASELINES_START>" "\n"
+
+        for b in m do {
+            out << "<BASELINE_START><VERSION_START>"(major b)"."(minor b)"."(suffix b)"<VERSION_END><USER_START>" (user b) "<USER_END><DATE_START>" (dateOf b)"<DATE_END><ANNOTATION_START>"(annotation b)"<ANNOTATION_END><BASELINE_END>\n"
+        }
+
+        out << "<BASELINES_END>" "\n"
+
+        out << "<ATTRIBUTES_START>" "\n"
+
+        for objAttrName in (m) do
+        { 
+            out << "<ATTRIBUTE_START>" objAttrName "<ATTRIBUTE_END>" 
+        }
+
+        out << "<ATTRIBUTES_END>" "\n"
+
+        out << "<REQUIREMENTS_START>" "\n"
+
+        for o in entire(m) do {
+            out << "<REQUIREMENT_START><ID_START>"identifier(o)"<ID_END><LEVEL_START>"level(o)"<LEVEL_END><HEADING_START>"o."Object Heading""<HEADING_END><COLUMNS_START>""<COLUMN_START>"o."010_Object Type""<COLUMN_END>""<COLUMN_START>"o."011_Object State""<COLUMN_END>""<COLUMN_START>"o."Object Text""<COLUMN_END>""<COLUMNS_END>"
             
             out << "<OUTLINKS_START>"
             for outLink in (o -> "*") do {

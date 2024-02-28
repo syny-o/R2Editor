@@ -76,9 +76,14 @@ class FormEditNode(QWidget, Ui_Form):
 
     def _ok_clicked(self):
         try:
-            if self.NODES_2_LAYOUTS[type(self.NODE)].update_data():
+            if self.NODES_2_LAYOUTS[type(self.NODE)].update_data() and not isinstance(self.NODE, RequirementModule):
                 self.node_was_updated.emit()
-            self.close()
+                if not isinstance(self.NODE, RequirementModule):
+                    self.close()
+
+            if isinstance(self.NODE, RequirementModule):
+                self.close()
+
         except Exception as ex:
             dialog_message(self, str(ex), "Error")
 
@@ -154,7 +159,7 @@ class TestStepNodeLayoutGenerator:
         return self.uiMainLayout
 
     def update_data(self):
-        if validate_line_edits(self.uiLineEditName, self.uiLineEditNominal, self.uiLineEditComment, self.uiLineEditAction):
+        if validate_line_edits(self.uiLineEditAction):
             self.NODE.name = self.uiLineEditName.text()
             self.NODE.action = self.uiLineEditAction.text()
             self.NODE.comment = self.uiLineEditComment.text()
