@@ -1,5 +1,6 @@
 import re
-from PyQt5.QtWidgets import QPushButton, QStyle
+from venv import create
+from PyQt5.QtWidgets import QPushButton, QStyle, QMessageBox
 from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtGui import QIcon, QColor, QStandardItem
 from data_manager.nodes.requirement_node import RequirementNode
@@ -96,9 +97,15 @@ class RequirementModule(QStandardItem):
         self.coverage_filter = coverage_filter        
         self.timestamp = update_time
         self.ignore_list = set(ignore_list) if ignore_list else set()
+
+        # TODO: Double Check
+        self.ignore_list = [item.lower() for item in self.ignore_list]
+        self.ignore_list.sort()
+
         self.attributes = attributes or []
         self.baseline = baseline or {}
         self.notes = notes or {}
+        self.notes = {k.lower(): v for k, v in self.notes.items()}
         self._coverage_dict = coverage_dict or {}
         self.current_baseline = current_baseline        
         
@@ -144,7 +151,7 @@ class RequirementModule(QStandardItem):
     
     @property
     def ignored_requirements(self):
-        return list(self.ignore_list)
+        return list(self.ignore_list).sort()
     
 
 
@@ -242,13 +249,52 @@ class RequirementModule(QStandardItem):
     # COVERAGE FILTER:
 
     def translate_filter(self, filter_string):
-        """ Translates filter string to python code """
-        filter_string = f" {filter_string} "
-        # filter_string = filter_string.strip()
-        for i in range(len(self.columns_names)):
-            filter_string = filter_string.replace(f" {self.columns_names[i]} ", f" column[{i}] ")
+        """ Translates columns names to column indexes"""
+        # 0. remove whitespaces at the beginning and end
+        filter_string = filter_string.strip()
+        # 1. sort columns names by length and save it to list of tuples with each index
+        columns_names_with_index = [(i, self.columns_names[i]) for i in range(len(self.columns_names))]
+        # 2. sort list of tuples by length of column name
+        sorted_columns_names_with_index = sorted(columns_names_with_index, key=lambda item: len(item[1]), reverse=True)
+        # 3. replace column names with column indexes and start with the longest column names (avoid replacing substrings --> Object Text_DXL/Object Text Issue is solved by this approach)
+        for (i, _) in sorted_columns_names_with_index: 
+            filter_string = filter_string.replace(f"{self.columns_names[i]}", f"column[{i}]")
         return filter_string.strip()
 
+
+
+    # def apply_coverage_filter(self, filter_string=None):
+    #     if filter_string:
+    #         self.coverage_filter = filter_string            
+
+    #     if self.coverage_filter:
+
+    #         translated_filter_string = self.translate_filter(self.coverage_filter)
+
+    #         def browse_children(parent_node, string):                    
+    #             for row in range(parent_node.rowCount()):
+    #                 item = parent_node.child(row)
+
+    #                 try:
+    #                     column = item.columns_data
+    #                     evaluation = eval(string)
+                        
+    #                 except Exception as ex:
+    #                     self.coverage_filter = None
+    #                     raise Exception(str(ex))
+
+    
+    #                 if evaluation:
+    #                     if item.reference not in self.ignore_list and item.reference.lower() not in self.ignore_list:
+    #                         self._coverage_dict.update({item.reference.lower() : []})  # UPDATE COVERAGE DICT
+
+    #                 browse_children(item, string)                
+        
+    #         self._coverage_dict.clear()
+    #         browse_children(self, translated_filter_string)   
+
+    #         self.update_icons_according_to_coverage()
+    #         self.update_title_text() 
 
 
     def apply_coverage_filter(self, filter_string=None):
@@ -273,16 +319,54 @@ class RequirementModule(QStandardItem):
 
     
                     if evaluation:
-                        if item.reference not in self.ignore_list:  # IGNORE LIST CHECK
-                            self._coverage_dict.update({item.reference.lower() : []})  # UPDATE COVERAGE DICT
+                        self._coverage_dict.update({item.reference.lower() : []})  # UPDATE COVERAGE DICT
 
                     browse_children(item, string)                
         
             self._coverage_dict.clear()
-            browse_children(self, translated_filter_string)   
+            browse_children(self, translated_filter_string)  
+
+            # HANDLE IGNORED ITEMS
+            # 1a. GATHER ALL IGNORED ITEMS FROM IGNORE LIST WHICH ARE NOT IN COVERAGE DICT (so the filter is not valid anymore for them)
+            ignored_items_which_does_not_meet_filter = []
+            for ignored_item in self.ignore_list:
+                if ignored_item not in self._coverage_dict:
+                    ignored_items_which_does_not_meet_filter.append(ignored_item)
+
+            # 1b ASK FOR ITEM REMOVAL
+            self.remove_ignored_items_which_does_not_meet_filter(ignored_items_which_does_not_meet_filter)
+                    
+            # 2. REMOVE IGNORED ITEMS FROM COVERAGE DICT
+            for ignored_item in self.ignore_list:
+                if ignored_item in self._coverage_dict:
+                    self._coverage_dict.pop(ignored_item)
+
 
             self.update_icons_according_to_coverage()
             self.update_title_text() 
+
+
+
+    def remove_ignored_items_which_does_not_meet_filter(self, ignored_items_which_does_not_meet_filter: list[str]):
+        if not ignored_items_which_does_not_meet_filter:
+            return
+        
+        remove_answer = QMessageBox.question(self.data_manager, "Remove ignored items", f"Following items are in ignore list but does not meet coverage filter: \
+                                             \n\n{ignored_items_which_does_not_meet_filter}\n\nDo you want to remove them from ignore list?", 
+                                             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        
+        if remove_answer == QMessageBox.Yes:
+            for ignored_item in ignored_items_which_does_not_meet_filter:
+                if ignored_item in self.ignore_list:
+                    self.ignore_list.remove(ignored_item)
+                if ignored_item in self.notes:
+                    self.notes.pop(ignored_item)
+
+
+
+
+    
+  
 
 
 
@@ -308,6 +392,9 @@ class RequirementModule(QStandardItem):
         if not success: 
             return False, message
 
+        # save original data for future comparison
+        ORIGINAL_MODULE_DATA = _transform_req_list_2_req_dict(_create_list_of_requirements_from_module(self))
+
         self.timestamp = timestamp
         # delete all children
         self.removeRows(0, self.rowCount())
@@ -322,8 +409,16 @@ class RequirementModule(QStandardItem):
         self.apply_coverage_filter()
         # UPDATE ACCORDING TO COVERAGE DICT WHICH IS STORED IN REQUIREMENT MODULE INDEPENDETLY TO REQUIREMETS NODES
         # self.update_coverage_from_coverage_dict()
-        print("REQUIREMENT MODULE UPDATED", self.path)
-        return True, ""
+        # print("REQUIREMENT MODULE UPDATED", self.path)
+
+        # save new data for future comparison
+        NEW_MODULE_DATA = _transform_req_list_2_req_dict(_create_list_of_requirements_from_module(self))
+
+        if ORIGINAL_MODULE_DATA != NEW_MODULE_DATA:
+
+            return True, (self.columns_names, ORIGINAL_MODULE_DATA, NEW_MODULE_DATA)
+        
+        return True, None
 
 
     def validate_doors_output(self, doors_output: str) -> tuple[bool, str]:                   
@@ -525,4 +620,11 @@ def _create_list_of_requirements_from_module(module: RequirementModule, my_list=
         _create_list_of_requirements_from_module(one_requirement_node, requirement_list)
     
     return requirement_list
+
+
+def _transform_req_list_2_req_dict(req_list: list[dict]) -> dict:
+    req_dict = {}
+    for one_req in req_list:
+        req_dict.update({one_req.get("reference"): one_req.get("columns_data")})
+    return req_dict
 

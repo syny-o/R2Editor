@@ -7,7 +7,7 @@ from dialogs.dialog_message import dialog_message
 
 
 
-DEBUG = False
+DEBUG = True
 
 
 

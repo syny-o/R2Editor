@@ -28,7 +28,8 @@ from config import constants
 from components.widgets.chart_bar import ChartBar
 from config.icon_manager import IconManager
 from components.decorator_logging_exeptions import logged_exc
-
+from data_manager.forms.form_export_module import FormExportModule
+from data_manager.forms.form_req_data_comparasion import FormReqDataComparasion
 
 # from my_logging import logger
 # logger.debug(f"{__name__} --> Init")
@@ -235,6 +236,8 @@ class DataManager(QWidget, Ui_Form):
 
     @pyqtSlot(str, str)
     def receive_data_from_doors(self, doors_output: str, timestamp: str):
+        data_4_form_comparasion = {}
+
         global_success = True
         if doors_output == "Connection Failed":
             global_success = False
@@ -242,18 +245,22 @@ class DataManager(QWidget, Ui_Form):
   
         else:
             for module in self._module_locker.locked_modules:
-                success, message = module.receive_data_from_doors(doors_output, timestamp)
+                success, message_or_data = module.receive_data_from_doors(doors_output, timestamp)
                 if not success:                     
                     global_success = False
-                    dialog_message(self, message)
+                    dialog_message(self, message_or_data)
                     break
                 self.set_project_saved(False)
+                if message_or_data:
+                    data_4_form_comparasion.update( { module.path : message_or_data } )  # {<module_path> : (dict_of_original_req_data, dict_of_new_req_data)}
+
         
         self._module_locker.unlock_all_modules()
         self._update_data_summary()
         self.uiBtnCheckCoverage.setEnabled(True)
         if global_success: 
-            dialog_message(self, "Requirements have been updated successfully.", "Downloading from Doors finished")
+            # dialog_message(self, "Requirements have been updated successfully.", "Downloading from Doors finished")
+            self.form_comparasion = FormReqDataComparasion(data_4_form_comparasion)
 
 
     #####################################################################################################################################################
@@ -467,6 +474,12 @@ class DataManager(QWidget, Ui_Form):
     def tree_2_file(self):
         selected_item_index = self.TREE.currentIndex()
         selected_item = self.MODEL.itemFromIndex(selected_item_index)
+
+        if isinstance(selected_item, RequirementModule):
+            self.form_export_module = FormExportModule(selected_item, self.TREE, self.MODEL)
+            self.form_export_module.show()
+            return
+
         success, message = model_manager.export_file(selected_item)
         if success:
             self.MAIN.show_notification("File Exported.")

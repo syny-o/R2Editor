@@ -10,3 +10,4 @@ class ViewCoverageFilter(enum.Enum):
     COVERED_AND_NOT_COVERED = "Coverage"
     COVERED = "Covered"
     NOT_COVERED = "Not Covered"
+    IGNORED = "Ignored"

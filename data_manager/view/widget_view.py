@@ -36,6 +36,7 @@ class View(QWidget):
             (constants.ViewCoverageFilter.COVERED_AND_NOT_COVERED.value, QIcon("ui/icons/xcheck.png")),
             (constants.ViewCoverageFilter.NOT_COVERED.value, QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton)),
             (constants.ViewCoverageFilter.COVERED.value, QIcon("ui/icons/check.png")),
+            (constants.ViewCoverageFilter.IGNORED.value , IconManager().ICON_IGNORED_ITEM), 
         ]        
         self.uiComboCoverageFilter = QComboBox()
         for text, icon in self.COMBO_ITEMS:

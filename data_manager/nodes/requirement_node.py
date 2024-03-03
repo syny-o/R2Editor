@@ -58,7 +58,7 @@ class RequirementNode(QStandardItem):
     
 
     def update_icon(self):        
-        if self.is_covered == None and self.reference in self.MODULE.ignore_list:
+        if self.is_covered == None and self.reference.lower() in self.MODULE.ignore_list:
             self.setIcon(self.MODULE.ICON_IGNORED)
             self.node_icon = None
         
@@ -120,18 +120,23 @@ class RequirementNode(QStandardItem):
         if not self.hasChildren():  # if it is not Heading
             # self.update_coverage(None)
             self.MODULE._coverage_dict.pop(self.reference.lower())
-            self.MODULE.ignore_list.add(self.reference)
+            # self.MODULE.ignore_list.add(self.reference.lower())
+            self.MODULE.ignore_list.append(self.reference.lower())
             self.update_icon()
             self.MODULE.update_title_text()
 
     def remove_from_ignore_list(self, remove_note=False):
         if not self.hasChildren():  # if it is not Heading
-            if self.reference in self.MODULE.ignore_list:            
+            if self.reference.lower() in self.MODULE.ignore_list or self.reference in self.MODULE.ignore_list:            
                 # self.update_coverage(False)
-                self.MODULE.ignore_list.remove(self.reference)   
+                try:
+                    self.MODULE.ignore_list.remove(self.reference)
+                except ValueError:
+                    self.MODULE.ignore_list.remove(self.reference.lower())
+
                 self.MODULE._coverage_dict.update({self.reference.lower() : []})
                 if remove_note:
-                    self.MODULE.notes.pop(self.reference, None)
+                    self.MODULE.notes.pop(self.reference.lower(), None)
                 self.update_icon()
                 self.MODULE.update_title_text()
 
@@ -139,12 +144,12 @@ class RequirementNode(QStandardItem):
 
     @property
     def note(self) -> str:
-        return self.MODULE.notes.get(self.reference, "")
+        return self.MODULE.notes.get(self.reference.lower(), "")
 
     @note.setter
     def note(self, text: str) -> None:
         if text.strip() != "":
-            self.MODULE.notes.update({self.reference: text})
+            self.MODULE.notes.update({self.reference.lower(): text})
         else:     
-            self.MODULE.notes.pop(self.reference, None)
+            self.MODULE.notes.pop(self.reference.lower(), None)
 

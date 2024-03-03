@@ -59,6 +59,10 @@ class CoveredSpecification(iSpecification):
     def is_satisfied(self, node: RequirementNode):
         return node.node_icon == "green"     
 
+class IgnoredSpecification(iSpecification):
+    def is_satisfied(self, node: RequirementNode):
+        return node.reference.lower() in node.MODULE.ignore_list     
+
 
 # class CoveredAndNotCoveredSpecification(iSpecification):
 #     def is_satisfied(self, node: RequirementNode):
@@ -147,6 +151,9 @@ def _show_only_items_not_covered(TREE, NODE):
 def _show_only_items_covered(TREE, NODE):
     StandardLastLevelFilter().filter(TREE, NODE, CoveredSpecification())
 
+def _show_only_items_ignored(TREE, NODE):
+    StandardLastLevelFilter().filter(TREE, NODE, IgnoredSpecification())
+
 
 def _show_all_items(TREE, NODE):
     StandardLastLevelFilter().filter(TREE, NODE, AllSpecification())
@@ -161,6 +168,9 @@ def _show_only_items_not_covered_with_text(TREE, NODE, text):
 def _show_only_items_covered_with_text(TREE, NODE, text):
     DecoratedAutoExpandingLastLevelFilter().filter(TREE, NODE, CoveredSpecification() & FullTextRequirementSpecification(text))
 
+def _show_only_items_ignored_with_text(TREE, NODE, text):
+    DecoratedAutoExpandingLastLevelFilter().filter(TREE, NODE, IgnoredSpecification() & FullTextRequirementSpecification(text))
+
 def _show_all_items_with_text(TREE, NODE, text):
     DecoratedAutoExpandingLastLevelFilter().filter(TREE, NODE, AllSpecification() & FullTextRequirementSpecification(text))    
 
@@ -171,6 +181,7 @@ COVERAGE_VIEWS_NO_TEXT: dict = {
     constants.ViewCoverageFilter.COVERED_AND_NOT_COVERED: _show_only_items_with_coverage,
     constants.ViewCoverageFilter.COVERED : _show_only_items_covered,
     constants.ViewCoverageFilter.NOT_COVERED : _show_only_items_not_covered,
+    constants.ViewCoverageFilter.IGNORED : _show_only_items_ignored,
 }
 
 COVERAGE_VIEWS_WITH_TEXT: dict = {
@@ -178,6 +189,7 @@ COVERAGE_VIEWS_WITH_TEXT: dict = {
     constants.ViewCoverageFilter.COVERED_AND_NOT_COVERED: _show_only_items_with_coverage_with_text,
     constants.ViewCoverageFilter.COVERED : _show_only_items_covered_with_text,
     constants.ViewCoverageFilter.NOT_COVERED : _show_only_items_not_covered_with_text,
+    constants.ViewCoverageFilter.IGNORED : _show_only_items_ignored_with_text,
 }
 
 

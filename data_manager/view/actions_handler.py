@@ -114,6 +114,8 @@ class ActionsHandler:
         activate_action(self.action_edit_node, menu)
         menu.addSeparator()
         activate_action(self.action_update_module, menu)
+        menu.addSeparator()        
+        activate_action(self.action_export_node, menu)         
         menu.addSeparator()
         activate_action(self.action_remove_node, menu)
 
@@ -125,7 +127,7 @@ class ActionsHandler:
         activate_action(self.action_edit_node, menu)
         menu.addSeparator()
         if not node.hasChildren():
-            if node.reference in node.MODULE.ignore_list:                
+            if node.reference in node.MODULE.ignore_list or node.reference.lower() in node.MODULE.ignore_list:                
                 activate_action(self.action_remove_from_ignore_list, menu)
             elif node.is_covered == False:
                 activate_action(self.action_add_to_ignore_list, menu)
