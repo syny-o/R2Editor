@@ -20,7 +20,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QWidget, QFrame, QPushButton, QLineEdit{
+   <string notr="true">/*QWidget, QFrame, QPushButton, QLineEdit{
 	background-color: rgb(27, 29, 35);
 	color: rgb(200, 200, 200);
 	border: none;
@@ -70,7 +70,7 @@ QPushButton:disabled {
 
 QLabel{
 	padding: 7 17;
-}</string>
+}*/</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_8">
    <property name="spacing">
@@ -89,7 +89,7 @@ QLabel{
     <number>0</number>
    </property>
    <item>
-    <widget class="QFrame" name="frame">
+    <widget class="QFrame" name="uiDashboardFrameLeft">
      <property name="maximumSize">
       <size>
        <width>800</width>
@@ -133,10 +133,7 @@ QLabel{
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">/*background: transparent;
-background-image: url(:/16x16/icons/16x16/cil-terminal.png);
-background-position: center;
-background-repeat: no-repeat;*/</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
@@ -146,7 +143,7 @@ background-repeat: no-repeat;*/</string>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item alignment="Qt::AlignHCenter">
-          <widget class="QLabel" name="label_6">
+          <widget class="QLabel" name="uiLabelLogo">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -164,7 +161,7 @@ background-repeat: no-repeat;*/</string>
             </font>
            </property>
            <property name="styleSheet">
-            <string notr="true">color: rgb(58, 89, 245);</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>R2</string>
@@ -189,7 +186,7 @@ background-repeat: no-repeat;*/</string>
          <item alignment="Qt::AlignHCenter">
           <widget class="QLabel" name="label_2">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -213,25 +210,7 @@ background-repeat: no-repeat;*/</string>
           </widget>
          </item>
          <item>
-          <widget class="QListWidget" name="ui_lw_projects">
-           <property name="font">
-            <font>
-             <family>MS Shell Dlg 2</family>
-             <pointsize>10</pointsize>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="spacing">
-            <number>10</number>
-           </property>
-           <property name="viewMode">
-            <enum>QListView::ListMode</enum>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="uiLayoutRecentProjects"/>
          </item>
         </layout>
        </widget>
@@ -460,7 +439,7 @@ padding: 5px;
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="files.qrc">
+               <iconset>
                 <normaloff>:/16x16/icons/16x16/cil-x.png</normaloff>:/16x16/icons/16x16/cil-x.png</iconset>
               </property>
              </widget>
@@ -644,9 +623,9 @@ padding: 5px;
     </widget>
    </item>
    <item>
-    <widget class="QFrame" name="frame_3">
+    <widget class="QFrame" name="uiDashboardFrameRight">
      <property name="styleSheet">
-      <string notr="true">QWidget, QFrame, QPushButton, QLineEdit{
+      <string notr="true">/*QWidget, QFrame, QPushButton, QLineEdit{
 	background-color: rgb(33, 37, 43);
 	color: rgb(200, 200, 200);
 	border: none;
@@ -658,7 +637,7 @@ QToolButton{
 
 QToolButton:hover{
 	color: rgb(200, 200, 200);
-}</string>
+}*/</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -806,6 +785,12 @@ QToolButton:hover{
             </item>
             <item>
              <widget class="QToolButton" name="ui_btn_new_project">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
@@ -821,7 +806,7 @@ QToolButton:hover{
                <string>New Project...</string>
               </property>
               <property name="icon">
-               <iconset resource="files.qrc">
+               <iconset>
                 <normaloff>:/20x20/icons/20x20/cil-folder.png</normaloff>:/20x20/icons/20x20/cil-folder.png</iconset>
               </property>
               <property name="toolButtonStyle">
@@ -843,7 +828,7 @@ QToolButton:hover{
                <string>Open Project...</string>
               </property>
               <property name="icon">
-               <iconset resource="files.qrc">
+               <iconset>
                 <normaloff>:/20x20/icons/20x20/cil-folder-open.png</normaloff>:/20x20/icons/20x20/cil-folder-open.png</iconset>
               </property>
               <property name="toolButtonStyle">
@@ -865,7 +850,7 @@ QToolButton:hover{
                <string>Script Editor...</string>
               </property>
               <property name="icon">
-               <iconset resource="files.qrc">
+               <iconset>
                 <normaloff>:/20x20/icons/20x20/cil-file.png</normaloff>:/20x20/icons/20x20/cil-file.png</iconset>
               </property>
               <property name="toolButtonStyle">
@@ -887,7 +872,7 @@ QToolButton:hover{
                <string>Configuration...</string>
               </property>
               <property name="icon">
-               <iconset resource="files.qrc">
+               <iconset>
                 <normaloff>:/20x20/icons/20x20/cil-settings.png</normaloff>:/20x20/icons/20x20/cil-settings.png</iconset>
               </property>
               <property name="toolButtonStyle">
@@ -954,8 +939,6 @@ QToolButton:hover{
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="files.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

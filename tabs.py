@@ -18,6 +18,7 @@ class Tabs(QTabWidget):
         self.setAcceptDrops(True)
         self.tabBar = self.tabBar()
         self.tabBar.setMouseTracking(True)
+        self.tabBar.setCursor(Qt.PointingHandCursor)
         self.indexTab = None
         self.setMovable(True)
         self.setTabsClosable(True)

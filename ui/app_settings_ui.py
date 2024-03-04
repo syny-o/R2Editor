@@ -15,41 +15,14 @@ class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.resize(1570, 1001)
-        Form.setStyleSheet("background-color: rgb(33, 37, 43);")
+        Form.setStyleSheet("")
         self.verticalLayout = QtWidgets.QVBoxLayout(Form)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.frame_4 = QtWidgets.QFrame(Form)
-        self.frame_4.setStyleSheet("QPushButton {    \n"
-"    border: none;\n"
-"    padding: 15;\n"
-"    /*border-right: 5px solid rgb(44, 49, 60);*/\n"
-"    background-color: rgb(39, 44, 54);\n"
-"    text-align: left;\n"
-"\n"
-"}\n"
-"QPushButton:hover {\n"
-"    background-color: rgb(33, 37, 43);\n"
-"\n"
-"}\n"
-"QPushButton:pressed {    \n"
-"    background-color: rgb(85, 170, 255);\n"
-"\n"
-"}\n"
-"\n"
-"QPushButton:checked {    \n"
-"    background-color: rgb(85, 170, 255);\n"
-"\n"
-"}\n"
-"\n"
-"QLineEdit{\n"
-"    padding: 5;\n"
-"}\n"
-"\n"
-"QFrame{\n"
-"background-color: rgb(39, 44, 54);\n"
-"}")
+        self.frame_4.setMaximumSize(QtCore.QSize(16777215, 0))
+        self.frame_4.setStyleSheet("")
         self.frame_4.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_4.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_4.setObjectName("frame_4")
@@ -58,35 +31,7 @@ class Ui_Form(object):
         self.horizontalLayout_3.setSpacing(0)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.frame_6 = QtWidgets.QFrame(self.frame_4)
-        self.frame_6.setStyleSheet("QPushButton {    \n"
-"    border: none;\n"
-"    padding: 15;\n"
-"    /*border-right: 5px solid rgb(44, 49, 60);*/\n"
-"    background-color: rgb(39, 44, 54);\n"
-"    text-align: left;\n"
-"\n"
-"}\n"
-"QPushButton:hover {\n"
-"    background-color: rgb(33, 37, 43);\n"
-"\n"
-"}\n"
-"QPushButton:pressed {    \n"
-"    background-color: rgb(85, 170, 255);\n"
-"\n"
-"}\n"
-"\n"
-"QPushButton:checked {    \n"
-"    background-color: rgb(85, 170, 255);\n"
-"\n"
-"}\n"
-"\n"
-"QLineEdit{\n"
-"    padding: 5;\n"
-"}\n"
-"\n"
-"QFrame{\n"
-"background-color: rgb(39, 44, 54);\n"
-"}")
+        self.frame_6.setStyleSheet("")
         self.frame_6.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_6.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_6.setObjectName("frame_6")
@@ -94,47 +39,6 @@ class Ui_Form(object):
         self.horizontalLayout.setContentsMargins(5, 0, -1, 0)
         self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.frame_7 = QtWidgets.QFrame(self.frame_6)
-        self.frame_7.setStyleSheet("QLineEdit{\n"
-"    padding-left: 30px;\n"
-"    border-radius: 1px;\n"
-"}")
-        self.frame_7.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_7.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_7.setObjectName("frame_7")
-        self.horizontalLayout_15 = QtWidgets.QHBoxLayout(self.frame_7)
-        self.horizontalLayout_15.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_15.setSpacing(3)
-        self.horizontalLayout_15.setObjectName("horizontalLayout_15")
-        self.btn_add = QtWidgets.QPushButton(self.frame_7)
-        self.btn_add.setMaximumSize(QtCore.QSize(0, 16777215))
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/16x16/icons/16x16/cil-medical-cross.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.btn_add.setIcon(icon)
-        self.btn_add.setFlat(False)
-        self.btn_add.setObjectName("btn_add")
-        self.horizontalLayout_15.addWidget(self.btn_add)
-        self.btn_edit = QtWidgets.QPushButton(self.frame_7)
-        self.btn_edit.setMaximumSize(QtCore.QSize(0, 16777215))
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/16x16/icons/16x16/cil-pencil.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.btn_edit.setIcon(icon1)
-        self.btn_edit.setObjectName("btn_edit")
-        self.horizontalLayout_15.addWidget(self.btn_edit)
-        self.btn_remove = QtWidgets.QPushButton(self.frame_7)
-        self.btn_remove.setMaximumSize(QtCore.QSize(0, 16777215))
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(":/20x20/icons/20x20/cil-trash.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.btn_remove.setIcon(icon2)
-        self.btn_remove.setObjectName("btn_remove")
-        self.horizontalLayout_15.addWidget(self.btn_remove)
-        self.btn_save = QtWidgets.QPushButton(self.frame_7)
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(":/16x16/icons/16x16/cil-save.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.btn_save.setIcon(icon3)
-        self.btn_save.setObjectName("btn_save")
-        self.horizontalLayout_15.addWidget(self.btn_save)
-        self.horizontalLayout.addWidget(self.frame_7, 0, QtCore.Qt.AlignLeft)
         self.horizontalLayout_3.addWidget(self.frame_6, 0, QtCore.Qt.AlignLeft)
         self.frame_5 = QtWidgets.QFrame(self.frame_4)
         self.frame_5.setStyleSheet("QLineEdit{\n"
@@ -156,47 +60,7 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame.sizePolicy().hasHeightForWidth())
         self.frame.setSizePolicy(sizePolicy)
-        self.frame.setStyleSheet("QFrame{\n"
-"background-color: rgb(33, 37, 43);\n"
-"}\n"
-"\n"
-"QPushButton, QLineEdit, QComboBox, QCheckBox{\n"
-"    background-color: rgb(27, 29, 35);\n"
-"    color: rgb(200, 200, 200);\n"
-"}\n"
-"\n"
-"QPushButton {    \n"
-"    border: none;\n"
-"    padding: 5;\n"
-"    width: 60px;\n"
-"    background-color: rgb(39, 44, 54);\n"
-"\n"
-"}\n"
-"QPushButton:hover {\n"
-"    background-color: rgb(33, 37, 43);\n"
-"\n"
-"}\n"
-"QPushButton:pressed {    \n"
-"    background-color: rgb(85, 170, 255);\n"
-"\n"
-"}\n"
-"\n"
-"QPushButton:checked {    \n"
-"    background-color: rgb(85, 170, 255);\n"
-"\n"
-"}\n"
-"\n"
-"QLineEdit, QListWidget, QComboBox{\n"
-"    padding: 5;\n"
-"    background-color: rgb(39, 44, 54);\n"
-"    border: 1px solid rgb(100, 100, 100);\n"
-"}\n"
-" QCheckBox{\n"
-"    padding: 5;\n"
-"\n"
-"}\n"
-"\n"
-"\n"
+        self.frame.setStyleSheet("\n"
 "")
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -375,17 +239,14 @@ class Ui_Form(object):
         self.verticalLayout_2.addWidget(self.frame_10, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
         self.verticalLayout_3.addWidget(self.frame_2)
         self.frame_14 = QtWidgets.QFrame(self.frame_3)
-        self.frame_14.setStyleSheet("QTableWidget{\n"
-"background-color: rgb(39, 44, 54);\n"
-"background-color: rgb(27, 29, 35);\n"
-"border: 1px solid rgb(39, 44, 54);\n"
-"}")
+        self.frame_14.setStyleSheet("")
         self.frame_14.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_14.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_14.setObjectName("frame_14")
         self.verticalLayout_11 = QtWidgets.QVBoxLayout(self.frame_14)
         self.verticalLayout_11.setObjectName("verticalLayout_11")
         self.frame_middle = QtWidgets.QFrame(self.frame_14)
+        self.frame_middle.setStyleSheet("")
         self.frame_middle.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_middle.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_middle.setObjectName("frame_middle")
@@ -398,24 +259,22 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_l.sizePolicy().hasHeightForWidth())
         self.frame_l.setSizePolicy(sizePolicy)
-        self.frame_l.setStyleSheet("QFrame{\n"
-"border: 1px solid rgb(39, 44, 54);\n"
-"background-color: rgb(39, 44, 54);\n"
-"}\n"
-"\n"
-"")
+        self.frame_l.setStyleSheet("")
         self.frame_l.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_l.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_l.setObjectName("frame_l")
         self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.frame_l)
+        self.verticalLayout_6.setContentsMargins(-1, 0, -1, -1)
         self.verticalLayout_6.setObjectName("verticalLayout_6")
         self.frame_28 = QtWidgets.QFrame(self.frame_l)
         self.frame_28.setStyleSheet("QFrame{\n"
-"border: 1px solid rgb(39, 44, 54);\n"
-"/*background-color: rgb(27, 29, 35);*/\n"
+"\n"
+"border: 1px solid rgb(150, 150, 150);\n"
+"\n"
 "}")
         self.frame_28.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_28.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_28.setLineWidth(1)
         self.frame_28.setObjectName("frame_28")
         self.verticalLayout_14 = QtWidgets.QVBoxLayout(self.frame_28)
         self.verticalLayout_14.setObjectName("verticalLayout_14")
@@ -425,6 +284,9 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_29.sizePolicy().hasHeightForWidth())
         self.frame_29.setSizePolicy(sizePolicy)
+        self.frame_29.setStyleSheet("QFrame{\n"
+"border: none;\n"
+"}")
         self.frame_29.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_29.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_29.setObjectName("frame_29")
@@ -458,6 +320,9 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_30.sizePolicy().hasHeightForWidth())
         self.frame_30.setSizePolicy(sizePolicy)
+        self.frame_30.setStyleSheet("QFrame{\n"
+"border: none;\n"
+"}")
         self.frame_30.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_30.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_30.setObjectName("frame_30")
@@ -465,7 +330,26 @@ class Ui_Form(object):
         self.verticalLayout_15.setObjectName("verticalLayout_15")
         self.verticalLayout_14.addWidget(self.frame_30)
         self.verticalLayout_6.addWidget(self.frame_28)
-        self.frame_16 = QtWidgets.QFrame(self.frame_l)
+        self.frame_21 = QtWidgets.QFrame(self.frame_l)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.frame_21.sizePolicy().hasHeightForWidth())
+        self.frame_21.setSizePolicy(sizePolicy)
+        self.frame_21.setStyleSheet("QFrame{\n"
+"\n"
+"border: 1px solid rgb(150, 150, 150);\n"
+"\n"
+"}")
+        self.frame_21.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_21.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_21.setObjectName("frame_21")
+        self.verticalLayout_13 = QtWidgets.QVBoxLayout(self.frame_21)
+        self.verticalLayout_13.setObjectName("verticalLayout_13")
+        self.frame_16 = QtWidgets.QFrame(self.frame_21)
+        self.frame_16.setStyleSheet("QFrame{\n"
+"border: none;\n"
+"}")
         self.frame_16.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_16.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_16.setObjectName("frame_16")
@@ -492,24 +376,16 @@ class Ui_Form(object):
         self.line_2.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line_2.setObjectName("line_2")
         self.horizontalLayout_10.addWidget(self.line_2)
-        self.verticalLayout_6.addWidget(self.frame_16)
-        self.frame_21 = QtWidgets.QFrame(self.frame_l)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.frame_21.sizePolicy().hasHeightForWidth())
-        self.frame_21.setSizePolicy(sizePolicy)
-        self.frame_21.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_21.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_21.setObjectName("frame_21")
-        self.verticalLayout_13 = QtWidgets.QVBoxLayout(self.frame_21)
-        self.verticalLayout_13.setObjectName("verticalLayout_13")
+        self.verticalLayout_13.addWidget(self.frame_16)
         self.frame_27 = QtWidgets.QFrame(self.frame_21)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_27.sizePolicy().hasHeightForWidth())
         self.frame_27.setSizePolicy(sizePolicy)
+        self.frame_27.setStyleSheet("QFrame{\n"
+"border: none;\n"
+"}")
         self.frame_27.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_27.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_27.setObjectName("frame_27")
@@ -542,8 +418,9 @@ class Ui_Form(object):
         self.verticalLayout_7.setObjectName("verticalLayout_7")
         self.frame_17 = QtWidgets.QFrame(self.frame_r)
         self.frame_17.setStyleSheet("QFrame{\n"
-"border: 1px solid rgb(39, 44, 54);\n"
-"/*background-color: rgb(27, 29, 35);*/\n"
+"\n"
+"border: 1px solid rgb(150, 150, 150);\n"
+"\n"
 "}")
         self.frame_17.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_17.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -556,6 +433,7 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_18.sizePolicy().hasHeightForWidth())
         self.frame_18.setSizePolicy(sizePolicy)
+        self.frame_18.setStyleSheet("border: none;")
         self.frame_18.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_18.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_18.setObjectName("frame_18")
@@ -589,16 +467,40 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_26.sizePolicy().hasHeightForWidth())
         self.frame_26.setSizePolicy(sizePolicy)
+        self.frame_26.setStyleSheet("border: none;")
         self.frame_26.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_26.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_26.setObjectName("frame_26")
         self.verticalLayout_12 = QtWidgets.QVBoxLayout(self.frame_26)
         self.verticalLayout_12.setObjectName("verticalLayout_12")
+        self.frame_31 = QtWidgets.QFrame(self.frame_26)
+        self.frame_31.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_31.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_31.setObjectName("frame_31")
+        self.horizontalLayout_22 = QtWidgets.QHBoxLayout(self.frame_31)
+        self.horizontalLayout_22.setObjectName("horizontalLayout_22")
+        self.label_10 = QtWidgets.QLabel(self.frame_31)
+        self.label_10.setMinimumSize(QtCore.QSize(80, 0))
+        self.label_10.setObjectName("label_10")
+        self.horizontalLayout_22.addWidget(self.label_10)
+        self.uiComboTheme = QtWidgets.QComboBox(self.frame_31)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.uiComboTheme.sizePolicy().hasHeightForWidth())
+        self.uiComboTheme.setSizePolicy(sizePolicy)
+        self.uiComboTheme.setObjectName("uiComboTheme")
+        self.uiComboTheme.addItem("")
+        self.uiComboTheme.addItem("")
+        self.horizontalLayout_22.addWidget(self.uiComboTheme)
+        self.verticalLayout_12.addWidget(self.frame_31, 0, QtCore.Qt.AlignTop)
         self.verticalLayout_8.addWidget(self.frame_26)
         self.verticalLayout_7.addWidget(self.frame_17)
         self.frame_19 = QtWidgets.QFrame(self.frame_r)
         self.frame_19.setStyleSheet("QFrame{\n"
-"border: 1px solid rgb(39, 44, 54);\n"
+"\n"
+"border: 1px solid rgb(150, 150, 150);\n"
+"\n"
 "}")
         self.frame_19.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_19.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -606,6 +508,7 @@ class Ui_Form(object):
         self.verticalLayout_9 = QtWidgets.QVBoxLayout(self.frame_19)
         self.verticalLayout_9.setObjectName("verticalLayout_9")
         self.frame_20 = QtWidgets.QFrame(self.frame_19)
+        self.frame_20.setStyleSheet("border: none;")
         self.frame_20.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_20.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_20.setObjectName("frame_20")
@@ -634,6 +537,7 @@ class Ui_Form(object):
         self.horizontalLayout_12.addWidget(self.line_4)
         self.verticalLayout_9.addWidget(self.frame_20)
         self.frame_bottom = QtWidgets.QFrame(self.frame_19)
+        self.frame_bottom.setStyleSheet("border: none;")
         self.frame_bottom.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_bottom.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_bottom.setObjectName("frame_bottom")
@@ -646,7 +550,7 @@ class Ui_Form(object):
         self.horizontalLayout_16 = QtWidgets.QHBoxLayout(self.frame_22)
         self.horizontalLayout_16.setObjectName("horizontalLayout_16")
         self.label_4 = QtWidgets.QLabel(self.frame_22)
-        self.label_4.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_4.setMinimumSize(QtCore.QSize(80, 0))
         self.label_4.setObjectName("label_4")
         self.horizontalLayout_16.addWidget(self.label_4)
         self.le_app_path = QtWidgets.QLineEdit(self.frame_22)
@@ -660,7 +564,7 @@ class Ui_Form(object):
         self.horizontalLayout_17 = QtWidgets.QHBoxLayout(self.frame_23)
         self.horizontalLayout_17.setObjectName("horizontalLayout_17")
         self.label_5 = QtWidgets.QLabel(self.frame_23)
-        self.label_5.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_5.setMinimumSize(QtCore.QSize(80, 0))
         self.label_5.setObjectName("label_5")
         self.horizontalLayout_17.addWidget(self.label_5)
         self.ui_cb_database = QtWidgets.QComboBox(self.frame_23)
@@ -681,7 +585,7 @@ class Ui_Form(object):
         self.horizontalLayout_18 = QtWidgets.QHBoxLayout(self.frame_24)
         self.horizontalLayout_18.setObjectName("horizontalLayout_18")
         self.label_6 = QtWidgets.QLabel(self.frame_24)
-        self.label_6.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_6.setMinimumSize(QtCore.QSize(80, 0))
         self.label_6.setObjectName("label_6")
         self.horizontalLayout_18.addWidget(self.label_6)
         self.le_user = QtWidgets.QLineEdit(self.frame_24)
@@ -695,7 +599,7 @@ class Ui_Form(object):
         self.horizontalLayout_19 = QtWidgets.QHBoxLayout(self.frame_25)
         self.horizontalLayout_19.setObjectName("horizontalLayout_19")
         self.label_3 = QtWidgets.QLabel(self.frame_25)
-        self.label_3.setMinimumSize(QtCore.QSize(60, 0))
+        self.label_3.setMinimumSize(QtCore.QSize(80, 0))
         self.label_3.setObjectName("label_3")
         self.horizontalLayout_19.addWidget(self.label_3)
         self.le_passwd = QtWidgets.QLineEdit(self.frame_25)
@@ -717,10 +621,6 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
-        self.btn_add.setText(_translate("Form", "Add"))
-        self.btn_edit.setText(_translate("Form", "Edit"))
-        self.btn_remove.setText(_translate("Form", "Remove"))
-        self.btn_save.setText(_translate("Form", "Save"))
         self.file_browser_label_2.setText(_translate("Form", "Total:"))
         self.file_browser_label.setText(_translate("Form", "1254"))
         self.file_browser_label_4.setText(_translate("Form", "Approved:"))
@@ -735,6 +635,9 @@ class Ui_Form(object):
         self.label_2.setText(_translate("Form", "Code Editor"))
         self.label.setText(_translate("Form", "Format Code before Save"))
         self.label_7.setText(_translate("Form", "Appearance"))
+        self.label_10.setText(_translate("Form", "Theme"))
+        self.uiComboTheme.setItemText(0, _translate("Form", "Light"))
+        self.uiComboTheme.setItemText(1, _translate("Form", "Dark"))
         self.label_8.setText(_translate("Form", "Doors"))
         self.label_4.setText(_translate("Form", "Application"))
         self.label_5.setText(_translate("Form", "Database"))
@@ -742,4 +645,3 @@ class Ui_Form(object):
         self.ui_cb_database.setItemText(1, _translate("Form", "36677@ssh2cn-doors9db.ad.trw.com"))
         self.label_6.setText(_translate("Form", "User"))
         self.label_3.setText(_translate("Form", "Password"))
-import files_rc

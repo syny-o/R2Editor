@@ -60,19 +60,19 @@ class FindTextWidget(QWidget):
 
         self.__btnToggled(False)
 
-        self.__caseBtn = QPushButton()
+        self.__caseBtn = QPushButton("MATCH CASE")
         self.__caseBtn.setCheckable(True)
         self.__caseBtn.toggled.connect(self.__caseToggled)
-        self.__caseBtn.setIcon(QIcon('ui/icons/16x16/cil-text-square.png'))
+        # self.__caseBtn.setIcon(QIcon('ui/icons/16x16/cil-text-square.png'))
 
-        self.__wordBtn = QPushButton()
+        self.__wordBtn = QPushButton("MATCH WORD")
         self.__wordBtn.setCheckable(True)
         self.__wordBtn.toggled.connect(self.__wordToggled)
-        self.__wordBtn.setIcon(QIcon('ui/icons/16x16/cil-map.png'))
+        # self.__wordBtn.setIcon(QIcon('ui/icons/16x16/cil-map.png'))
 
-        self.__regexBtn = QPushButton()
+        self.__regexBtn = QPushButton("REGEX")
         self.__regexBtn.setCheckable(True)
-        self.__regexBtn.setIcon(QIcon('ui/icons/16x16/cil-terminal.png'))
+        # self.__regexBtn.setIcon(QIcon('ui/icons/16x16/cil-terminal.png'))
 
         # self.__closeBtn = QPushButton()
         # self.__closeBtn.setVisible(False)

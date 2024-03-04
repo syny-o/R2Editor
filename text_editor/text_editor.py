@@ -1,23 +1,25 @@
-import os
-from PyQt5.QtWidgets import QWidget, QPlainTextEdit, QToolTip, QStyledItemDelegate, QStyleOptionViewItem, QMessageBox, QApplication, QPushButton, QToolBar, QVBoxLayout, QTextEdit
-import importlib
+import os, re
+from PyQt5.QtWidgets import QPlainTextEdit, QToolTip
+
 from text_editor.code_editor import QCodeEditor
 import text_editor.text_management as text_management
 
-from PyQt5.QtCore import pyqtSignal, Qt, pyqtSlot, QPoint, QModelIndex, QStringListModel, QTimer
-from PyQt5.QtGui import QFont, QTextCursor, QStandardItem, QStandardItemModel, QIcon, QPainter, QPixmap, QImage, QScreen
+from PyQt5.QtCore import pyqtSignal, Qt, pyqtSlot
+from PyQt5.QtGui import QFont, QTextCursor, QStandardItem, QStandardItemModel, QPalette, QColor
 
-from text_editor.syntax_highlighter import Highlighter
 
 from config.font import font
 
-from text_editor.completer import Completer
+from text_editor.completer import Completer, CompleterDelegate
 from text_editor.text_edit_tooltip_widget import TextEditTooltipWidget
 from text_editor.data_manager_widget import DataManagerWidget
 
 from text_editor.tooltips import tooltips
 
 from components.text_functions import get_word_under_cursor
+
+from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighter
+from importlib import reload
 
 
 class TextEdit(QCodeEditor):
@@ -31,6 +33,7 @@ class TextEdit(QCodeEditor):
     # SIGNAL FOR HANDLING PRESSING MOUSE AT TEXTEDIT
     signal_clicked_on_text_edit = pyqtSignal(object)
     signal_modified_file_content = pyqtSignal(bool)
+    signal_send_outline = pyqtSignal(list)
 
     
     @classmethod
@@ -47,23 +50,33 @@ class TextEdit(QCodeEditor):
         cls.ctrl_pressed = is_pressed
 
 
-    def __init__(self, main_window=None, text=None, file_path=None):
+    def __init__(self, main_window, text, file_path, syntax_highlighter: ISyntaxHighlighter):
         super().__init__(text)
+        self.main_window = main_window
 
         TextEdit.append_child(self)
+
+        slider = self.verticalScrollBar()
+        slider.valueChanged.connect(self.main_window.update_selected_item_in_outline_by_scrollbar)
+
+
+        palette = QPalette()
+        palette.setColor(QPalette.HighlightedText, QColor("white"))
+        palette.setColor(QPalette.Highlight, QColor("blue"))
+        self.setPalette(palette)
 
         self.file_path = file_path
         self.original_file_content = text
         self.file_was_modified = False
 
 
+        self.update_syntax_highlighter(syntax_highlighter)
 
         if self.file_path:
             self.is_read_only = not(os.access(self.file_path, os.W_OK))
         else:
             self.is_read_only = False
         
-        self.main_window = main_window
 
         # self.font = font
         self.setFont(TextEdit.font)
@@ -81,16 +94,23 @@ class TextEdit(QCodeEditor):
         self.signal_clicked_on_text_edit.connect(main_window.clicked_on_text_edit)
         self.signal_modified_file_content.connect(main_window.set_actual_tab_icon)
         self.textChanged.connect(self.text_changed)
+        # self.textChanged.connect(self.main_window.update_outline)
+
+        # self.signal_send_outline.connect(main_window.get_outline)
+        # self.cursorPositionChanged.connect(self.send_outline)
+        # self.cursorPositionChanged.connect(lambda: print("Hello"))
 
 
-        # CONNECT SYNTAX HIGHLIGHTER
-        self.highlighter = Highlighter(self.document())
+
 
         # CONNECT COMPLETER - INSTANCE CONFIGURATION
         self.completer = Completer()
         self.completer.setWidget(self)
         self.completer.insert_text.connect(self.insert_completion)
         self.current_model = None
+
+        delegate = CompleterDelegate(self)
+        self.completer.popup.setItemDelegate(delegate)
 
 
         self.actual_text = ''
@@ -104,6 +124,17 @@ class TextEdit(QCodeEditor):
         self.remember_special_char = False
 
         self.data_manager_widget = DataManagerWidget(self.main_window, self)
+
+
+    def update_syntax_highlighter(self, syntax_highlighter: ISyntaxHighlighter):
+        # CONNECT SYNTAX HIGHLIGHTER    
+        # reload(syntax_highlighter)
+        if self.main_window.app_settings.theme == 'Dark':
+            self.syntax_highlighter = syntax_highlighter(self.document(), dark_mode=True)
+        else:
+            self.syntax_highlighter = syntax_highlighter(self.document(), dark_mode=False)
+
+        # print(self.file_path)
 
         # from components.pyqt_find_text_widget.findReplaceTextWidget import FindReplaceTextWidget
         # try:
@@ -219,12 +250,13 @@ class TextEdit(QCodeEditor):
 
 
 
-    def mousePressEvent(self, event):
-        self.signal_clicked_on_text_edit.emit(self)        
-        return super().mousePressEvent(event)
+    # def mousePressEvent(self, event):
+    #     self.signal_clicked_on_text_edit.emit(self)        
+    #     return super().mousePressEvent(event)
 
 
     def mouseReleaseEvent(self, event):
+        self.signal_clicked_on_text_edit.emit(self) 
         if TextEditTooltipWidget.selected_word and TextEdit.ctrl_pressed:
             self.show_tooltip(TextEditTooltipWidget.selected_word)
             # print(TextEdit.ctrl_pressed)
@@ -268,6 +300,7 @@ class TextEdit(QCodeEditor):
 ########################################################################################################################
 
     def keyReleaseEvent(self, event):
+        self.signal_clicked_on_text_edit.emit(self)
         if event.key() == Qt.Key_Control:
             TextEdit.ctrl_pressed = False
             # QToolTip.hideText()
@@ -280,10 +313,10 @@ class TextEdit(QCodeEditor):
             TextEdit.ctrl_pressed = True
             return
 
-        if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Q:
-            # self.show_conditions_in_tooltip()
-            self.data_manager_widget.show()
-            return
+        # if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Q:
+        #     # self.show_conditions_in_tooltip()
+        #     self.data_manager_widget.show()
+        #     return
 
         # "ESC" Cancel Selection
         if event.key() == Qt.Key_Escape:

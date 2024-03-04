@@ -33,18 +33,10 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QFrame" name="uiFrameGlobal">
+    <widget class="QFrame" name="uiFrameFormWidget">
      <property name="styleSheet">
-      <string notr="true">QWidget{
-font-size: 16px;
-background-color: rgb(58, 89, 245);
-background-color: rgb(20, 20, 30);
-}
+      <string notr="true">
 
-QFrame, QPushButton, QLineEdit, QComboBox, QCheckBox{
-	color: rgb(200, 200, 200);
-
-}
 
 QPushButton {	
 	border: none;
@@ -118,7 +110,8 @@ QCheckBox::indicator:checked {background-color: rgb(50,50,250);}
          </sizepolicy>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(58, 89, 245);</string>
+         <string notr="true">background-color: rgb(58, 89, 245);
+color: rgb(200, 200, 200);</string>
         </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
@@ -241,9 +234,7 @@ QPushButton:pressed {
                   </size>
                  </property>
                  <property name="font">
-                  <font>
-                   <pointsize>-1</pointsize>
-                  </font>
+                  <font/>
                  </property>
                  <property name="styleSheet">
                   <string notr="true">color: rgb(58, 89, 245);</string>
@@ -295,9 +286,7 @@ QPushButton:pressed {
                   </sizepolicy>
                  </property>
                  <property name="font">
-                  <font>
-                   <pointsize>-1</pointsize>
-                  </font>
+                  <font/>
                  </property>
                  <property name="text">
                   <string>Title</string>
@@ -370,7 +359,7 @@ QPushButton:pressed {
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="files.qrc">
+                  <iconset>
                    <normaloff>:/20x20/icons/20x20/cil-x.png</normaloff>:/20x20/icons/20x20/cil-x.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -481,25 +470,6 @@ QPushButton:pressed {
            </property>
           </layout>
          </item>
-         <item>
-          <layout class="QVBoxLayout" name="uiMainLayout_5">
-           <property name="spacing">
-            <number>8</number>
-           </property>
-           <property name="leftMargin">
-            <number>12</number>
-           </property>
-           <property name="topMargin">
-            <number>12</number>
-           </property>
-           <property name="rightMargin">
-            <number>12</number>
-           </property>
-           <property name="bottomMargin">
-            <number>12</number>
-           </property>
-          </layout>
-         </item>
         </layout>
        </widget>
       </item>
@@ -523,7 +493,7 @@ QPushButton:pressed {
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_12">
+        <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QPushButton" name="uiBtnOK">
            <property name="sizePolicy">
@@ -546,7 +516,26 @@ QPushButton:pressed {
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Close</string>
+            <string>Cancel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="uiBtnApply">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>0</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Apply</string>
            </property>
           </widget>
          </item>
@@ -558,8 +547,6 @@ QPushButton:pressed {
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="files.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

@@ -59,7 +59,7 @@ class QCodeEditor(QPlainTextEdit):
         if not self.isReadOnly():
             selection = QTextEdit.ExtraSelection()
             # SYNY: CURRENT FOCUSED LINE
-            lineColor = QColor(0,120,255,100)
+            # lineColor = QColor(0,120,255,100)
             lineColor = QColor(100, 100, 100, 100)
 
             selection.format.setBackground(lineColor)
@@ -72,7 +72,8 @@ class QCodeEditor(QPlainTextEdit):
     def lineNumberAreaPaintEvent(self, event):
         painter = QPainter(self.lineNumberArea)
 
-        painter.fillRect(event.rect(), QColor(39, 44, 54))
+        # painter.fillRect(event.rect(), QColor(39, 44, 54))
+        painter.fillRect(event.rect(), QColor(10, 10, 10))
         # SYNY: LINE NUMBERS RECTANGLE
         # painter.fillRect(event.rect(), QColor(0, 100, 200))
 

@@ -1,11 +1,6 @@
 from PyQt5.QtWidgets import QTreeView, QSizePolicy
 from PyQt5.QtCore import pyqtSignal, Qt
 
-style = """
-        QTreeView {
-            font-size: 16px;
-            }            
-    """   
 
 
 MAX_STORED_INDEXES = 40
@@ -29,7 +24,6 @@ class DroppableTreeView(QTreeView):
         self.setAcceptDrops(True)
         self.setDragDropMode(QTreeView.DropOnly)
         self.setDropIndicatorShown(True)
-        self.setStyleSheet(style)
 
         self.expanded.connect(self.node_was_expanded)
         self.collapsed.connect(self.node_was_collapsed)
@@ -103,3 +97,24 @@ class DroppableTreeView(QTreeView):
 
     def node_was_expanded(self, node_index):
         self.previous_indexes.append(tuple(["expanded", node_index]))
+
+
+    def collapse_all_children(self):
+        index = self.currentIndex()
+        item = index.model().itemFromIndex(index)
+        
+        def _browse_children(node):         
+            for row in range(node.rowCount()):
+                requirement_node = node.child(row)
+                requirement_node_index = requirement_node.index()
+                self.collapse(requirement_node_index)
+
+                _browse_children(requirement_node)        
+        
+        _browse_children(item)
+        self.collapse(index)
+
+    
+    def expand_all_children(self):
+        index = self.currentIndex()
+        self.expandRecursively(index)        

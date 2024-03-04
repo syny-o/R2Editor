@@ -1,22 +1,21 @@
 from PyQt5 import QtWidgets
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QCursor
-from PyQt5.QtWidgets import QListWidget, QInputDialog, QListWidgetItem, QAction, QMenu
+from PyQt5.QtGui import QCursor, QDrag
+from PyQt5.QtWidgets import QListWidget, QInputDialog, QListWidgetItem, QAction, QMenu, QShortcut
 
 class MyListWidget(QListWidget):
 
  
 
     def __init__(self, context_menu=True):
-        super(MyListWidget, self).__init__()
+        super().__init__()
         self.setIconSize(QtCore.QSize(124, 124))
         self.setDragDropMode(QtWidgets.QAbstractItemView.DragDropMode.DragDrop)
         self.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
         # self.setDefaultDropAction(QtCore.Qt.MoveAction)
 
         # self.setStyleSheet("border-color: rgb(80, 80, 80);")
-
         self.action_remove_item = QAction("Remove")
         self.action_remove_item.triggered.connect(self.remove_item)
         self.action_remove_all_items = QAction("Remove All")
@@ -29,33 +28,59 @@ class MyListWidget(QListWidget):
             self.customContextMenuRequested.connect(self._context_menu)      
 
 
-    def dragEnterEvent(self, event):
-        if event.mimeData().hasUrls():
+    # def dragEnterEvent(self, event):
+    #     if event.mimeData().hasText():
+    #         event.setDropAction(QtCore.Qt.MoveAction)
+    #         items = self.get_all_items()
+    #         item_text = event.mimeData().text()
+    #         if item_text not in items:                
+    #             event.accept()
+    #     # else:
 
-            event.accept()
-        else:
+    #     #     super(MyListWidget, self).dragEnterEvent(event)
 
-            super(MyListWidget, self).dragEnterEvent(event)
+    # def dragMoveEvent(self, event):
+    #     if event.mimeData().hasText():
+    #         event.setDropAction(QtCore.Qt.MoveAction)
+    #         # print(event.mimeData().text())
+    #         event.accept()
+    #         # super(MyListWidget, self).dragMoveEvent(event)
+    #     # else:
+    #     #     print("MOVE MOVE")
+    #     #     super(MyListWidget, self).dragMoveEvent(event)
 
-    def dragMoveEvent(self, event):
-        if event.mimeData().hasUrls():
-            event.setDropAction(QtCore.Qt.MoveAction)
-   
-            event.accept()
-        else:
-  
-            super(MyListWidget, self).dragMoveEvent(event)
+    # def dropEvent(self, event):
+    #     if event.mimeData().hasText():
+    #         event.setDropAction(QtCore.Qt.MoveAction)
+    #         items = self.get_all_items()
+    #         item_text = event.mimeData().text()
+    #         if item_text not in items:                
+    #             self.addItem(QListWidgetItem(item_text))
+    #             event.accept()
+    #         # links = []
+    #         # for url in event.mimeData().urls():
+    #         #     links.append(str(url.toLocalFile()))
+    #     # else:
+    #     #     event.setDropAction(QtCore.Qt.MoveAction)
+    #     #     print("TEXT: ", event.mimeData().text())
+    #     #     super(MyListWidget, self).dropEvent(event)
 
-    def dropEvent(self, event):
-        if event.mimeData().hasUrls():
-            event.setDropAction(QtCore.Qt.MoveAction)
-            event.accept()
-            links = []
-            for url in event.mimeData().urls():
-                links.append(str(url.toLocalFile()))
-        else:
-            event.setDropAction(QtCore.Qt.MoveAction)
-            super(MyListWidget, self).dropEvent(event)
+
+    # def startDrag(self, event):
+    #     print("In Start Drag")
+    #     item = self.currentItem()
+    #     itemText = self.currentItem().text()
+    #     # itemData = QtCore.QByteArray()
+    #     # dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
+    #     print(itemText)
+    #     mimeData = QtCore.QMimeData()
+    #     mimeData.setText(itemText)
+
+
+    #     drag = QDrag(self)
+    #     drag.setMimeData(mimeData) 
+    #     drag.exec_(Qt.MoveAction)   
+    #     # super().startDrag(event)    
 
 
     def get_all_items(self):
@@ -91,8 +116,9 @@ class MyListWidget(QListWidget):
             
     
     def remove_item(self):
-        row = self.currentRow()
-        self.takeItem(row)
+        if self.hasFocus():
+            row = self.currentRow()
+            self.takeItem(row)
 
     def remove_all_items(self):
         self.clear()
