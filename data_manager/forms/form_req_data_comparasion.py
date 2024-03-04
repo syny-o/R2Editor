@@ -4,8 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QTextCharFormat, QColor, QTextCursor
 import difflib
 
-from pyparsing import col
-
 from ui.form_general_ui import Ui_Form
 
 from data_manager.nodes.requirement_module import RequirementModule
