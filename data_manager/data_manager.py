@@ -252,7 +252,11 @@ class DataManager(QWidget, Ui_Form):
                     break
                 self.set_project_saved(False)
                 if message_or_data:
-                    data_4_form_comparasion.update( { module.path : message_or_data } )  # {<module_path> : (dict_of_original_req_data, dict_of_new_req_data)}
+                    try:
+                        data_4_form_comparasion.update( { module.path : message_or_data } )  # {<module_path> : (dict_of_original_req_data, dict_of_new_req_data)}
+                    except Exception as my_exception:
+                        dialog_message(self, str(my_exception))
+                    
 
         
         self._module_locker.unlock_all_modules()
