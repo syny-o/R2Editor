@@ -1,0 +1,10 @@
+{
+  "python.analysis.typeCheckingMode": "off",
+  "python.analysis.autoImportCompletions": true,
+  "workbench.colorCustomizations": {
+    //   "activityBar.background": "#374485",
+    "statusBar.background": "#CC3333"
+    //   "titleBar.activeBackground": "#374485",
+  }
+  // "workbench.colorTheme": "Default Dark+"
+}

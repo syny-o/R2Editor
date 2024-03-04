@@ -1,87 +1,104 @@
-import sys, os, stat, re
+import os, re
+import stat
+import sys
+import functools
 from pathlib import Path
-from PyQt5.QtWidgets import QSizeGrip
-from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QTimer, QEvent
-from config.font import font
+from importlib import reload
+import qtawesome as qta
+import pywinstyles
 
-from ui.main_ui import Ui_MainWindow
+from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QSettings, Qt, QTimer, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QColor, QFontDatabase, QIcon, QKeySequence
+from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QMessageBox, QShortcut, QSplitter, QTreeWidgetItem, QVBoxLayout, QLabel, QFrame, QSystemTrayIcon, QMenu
 
-from dialogs.dialog_message import dialog_message
-
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QMessageBox, QTabWidget, \
-     QAction, QFileDialog, QSplitter, QToolTip, QMenu, QShortcut, QPushButton
-
-from PyQt5.QtCore import Qt, QSize, QFile, QTextStream, pyqtSignal, pyqtSlot, QSettings, QPoint, QRect
-from PyQt5.QtGui import QTextCursor, QKeySequence, QIcon, QFontDatabase, QPalette, QColor
-
-from text_editor.text_editor import TextEdit
-from text_editor import text_management
-from file_browser.tree_file_browser import FileSystemView
-from tabs import Tabs
-from data_manager.data_manager import DataManager
-from dashboard.dashboard import Dashboard
-
-from dialogs.window_project_config import ProjectConfig
-from dialogs.window_settings import AppSettings
-from dialogs.form_find_replace import FindAndReplace
-# from dialogs.dialog_recent_projects import RecentProjects
-
-from components.pyqt_find_text_widget.findTextWidget import FindTextWidget
+from app_settings import AppSettings
+from components.notification_widget import NotificationWidget
 from components.pyqt_find_text_widget.findReplaceTextWidget import FindReplaceTextWidget
 from components.template_test_case import TemplateTestCase
-from components.notification_widget import NotificationWidget
+from config.font import font
+from dashboard.dashboard import Dashboard
+from data_manager import project_manager
+from data_manager.data_manager import DataManager
+from dialogs.dialog_message import dialog_message
+from file_browser.tree_file_browser import FileSystemView
+from tabs import Tabs
+from text_editor import text_management
+from text_editor.text_editor import TextEdit
+from ui.main_ui import Ui_MainWindow
+from config import constants
+import config.app_styles
+from components.syntax_highlighter import python_highlighter, rapit_two_highlighter
+from config.icon_manager import IconManager
+from components.widgets.widgets_pointing_hand import TreeWidgetPointingHand
+from components.smooth_scrolling import SmoothScrolling
 
-import pywinstyles
-from data_manager.requirement_nodes import RequirementFileNode
 
 
-# pyinstaller -w --icon=R2Editor.ico main.py
+_FILE_FILTER = 'RapitTwo Editor Project (*.json)'
+
 # pyinstaller -w --icon=R2Editor.ico --name=R2Editor main.py
+
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 
     open_project = pyqtSignal(str)
     save_project = pyqtSignal(str)
+    script_requirement_reference_changed = pyqtSignal(set, str)
 
     def __init__(self):
         QMainWindow.__init__(self)
         self.setupUi(self)
+        self.ICON_MANAGER = IconManager()
+        
+
+        self.ui_btn_home.setIcon(IconManager().ICON_DASHBOARD)
+        self.ui_btn_data_manager.setIcon(IconManager().ICON_DATA_MANAGER)
+        self.ui_btn_text_editor.setIcon(IconManager().ICON_CODE_EDITOR)
+        self.btn_app_settings.setIcon(IconManager().ICON_SETTINGS)
+        self.btn_app_exit.setIcon(IconManager().ICON_APP_EXIT)
+        self.btn_project_open.setIcon(IconManager().ICON_PROJECT_OPEN)
+        self.btn_project_new.setIcon(IconManager().ICON_PROJECT_NEW)
+        self.btn_project_save.setIcon(IconManager().ICON_PROJECT_SAVE)
+        self.btn_project_save_as.setIcon(IconManager().ICON_PROJECT_SAVE_AS)
+        self.btn_toggle_menu.setIcon(IconManager().ICON_MENU)
+
+        self.btn_script_new.setIcon(IconManager().ICON_NEW_SCRIPT)
+        self.btn_script_open.setIcon(IconManager().ICON_OPEN_SCRIPT)
+        self.btn_script_save.setIcon(IconManager().ICON_SAVE_SCRIPT)
+        self.btn_script_save_as.setIcon(IconManager().ICON_SAVE_SCRIPT_AS)
+
+        self.btn_insert_chapter.setIcon(IconManager().ICON_INSERT_CHAPTER)
+        self.btn_insert_testcase.setIcon(IconManager().ICON_INSERT_TESTCASE)
+        self.btn_insert_command.setIcon(IconManager().ICON_INSERT_COMMAND)
+        self.btn_comment_uncomment.setIcon(IconManager().ICON_COMMENT_UNCOMMENT)        
+        self.btn_format_code.setIcon(IconManager().ICON_FORMAT_CODE)
+
+        self.btn_zoom_in.setIcon(IconManager().ICON_ZOOM_IN)
+        self.btn_zoom_out.setIcon(IconManager().ICON_ZOOM_OUT)
+        self.btn_zoom_default.setIcon(IconManager().ICON_ZOOM_RESET)
+
+
+        # self.timer = QTimer()
+        # self.timer.start(1000)
+        # self.timer.timeout.connect(lambda: self.change_theme(self.app_settings.theme))
+
+        self.timer_4_updating_outline = QTimer()
+        self.timer_4_updating_outline.start(500)
+        self.timer_4_updating_outline.timeout.connect(self.update_outline)
 
         self.resize(1920, 1080)
 
         self.setWindowIcon(QIcon('R2Editor.ico'))
-        self.setWindowTitle("R2Editor")
-
-        self.splitter.setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:horizontal:hover {background-color:rgb(58,89,245);}")
-        
-        # self.setWindowFlags(Qt.FramelessWindowHint)
-        # self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setWindowTitle("Editor")
         self.frame_top.setVisible(False)
-
-        self.palette = QPalette()
-        self.palette.setColor(QPalette.Window, QColor(58,89,245))
-        self.palette.setColor(QPalette.Text, QColor(200, 200, 200))
-        self.palette.setColor(QPalette.WindowText, QColor(200, 200, 200))
-        self.setPalette(self.palette)
-        
-        # QSizeGrip(self.frame_size_grip)
-
-        ## HIDE NOT-WORKING UI COMPONENTS
-        # self.btn_project_recent.setVisible(False)
-        # self.btn_undo.setVisible(False)
-        # self.btn_redo.setVisible(False) 
-        # self.frame_11.setVisible(False)       
-        
-        ## CONNECT BUTTONS
-        
+          
+        ## CONNECT BUTTONS        
         self.btn_app_exit.clicked.connect(self.close)
 
         self.btn_project_open.clicked.connect(self.project_open)
         self.btn_project_new.clicked.connect(self.project_new)
         self.btn_project_save.clicked.connect(self.project_save)
         self.btn_project_save_as.clicked.connect(self.project_save_as)
-        # self.btn_project_recent.clicked.connect(self.show_recent_projects)
-
 
         self.btn_script_new.clicked.connect(self.file_new)
         self.btn_script_new.setShortcut('Ctrl+n')
@@ -91,102 +108,52 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_script_open.clicked.connect(self.file_open_from_dialog)
         self.btn_insert_chapter.clicked.connect(self.insert_chapter)
         self.btn_insert_chapter.setShortcut('Ctrl+Shift+a')
-        self.btn_insert_chapter.setToolTip('Ctrl + Shift + "A"')
+        self.btn_insert_chapter.setToolTip('Chapter (Ctrl+Shift+A)')
         self.btn_insert_testcase.clicked.connect(self.insert_testcase)
         self.btn_insert_testcase.setShortcut('Ctrl+Shift+t')
-        self.btn_insert_testcase.setToolTip('Ctrl + Shift + "T"')
+        self.btn_insert_testcase.setToolTip('Testcase (Ctrl+Shift+T)')
         self.btn_insert_command.clicked.connect(self.insert_command)
         self.btn_insert_command.setShortcut('Ctrl+Shift+c')
-        self.btn_insert_command.setToolTip('Ctrl + Shift + "C"')
+        self.btn_insert_command.setToolTip('Command (Ctrl+Shift+C)')
         self.btn_comment_uncomment.clicked.connect(self.comment_uncomment)
         self.btn_comment_uncomment.setShortcut('Ctrl+/')
-        self.btn_comment_uncomment.setToolTip('Ctrl + "/"')
+        self.btn_comment_uncomment.setToolTip('(Un)Comment (Ctrl+"/")')
         self.btn_format_code.clicked.connect(self.format_code)
         self.btn_format_code.setShortcut(('Ctrl+Shift+f'))
+        self.btn_format_code.setToolTip(('Format Code (Ctrl+Shift+F)'))
         self.btn_lock_unlock.clicked.connect(self.file_lock_unlock)
         # self.btn_find_replace.clicked.connect(lambda is_pressed: self.find_replace(is_pressed, only_find=False))
         # self.btn_find_replace.setShortcut('Ctrl+h')
         # self.btn_find_replace.setToolTip('Ctrl + "H"')
-        self.btn_undo.clicked.connect(self.perform_undo)
-        self.btn_redo.clicked.connect(self.perform_redo)
+        # self.btn_undo.clicked.connect(self.perform_undo)
+        # self.btn_redo.clicked.connect(self.perform_redo)
         self.btn_zoom_in.clicked.connect(self.font_increase)
         self.btn_zoom_in.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Plus))
+        self.btn_zoom_in.setToolTip("Zoom In (Ctrl+Plus)")
         self.btn_zoom_out.clicked.connect(self.font_decrease)
         self.btn_zoom_out.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Minus))        
+        self.btn_zoom_out.setToolTip("Zoom Out (Ctrl+Minus)")
         self.btn_zoom_default.clicked.connect(self.font_reset)
-        self.btn_zoom_default.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_0))    
+        self.btn_zoom_default.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_0))
+        self.btn_zoom_default.setToolTip("Reset Zoom (Ctrl+0)")
 
         QShortcut( 'Ctrl+f', self ).activated.connect((lambda: self.find_replace(only_find=True)))            
-        QShortcut( 'Ctrl+h', self ).activated.connect((lambda: self.find_replace(only_find=False)))   
-               
+        QShortcut( 'Ctrl+h', self ).activated.connect((lambda: self.find_replace(only_find=False)))              
 
-        self.frame_file_manager.setVisible(False)
+        self.uiFrameFileManager.setVisible(False)
         self.frame_2.setVisible(False)
         self.actual_find_box = None
 
 
-
-
-
-        
-
-        # def maximize_restore():
-        #     if self.isMaximized():
-        #         self.showNormal()
-        #         self.btn_maximize_restore.setIcon(QIcon(u"ui/icons/16x16/cil-window-maximize.png"))
-        #     else:
-        #         self.showMaximized()
-        #         self.btn_maximize_restore.setIcon(QIcon(u"ui/icons/16x16/cil-window-restore.png"))
-
-        # def doubleClickMaximizeRestore(event):
-        #     # IF DOUBLE CLICK CHANGE STATUS
-        #     if event.type() == QEvent.MouseButtonDblClick:
-        #         QTimer.singleShot(50, maximize_restore)                
-
-        # def moveWindow(e):
-        #     # Detect if the window is  normal size
-        #     # ###############################################
-        #     if self.isMaximized() == False: #Not maximized
-        #         # Move window only when window is normal size
-        #         # ###############################################
-        #         #if left mouse button is clicked (Only accept left mouse button clicks)
-        #         if e.buttons() == Qt.LeftButton:
-        #             #Move window
-        #             self.move(self.pos() + e.globalPos() - self.clickPosition)
-        #             self.clickPosition = e.globalPos()
-        #             e.accept()
-
-        # #######################################################################
-        # # Add click event/Mouse move event/drag event to the top header to move the window
-        # #######################################################################
-        # self.frame_top_btns.mouseMoveEvent = moveWindow
-        # self.frame_top_btns.mouseDoubleClickEvent = doubleClickMaximizeRestore
-        # #######################################################################                
-
         ## TOGGLE/BURGUER MENU
         ########################################################################
-        self.btn_toggle_menu.clicked.connect(lambda: self.toggle_menu(self.frame_left_menu, 70, 210))
+        self.btn_toggle_menu.clicked.connect(lambda: self.toggle_menu(self.uiFrameLeftMenu, 70, 210))
         # self.btn_show_hide_file_manager.clicked.connect(lambda: self.toggleMenu(self.frame_file_manager, 0, 350))
         self.btn_close.clicked.connect(self.close)
-        # self.btn_maximize_restore.clicked.connect(maximize_restore)
-        # self.btn_minimize.clicked.connect(lambda: self.showMinimized())
-
-
-
-
-
-
-
 
         self.VERSION = '2021-03-04'
         # FILTER FOR OPENING/SAVING SCRIPTS AND PROJECTS
         self.filter_script = 'RapitTwo Script (*.par)'
-        self.filter_project = 'RapitTwo Editor Project (*.json)'
-
-        ################################################################################################################
-        # APP SETTINGS CONFIGURATION
-        ################################################################################################################
-        self.app_settings = AppSettings(self)        
 
         ################################################################################################################
         # POINTER TO ACTUAL TEXTEDIT, ACTUAL TABS
@@ -194,27 +161,55 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._actual_text_edit = None
         self.actual_tabs = None
 
-        self.opened_project_path = None
+        ################################################################################################################
+        # APP SETTINGS CONFIGURATION
+        ################################################################################################################
+        self.app_settings = AppSettings(self)   
+        self.change_theme(self.app_settings.theme)     
 
         ################################################################################################################
         # TREE FILE BROWSER CONFIGURATION
         ################################################################################################################
-        self.tree_file_browser = FileSystemView(self)
-        self.verticalLayout_7.addWidget(self.tree_file_browser)
+        uiLeftPanelSplitter = QSplitter()
+        uiLeftPanelSplitter.setOrientation(Qt.Vertical)
+        self.uiLayoutFileManager.addWidget(uiLeftPanelSplitter)
+        self.tree_file_browser = FileSystemView(self, project_manager)
+        # self.uiLayoutFileManager.addWidget(self.tree_file_browser)
+        uiLeftPanelSplitter.addWidget(self.tree_file_browser)
 
+        ################################################################################################################
+        # TREE OUTLINE CONFIGURATION
+        ################################################################################################################
+        
+        uiLayoutOutline = QVBoxLayout()
+        uiLayoutOutline.setContentsMargins(0, 0, 0, 0)
+        uiLayoutOutline.addWidget(QLabel("Outline"), alignment=Qt.AlignCenter)
+        self.uiTreeOutline = TreeWidgetPointingHand()
+        uiLayoutOutline.addWidget(self.uiTreeOutline)
+        self.uiTreeOutline.setHeaderHidden(True)
+        self.uiTreeOutline.itemClicked.connect(self.click_on_outline)
+        uiFrameOutline = QFrame()
+        uiFrameOutline.setObjectName("objNameFrameOutline")
+        uiFrameOutline.setLayout(uiLayoutOutline)
+        # self.uiLayoutFileManager.addWidget(QPushButton("Outline"))
+        # self.uiLayoutFileManager.addWidget(self.uiTreeOutline)
+        uiLeftPanelSplitter.addWidget(uiFrameOutline)
 
         ################################################################################################################
         # DATA MANAGER CONFIGURATION
         ################################################################################################################
-        self.data_manager = DataManager(self)
-        self.open_project.connect(self.data_manager.open_project)
-        self.save_project.connect(self.data_manager.save_project)
-
+        self.data_manager = DataManager(self, project_manager)
+        self.script_requirement_reference_changed.connect(self.data_manager.script_requirement_reference_changed)
 
         ################################################################################################################
         # DASHBOARD CONFIGURATION
         ################################################################################################################
-        self.dashboard = Dashboard(self)
+        self.dashboard = Dashboard(self, project_manager)
+
+        ################################################################################################################
+        # CONNECT PROJECT MANAGER WITH PROJECT LISTENERS
+        ################################################################################################################        
+        project_manager.set_listeners(self, self.dashboard, self.data_manager, self.tree_file_browser)
 
         ################################################################################################################
         # TABS CONFIGURATION
@@ -235,12 +230,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tabs_splitter.addWidget(self.left_tabs)
         self.tabs_splitter.addWidget(self.right_tabs)
         self.tabs_splitter.setStretchFactor(2, 1)
-        self.tabs_splitter.setStyleSheet('background-color: rgb(33, 37, 43); border:None;')
-
 
         ################################################################################################################
         # STACKEDWIDGET CONFIGURATION
-        # ########################################################################
+        ################################################################################################################
         
         self.stackedWidget.addWidget(self.tabs_splitter)
         self.stackedWidget.addWidget(self.data_manager)
@@ -248,21 +241,180 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.stackedWidget.addWidget(self.dashboard)
         self.stackedWidget.setCurrentWidget(self.dashboard)
 
-
         self.ui_btn_text_editor.clicked.connect(lambda: self.manage_right_menu(self.tabs_splitter, self.ui_btn_text_editor))
         self.ui_btn_data_manager.clicked.connect(lambda: self.manage_right_menu(self.data_manager, self.ui_btn_data_manager))
         self.ui_btn_home.clicked.connect(lambda: self.manage_right_menu(self.dashboard, self.ui_btn_home))
         self.btn_app_settings.clicked.connect(lambda: self.manage_right_menu(self.app_settings, self.btn_app_settings))
 
-    #     QShortcut( 'Esc', self.tabs_splitter).activated.connect(self.press_esc)
-
-
-    # def press_esc(self):
-    #     # Close FindNReplace Widget if it is Visible
-    #     self.find_replace(False)
-    #     self.btn_find_replace.setChecked(False)
-
+        ################################################################################################################
+        # NOTIFICATION WIDGET CONFIGURATION
+        ################################################################################################################
         self.notification_widget = NotificationWidget(self)
+
+        self.last_text_4_outline = ""
+        self.update_actual_information()
+
+    # @pyqtSlot(list)
+    # def get_outline(self, sections: list[str, int]):
+    #     # print(sections)
+    #     self.uiTreeOutline.clear()
+    #     for section in sections:
+    #         item = QTreeWidgetItem(self.uiTreeOutline)
+    #         item.setData(0, Qt.DisplayRole, section[0])
+    #         item.setData(0, Qt.UserRole, section[1])
+
+    #     current_position = self.actual_text_edit.textCursor().position()
+    #     for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard):
+    #         if item.data(0, Qt.UserRole) > current_position:
+    #             item_above = self.uiTreeOutline.itemAbove(item)
+    #             self.uiTreeOutline.setCurrentItem(item_above if item_above else item)
+    #             break
+    #         else:
+    #             item_below = self.uiTreeOutline.itemBelow(item)
+    #             self.uiTreeOutline.setCurrentItem(item_below if item_below else item)
+    
+    
+    # def update_outline(self):
+    #     self.uiTreeOutline.clear()
+    #     if not self.actual_text_edit:
+    #         return
+        
+    #     # EXTRACT CHAPTERS AND TESTCASES FROM TEXT
+    #     text = self.actual_text_edit.toPlainText()
+    #     # results = re.finditer(r'(?:CHAPTER|TESTCASE)\s*"(.+)"', text)
+    #     results = re.finditer(r".*(?:END CHAPTER|CHAPTER|TESTCASE).*", text)
+    #     if results:
+    #         results = list(results)                        
+    #         sections = [(result.group().strip(), result.start()) for result in results if not result.group().strip().startswith("'")]
+
+    #     for section in sections:
+    #         item = QTreeWidgetItem(self.uiTreeOutline)
+    #         item.setData(0, Qt.DisplayRole, section[0])
+    #         item.setData(0, Qt.UserRole, section[1])
+
+    #     current_position = self.actual_text_edit.textCursor().position()
+    #     for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard):
+    #         if item.data(0, Qt.UserRole) > current_position:
+    #             item_above = self.uiTreeOutline.itemAbove(item)
+    #             self.uiTreeOutline.setCurrentItem(item_above if item_above else item)
+    #             break
+    #         else:
+    #             item_below = self.uiTreeOutline.itemBelow(item)
+    #             self.uiTreeOutline.setCurrentItem(item_below if item_below else item)
+
+
+    def line_number_from_position(self, position):
+        return self.actual_text_edit.toPlainText()[:position].count("\n") + 1
+
+
+    def update_outline(self):
+
+        if not self.actual_text_edit:
+            self.uiTreeOutline.clear()
+            self.last_text_4_outline = ""
+            return
+        
+        if self.actual_text_edit.file_path and Path(self.actual_text_edit.file_path).suffix.lower() != '.par':
+            self.uiTreeOutline.clear()
+            self.last_text_4_outline = ""
+            return
+        
+        text = self.actual_text_edit.toPlainText()
+        
+        if text != self.last_text_4_outline:
+            self.last_text_4_outline = text
+            self.uiTreeOutline.clear()
+            chapters_testcases = self.extract_chapters_testcases_from_text(text)
+            parent = self.uiTreeOutline
+            for section in chapters_testcases:
+                text = section[0]
+                if re.search(r'^\s*CHAPTER\s+".*"', text, re.IGNORECASE):
+                    parent = QTreeWidgetItem(self.uiTreeOutline)
+                    parent.setData(0, Qt.DisplayRole, section[0].split('"')[1])
+                    parent.setData(0, Qt.UserRole, section[1])
+                    parent.setData(0, Qt.DecorationRole, qta.icon('fa5s.book-open', color='#E5A031', scale_factor=1.5))
+                    continue
+                elif re.search(r'^\s*END CHAPTER\s+', text, re.IGNORECASE):
+                    parent = self.uiTreeOutline
+                    continue
+
+                elif re.search(r'^\s*TESTCASE\s+".*".*EXPECTEDRESULT', text, re.IGNORECASE):                    
+                    item = QTreeWidgetItem(parent)
+                    item.setData(0, Qt.DisplayRole, section[0].split('"')[1])
+                    item.setData(0, Qt.UserRole, section[1])
+                    item.setData(0, Qt.DecorationRole, qta.icon('ph.test-tube-fill', color='#9B59B6', scale_factor=1.5))
+
+            self.update_selected_item_in_outline()
+            self.uiTreeOutline.expandAll()
+
+
+    def update_selected_item_in_outline_by_scrollbar(self, scrollbar_value):
+        
+        if not self.actual_text_edit: return
+
+        current_position = scrollbar_value + int(self.number_of_visible_lines()/2)
+        temp_item = self.uiTreeOutline.topLevelItem(0)
+        for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard | Qt.MatchRecursive):
+            if self.line_number_from_position(item.data(0, Qt.UserRole)) > current_position:
+                self.uiTreeOutline.setCurrentItem(temp_item)
+                break
+            
+            temp_item = item
+            self.uiTreeOutline.setCurrentItem(item)     
+
+
+    def number_of_visible_lines(self):
+        return self.actual_text_edit.height() / self.actual_text_edit.fontMetrics().lineSpacing()
+
+        # doc = popup.document()
+        # margin = doc.documentMargin()
+        # num_lines = (doc.size().height() - 2*margin)/popup.fontMetrics().height()               
+
+
+
+    def update_selected_item_in_outline(self):
+        if not self.actual_text_edit: return
+
+        current_position = self.actual_text_edit.textCursor().position()
+        temp_item = self.uiTreeOutline.topLevelItem(0)
+        for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard | Qt.MatchRecursive):
+            if item.data(0, Qt.UserRole) > current_position:
+                self.uiTreeOutline.setCurrentItem(temp_item)
+                break
+            
+            temp_item = item
+            self.uiTreeOutline.setCurrentItem(item)
+    
+
+    @functools.cache
+    def extract_chapters_testcases_from_text(self, text):
+        results = re.finditer(r".*(?:END CHAPTER|CHAPTER|TESTCASE).*", text, re.IGNORECASE)
+        if results:
+            sections = self.extract_sections_from_matches(results)
+            return sections
+        return []
+    
+
+    @functools.cache
+    def extract_sections_from_matches(self, matches: list):
+        return [(result.group().strip(), result.start()) for result in matches if not result.group().strip().startswith("'")]
+
+
+    def click_on_outline(self, item):
+        self.uiTreeOutline.expandItem(item) if not item.isExpanded() else self.uiTreeOutline.collapseItem(item)
+        cursor = self.actual_text_edit.textCursor()
+        line =self.line_number_from_position(item.data(0, Qt.UserRole))
+        self.smooth_scrolling = SmoothScrolling(self.actual_text_edit)
+        self.smooth_scrolling.move_2_line(line-1)
+        # cursor.setPosition(len(self.actual_text_edit.toPlainText())-1)
+        # self.actual_text_edit.setTextCursor(cursor)
+        cursor.setPosition(item.data(0, Qt.UserRole))
+        self.actual_text_edit.setTextCursor(cursor)
+        self.actual_text_edit.setFocus()
+
+
+
+
 
     @property
     def actual_text_edit(self):
@@ -285,8 +437,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.actual_text_edit.setFocus()
         return super().keyPressEvent(e)
 
-    def manage_right_menu(self, widget, button):
 
+
+    def manage_right_menu(self, widget, button):
         self.ui_btn_home.setChecked(False)
         self.ui_btn_text_editor.setChecked(False)
         self.ui_btn_data_manager.setChecked(False)
@@ -294,24 +447,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.stackedWidget.setCurrentWidget(widget)
         button.setChecked(True)
         if button is not self.ui_btn_text_editor:
-            self.frame_file_manager.setVisible(False)
+            self.uiFrameFileManager.setVisible(False)
             self.frame_2.setVisible(False)
         else:
-            self.frame_file_manager.setVisible(True)
+            self.uiFrameFileManager.setVisible(True)
             self.frame_2.setVisible(True)
+            if self.actual_text_edit:
+                self.actual_text_edit.setFocus()
 
-
-
-    #######################################################################
-    # Add mouse events to the window
-    #######################################################################
-    # def mousePressEvent(self, event):
-    #     # ###############################################
-    #     # Get the current position of the mouse
-    #     self.clickPosition = event.globalPos()
-    #     # For moving window
-    #######################################################################
-    #######################################################################
 
     def toggle_menu(self, toggled_frame, min_width, max_width):
         # GET ACTUAL WIDTH
@@ -326,41 +469,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.animation.setEasingCurve(QEasingCurve.InOutQuart)
         self.animation.start()
         if self.btn_toggle_menu.isChecked():
-            self.btn_toggle_menu.setStyleSheet("background-image: url(:/20x20/icons/20x20/cil-x.png);")
+            self.btn_toggle_menu.setIcon(IconManager().ICON_MENU_CLOSE)
         else:
-            self.btn_toggle_menu.setStyleSheet("background-image: url(:/20x20/icons/20x20/cil-menu.png);")
-
-
-    def update_actual_information(self):
-        self.update_title()
-        if self.actual_text_edit:
-            self.btn_lock_unlock.setChecked(self.actual_text_edit.is_read_only)
-        else:
-           self.btn_lock_unlock.setChecked(False) 
-
-
-    def update_title(self):
-        # SET WINDOW TITLE SAME AS ACTUAL FILE PATH
-        self.setWindowTitle(
-            '{0} - R2 Script Editor'.format(self.opened_project_path) if self.opened_project_path else 'Unsaved Project')
-        self.label_opened_project.setText(str(self.opened_project_path) if self.opened_project_path else 'No Project')
-
-        # SET STATUS BAR LABEL SAME AS ACTUAL FILE PATH
-        self.label_actual_script_path.setText(str(self.actual_text_edit.file_path) if self.actual_text_edit else '')
-
-        # UNDERLINE ACTUAL TAB WITH COLOR
-        if self.actual_tabs:
-            self.left_tabs.setStyleSheet('QTabBar::tab {border-bottom: 3px solid #31363b}')
-            self.right_tabs.setStyleSheet('QTabBar::tab {border-bottom: 3px solid #31363b}')
-            self.actual_tabs.setStyleSheet(' QTabBar::tab:selected {border-bottom: 3px solid rgb(0, 128, 255)}')
-   
-    
-    def show_notification(self, notification_text):
-        self.notification_widget.show_text(notification_text)
-
-
-
-
+            self.btn_toggle_menu.setIcon(IconManager().ICON_MENU)
 
 
 
@@ -385,8 +496,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.left_tabs.count() > 0:
             self.actual_tabs = self.left_tabs
             self.actual_text_edit = self.actual_tabs.widget(tab_index)
-            self.update_actual_information()
             self.actual_text_edit.setFocus()
+        self.update_actual_information()
 
 
 
@@ -433,8 +544,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.right_tabs.count() > 0:
             self.actual_tabs = self.right_tabs
             self.actual_text_edit = self.actual_tabs.widget(tab_index)
-            self.update_actual_information()
             self.actual_text_edit.setFocus()
+        self.update_actual_information()
 
 
     def right_tab_close_without_saving(self, tab_index):
@@ -510,7 +621,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def file_open_from_dialog(self):
-
         path, _ = QFileDialog.getOpenFileName(
             parent=self,
             caption='Open Script',
@@ -523,7 +633,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             try:
                 self.file_open_from_tree(Path(path))
-                self.update_title()
+                # self.update_title()
             except Exception as my_exception:
                 dialog_message(self, str(my_exception))        
 
@@ -538,11 +648,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if file_path not in opened_files:
                     with open(file_path, 'r') as file_to_open:
                         text = file_to_open.read()
-                        # file_to_open.close()
 
-                    # tab_name = file_path.split('/')[-1]
+                    if file_suffix.lower() == '.py':
+                        syntax_highlighter = python_highlighter.PythonHighlighter
+                    else:
+                        syntax_highlighter = rapit_two_highlighter.RapitTwoHighlighter
+
                     tab_name = file_path.name
-                    self.left_tabs.addTab(TextEdit(self, text, file_path), QIcon(u"ui/icons/16x16/cil-file.png"), tab_name)
+                    self.left_tabs.addTab(TextEdit(self, text, file_path, syntax_highlighter), QIcon(u"ui/icons/16x16/cil-file.png"), tab_name)
 
                 else:
                     opened_files[file_path][1].setCurrentWidget(opened_files[file_path][0])
@@ -555,9 +668,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     
     def find_reference_in_string(self, string):
-        PATTERN_REQ_REFERENCE = re.compile(r'(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*', re.IGNORECASE)
-        match_list = PATTERN_REQ_REFERENCE.findall(string)
-        # print(match_list)
+        match_list = constants.PATTERN_REQ_REFERENCE.findall(string)
         references = set()
         for match_string in match_list:
             matches = match_string.split(",")
@@ -577,52 +688,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         missing_references = references_original_text.difference(references_text_to_save)
         new_references = references_text_to_save.difference(references_original_text)
 
+        references = missing_references.union(new_references)
+
         # print("MISSING: ", missing_references)
         # print("NEW: ", new_references)
 
-        if self.data_manager._disk_project_path:
+        self.script_requirement_reference_changed.emit(references, str(Path(file_path)))
 
-            is_subfolder = self.data_manager._disk_project_path in file_path
-            root = self.data_manager.ROOT
-
-            if is_subfolder:
-                for root_row in range(root.rowCount()):
-                    current_file_node = root.child(root_row, 0)
-                    if isinstance(current_file_node, RequirementFileNode) and current_file_node.coverage_check:
-
-                        def browse_children(parent_node):
-                    
-                            for row in range(parent_node.rowCount()):
-                                req_item = parent_node.child(row)
-
-                                if req_item.text().lower() in new_references and req_item.is_covered is not None:
-                                    req_item.update_coverage(True)
-                                    req_item.file_references.add(file_path)
-                                    self.show_notification(f"Coverage Updated: {req_item.text()}")
-                            
-                                if req_item.text().lower() in missing_references and req_item.is_covered is not None:
-                                    if file_path in req_item.file_references:
-                                        req_item.file_references.remove(file_path)
-                                        if not req_item.file_references:
-                                            req_item.update_coverage(False)
-
-                                browse_children(req_item)
-
-
-                        browse_children(current_file_node)
-
-
-
-                
-                        self.data_manager.update_data_summary()
-                                
-
-
-
-
-
-        
-        
 
 
 
@@ -639,7 +711,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     text_to_save = self.actual_text_edit.toPlainText()
                     with open(self.actual_text_edit.file_path, 'w') as file_to_save:
                         file_to_save.write(text_to_save)
-                        file_to_save.close()
+                        # file_to_save.close()
 
                         self.update_coverage(self.actual_text_edit.toPlainText(), self.actual_text_edit.original_file_content, self.actual_text_edit.file_path)
 
@@ -674,14 +746,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 text_to_save = self.actual_text_edit.toPlainText()
                 with open(path, 'w') as file_to_save:
                     file_to_save.write(text_to_save)
-                    file_to_save.close()
+                    # file_to_save.close()
 
                     self.update_coverage(self.actual_text_edit.toPlainText(), self.actual_text_edit.original_file_content, path)
 
                     self.actual_text_edit.original_file_content = text_to_save
                     self.actual_text_edit.file_was_modified = False
                     self.set_actual_tab_icon(False)
-                    self.actual_text_edit.file_path = path
+                    self.actual_text_edit.file_path = Path(path)
                     current_tab_index = self.actual_tabs.indexOf(self.actual_text_edit)
                     self.actual_tabs.setTabText(current_tab_index, path.split('/')[-1])                    
 
@@ -697,8 +769,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         text = template.generate_tc_template()
         file_path = None
         tab_name = 'Untitled'
-        self.left_tabs.addTab(TextEdit(self, text, file_path), QIcon(u"ui/icons/16x16/cil-description.png"), tab_name)
+        self.left_tabs.addTab(TextEdit(self, "", file_path, rapit_two_highlighter.RapitTwoHighlighter), QIcon(u"ui/icons/16x16/cil-description.png"), tab_name)
         self.actual_text_edit.setFocus()
+        tc = self.actual_text_edit.textCursor()
+        tc.insertText(text)
+        self.actual_text_edit.selectAll()
 
 
     def file_lock_unlock(self):
@@ -707,9 +782,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if self.actual_text_edit.is_read_only:
                     os.chmod(self.actual_text_edit.file_path, stat.S_IWRITE)
                     self.actual_text_edit.is_read_only = False
+                    self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_UNLOCKED)
                 else: 
                     os.chmod(self.actual_text_edit.file_path, stat.S_IREAD)
                     self.actual_text_edit.is_read_only = True
+                    self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_LOCKED)
             except TypeError as e:
                 dialog_message(self, f"File is not saved! Save the file first. {str(e)}.")
                 self.actual_text_edit.setFocus()
@@ -719,62 +796,139 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 # FILE MANAGEMENT METHODS:  END
 ########################################################################################################################
 
+
+
+########################################################################################################################
+# UPDATES:  START
+########################################################################################################################
+    def receive_parameters_from_project_manager(self, parameters: dict):
+        self.update_project_title(parameters)
+
+
+    def update_project_title(self, project_params:dict):
+        json_project_path = project_params.get("json_project_path")
+        is_project_saved = project_params.get("is_project_saved")
+        str_modified_status = "" if is_project_saved else "[*Modified]"
+        str_project_path = str(json_project_path) if json_project_path else "No Project Loaded"  
+        
+        # self.setWindowTitle(f"{str_project_path} {str_modified_status} - R2 Script Editor")
+
+        self.label_opened_project.setText(f"{str_project_path} {str_modified_status}") 
+        if is_project_saved:
+            self.label_opened_project.setStyleSheet("color: rgb(200, 200, 200)")
+        else:
+            self.label_opened_project.setStyleSheet("color: rgb(250, 50, 50);")
+        
+
+    def update_actual_information(self):
+        if self.left_tabs.count() == 0 and self.right_tabs.count() == 0:
+            self.actual_text_edit = None
+
+        self._update_btn_lock_unlock()
+        self._update_tabs_color()
+        self._update_script_label()
+        # self.update_outline()
+        self.update_selected_item_in_outline()
+
+
+    def _update_btn_lock_unlock(self):
+        if self.actual_text_edit is None:
+            self.btn_lock_unlock.setVisible(False)
+            return
+        self.btn_lock_unlock.setVisible(True)
+        if self.actual_text_edit.is_read_only:
+            self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_LOCKED)
+        else:
+            self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_UNLOCKED)
+
+
+
+    def _update_tabs_color(self):
+        # UNDERLINE ACTUAL TAB WITH COLOR
+        if self.actual_tabs:
+            self.left_tabs.setStyleSheet('QTabBar::tab {border-bottom: 3px solid #31363b}')
+            self.right_tabs.setStyleSheet('QTabBar::tab {border-bottom: 3px solid #31363b}')
+            self.actual_tabs.setStyleSheet('QTabBar::tab:selected {border-bottom: 3px solid rgb(0, 128, 255)}')        
+
+
+    def _update_script_label(self):
+        self.setWindowTitle(f"Editor - {self.actual_text_edit.file_path}" if self.actual_text_edit else "Editor")
+   
+    
+    def show_notification(self, notification_text):
+        self.notification_widget.show_text(notification_text)
+
+
+
+########################################################################################################################
+# UPDATES:  END
+########################################################################################################################
+
 ########################################################################################################################
 # PROJECT MANAGEMENT METHODS:  START
 ########################################################################################################################
+
+
     def project_new(self):
-        self.opened_project_path = None
-        self.window = ProjectConfig(self, is_new_project=True)
-        self.window.show()
+        # self.window = ProjectConfig(self, is_new_project=True)
+        # self.window.show()
+        if not project_manager.is_project_saved():
+            proceed = QMessageBox.question(self,
+                            "R2ScriptEditor",
+                            "Current project is not saved.\n\nDo you want to proceed (all changes will be lost)?",
+                            QMessageBox.Yes | QMessageBox.No)
+            if proceed == QMessageBox.No:
+                return        
+        project_manager.new_project()
 
     def project_save(self):        
-        path = self.opened_project_path
-        if not path:
+        success, message = project_manager.save_project()
+        if success:
+            self.show_notification(message)
+        elif message == "NO JSON PATH":
             self.project_save_as()
         else:
-            try:
-                # REQUEST FOR DATA_CONTROLLER
-                self.save_project.emit(path)
-            except Exception as exception_to_show:
-                dialog_message(self, str(exception_to_show))
+            dialog_message(message)
+
 
     def project_save_as(self):        
         path, _ = QFileDialog.getSaveFileName(
             parent=self,
             caption='Save Project',
             directory='.//Projects',
-            filter=self.filter_project
+            filter=_FILE_FILTER
         )
         if not path:
             return
+        success, message = project_manager.save_project_as(path)
+        if success:
+            self.show_notification(message)
         else:
-            try:
-                # REQUEST FOR DATA_CONTROLLER
-                self.save_project.emit(path)
-                self.opened_project_path = path
-                self.update_title()
-            except Exception as exception_to_show:
-                dialog_message(self, str(exception_to_show))
+            dialog_message(message)            
 
 
     def project_open(self):
+        if not project_manager.is_project_saved():
+            proceed = QMessageBox.question(self,
+                            "R2ScriptEditor",
+                            "Current project is not saved.\n\nDo you want to proceed (all changes will be lost)?",
+                            QMessageBox.Yes | QMessageBox.No)
+            if proceed == QMessageBox.No:
+                return
+
         path, _ = QFileDialog.getOpenFileName(
             parent=self,
             caption='Open Project',
             directory='.//Projects',
-            filter=self.filter_project
+            filter=_FILE_FILTER
         )
 
         if not path:
             return
         else:
-            try:
-                # REQUEST FOR DATA_CONTROLLER
-                self.open_project.emit(path)
-                # self.opened_project_path = path
-                # self.update_title()
-            except Exception as my_exception:
-                dialog_message(self, str(my_exception))
+            success, error_message = project_manager.open_project(path)
+            if not success:
+                dialog_message(self, f"Failed to Open Project!\n{error_message}")
 
 
 
@@ -856,16 +1010,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 print(str(exc))
                 
 
-    def perform_undo(self):
-        if self.actual_text_edit:
-            self.actual_text_edit.undo()
-            self.actual_text_edit.setFocus()
-
-    def perform_redo(self):
-        if self.actual_text_edit:
-            self.actual_text_edit.redo()
-            self.actual_text_edit.setFocus()
-
     def font_increase(self):
         if self.actual_text_edit: self.actual_text_edit.font_increase()
 
@@ -884,11 +1028,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     # SAVE WINDOW SIZE, POSITION BEFORE CLOSE APP AND CHECK IF ALL SCRIPTS ARE SAVED
     def closeEvent(self, event):
-        # self.settings.setValue('size', self.size())
-        # self.settings.setValue('position', self.pos())
-        # self.settings.setValue('last_opened_project', self.opened_project_path)
+        # _show_tray_message("R2ScriptEditor", "R2ScriptEditor is running in background.")
 
-        self.app_settings.save_settings()
+        self.app_settings.save_settings_2_disk()
         opened_files = self.get_all_opened_files()
         for path, val in opened_files.items():
             text_edit = val[0]
@@ -902,10 +1044,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     event.ignore()
 
-        if not self.data_manager.is_project_saved:
+        if not project_manager.is_project_saved():
             close = QMessageBox.question(self,
                                         "R2ScriptEditor",
-                                        "Current project is not saved.\n\nDo you want to discard changes?",
+                                        "Current project is not saved.\n\nDo you want to exit (all changes will be lost)?",
                                         QMessageBox.Yes | QMessageBox.No)
             if close == QMessageBox.Yes:
                 event.accept()
@@ -914,25 +1056,84 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 
+    def change_theme(self, theme):
+        reload(config.app_styles)
+        styles = config.app_styles.switch_theme(theme.upper())
+        app.setStyleSheet(styles)
+
+        
+
+
+
+
+
+
+
+########################################################################################################################
+# APP CONFIG:
+########################################################################################################################
+
+
+
+# def _manage_events_before_close():
+#     window.app_settings.save_settings_2_disk()
+#     opened_files = window.get_all_opened_files()
+#     for path, val in opened_files.items():
+#         text_edit = val[0]
+#         if text_edit.file_was_modified:
+#             close = QMessageBox.question(window,
+#                                        "R2ScriptEditor",
+#                                        "Some of opened files have been modified.\n\nDo you want to discard changes?",
+#                                        QMessageBox.Yes | QMessageBox.No)
+#             if close != QMessageBox.Yes:
+#                 return False
+
+
+#     if not project_manager.is_project_saved():
+#         close = QMessageBox.question(window,
+#                                     "R2ScriptEditor",
+#                                     "Current project is not saved.\n\nDo you want to exit (all changes will be lost)?",
+#                                     QMessageBox.Yes | QMessageBox.No)
+#         if close != QMessageBox.Yes:
+#             return False
+        
+#     return True
+
+
+
+
+
+# def _show_tray_message(title, message):
+#     system_tray.showMessage(title, message, qta.icon('mdi.information-outline', color='#4863ff', scale_factor=1), 2000)
+
+
+
+# def _show_window(reason):
+#     if reason != QSystemTrayIcon.Context:
+#         pywinstyles.apply_style(window,"dark")
+#         window.show()
+
+
+# def _exit_app():
+#     success = _manage_events_before_close()
+#     if success:
+#         app.quit()
+
 
 
 if __name__ == "__main__":
 
     app = QApplication([])
     
-
-    
-    
-
     # app.setFont(font)
-
-    QFontDatabase.addApplicationFont('ui/fonts/segoeui.ttf')
-    QFontDatabase.addApplicationFont('ui/fonts/segoeuib.ttf')
-    file = QFile("ui/dark.qss")
-    file.open(QFile.ReadOnly | QFile.Text)
-    stream = QTextStream(file)
-    app.setStyleSheet(stream.readAll())
+    # QFontDatabase.addApplicationFont('ui/fonts/segoeui.ttf')p
+    # QFontDatabase.addApplicationFont('ui/fonts/segoeuib.ttf')
+    # file = QFile("ui/dark.qss")
+    # file.open(QFile.ReadOnly | QFile.Text)
+    # stream = QTextStream(file)
+    # app.setStyleSheet(stream.readAll())
     app.setStyle('Fusion')
+    # app.setStyleSheet(config.app_styles.STYLES)
     
 
     
@@ -943,5 +1144,42 @@ if __name__ == "__main__":
 
     window.show()
 
+
+
+
+
+
+    # app.setQuitOnLastWindowClosed(False)
+
+    # system_tray = QSystemTrayIcon(QIcon('R2Editor.ico'), app)
+    # system_tray.setToolTip('R2ScriptEditor')
+    # system_tray.show()
+    # system_tray.activated.connect(_show_window)
+
+    
+    # menu = QMenu()
+    # action_show_app = menu.addAction('Show')
+    # action_exit_app = menu.addAction('Exit')
+    # action_show_app.triggered.connect(_show_window)
+    # action_exit_app.triggered.connect(_exit_app)
+    # system_tray.setContextMenu(menu)
+
+
+    # # Running the aforementioned command and saving its output
+    # output = os.popen('wmic process get description, processid').read()
+    
+    # if len(re.findall("r2editor.exe", output, re.IGNORECASE)) > 1:
+    #     input = QMessageBox.question(window,
+    #                                 "R2Editor",
+    #                                 "R2Editor is already running in background.\n\nPress OK to close this instance.",
+    #                                 QMessageBox.Ok)
+
+    #     if input == QMessageBox.Ok:
+            
+    #         sys.exit()
+
+    # else:
+    #     sys.exit(app.exec_())
+    
     sys.exit(app.exec_())
 
