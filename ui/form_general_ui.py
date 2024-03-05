@@ -264,7 +264,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Create Project"))
+        Form.setWindowTitle(_translate("Form", "R2 Editor"))
         self.logo.setText(_translate("Form", "R2"))
         self.uiLabelTitle.setText(_translate("Form", "Title"))
         self.uiBtnTitleBarClose.setToolTip(_translate("Form", "Close"))

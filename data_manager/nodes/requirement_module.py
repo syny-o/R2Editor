@@ -1,5 +1,4 @@
 import re
-from venv import create
 from PyQt5.QtWidgets import QPushButton, QStyle, QMessageBox
 from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtGui import QIcon, QColor, QStandardItem
@@ -386,7 +385,10 @@ class RequirementModule(QStandardItem):
 
     # @pyqtSlot(object)
     def receive_data_from_doors(self, doors_output, timestamp):
-
+        columns_changed = False
+        if self.columns_names_backup != self.columns_names:
+            columns_changed = True
+            
         success, message = self.validate_doors_output(doors_output)
 
         if not success: 
@@ -406,15 +408,19 @@ class RequirementModule(QStandardItem):
         self.current_baseline_backup = self.current_baseline 
         
         # APPLY FILTER WHICH HAS BEEN APPLIED BEFORE DOWNLOADING
-        self.apply_coverage_filter()
         # UPDATE ACCORDING TO COVERAGE DICT WHICH IS STORED IN REQUIREMENT MODULE INDEPENDETLY TO REQUIREMETS NODES
         # self.update_coverage_from_coverage_dict()
         # print("REQUIREMENT MODULE UPDATED", self.path)
 
         # save new data for future comparison
-        NEW_MODULE_DATA = _transform_req_list_2_req_dict(_create_list_of_requirements_from_module(self))
+        if ORIGINAL_MODULE_DATA:
+            NEW_MODULE_DATA = _transform_req_list_2_req_dict(_create_list_of_requirements_from_module(self))
+        else:
+            NEW_MODULE_DATA = {}
 
-        if ORIGINAL_MODULE_DATA != NEW_MODULE_DATA:
+        self.apply_coverage_filter()
+        
+        if not columns_changed and ORIGINAL_MODULE_DATA and (ORIGINAL_MODULE_DATA != NEW_MODULE_DATA):
 
             return True, (self.columns_names, ORIGINAL_MODULE_DATA, NEW_MODULE_DATA)
         

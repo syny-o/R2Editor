@@ -19,9 +19,7 @@ class FormReqDataComparasion(QWidget, Ui_Form):
         self.setWindowOpacity(0.95)  
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowModality(Qt.ApplicationModal)        
-        # self.setMaximumSize(400, 600)    
-        self.setContentsMargins(0, 0, 0, 0)             
-        self.uiLabelTitle.setText("Requirements downloaded successfully.")
+        self.uiLabelTitle.setText("Requirements updated")
         self.uiLabelTitle.setStyleSheet("")
         
         self.modules_data = modules_data
@@ -34,7 +32,7 @@ class FormReqDataComparasion(QWidget, Ui_Form):
 
 
         if not self.modules_data:
-            self.uiMainLayout_1.addWidget(QLabel("No differences were found."))
+            self.uiMainLayout_1.addWidget(QLabel("Requirements downloaded successfully."), alignment=Qt.AlignCenter)
             self.resize(400, 100)
 
         else:
