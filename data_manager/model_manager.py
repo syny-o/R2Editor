@@ -2,7 +2,7 @@ from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtCore import Qt
 
 from text_editor.completer import Completer
-from data_manager.nodes.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
+from data_manager.nodes.condition_file import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
 from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
 from data_manager.nodes.requirement_node import RequirementNode
 from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
@@ -105,6 +105,13 @@ def move_node(TREE, MODEL, direction):
 
 
 
+# def send_data_2_completer(ROOT):
+#     for root_row in range(ROOT.rowCount()):
+#         current_file_node = ROOT.child(root_row, 0)
+#         if isinstance(current_file_node, ConditionFileNode):
+#             Completer.cond_dict = current_file_node.data_4_completer()
+            
+        
 
 
 
@@ -135,7 +142,7 @@ def send_data_2_completer(ROOT):
                     cond_dict.update({cond: values_model})
 
                     for cond_item in condition_list:
-                        if cond_item.data(role=Qt.ToolTipRole) == cond:
+                        if cond_item.data(role=Qt.DisplayRole) == cond:
                             cond_model.appendRow(cond_item)
 
         elif isinstance(current_file_node, A2lFileNode):

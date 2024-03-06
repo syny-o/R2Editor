@@ -6,10 +6,10 @@ import json, re, os
 from PyQt5.QtWidgets import QWidget, QFileDialog, QInputDialog, QLabel, QAction, QLineEdit, QShortcut, QMessageBox, QListWidgetItem
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QStandardItemModel, QColor, QPainter
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QObject, QRunnable, QThreadPool, QPropertyAnimation, QEasingCurve
-from data_manager.nodes.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
+from data_manager.nodes.condition_file import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
 from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
 from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
-from data_manager.nodes import condition_nodes
+from data_manager.nodes import condition_file
 from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
 from data_manager.forms.form_add_module import FormAddModule
 from components.progress_bar.widget_modern_progress_bar import ModernProgressBar
@@ -101,7 +101,7 @@ class DataManager(QWidget, Ui_Form):
 
 
     def receive_data_from_drop_or_file_manager(self, data):
-        condition_nodes.initialise(data, self.ROOT)
+        condition_file.initialise(data, self.ROOT)
         dspace_nodes.initialise(data, self.ROOT)
         a2l_nodes.initialise(data, self.ROOT)
         self.MAIN.show_notification(f"Data Updated")   
@@ -131,7 +131,7 @@ class DataManager(QWidget, Ui_Form):
 
         self.ROOT.removeRows(0, self.ROOT.rowCount())
 
-        condition_nodes.initialise(data, self.ROOT)
+        condition_file.initialise(data, self.ROOT)
         dspace_nodes.initialise(data, self.ROOT)
         a2l_nodes.initialise(data, self.ROOT)
         requirement_module.initialise(data, self.ROOT)   

@@ -4,7 +4,7 @@ from PyQt5.QtGui import QIcon, QCursor
 
 from data_manager.nodes.requirement_module import RequirementModule
 from data_manager.nodes.requirement_node import RequirementNode
-from data_manager.nodes.condition_nodes import ConditionFileNode
+from data_manager.nodes.condition_file import ConditionFileNode
 from data_manager.nodes.dspace_nodes import DspaceFileNode
 from data_manager.nodes.a2l_nodes import A2lFileNode
 

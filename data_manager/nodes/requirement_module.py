@@ -385,9 +385,8 @@ class RequirementModule(QStandardItem):
 
     # @pyqtSlot(object)
     def receive_data_from_doors(self, doors_output, timestamp):
-        columns_changed = False
-        if self.columns_names_backup != self.columns_names:
-            columns_changed = True
+
+        columns_changed = self.columns_names_backup != self.columns_names
             
         success, message = self.validate_doors_output(doors_output)
 
@@ -401,16 +400,11 @@ class RequirementModule(QStandardItem):
         # delete all children
         self.removeRows(0, self.rowCount())
         # create new children from received data
-        # self.create_tree_from_requirements_data(req_list, timestamp)
         self._txtfile_to_tree(doors_output)
-        # once succefull update is performed, update backup columns
+        # once succefull update is performed, update backup columns / baseline
         self.columns_names_backup = [*self.columns_names] 
         self.current_baseline_backup = self.current_baseline 
         
-        # APPLY FILTER WHICH HAS BEEN APPLIED BEFORE DOWNLOADING
-        # UPDATE ACCORDING TO COVERAGE DICT WHICH IS STORED IN REQUIREMENT MODULE INDEPENDETLY TO REQUIREMETS NODES
-        # self.update_coverage_from_coverage_dict()
-        # print("REQUIREMENT MODULE UPDATED", self.path)
 
         # save new data for future comparison
         if ORIGINAL_MODULE_DATA:
@@ -418,6 +412,8 @@ class RequirementModule(QStandardItem):
         else:
             NEW_MODULE_DATA = {}
 
+
+        # APPLY FILTER WHICH HAS BEEN APPLIED BEFORE DOWNLOADING
         self.apply_coverage_filter()
         
         if not columns_changed and ORIGINAL_MODULE_DATA and (ORIGINAL_MODULE_DATA != NEW_MODULE_DATA):

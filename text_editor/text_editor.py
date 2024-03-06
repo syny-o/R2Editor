@@ -10,7 +10,7 @@ from PyQt5.QtGui import QFont, QTextCursor, QStandardItem, QStandardItemModel, Q
 
 from config.font import font
 
-from text_editor.completer import Completer, CompleterDelegate
+from text_editor.completer import Completer
 from text_editor.text_edit_tooltip_widget import TextEditTooltipWidget
 from text_editor.data_manager_widget import DataManagerWidget
 
@@ -109,8 +109,7 @@ class TextEdit(QCodeEditor):
         self.completer.insert_text.connect(self.insert_completion)
         self.current_model = None
 
-        delegate = CompleterDelegate(self)
-        self.completer.popup.setItemDelegate(delegate)
+
 
 
         self.actual_text = ''
@@ -257,6 +256,7 @@ class TextEdit(QCodeEditor):
 
     def mouseReleaseEvent(self, event):
         self.signal_clicked_on_text_edit.emit(self) 
+        self.completer.completer_tooltip.hide_tooltip()
         if TextEditTooltipWidget.selected_word and TextEdit.ctrl_pressed:
             self.show_tooltip(TextEditTooltipWidget.selected_word)
             # print(TextEdit.ctrl_pressed)
@@ -301,6 +301,8 @@ class TextEdit(QCodeEditor):
 
     def keyReleaseEvent(self, event):
         self.signal_clicked_on_text_edit.emit(self)
+        if event.key() not in (Qt.Key_Up, Qt.Key_Down):
+            self.completer.completer_tooltip.hide_tooltip()
         if event.key() == Qt.Key_Control:
             TextEdit.ctrl_pressed = False
             # QToolTip.hideText()
@@ -326,7 +328,7 @@ class TextEdit(QCodeEditor):
 
 
         # "ENTER" AFTER POPUP IS VISIBLE
-        if event.key() == Qt.Key_Return and self.completer.popup.isVisible():
+        if event.key() == Qt.Key_Return and self.completer.popup().isVisible():
             self.completer.insert_text.emit(self.completer.get_selected())
             return
 
@@ -363,7 +365,7 @@ class TextEdit(QCodeEditor):
             return
 
 
-        if self.completer.popup.isVisible() and event.key() not in (Qt.Key_Return, Qt.Key_Equal, Qt.Key_Alt):
+        if self.completer.popup().isVisible() and event.key() not in (Qt.Key_Return, Qt.Key_Equal, Qt.Key_Alt):
             tc = self.textCursor()
             # tc.select(QTextCursor.WordUnderCursor)
             
@@ -411,13 +413,13 @@ class TextEdit(QCodeEditor):
                 self.show_popup('')
                 return
             else:
-                self.completer.popup.hide()
+                self.completer.popup().hide()
                 return            
 
 
         
-        elif event.key() == Qt.Key_Alt and self.completer.popup.isVisible():
-            self.completer.popup.hide()
+        elif event.key() == Qt.Key_Alt and self.completer.popup().isVisible():
+            self.completer.popup().hide()
 
         # "ALT" ONLY
         elif event.key() == Qt.Key_Alt:
@@ -477,11 +479,11 @@ class TextEdit(QCodeEditor):
             #     self.show_popup('')
             #     return
             else:
-                self.completer.popup.hide()
+                self.completer.popup().hide()
                 return
 
         if event.key() not in (Qt.Key_Up, Qt.Key_Down, Qt.Key_Return):
-            self.completer.popup.hide()
+            self.completer.popup().hide()
 
         # # "CTRL" + "s" --> Forwar Save File to Main Window Handler but cancel CTRL Pressed
         if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_S:
@@ -560,7 +562,7 @@ class TextEdit(QCodeEditor):
         self.add_space_to_equal()
         self.complete_special_command()
         if not QToolTip.isVisible():
-            self.completer.popup.hide()
+            self.completer.popup().hide()
 
 
 
@@ -568,9 +570,9 @@ class TextEdit(QCodeEditor):
         # print(completion_prefix)
         self.completer.setCompletionPrefix(completion_prefix)
         cr = self.cursorRect()
-        self.completer.popup.setCurrentIndex(self.completer.completionModel().index(0, 0)) # automatically select first popup item
-        cr.setWidth(self.completer.popup.sizeHintForColumn(0)
-                    + self.completer.popup.verticalScrollBar().sizeHint().width() + 20)
+        self.completer.popup().setCurrentIndex(self.completer.completionModel().index(0, 0)) # automatically select first popup item
+        cr.setWidth(self.completer.popup().sizeHintForColumn(0)
+                    + self.completer.popup().verticalScrollBar().sizeHint().width() + 20)
         self.completer.complete(cr)
 
     # def focusInEvent(self, event):
@@ -652,7 +654,7 @@ class TextEdit(QCodeEditor):
             self.setTextCursor(tc)
 
             # SHOW TOOLTIP / HINT IN CONSOLE
-            self.completer.popup.hide()
+            self.completer.popup().hide()
             # self.show_tooltip(self.tooltips['MonitorVariablesCANape'])
 
 
@@ -667,7 +669,7 @@ class TextEdit(QCodeEditor):
             self.setTextCursor(tc)
 
             # SHOW TOOLTIP / HINT IN CONSOLE
-            self.completer.popup.hide()
+            self.completer.popup().hide()
             # self.show_tooltip(self.tooltips['GraphVariables'])
 
 
@@ -686,7 +688,7 @@ class TextEdit(QCodeEditor):
             self.setTextCursor(tc)
 
             # SHOW TOOLTIP / HINT IN CONSOLE
-            self.completer.popup.hide()
+            self.completer.popup().hide()
             # self.show_tooltip(self.tooltips[command])
 
 
@@ -702,7 +704,7 @@ class TextEdit(QCodeEditor):
             self.setTextCursor(tc)
 
             # SHOW TOOLTIP / HINT IN CONSOLE
-            self.completer.popup.hide()
+            self.completer.popup().hide()
             # self.show_tooltip(self.tooltips['CANape_GetObjectValue'])
 
 
@@ -715,7 +717,7 @@ class TextEdit(QCodeEditor):
             self.setTextCursor(tc)
 
             # SHOW TOOLTIP / HINT IN CONSOLE
-            self.completer.popup.hide()
+            self.completer.popup().hide()
             # self.show_tooltip(self.tooltips['VariableSequence'])
 
 

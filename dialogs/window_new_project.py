@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QFileDialog, QListWidget, QInputDialog
 from PyQt5.QtCore import Qt, pyqtSignal
 from ui.ui_project_config import Ui_Form
-from data_manager.nodes.condition_nodes import ConditionFileNode
+from data_manager.nodes.condition_file import ConditionFileNode
 from data_manager.nodes.dspace_nodes import DspaceFileNode
 from data_manager.nodes.a2l_nodes import A2lFileNode
 from data_manager.nodes.requirement_module import RequirementModule

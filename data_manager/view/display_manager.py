@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QToolButton, QListWidgetItem, QLayout, QFrame, QHBox
 from PyQt5.QtCore import Qt
 
 from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
-from data_manager.nodes.condition_nodes import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
+from data_manager.nodes.condition_file import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
 from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
 from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
 from components.reduce_path_string import reduce_path_string
