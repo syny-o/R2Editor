@@ -138,6 +138,10 @@ class IconManager:
         self.ICON_OUTLINK = qta.icon('fa5s.arrow-right', scale_factor=0.7, color_off="green")
         self.ICON_SCRIPT_REFERENCE = qta.icon('mdi.file-check', scale_factor=1, color_off="orange")
 
+
+        # COMPLETER
+        self.ICON_TEST_STEP = define_icon('fa5s.flask', scale_factor=0.7, color_off=COLOR_ON)
+
         
     
 

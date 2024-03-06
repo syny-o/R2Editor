@@ -728,6 +728,14 @@ QTabBar QToolButton { /* the scroll buttons are tool buttons */
     background-color: rgb(0, 0, 0);
 }
 
+#completer_tooltip{
+
+
+    font-size: 14px;
+}
+
+
+
 
 """
 
