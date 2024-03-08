@@ -91,6 +91,12 @@ class DataManager(QWidget, Ui_Form):
 
         QShortcut( 'Ctrl+S', self ).activated.connect(self.MAIN.project_save)
         # QShortcut( 'Backspace', self ).activated.connect(self.TREE.goto_previous_index)
+
+
+    def goto_index(self, index):
+        self.TREE.setCurrentIndex(index)
+        self.TREE.scrollTo(index)
+        self.TREE.expand(index)
  
      
 

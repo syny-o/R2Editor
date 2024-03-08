@@ -140,7 +140,7 @@ class IconManager:
 
 
         # COMPLETER
-        self.ICON_TEST_STEP = define_icon('fa5s.flask', scale_factor=0.7, color_off=COLOR_ON)
+        self.ICON_TEST_STEP = define_icon('msc.symbol-parameter', scale_factor=1.1, color_off=COLOR_ON)
 
         
     

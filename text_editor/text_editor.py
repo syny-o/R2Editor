@@ -104,7 +104,7 @@ class TextEdit(QCodeEditor):
 
 
         # CONNECT COMPLETER - INSTANCE CONFIGURATION
-        self.completer = Completer()
+        self.completer = Completer(self.main_window)
         self.completer.setWidget(self)
         self.completer.insert_text.connect(self.insert_completion)
         self.current_model = None

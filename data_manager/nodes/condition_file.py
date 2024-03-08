@@ -170,6 +170,7 @@ class ConditionFileNode(QStandardItem):
         test_step_list = [value_node.child(ti).text() for ti in range(value_node.rowCount())]        
         # new_value_node.setData(str(f'{value_node.text() : <40}{rstrip_and_add_dots(test_steps_string, 50) : >50}'), Qt.DisplayRole)
         new_value_node.setData(test_step_list, Qt.UserRole)
+        new_value_node.setData(value_node.model().indexFromItem(value_node), Qt.UserRole + 1)
 
         return new_value_node
 
@@ -199,6 +200,7 @@ class ConditionFileNode(QStandardItem):
 
             # new_cond_node.setData(str(f'{cond_node.text() : <40}{" | ".join([v.data(Qt.ToolTipRole) for v in values_list])[:100] : >100}'), Qt.DisplayRole)
             new_cond_node.setData([value.text() for value in values_list], Qt.UserRole)
+            new_cond_node.setData(cond_node.model().indexFromItem(cond_node), Qt.UserRole + 1)
             cond_dict.update({cond_node.text(): values_list})
 
             cond_tooltips.update(self.create_condition_tooltip_4_completer(cond_node))

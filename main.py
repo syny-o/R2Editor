@@ -79,7 +79,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
         # self.timer = QTimer()
-        # self.timer.start(1000)
+        # self.timer.start(3000)
         # self.timer.timeout.connect(lambda: self.change_theme(self.app_settings.theme))
 
         self.timer_4_updating_outline = QTimer()

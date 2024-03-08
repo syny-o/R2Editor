@@ -70,7 +70,8 @@ class DataManagerWidget(QWidget):
             self.main_window.stackedWidget.removeWidget(self.main_window.data_manager)
             self.layout_global.addWidget(self.main_window.data_manager)
             # self.main_window.data_manager.frame_17.setVisible(False)  
-            # self.main_window.data_manager.frame_2.setVisible(False)      
+            self.main_window.data_manager.uiFrameDataSummary.setVisible(False)
+            self.main_window.data_manager.uiFrameTitleBar.setVisible(False)    
             self.main_window.data_manager.show()
 
             self.resize(self.main_window.width()-int(self.main_window.width()/4), self.main_window.height()-300)
@@ -102,7 +103,7 @@ class DataManagerWidget(QWidget):
     def closeEvent(self, e):        
         self.layout_global.removeWidget(self.main_window.data_manager)
         self.main_window.stackedWidget.addWidget(self.main_window.data_manager)
-        self.main_window.data_manager.frame_17.setVisible(True)  
+        # self.main_window.data_manager.frame_17.setVisible(True)  
         # self.main_window.data_manager.frame_2.setVisible(True) 
         self.text_edit.update_ctrl_pressed(False)
         return super().closeEvent(e)

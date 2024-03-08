@@ -730,10 +730,24 @@ QTabBar QToolButton { /* the scroll buttons are tool buttons */
 
 #completer_tooltip{
 
-
+    background-color: rgb(RGB_BACKGROUND_2);
     font-size: 14px;
 }
 
+#completer_tooltip QListWidget{
+    background-color: rgb(RGB_BACKGROUND_2);
+    border: none;
+    color: rgb(RGB_TEXT);
+    padding: 0.5ex;
+    opacity: 200;
+}
+
+#completer_tooltip_toolbar{
+
+    background-color: rgb(RGB_MAIN);
+
+
+}
 
 
 
