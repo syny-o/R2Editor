@@ -1,5 +1,3 @@
-from cgi import test
-from hmac import new
 import os, stat, re
 
 from PyQt5.QtGui import QStandardItem, QIcon
@@ -87,7 +85,7 @@ class ConditionFileNode(QStandardItem):
 
     def file_2_tree(self):
         try:
-            with open(self.path, 'r') as f:
+            with open(self.path, 'r', encoding='utf8') as f:
                 file_content = f.read()
 
             condition_sections = re.split('<Condition ', file_content)

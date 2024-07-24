@@ -5,6 +5,7 @@ import re
 from dialogs.dialog_message import dialog_message
 from components.reduce_path_string import reduce_path_string
 
+
 def initialise(data: dict, root_node):
     paths = data.get('DSpace Files')
     if paths:
@@ -41,7 +42,7 @@ class DspaceFileNode(QStandardItem):
 
     def file_2_tree(self):
         try:
-            with open(self.path, 'r') as f:
+            with open(self.path, 'r', encoding='utf8') as f:
                 dspace_file_string = f.read()
 
             ds_definitions = re.split(r'def ', dspace_file_string)
@@ -143,9 +144,11 @@ class DspaceFileNode(QStandardItem):
                 if len(dspace_variable.name) < 25:
                     new_dspace_variable = dspace_variable.clone()
 
-                    new_dspace_variable.setData(str(f'{dspace_variable.name : <40}{dspace_definition.text() : >40}'), Qt.DisplayRole)
+                    # new_dspace_variable.setData(str(f'{dspace_variable.name : <40}{dspace_definition.text() : >40}'), Qt.DisplayRole)
 
                     new_dspace_variable.setData(dspace_variable.name, Qt.ToolTipRole)
+                    new_dspace_variable.setData(dspace_variable.name, Qt.DisplayRole)
+                    new_dspace_variable.setData([dspace_variable.path,], Qt.UserRole)
 
                     dspace_model.appendRow(new_dspace_variable)
 

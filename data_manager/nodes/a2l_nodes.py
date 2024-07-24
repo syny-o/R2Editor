@@ -116,9 +116,11 @@ class A2lFileNode(QStandardItem):
 
             new_a2l_node = a2l_node.clone()
 
-            new_a2l_node.setData(str(f'{a2l_node.name : <40}{self.path : >40}'), Qt.DisplayRole)
+            # new_a2l_node.setData(str(f'{a2l_node.name : <40}{self.path : >40}'), Qt.DisplayRole)
 
             new_a2l_node.setData(a2l_node.name, Qt.ToolTipRole)
+            new_a2l_node.setData(a2l_node.name, Qt.DisplayRole)
+            new_a2l_node.setData([a2l_node.address,], Qt.UserRole)
 
 
             if len(new_a2l_node.data(Qt.ToolTipRole)) < 45:
