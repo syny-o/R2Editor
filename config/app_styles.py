@@ -742,12 +742,7 @@ QTabBar QToolButton { /* the scroll buttons are tool buttons */
     opacity: 200;
 }
 
-#completer_tooltip_toolbar{
 
-    background-color: rgb(RGB_MAIN);
-
-
-}
 
 
 

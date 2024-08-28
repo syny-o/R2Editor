@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 
 from PyQt5.QtWidgets import QWidget, QFileSystemModel, QMenu, QInputDialog, QLineEdit, QMessageBox, QShortcut
-from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal, QDir
+from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal, QDir, QTimer
 from PyQt5.QtGui import QFont, QIcon, QCursor
 
 from ui.file_system_ui import Ui_Form
@@ -62,6 +62,7 @@ class FileSystemView(QWidget, Ui_Form):
         ################## CONTEXT MENU ###########################
         self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tree.customContextMenuRequested.connect(self._context_menu)
+
 
 
 
@@ -350,10 +351,10 @@ class FileSystemView(QWidget, Ui_Form):
                         if path in key.parents:
                             my_text_edit, my_tabs = value
                             # print(my_text_edit.file_path)
-                            print()
-                            print(path.parts)
-                            print(key.parts)
-                            print()
+                            # print()
+                            # print(path.parts)
+                            # print(key.parts)
+                            # print()
 
                             original_parts = list(key.parts)
                             folder_index = len(path.parts) - 1
@@ -400,8 +401,22 @@ class FileSystemView(QWidget, Ui_Form):
                 index = self.model.index(new_file_path)  
                 self.tree.setCurrentIndex(index)                
                 self.send_file_path.emit(Path(new_file_path))
+                
+                self.refresh_root_path()
+                
+
             except Exception as e:
-                dialog_message(self, f"Error: {str(e)}")                
+                dialog_message(self, f"Error: {str(e)}")            
+
+
+    def refresh_root_path(self):
+        path = self.model.rootPath()
+        self.model.setRootPath(self.current_path)
+        self.model.setRootPath(path)
+        self.tree.setRootIndex(self.model.index(self.model.rootPath()))    
+        self.model.setRootPath(self.model.rootPath())
+        self.tree.setModel(self.model)
+        self.tree.sortByColumn(0, Qt.AscendingOrder)
 
 
 
