@@ -333,7 +333,8 @@ class CompleterToolTip(QTextEdit):
 
     def position_tooltip(self):
         self.tooltip.move(self.completer.popup().mapToGlobal(QPoint(self.completer.popup().width(), 0)))
-        self.tooltip.show()   
+        if self.completer.popup().isVisible():  # FIX: somtimes tooltip was not shown after pressing up/down key without popup
+            self.tooltip.show()   
 
 
     def hide_tooltip(self):
