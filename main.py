@@ -852,7 +852,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
    
     
     def show_notification(self, notification_text):
-        self.notification_widget.show_text(notification_text)
+        # self.notification_widget.show_text(notification_text)
+        # TEST: change this to show in status bar (cleaner from my point of view)
+        widget_with_focus = QApplication.focusWidget()
+        print(widget_with_focus)
+        self.uiLabelProgressStatus.setText(notification_text) 
+        self.uiLabelProgressStatus.setStyleSheet("color: rgb(50, 250, 50);")
+
+        # widget_with_focus.setFocus()
+        if self.actual_text_edit:
+            self.actual_text_edit.setFocus()
+
+        QTimer.singleShot(4000, lambda: self.uiLabelProgressStatus.setText("Ready"))
+        QTimer.singleShot(4000, lambda: self.uiLabelProgressStatus.setStyleSheet("color: rgb(200, 200, 200);"))
+        if self.actual_text_edit:
+            QTimer.singleShot(4100, lambda: self.actual_text_edit.setFocus())
 
 
 
