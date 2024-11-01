@@ -138,7 +138,7 @@ class RequirementTextHighlighter(QSyntaxHighlighter):
             (r"^[\w\s]+:$", 0, STYLES["TEXT_HEADINGS"]),
 
             # Pbc
-            (r"(Hsb|SsmPb|Pbc)(In|Out)[a-zA-Z\n]+", 0, STYLES["pbc_variables"]),
+            (r"(Hsb|SsmPb|Pbc)(In|Out)[a-zA-Z0-9\n]+", 0, STYLES["pbc_variables"]),
 
             # Value after '='
             #(r"=[^\n]*", 0, STYLES["values"]),
