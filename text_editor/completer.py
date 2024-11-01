@@ -72,6 +72,8 @@ class Completer(QCompleter):
                 self.popup().setCurrentIndex(self.completionModel().index(self.completionModel().rowCount()-1, 0))
             elif event.key() == Qt.Key_Down and not self.popup().currentIndex().isValid():
                 self.popup().setCurrentIndex(self.completionModel().index(0, 0))
+            elif event.key() == Qt.Key_Left or event.key() == Qt.Key_Right:
+                    self.popup().hide()   
 
         # if event.type() == QEvent.MouseButtonPress:
         #     print(self.get_selected())
