@@ -223,11 +223,11 @@ class TextFormatter:
             elif self.PATTERNS["TESTCASE"].search(current_line):
                 test_case_number +=1
                 # TODO: consider if every test case should be introduced with this string
-    #             new_lines.append(f"""\
-    #   \n\n'###################################################################
-    #     \n'=======================     {self.TESTCASE_SEPARATOR} {test_case_number}     ======================='
-    #     \n'###################################################################
-    #     """)
+                new_lines.append(f"""\
+      \n\n'###################################################################
+        \n'=======================     {self.TESTCASE_SEPARATOR} {test_case_number}     ======================='
+        \n'###################################################################
+        """)
                 indent_level = 0
                 future_indent_level = 1
 
