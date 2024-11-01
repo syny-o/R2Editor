@@ -407,7 +407,7 @@ class FileNodeLayoutGenerator(SimpleNodeLayoutGenerator):
         self._fill_layout(NODE)           
     
     def _generate_layout(self):
-        self.uiLineEditFilePath = generate_one_row("Path:", self.uiMainLayout)
+        self.uiLineEditFilePath = generate_one_row("Path:", self.uiMainLayout, set_read_only=True)
 
     def _fill_layout(self, NODE):
         self.uiLineEditFilePath.setText(NODE.path)    
@@ -426,8 +426,8 @@ class A2lNodeLayoutGenerator(SimpleNodeLayoutGenerator):
         self._fill_layout(NODE)  
     
     def _generate_layout(self):
-        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout)
-        self.uiLineEditAddress = generate_one_row("Address:", self.uiMainLayout)
+        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout, set_read_only=True)
+        self.uiLineEditAddress = generate_one_row("Address:", self.uiMainLayout, set_read_only=True)
 
     def _fill_layout(self, NODE):
         self.uiLineEditName.setText(NODE.name)  
@@ -445,8 +445,8 @@ class ConditionValueNodeLayoutGenerator(SimpleNodeLayoutGenerator):
         self._fill_layout(NODE)  
     
     def _generate_layout(self):
-        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout)
-        self.uiLineEditCategory = generate_one_row("Category:", self.uiMainLayout)
+        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout, set_read_only=True)
+        self.uiLineEditCategory = generate_one_row("Category:", self.uiMainLayout, set_read_only=True)
 
     def _fill_layout(self, NODE):
         self.uiLineEditName.setText(NODE.name)
@@ -465,10 +465,10 @@ class TestStepNodeLayoutGenerator(SimpleNodeLayoutGenerator):
 
     
     def _generate_layout(self):
-        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout)
-        self.uiLineEditAction = generate_one_row("Action:", self.uiMainLayout)
-        self.uiLineEditComment = generate_one_row("Comment:", self.uiMainLayout)
-        self.uiLineEditNominal = generate_one_row("Nominal:", self.uiMainLayout)
+        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout, set_read_only=True)
+        self.uiLineEditAction = generate_one_row("Action:", self.uiMainLayout, set_read_only=True)
+        self.uiLineEditComment = generate_one_row("Comment:", self.uiMainLayout, set_read_only=True)
+        self.uiLineEditNominal = generate_one_row("Nominal:", self.uiMainLayout, set_read_only=True)
 
     def _fill_layout(self, NODE):
         self.uiLineEditName.setText(NODE.name)
@@ -488,7 +488,7 @@ class DspaceDefinitionNodeLayoutGenerator(SimpleNodeLayoutGenerator):
         self._fill_layout(NODE)  
 
     def _generate_layout(self):
-        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout)
+        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout, set_read_only=True)
 
     def _fill_layout(self, NODE):
         self.uiLineEditName.setText(NODE.name)
@@ -505,9 +505,9 @@ class DspaceVariableNodeLayoutGenerator(SimpleNodeLayoutGenerator):
 
     
     def _generate_layout(self):
-        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout)
-        self.uiLineEditValue = generate_one_row("Value:", self.uiMainLayout)
-        self.uiLineEditPath = generate_one_row("Path:", self.uiMainLayout)
+        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout, set_read_only=True)
+        self.uiLineEditValue = generate_one_row("Value:", self.uiMainLayout, set_read_only=True)
+        self.uiLineEditPath = generate_one_row("Path:", self.uiMainLayout, set_read_only=True)
 
     def _fill_layout(self, NODE):
         self.uiLineEditName.setText(NODE.name)
