@@ -76,15 +76,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_zoom_in.setIcon(IconManager().ICON_ZOOM_IN)
         self.btn_zoom_out.setIcon(IconManager().ICON_ZOOM_OUT)
         self.btn_zoom_default.setIcon(IconManager().ICON_ZOOM_RESET)
+        
+        
+        ################################################################################################################
+        # APP SETTINGS CONFIGURATION
+        ################################################################################################################
+        self.app_settings = AppSettings(self)   
+        self.update_theme(self.app_settings.theme)            
 
+        
+        ################################################################################################################
+        # GLOBAL TIMERS START
+        ################################################################################################################
 
-        # self.timer = QTimer()
-        # self.timer.start(3000)
-        # self.timer.timeout.connect(lambda: self.change_theme(self.app_settings.theme))
+        self.timer_project_autosave = QTimer()  # initialize timer - one global timer (even if it is not used - when value is Off)
+        self.timer_project_autosave.timeout.connect(self.project_autosave)
+        self.update_autosave_interval(self.app_settings.autosave)    
+
 
         self.timer_4_updating_outline = QTimer()
         self.timer_4_updating_outline.start(500)
         self.timer_4_updating_outline.timeout.connect(self.update_outline)
+
+        ################################################################################################################
+        # GLOBAL TIMERS END
+        ################################################################################################################
+
 
         self.resize(1920, 1080)
 
@@ -159,13 +176,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # POINTER TO ACTUAL TEXTEDIT, ACTUAL TABS
         ################################################################################################################
         self._actual_text_edit = None
-        self.actual_tabs = None
-
-        ################################################################################################################
-        # APP SETTINGS CONFIGURATION
-        ################################################################################################################
-        self.app_settings = AppSettings(self)   
-        self.change_theme(self.app_settings.theme)     
+        self.actual_tabs = None 
 
         ################################################################################################################
         # TREE FILE BROWSER CONFIGURATION
@@ -254,54 +265,40 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.last_text_4_outline = ""
         self.update_actual_information()
 
-    # @pyqtSlot(list)
-    # def get_outline(self, sections: list[str, int]):
-    #     # print(sections)
-    #     self.uiTreeOutline.clear()
-    #     for section in sections:
-    #         item = QTreeWidgetItem(self.uiTreeOutline)
-    #         item.setData(0, Qt.DisplayRole, section[0])
-    #         item.setData(0, Qt.UserRole, section[1])
 
-    #     current_position = self.actual_text_edit.textCursor().position()
-    #     for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard):
-    #         if item.data(0, Qt.UserRole) > current_position:
-    #             item_above = self.uiTreeOutline.itemAbove(item)
-    #             self.uiTreeOutline.setCurrentItem(item_above if item_above else item)
-    #             break
-    #         else:
-    #             item_below = self.uiTreeOutline.itemBelow(item)
-    #             self.uiTreeOutline.setCurrentItem(item_below if item_below else item)
-    
-    
-    # def update_outline(self):
-    #     self.uiTreeOutline.clear()
-    #     if not self.actual_text_edit:
-    #         return
-        
-    #     # EXTRACT CHAPTERS AND TESTCASES FROM TEXT
-    #     text = self.actual_text_edit.toPlainText()
-    #     # results = re.finditer(r'(?:CHAPTER|TESTCASE)\s*"(.+)"', text)
-    #     results = re.finditer(r".*(?:END CHAPTER|CHAPTER|TESTCASE).*", text)
-    #     if results:
-    #         results = list(results)                        
-    #         sections = [(result.group().strip(), result.start()) for result in results if not result.group().strip().startswith("'")]
 
-    #     for section in sections:
-    #         item = QTreeWidgetItem(self.uiTreeOutline)
-    #         item.setData(0, Qt.DisplayRole, section[0])
-    #         item.setData(0, Qt.UserRole, section[1])
+    ################################################################################################################
+    # SETTINGS WAS UPDATED START
+    ################################################################################################################
 
-    #     current_position = self.actual_text_edit.textCursor().position()
-    #     for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard):
-    #         if item.data(0, Qt.UserRole) > current_position:
-    #             item_above = self.uiTreeOutline.itemAbove(item)
-    #             self.uiTreeOutline.setCurrentItem(item_above if item_above else item)
-    #             break
-    #         else:
-    #             item_below = self.uiTreeOutline.itemBelow(item)
-    #             self.uiTreeOutline.setCurrentItem(item_below if item_below else item)
+    @pyqtSlot()
+    def settings_was_updated(self):
+        self.update_theme(self.app_settings.theme)
+        self.update_autosave_interval(self.app_settings.autosave)
 
+
+
+    def update_autosave_interval(self, autosave_interval):
+        self.timer_project_autosave.stop()
+        if autosave_interval == 'Off':
+            pass
+        else:
+            interval = int(autosave_interval)*60*1000 # minutes to milliseconds
+            self.timer_project_autosave.start(int(interval))
+
+
+
+    def update_theme(self, theme):
+        reload(config.app_styles)
+        styles = config.app_styles.switch_theme(theme.upper())
+        app.setStyleSheet(styles)        
+
+
+
+
+    ################################################################################################################
+    # OUTLINE MANAGEMENT METHODS START
+    ################################################################################################################
 
     def line_number_from_position(self, position):
         return self.actual_text_edit.toPlainText()[:position].count("\n") + 1
@@ -364,12 +361,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def number_of_visible_lines(self):
-        return self.actual_text_edit.height() / self.actual_text_edit.fontMetrics().lineSpacing()
-
-        # doc = popup.document()
-        # margin = doc.documentMargin()
-        # num_lines = (doc.size().height() - 2*margin)/popup.fontMetrics().height()               
-
+        return self.actual_text_edit.height() / self.actual_text_edit.fontMetrics().lineSpacing()           
 
 
     def update_selected_item_in_outline(self):
@@ -411,6 +403,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         cursor.setPosition(item.data(0, Qt.UserRole))
         self.actual_text_edit.setTextCursor(cursor)
         self.actual_text_edit.setFocus()
+
+    ################################################################################################################
+    # OUTLINE MANAGEMENT METHODS END
+    ################################################################################################################
 
 
 
@@ -881,6 +877,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 return        
         project_manager.new_project()
 
+
     def project_save(self):        
         success, message = project_manager.save_project()
         if success:
@@ -889,6 +886,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.project_save_as()
         else:
             dialog_message(message)
+
+
+    def project_autosave(self):
+        # print("AUTOSAVE")
+        success, message = project_manager.save_project()
+        self.show_notification('autosaving... ' + message)
+        
 
 
     def project_save_as(self):        
@@ -1056,10 +1060,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 
-    def change_theme(self, theme):
-        reload(config.app_styles)
-        styles = config.app_styles.switch_theme(theme.upper())
-        app.setStyleSheet(styles)
+
 
         
 

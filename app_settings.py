@@ -22,6 +22,7 @@ class AppSettings(QWidget, Ui_Form):
         UI_COMBOBOX_INPUTS = [
             self.ui_cb_database,
             self.uiComboTheme,
+            self.uiComboAutosave,
         ]
          
 
@@ -37,7 +38,9 @@ class AppSettings(QWidget, Ui_Form):
         for combo_box_input in UI_COMBOBOX_INPUTS:
             combo_box_input.currentTextChanged.connect(self._save_data_from_form_2_memory)           
 
-        self.uiComboTheme.currentTextChanged.connect(MAIN.change_theme)
+        # Connect MAIN for future updates
+        self.uiComboTheme.currentTextChanged.connect(MAIN.settings_was_updated)
+        self.uiComboAutosave.currentTextChanged.connect(MAIN.settings_was_updated)
 
 
 
@@ -60,6 +63,9 @@ class AppSettings(QWidget, Ui_Form):
         # 4. Appearance
         self.theme = self.settings.value('appearance/theme', 'Light')    
 
+        # 5. General
+        self.autosave = self.settings.value('general/autosave', 'Off')
+
 
 
 
@@ -74,6 +80,9 @@ class AppSettings(QWidget, Ui_Form):
 
         # THEME
         self.uiComboTheme.setCurrentText(self.theme)
+
+        # GENERAL - Autosave
+        self.uiComboAutosave.setCurrentText(self.autosave)
 
 
 
@@ -92,15 +101,22 @@ class AppSettings(QWidget, Ui_Form):
         # THEME
         self.theme = self.uiComboTheme.currentText()
 
+        # GENERAL - Autosave
+        self.autosave = self.uiComboAutosave.currentText()
+
 
 
 
     def save_settings_2_disk(self):
         """ METHOD is triggered after pressing Apply/OK --> settings are saved to MEMORY """
-
+        
         self.settings.beginGroup("project")
         self.settings.setValue('recent', self.recent_projects)
         self.settings.endGroup()
+
+        self.settings.beginGroup("general")
+        self.settings.setValue('autosave', self.autosave)
+        self.settings.endGroup()        
 
         self.settings.beginGroup("appearance")
         self.settings.setValue('theme', self.theme)
@@ -109,10 +125,12 @@ class AppSettings(QWidget, Ui_Form):
         self.settings.beginGroup("editor")
         self.settings.setValue('format_code_when_save', self.format_code_when_save)
         self.settings.endGroup()
+
         self.settings.beginGroup("doors")
         self.settings.setValue('doors_app_path', self.doors_app_path)
         self.settings.setValue('doors_database_path', self.doors_database_path)
         self.settings.setValue('doors_user_name', self.doors_user_name)
         self.settings.endGroup()
+
 
 
