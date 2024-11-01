@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QLayout, QFrame, QHBox
 from PyQt5.QtCore import Qt
 
 
-def layout_generate_one_row(label_text: str, main_layout: QVBoxLayout, extend_label_width: bool = True) -> QLineEdit:
+def layout_generate_one_row(label_text: str, main_layout: QVBoxLayout, extend_label_width: bool = True, set_read_only: bool = False) -> QLineEdit:
     
     MINIMUM_LABEL_WIDTH = 70
 
@@ -16,7 +16,7 @@ def layout_generate_one_row(label_text: str, main_layout: QVBoxLayout, extend_la
     uiOneRowLayout.addWidget(line_edit)             
     main_layout.addLayout(uiOneRowLayout)
     main_layout.setAlignment(Qt.AlignCenter)
-    line_edit.setReadOnly(True)  # disable editing data in right panel --> only for displaying data:
+    line_edit.setReadOnly(set_read_only)  # disable editing data in right panel --> only for displaying data:
     return line_edit
 
 
