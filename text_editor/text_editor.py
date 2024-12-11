@@ -1,7 +1,8 @@
 import os, re
 from PyQt5.QtWidgets import QPlainTextEdit, QToolTip
 
-from text_editor.code_editor import QCodeEditor
+# from text_editor.code_editor import QCodeEditor
+from text_editor.test2 import QCodeEditor
 import text_editor.text_management as text_management
 
 from PyQt5.QtCore import pyqtSignal, Qt, pyqtSlot
@@ -93,7 +94,7 @@ class TextEdit(QCodeEditor):
         # CONNECT REQUIRED SIGNALS
         self.signal_clicked_on_text_edit.connect(main_window.clicked_on_text_edit)
         self.signal_modified_file_content.connect(main_window.set_actual_tab_icon)
-        self.textChanged.connect(self.text_changed)
+        # self.textChanged.connect(self.text_changed)
         # self.textChanged.connect(self.main_window.update_outline)
 
         # self.signal_send_outline.connect(main_window.get_outline)
@@ -301,6 +302,7 @@ class TextEdit(QCodeEditor):
 
     def keyReleaseEvent(self, event):
         self.signal_clicked_on_text_edit.emit(self)
+        self.text_changed()
         if event.key() not in (Qt.Key_Up, Qt.Key_Down):
             self.completer.completer_tooltip.hide_tooltip()
         if event.key() == Qt.Key_Control:
@@ -585,6 +587,8 @@ class TextEdit(QCodeEditor):
 ########################################################################################################################
 
     def get_actual_text(self):
+        if self.textCursor().hasSelection():
+            return ""
         pos = self.textCursor().position()
         pos_in_block = self.textCursor().positionInBlock()
         self.moveCursor(QTextCursor.StartOfLine)
