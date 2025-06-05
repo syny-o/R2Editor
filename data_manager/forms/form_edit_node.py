@@ -1,5 +1,5 @@
 import re
-from PyQt5.QtWidgets import QWidget, QLabel, QListWidget, QLineEdit, QVBoxLayout, QHBoxLayout, QTextEdit, QShortcut, QPushButton
+from PyQt5.QtWidgets import QWidget, QLabel, QListWidget, QLineEdit, QVBoxLayout, QHBoxLayout, QTextEdit, QShortcut, QComboBox
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 
 from dialogs.dialog_message import dialog_message
@@ -32,7 +32,7 @@ class FormEditNode(QWidget, Ui_Form):
         if not isinstance(NODE, RequirementModule):
             self.setMaximumSize(800, 600)
         else:
-            self.resize(1000, 800)
+            self.resize(1000, 900)
         self.setStyleSheet(stylesheet)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowModality(Qt.ApplicationModal)
@@ -282,7 +282,22 @@ class RequirementModuleLayoutGenerator:
 
         self.uiLabelWarning = QLabel()
 
-        # QTimer.singleShot(100, lambda: self.uiLineEditPath.setFocus())         
+
+        # QTimer.singleShot(100, lambda: self.uiLineEditPath.setFocus())    
+        uiLayoutCustomIndetifier = QHBoxLayout()
+        uiLayoutCustomIndetifier.setContentsMargins(0, 10, 0, 10)
+        self.uiComboColumnsAsIdentifier = QComboBox()
+        self.uiComboColumnsAsIdentifier.setEditable(False)
+        self.uiComboColumnsAsIdentifier.insertItems(0, ['<< Default Doors Identifier >>',])     
+        self.uiComboColumnsAsIdentifier.insertItems(1, self.NODE.columns_names)
+        if self.NODE.column_number_as_identifier is None:
+            self.uiComboColumnsAsIdentifier.setCurrentIndex(0)
+        else:
+            self.uiComboColumnsAsIdentifier.setCurrentIndex(self.NODE.column_number_as_identifier + 1)
+        uiLayoutCustomIndetifier.addWidget(QLabel("Identifier:"))
+        uiLayoutCustomIndetifier.addWidget(self.uiComboColumnsAsIdentifier)
+        
+        self.uiMainLayout.addLayout(uiLayoutCustomIndetifier)
 
         if self.NODE.coverage_filter:
             self.uiListWidgetModuleColumns.setEnabled(False)
@@ -318,6 +333,8 @@ class RequirementModuleLayoutGenerator:
 
     def update_data(self):
         change = False
+        # TODO: jdvcjvbhj 
+        self._save_identifier_changes()
         if self._evaluate_baseline_changes():
             self._save_baseline_changes()
             change = True
@@ -360,6 +377,12 @@ class RequirementModuleLayoutGenerator:
 
     def _save_columns_changes(self):
         self.NODE.columns_names = self.uiListWidgetModuleColumns.get_all_items()
+
+    def _save_identifier_changes(self):
+        if self.uiComboColumnsAsIdentifier.currentIndex() == 0:
+            self.NODE.column_number_as_identifier = None
+        else:    
+            self.NODE.column_number_as_identifier = self.uiComboColumnsAsIdentifier.currentIndex() - 1
 
 
     def _save_filter_changes(self):

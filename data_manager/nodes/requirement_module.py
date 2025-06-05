@@ -33,15 +33,16 @@ def initialise(data: dict, root_node):
         notes = requirement_module.get("notes")
         data = requirement_module.get("requirements")
         current_baseline = requirement_module.get("current_baseline")
+        column_number_as_identifier = requirement_module.get("column_number_as_identifier")
 
         if path and data:
-            r = RequirementModule(root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline)
+            r = RequirementModule(root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline, column_number_as_identifier)
             r.create_tree_from_requirements_data(data, update_time)
             root_node.appendRow(r)  # APPEND NODE AS A CHILD
             r.update_icons_according_to_coverage()
             
         elif not data:
-            r = RequirementModule(root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline)
+            r = RequirementModule(root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline, column_number_as_identifier)
             root_node.appendRow(r)  # APPEND NODE AS A CHILD     
 
 
@@ -79,7 +80,7 @@ def extract_baselines(string: str) -> dict[str, list[str, str, str]]:
 
 
 class RequirementModule(QStandardItem):
-    def __init__(self, root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline):
+    def __init__(self, root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline, column_number_as_identifier):
         super().__init__()
         self.root_node = root_node
         self.data_manager = self.root_node.data(Qt.UserRole)
@@ -116,7 +117,12 @@ class RequirementModule(QStandardItem):
         self.columns_names_backup = [*columns_names] 
         self.current_baseline_backup = current_baseline
 
+        self.column_number_as_identifier = column_number_as_identifier
+        
+
         self.update_title_text()
+
+        # print(self.path + ' has this calc: ' + str(self.column_number_as_identifier))
 
  
 
@@ -570,6 +576,12 @@ class RequirementModule(QStandardItem):
         inlinks = re.findall(r"<INLINK_START>(.*?)<INLINK_END>", one_requirement_string, re.DOTALL)                          
 
         # CREATE REQUIREMENT NODE
+
+
+        if self.column_number_as_identifier is not None:
+            identifier = columns[self.column_number_as_identifier]
+
+
         return RequirementNode(self, identifier, heading, level, outlinks, inlinks, None, columns)                          
 
 
@@ -588,6 +600,7 @@ class RequirementModule(QStandardItem):
             "ignore_list"       : list(self.ignore_list),
             "notes"             : self.notes,
             "current_baseline"  : self.current_baseline_backup,
+            "column_number_as_identifier"  : self.column_number_as_identifier,
             "requirements"      : _create_list_of_requirements_from_module(self),
             }
 
