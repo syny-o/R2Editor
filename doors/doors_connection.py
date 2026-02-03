@@ -369,6 +369,9 @@ class Worker(QRunnable):
 
             self.doors_connection.create_and_run_dxl_script(self.paths, self.columns, self.module_current_baselines)
 
+        except FileNotFoundError as e:
+            self.doors_connection.send_downloaded_requirements.emit("Doors Application not found", "") 
+            self.doors_connection.send_progress_status.emit(False, "")
             
         except Exception as e:
             print(e)
