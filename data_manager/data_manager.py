@@ -248,6 +248,11 @@ class DataManager(QWidget, Ui_Form):
         if doors_output == "Connection Failed":
             global_success = False
             dialog_message(self, "Connecting to Doors Failed.\n\nPossible reasons:\n1. Invalid username/password\n2. Doors client is N/A\n3. Network issues.")
+
+        elif doors_output == "Doors Application not found":
+            global_success = False
+            dialog_message(self, "Doors Application (doors.exe) not found, check the path in the settings!")
+        
   
         else:
             for module in self._module_locker.locked_modules:

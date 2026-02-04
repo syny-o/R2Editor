@@ -93,7 +93,7 @@ class FormDoorsInputs(QWidget, Ui_Form):
 
         uiLayoutDatabase = QHBoxLayout()
         self.uiComboDatabase = QComboBox()
-        self.uiComboDatabase.addItems(["36677@skobde-doors9db.ad.trw.com", "36677@ssh2cn-doors9db.ad.trw.com"])
+        self.uiComboDatabase.addItems(["36677@skobde-doors9db.ad.trw.com", "36677@ssh2cn-doors9db.ad.trw.com", "36677@slivmi-liv9db.ad.trw.com"])
         self.uiComboDatabase.setCurrentText(self.database_path)
         self.uiComboDatabase.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         uiLabelDatabase = QLabel("Database:")

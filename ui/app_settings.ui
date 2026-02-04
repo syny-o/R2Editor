@@ -1277,6 +1277,11 @@ border: 1px solid rgb(150, 150, 150);
                                <string>36677@ssh2cn-doors9db.ad.trw.com</string>
                               </property>
                              </item>
+                             <item>
+                              <property name="text">
+                               <string>36677@slivmi-liv9db.ad.trw.com</string>
+                              </property>
+                             </item>
                             </widget>
                            </item>
                           </layout>
