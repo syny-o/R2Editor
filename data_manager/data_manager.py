@@ -185,7 +185,7 @@ class DataManager(QWidget, Ui_Form):
 
     @pyqtSlot(str, list)
     def receive_data_from_add_req_module_dialog(self, module_path, columns_names):
-        r = RequirementModule(self.ROOT, module_path, columns_names, attributes=[], baseline={}, coverage_filter=None, coverage_dict=None, update_time=None, ignore_list=None, notes=None, current_baseline=None)
+        r = RequirementModule(self.ROOT, module_path, columns_names, attributes=[], baseline={}, coverage_filter=None, coverage_dict=None, update_time=None, ignore_list=None, notes=None, current_baseline=None, column_number_as_identifier=None)
         self.ROOT.appendRow(r)
 
     #####################################################################################################################################################
