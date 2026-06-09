@@ -118,12 +118,13 @@ class RequirementNode(QStandardItem):
 
     def add_to_ignore_list(self):
         if not self.hasChildren():  # if it is not Heading
-            # self.update_coverage(None)
-            self.MODULE._coverage_dict.pop(self.reference.lower())
-            # self.MODULE.ignore_list.add(self.reference.lower())
-            self.MODULE.ignore_list.append(self.reference.lower())
-            self.update_icon()
-            self.MODULE.update_title_text()
+            if not self.reference.lower() in self.MODULE.ignore_list and not self.reference in self.MODULE.ignore_list:            
+                # self.update_coverage(None)
+                self.MODULE._coverage_dict.pop(self.reference.lower())
+                # self.MODULE.ignore_list.add(self.reference.lower())
+                self.MODULE.ignore_list.append(self.reference.lower())
+                self.update_icon()
+                self.MODULE.update_title_text()
 
     def remove_from_ignore_list(self, remove_note=False):
         if not self.hasChildren():  # if it is not Heading
@@ -150,6 +151,8 @@ class RequirementNode(QStandardItem):
     def note(self, text: str) -> None:
         if text.strip() != "":
             self.MODULE.notes.update({self.reference.lower(): text})
+            self.add_to_ignore_list()
         else:     
             self.MODULE.notes.pop(self.reference.lower(), None)
+            self.remove_from_ignore_list()
 
