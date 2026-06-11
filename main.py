@@ -640,7 +640,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         try:
             file_suffix = file_path.suffix
             opened_files = self.get_all_opened_files()
-            if file_suffix.lower() in ('.par', '.py', '.con', '.xml', '.txt', '.map'):
+            if file_suffix.lower() in ('.par', '.py', '.con', '.xml', '.txt', '.map', '.tst'):
                 if file_path not in opened_files:
                     with open(file_path, 'r') as file_to_open:
                         text = file_to_open.read()

@@ -657,7 +657,7 @@ class Worker(QRunnable):
         reference_dict = {}       
         for root, dirs, files in os.walk(self.data_manager.PROJECT_MANAGER.disk_project_path()):
             for filename in files:
-                if filename.endswith((".par", ".txt")):
+                if filename.endswith((".par", ".txt", ".tst")):
                     full_path = Path(root) / Path(filename)
                     full_path = str(full_path)
 

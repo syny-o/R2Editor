@@ -45,7 +45,7 @@ class FileSystemView(QWidget, Ui_Form):
         self.model = QFileSystemModel()
         self.model.setRootPath(self._dir_path)  # directory is just watched for changes
         self.model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot | QDir.Files | QDir.AllEntries)
-        self.model.setNameFilters(['*.par','*.a2l', '*.con', '*.py', '*.xml', '*.map', '*.txt'])
+        self.model.setNameFilters(['*.par','*.a2l', '*.con', '*.py', '*.xml', '*.map', '*.txt', "*.tst"])
         self.model.setNameFilterDisables(False)
 
         ################## UI TREEVIEW ###########################
@@ -208,7 +208,7 @@ class FileSystemView(QWidget, Ui_Form):
         
 
         # ACTION CREATE COPY OF SCRIPT (DUPLICATE)
-        if file_suffix.lower() in ('.par', '.txt'):
+        if file_suffix.lower() in ('.par', '.txt', '.tst'):
             action_duplicate_script = menu.addAction(QIcon(u"ui/icons/20x20/cil-copy.png"), 'Create Copy')                     
             action_duplicate_script.triggered.connect(lambda: self._duplicate_script(file_path)) 
 
