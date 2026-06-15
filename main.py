@@ -306,43 +306,41 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def update_outline(self):
 
-        if not self.actual_text_edit:
+        editor = self.actual_text_edit
+        if not editor:
             self.uiTreeOutline.clear()
             self.last_text_4_outline = ""
             return
-        
-        if self.actual_text_edit.file_path and Path(self.actual_text_edit.file_path).suffix.lower() != '.par':
+
+        if editor.file_path and Path(editor.file_path).suffix.lower() != '.tst':
             self.uiTreeOutline.clear()
             self.last_text_4_outline = ""
             return
-        
-        text = self.actual_text_edit.toPlainText()
-        
-        if text != self.last_text_4_outline:
-            self.last_text_4_outline = text
-            self.uiTreeOutline.clear()
-            chapters_testcases = self.extract_chapters_testcases_from_text(text)
-            parent = self.uiTreeOutline
-            for section in chapters_testcases:
-                text = section[0]
-                if re.search(r'^\s*CHAPTER\s+".*"', text, re.IGNORECASE):
-                    parent = QTreeWidgetItem(self.uiTreeOutline)
-                    parent.setData(0, Qt.DisplayRole, section[0].split('"')[1])
-                    parent.setData(0, Qt.UserRole, section[1])
-                    parent.setData(0, Qt.DecorationRole, qta.icon('fa5s.book-open', color='#E5A031', scale_factor=1.5))
-                    continue
-                elif re.search(r'^\s*END CHAPTER\s+', text, re.IGNORECASE):
-                    parent = self.uiTreeOutline
-                    continue
 
-                elif re.search(r'^\s*TESTCASE\s+".*".*EXPECTEDRESULT', text, re.IGNORECASE):                    
-                    item = QTreeWidgetItem(parent)
-                    item.setData(0, Qt.DisplayRole, section[0].split('"')[1])
-                    item.setData(0, Qt.UserRole, section[1])
-                    item.setData(0, Qt.DecorationRole, qta.icon('ph.test-tube-fill', color='#9B59B6', scale_factor=1.5))
+        text = editor.toPlainText()
 
-            self.update_selected_item_in_outline()
-            self.uiTreeOutline.expandAll()
+        if text == self.last_text_4_outline:
+            return
+
+        self.last_text_4_outline = text
+        self.uiTreeOutline.clear()
+
+        # 🔥 přímo parsujeme jen TEST.NAME
+        for match in re.finditer(r'^\s*TEST\.NAME:(.*)', text, re.IGNORECASE | re.MULTILINE):
+            name = match.group(1).strip()
+            pos = match.start()
+
+            item = QTreeWidgetItem(self.uiTreeOutline)
+            item.setData(0, Qt.DisplayRole, name)
+            item.setData(0, Qt.UserRole, pos)
+            item.setData(
+                0,
+                Qt.DecorationRole,
+                qta.icon('ph.test-tube-fill', color='#9B59B6', scale_factor=1.5)
+            )
+
+        self.update_selected_item_in_outline()
+        self.uiTreeOutline.expandAll()
 
 
     def update_selected_item_in_outline_by_scrollbar(self, scrollbar_value):
@@ -378,13 +376,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.uiTreeOutline.setCurrentItem(item)
     
 
+
     @functools.cache
-    def extract_chapters_testcases_from_text(self, text):
-        results = re.finditer(r".*(?:END CHAPTER|CHAPTER|TESTCASE).*", text, re.IGNORECASE)
-        if results:
-            sections = self.extract_sections_from_matches(results)
-            return sections
-        return []
+    def extract_tests_from_text(self, text):
+        results = re.finditer(
+            r"^\s*(--\s*COMPOUND TESTS|TEST\.NAME:.*)",
+            text,
+            re.IGNORECASE | re.MULTILINE
+        )
+        return self.extract_sections_from_matches(results)
+
     
 
     @functools.cache
