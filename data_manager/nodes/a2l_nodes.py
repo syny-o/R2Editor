@@ -18,7 +18,7 @@ def initialise(data: dict, root_node):
 
 def extract_measurements_from_file(file_path):
     measurements = []
-    with open(file_path) as f:
+    with open(file_path, encoding='utf-8', errors='ignore') as f:
         file_string = f.read()
     
     pattern = re.compile(r'(/begin MEASUREMENT|/begin CHARACTERISTIC)(.*?)(/end MEASUREMENT|end CHARACTERISTIC)',
