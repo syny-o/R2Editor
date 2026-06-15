@@ -48,13 +48,13 @@ class DataTreeView(QTreeView):
 
             for url in urls:
                 path = url.toLocalFile()
-                if path.lower().endswith('.con'):
+                if path.lower().endswith('.con') or path.lower().endswith('.con.xml'):
                     self.send_data_from_drop.emit(
                         {'Conditions Files': [path]}
                     )
                     # event.acceptProposedAction()
                     event.accept()
-                elif path.lower().endswith('dspacemapping.py'):
+                elif path.lower().endswith('dspacemapping.py') or (path.lower().endswith('.py') and 'dspacemapping' in path.lower()):
                     self.send_data_from_drop.emit(
                         {'DSpace Files': [path]}
                     )

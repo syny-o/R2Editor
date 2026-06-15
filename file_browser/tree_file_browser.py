@@ -100,10 +100,10 @@ class FileSystemView(QWidget, Ui_Form):
 
         data = {}
 
-        if path.lower().endswith('.con'):
+        if path.lower().endswith('.con') or path.lower().endswith('.con.xml'):
             data.update({'Conditions Files': [path]})            
 
-        elif path.lower().endswith('dspacemapping.py'):
+        elif path.lower().endswith('.py') and 'dspacemapping' in path.lower():
             data.update({'DSpace Files': [path]})
 
         elif path.lower().endswith('.a2l'):
@@ -212,7 +212,7 @@ class FileSystemView(QWidget, Ui_Form):
             action_duplicate_script = menu.addAction(QIcon(u"ui/icons/20x20/cil-copy.png"), 'Create Copy')                     
             action_duplicate_script.triggered.connect(lambda: self._duplicate_script(file_path)) 
 
-        if (file_suffix.lower() in ('.con','.a2l')) or file_path.lower().endswith('dspacemapping.py'): 
+        if (file_suffix.lower() in ('.con','.xml','.a2l')) or file_path.lower().endswith('.py'): 
             # ACTION ADD TO MODEL
             menu.addSeparator()
             action_add_to_model = menu.addAction(QIcon(u"ui/icons/16x16/cil-dialpad.png"), 'Add to Model')   
