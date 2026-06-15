@@ -28,9 +28,9 @@ def format(color, style='', background_color = None):
 
 
 STYLES_DARK_MODE = {
-    'keyword': format('#ff0040', 'bold'),
-    'keyword_primary': format('#fff', 'bold', '#e30e0e'),
-    'keyword_secondary': format('violet', 'bold'),
+    'keyword': format('#ff0040'),
+    'keyword_primary': format('#fff', 'bold'),
+    'keyword_secondary': format('violet'),
     'keyword_if': format('#2dbdd6', 'bold'),
     'keyword_for': format('violet', 'bold'),
     'pbc_variables': format('grey', 'italic'),
@@ -41,6 +41,9 @@ STYLES_DARK_MODE = {
     'values': format('#C82C2C'),
     'operator': format('orange'),
     'brace': format('#C82C2C'),
+
+    'angle_keyword': format('#ffaa00'),
+    'quoted_keyword': format('#00ffaa'),    
 
 
 
@@ -60,23 +63,24 @@ STYLES_LIGHT_MODE = {
     'values': format('#C82C2C'),
     'operator': format('black'),
     'brace': format('#C82C2C'),
+
+    'angle_keyword': format('#cc8800'),
+    'quoted_keyword': format('#008855'),
 }
 
 
 class RapitTwoHighlighter(QSyntaxHighlighter):
 
-    # RapitTwo keywords
     keywords = [
-        'EXPECTEDRESULT', 'COM',
-
+        'TEST.NEW', 'TEST.END', 'TEST.SUBPROGRAM', 'TEST.SCRIPT_FEATURE',
     ]
 
     keywords_primary = [
-        'TESTCASE', 'CHAPTER', 'END CHAPTER', 'Testcase',
+        'TEST.NAME',
     ]
 
     keywords_secondary = [
-        'HIL', 'PRE', 'SEV', 'REF','REMARK',
+        'TEST.SLOT', 'TEST.REQUIREMENT_KEY',
     ]
 
     keywords_if = [
@@ -120,47 +124,67 @@ class RapitTwoHighlighter(QSyntaxHighlighter):
 
         rules = []
 
-        # Keyword, operator, and brace rules
+        # --- HLAVNÍ KLÍČOVÁ SLOVA ---
         rules += [(r'\b%s\b' % w, 0, STYLES['keyword'])
             for w in RapitTwoHighlighter.keywords]
+
         rules += [(r'\b%s\b' % s, 0, STYLES['keyword_primary'])
             for s in RapitTwoHighlighter.keywords_primary]
+
         rules += [(r'\b%s\b' % t, 0, STYLES['keyword_secondary'])
             for t in RapitTwoHighlighter.keywords_secondary]
+
         rules += [(r'\b%s\b' % i, 0, STYLES['keyword_if'])
-            for i in RapitTwoHighlighter.keywords_if]            
+            for i in RapitTwoHighlighter.keywords_if]
+
         rules += [(r'\b%s\b' % f, 0, STYLES['keyword_for'])
-            for f in RapitTwoHighlighter.keywords_for]                        
-        rules += [(r'%s' % o, 0, STYLES['operator'])
-            for o in RapitTwoHighlighter.operators]
-        rules += [(r'%s' % b, 0, STYLES['brace'])
-            for b in RapitTwoHighlighter.braces]
+            for f in RapitTwoHighlighter.keywords_for]
 
-        # All other rules
+
+        # --- STRUKTURA SCRIPTU ---
         rules += [
-            # Numeric literals
-            (r'\b[+-]?[0-9]+[lL]?\b', 0, STYLES['numbers']),
-            (r'\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b', 0, STYLES['numbers']),
-            (r'\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b', 0, STYLES['numbers']),
-
-            # Double-quoted string, possibly containing escape sequences ### "\"([^\"]*)\"" ### "\"(\\w)*\""
-            (r'"[^"\\]*(\\.[^"\\]*)*"', 0, STYLES['string']),
-
-            # Single-quoted string, possibly containing escape sequences
-            (r"'[^'\\]*(\\.[^'\\]*)*'", 0, STYLES['string']),
-
-            # From "'" until a newline
-            (r"'[^\n]*", 0, STYLES["comment"]),
-
-            # Pbc
-            #(r"[A-Za-z]*Pbc[a-zA-Z]*", 0, STYLES["pbc_variables"]),
-
-            # Value after '='
-            #(r"=[^\n]*", 0, STYLES["values"]),
-
+            (r'--\s*COMPOUND TESTS', 0, STYLES['keyword_for']),
+            (r'^\s*TEST\.NAME:.*', 0, STYLES['keyword_primary']),
+            (r'^\s*TEST\.SLOT:.*', 0, STYLES['keyword_secondary']),
+            (r'^\s*TEST\.REQUIREMENT_KEY:.*', 0, STYLES['keyword_if']),
+            (r'TEST\.[A-Z_]+:', 0, STYLES['keyword']),
         ]
 
-        # Build a QRegExp for each pattern
+
+        # ✅ --- SLOT FORMÁTOVÁNÍ (KLÍČOVÁ ČÁST) ---
+
+        rules += [
+
+            # --- "<<KEYWORD>>" uvnitř uvozovek ---
+            (r'(?<=")<<[^<>]+>>(?=")', 0, STYLES['angle_keyword']),
+
+            # --- obsah stringu (bez << >>) ---
+            (r'(?<=")[^"<>\n,]+(?=")', 0, STYLES['quoted_keyword']),
+
+            # --- čísla uvnitř uvozovek ---
+            (r'(?<=")\d+(?=")', 0, STYLES['numbers']),
+
+            # --- uvozovky ---
+            (r'"', 0, format('#ffffff')),
+
+            # --- čárky ---
+            (r',', 0, format('#ffffff')),
+        ]
+
+
+        # --- DALŠÍ ČITELNOST ---
+        rules += [
+
+            # čísla
+            # (r'\b[0-9]+\b', 0, STYLES['numbers']),
+            (r'(?<=")\d+(?=")', 0, STYLES['numbers']),
+
+            # komentáře
+            (r'--[^\n]*', 0, STYLES["comment"]),
+        ]
+
+
+        # Build regex
         self.rules = [(QRegExp(pat), index, fmt)
             for (pat, index, fmt) in rules]
 
