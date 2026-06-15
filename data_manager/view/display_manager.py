@@ -237,7 +237,9 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
     def _copy_to_clipboard(self):
         cb = QApplication.clipboard()
         cb.clear(mode=cb.Clipboard)
-        cb.setText(self.uiLineEditIdentifier.text(), mode=cb.Clipboard)
+        # cb.setText(self.uiLineEditIdentifier.text(), mode=cb.Clipboard)
+        # SIL:
+        cb.setText("TEST.REQUIREMENT_KEY:" + self.uiLineEditIdentifier.text(), mode=cb.Clipboard)
         # TODO: Reduce coupling
         self.DATA_MANAGER.MAIN.show_notification(f"Item {self.uiLineEditIdentifier.text()} copied to Clipboard.")                  
 
