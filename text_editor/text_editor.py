@@ -58,7 +58,6 @@ class TextEdit(CodeEditor):
     signal_clicked_on_text_edit = pyqtSignal(object)
     signal_modified_file_content = pyqtSignal(object, bool)
     signal_scroll_position_changed = pyqtSignal(object, int)
-    signal_send_outline = pyqtSignal(list)
 
     
     @classmethod
@@ -70,9 +69,8 @@ class TextEdit(CodeEditor):
         for ch in cls.instances:
             ch.setFont(cls.font)
 
-    def __init__(self, main_window, text, file_path, syntax_highlighter: ISyntaxHighlighter):
+    def __init__(self, text, file_path, syntax_highlighter: ISyntaxHighlighter, dark_mode=False):
         super().__init__(text)
-        self.main_window = main_window
 
         TextEdit.append_child(self)
 
@@ -92,7 +90,7 @@ class TextEdit(CodeEditor):
         self.file_was_modified = False
 
 
-        self.update_syntax_highlighter(syntax_highlighter)
+        self.update_syntax_highlighter(syntax_highlighter, dark_mode)
 
         if self.file_path:
             self.is_read_only = not(os.access(self.file_path, os.W_OK))
@@ -111,10 +109,6 @@ class TextEdit(CodeEditor):
         self.setTextInteractionFlags(Qt.TextEditorInteraction)
 
 
-        # CONNECT REQUIRED SIGNALS
-        self.signal_clicked_on_text_edit.connect(main_window.clicked_on_text_edit)
-        self.signal_modified_file_content.connect(main_window.set_tab_modified_icon)
-        self.signal_scroll_position_changed.connect(main_window.update_selected_item_in_outline_by_scrollbar)
         self.document().modificationChanged.connect(self._on_modification_changed)
         self.document().setModified(False)
         # CONNECT COMPLETER - INSTANCE CONFIGURATION
@@ -131,11 +125,10 @@ class TextEdit(CodeEditor):
         self.remember_special_char = False
 
 
-    def update_syntax_highlighter(self, syntax_highlighter: ISyntaxHighlighter):
-        if self.main_window.app_settings.theme == 'Dark':
-            self.syntax_highlighter = syntax_highlighter(self.document(), dark_mode=True)
-        else:
-            self.syntax_highlighter = syntax_highlighter(self.document(), dark_mode=False)
+    def update_syntax_highlighter(self, syntax_highlighter: ISyntaxHighlighter, dark_mode):
+        self.syntax_highlighter = syntax_highlighter(
+            self.document(), dark_mode=dark_mode
+        )
         
 
     def mouseReleaseEvent(self, event):

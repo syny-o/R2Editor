@@ -621,6 +621,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return opened_files
 
 
+    def create_text_edit(self, text, file_path, syntax_highlighter):
+        text_edit = TextEdit(
+            text,
+            file_path,
+            syntax_highlighter,
+            dark_mode=self.app_settings.theme == 'Dark',
+        )
+        text_edit.signal_clicked_on_text_edit.connect(self.clicked_on_text_edit)
+        text_edit.signal_modified_file_content.connect(self.set_tab_modified_icon)
+        text_edit.signal_scroll_position_changed.connect(
+            self.update_selected_item_in_outline_by_scrollbar
+        )
+        return text_edit
+
+
     def file_open_from_dialog(self):
         path, _ = QFileDialog.getOpenFileName(
             parent=self,
@@ -656,7 +671,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         syntax_highlighter = rapit_two_highlighter.RapitTwoHighlighter
 
                     tab_name = file_path.name
-                    self.left_tabs.addTab(TextEdit(self, text, file_path, syntax_highlighter), QIcon(u"ui/icons/16x16/cil-file.png"), tab_name)
+                    text_edit = self.create_text_edit(text, file_path, syntax_highlighter)
+                    self.left_tabs.addTab(text_edit, QIcon(u"ui/icons/16x16/cil-file.png"), tab_name)
 
                 else:
                     opened_files[file_path][1].setCurrentWidget(opened_files[file_path][0])
@@ -768,7 +784,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         text = template.generate_tc_template()
         file_path = None
         tab_name = 'Untitled'
-        self.left_tabs.addTab(TextEdit(self, "", file_path, rapit_two_highlighter.RapitTwoHighlighter), QIcon(u"ui/icons/16x16/cil-description.png"), tab_name)
+        text_edit = self.create_text_edit(
+            "", file_path, rapit_two_highlighter.RapitTwoHighlighter
+        )
+        self.left_tabs.addTab(text_edit, QIcon(u"ui/icons/16x16/cil-description.png"), tab_name)
         self.actual_text_edit.setFocus()
         tc = self.actual_text_edit.textCursor()
         tc.insertText(text)
