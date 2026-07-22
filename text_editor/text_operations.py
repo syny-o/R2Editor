@@ -3,6 +3,17 @@ import re
 
 PARAGRAPH_SEPARATOR = '\u2029'
 
+MONITOR_VARIABLES_PATTERN = re.compile(
+    r'''(?<!')(?P<command>MonitorVariables(CANape)?)\s*=\s*"'''
+    r'''(?P<variables>[\d\w_.\s]+),\s*(?P<time>\d+)\s*,'''
+    r'''\s*(?P<sample_time>\d+)\s*"''',
+    flags=re.IGNORECASE,
+)
+GRAPH_VARIABLES_PATTERN = re.compile(
+    r'''(?<!')GraphVariables\s*=\s*"(?P<variables>[\d\w_.\s]+)"''',
+    flags=re.IGNORECASE,
+)
+
 
 def leading_whitespace(text):
     return text[:len(text) - len(text.lstrip())]
@@ -62,6 +73,27 @@ def format_first_assignment(line_text, excluded_prefixes=()):
 
     left_side, _, right_side = stripped_end.partition('=')
     return f'{left_side.rstrip()} = {right_side.strip()}'
+
+
+def normalize_variable_command(line_text):
+    if line_text.strip().startswith("'"):
+        return line_text
+
+    monitor_match = MONITOR_VARIABLES_PATTERN.search(line_text)
+    if monitor_match:
+        variables = monitor_match.group('variables').split()
+        return (
+            f'{monitor_match.group("command")} = '
+            f'"{" ".join(variables)},{monitor_match.group("time")},'
+            f'{monitor_match.group("sample_time")}"'
+        )
+
+    graph_match = GRAPH_VARIABLES_PATTERN.search(line_text)
+    if graph_match:
+        variables = graph_match.group('variables').split()
+        return f'GraphVariables = "{" ".join(variables)}"'
+
+    return line_text
 
 
 def transform_indentation(text, operation):

@@ -7,31 +7,9 @@ from text_editor.text_operations import (
     build_testcase,
     graph_variables_before_cursor,
     leading_whitespace,
+    normalize_variable_command,
     transform_indentation,
 )
-
-PATTERN_MONITOR_VAR =  re.compile(r'''(?<!')(?P<command>MonitorVariables(CANape)?)\s*=\s*"(?P<variables>[\d\w_.\s]+),\s*(?P<time>\d+)\s*,\s*(?P<sample_time>\d+)\s*"''', flags=re.IGNORECASE)
-PATTERN_GRAPH_VAR =  re.compile(r'''(?<!')GraphVariables\s*=\s*"(?P<variables>[\d\w_.\s]+)"''', flags=re.IGNORECASE)
-
-def handle_syntax(string_line):
-    if not string_line.strip().startswith("'"):
-        # handle MonitorVariables/CANape
-        if  match := PATTERN_MONITOR_VAR.search(string_line):
-            command = match.group("command")
-            raw_variables = match.group("variables")
-            variables = raw_variables.split()
-            variables = [v.strip() for v in variables]
-            time = match.group("time")
-            sample_time = match.group("sample_time")
-            return f'{command} = "{" ".join(variables)},{time},{sample_time}"'
-        # handle GraphVariables
-        elif match := PATTERN_GRAPH_VAR.search(string_line):
-            raw_variables = match.group("variables")
-            variables = raw_variables.split()
-            variables = [v.strip() for v in variables]
-            return f'GraphVariables = "{" ".join(variables)}"'        
-        
-    return string_line
 
 
 class TextFormatter:
@@ -130,7 +108,7 @@ class TextFormatter:
             
             
             # handle syntax --> correcting spaces in MonitorVariables/Graph Variables commands
-            current_line = handle_syntax(current_line)
+            current_line = normalize_variable_command(current_line)
 
             # COMMAND
             if self.PATTERNS["COMMAND"].search(current_line):
