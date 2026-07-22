@@ -509,37 +509,24 @@ class TextEdit(CodeEditor):
 # MODEL MANAGEMENT
 ########################################################################################################################
 
+    def _set_completion_model(self, model_name, model=None):
+        self.current_model = model_name
+        self.completer.setModel(model if model is not None else QStandardItemModel())
 
     def switch_to_values(self):
+        model = None
         if self.completer.cond_model:
-            self.current_model = 'values'
-            key = self.actual_text
-            # print("key==="+key+"===")
-            self.completer.setModel(self.completer.cond_dict.get(key))
-        else:
-            self.completer.setModel(QStandardItemModel())
+            model = self.completer.cond_dict.get(self.actual_text)
+        self._set_completion_model('values', model)
 
     def switch_to_conditions(self):
-        self.current_model = 'conditions'
-        if self.completer.cond_model:
-            self.completer.setModel(self.completer.cond_model)
-        else:
-            self.completer.setModel(QStandardItemModel())
-
+        self._set_completion_model('conditions', self.completer.cond_model)
 
     def switch_to_pbc_variables(self):
-        self.current_model = 'pbc_variables'
-        if self.completer.a2l_model:
-            self.completer.setModel(self.completer.a2l_model)
-        else:
-            self.completer.setModel(QStandardItemModel())
+        self._set_completion_model('pbc_variables', self.completer.a2l_model)
 
     def switch_to_dspace_variables(self):
-        self.current_model = 'dspace_variables'
-        if self.completer.dspace_model:
-            self.completer.setModel(self.completer.dspace_model)
-        else:
-            self.completer.setModel(QStandardItemModel())
+        self._set_completion_model('dspace_variables', self.completer.dspace_model)
 
     def switch_to_graph_variables(self):
         variables = text_management.evaluate_data_4_GraphVariables(self)
@@ -549,7 +536,7 @@ class TextEdit(CodeEditor):
             item.setData(v, Qt.ToolTipRole)
             item.setData(v, Qt.DisplayRole)
             variables_model.appendRow(item)
-        self.completer.setModel(variables_model)
+        self._set_completion_model('graph_variables', variables_model)
 
     
 ########################################################################################################################
