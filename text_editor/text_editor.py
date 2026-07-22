@@ -1,4 +1,5 @@
 import os
+import stat
 from PyQt5.QtWidgets import QPlainTextEdit, QToolTip
 
 from text_editor.code_editor import CodeEditor
@@ -14,6 +15,18 @@ from text_editor.completer import Completer
 from components.text_functions import get_word_under_cursor
 
 from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighter
+
+
+def is_file_read_only(file_path):
+    if file_path is None:
+        return False
+
+    file_status = os.stat(file_path)
+    windows_attributes = getattr(file_status, 'st_file_attributes', None)
+    if windows_attributes is not None:
+        return bool(windows_attributes & stat.FILE_ATTRIBUTE_READONLY)
+
+    return not bool(file_status.st_mode & stat.S_IWRITE)
 
 
 class TextEdit(CodeEditor):
@@ -75,12 +88,6 @@ class TextEdit(CodeEditor):
 
         self.update_syntax_highlighter(syntax_highlighter, dark_mode)
 
-        if self.file_path:
-            self.is_read_only = not(os.access(self.file_path, os.W_OK))
-        else:
-            self.is_read_only = False
-        
-
         self.setFont(font)
         
 
@@ -89,6 +96,7 @@ class TextEdit(CodeEditor):
         self.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.setTabStopDistance(14)
         self.setTextInteractionFlags(Qt.TextEditorInteraction)
+        self.setReadOnly(is_file_read_only(self.file_path))
 
 
         self.document().modificationChanged.connect(self._on_modification_changed)

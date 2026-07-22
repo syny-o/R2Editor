@@ -762,6 +762,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.actual_text_edit.original_file_content = text_to_save
             self.actual_text_edit.document().setModified(False)
             self.actual_text_edit.file_path = Path(path)
+            self.actual_text_edit.setReadOnly(False)
             current_tab_index = self.actual_tabs.indexOf(self.actual_text_edit)
             self.actual_tabs.setTabText(current_tab_index, Path(path).name)
             self.update_actual_information()
@@ -790,13 +791,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def file_lock_unlock(self):
         if self.actual_text_edit:
             try:
-                if self.actual_text_edit.is_read_only:
+                if self.actual_text_edit.isReadOnly():
                     os.chmod(self.actual_text_edit.file_path, stat.S_IWRITE)
-                    self.actual_text_edit.is_read_only = False
+                    self.actual_text_edit.setReadOnly(False)
                     self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_UNLOCKED)
                 else: 
                     os.chmod(self.actual_text_edit.file_path, stat.S_IREAD)
-                    self.actual_text_edit.is_read_only = True
+                    self.actual_text_edit.setReadOnly(True)
                     self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_LOCKED)
             except TypeError as e:
                 dialog_message(self, f"File is not saved! Save the file first. {str(e)}.")
@@ -847,7 +848,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.btn_lock_unlock.setVisible(False)
             return
         self.btn_lock_unlock.setVisible(True)
-        if self.actual_text_edit.is_read_only:
+        if self.actual_text_edit.isReadOnly():
             self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_LOCKED)
         else:
             self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_UNLOCKED)
