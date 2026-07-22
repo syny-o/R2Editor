@@ -12,8 +12,6 @@ from PyQt5.QtGui import QTextCursor, QStandardItem, QStandardItemModel, QPalette
 from config.font import font
 
 from text_editor.completer import Completer
-from text_editor.data_manager_widget import DataManagerWidget
-
 from components.text_functions import get_word_under_cursor
 
 from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighter
@@ -119,15 +117,6 @@ class TextEdit(CodeEditor):
         self.signal_scroll_position_changed.connect(main_window.update_selected_item_in_outline_by_scrollbar)
         self.document().modificationChanged.connect(self._on_modification_changed)
         self.document().setModified(False)
-        # self.textChanged.connect(self.main_window.update_outline)
-
-        # self.signal_send_outline.connect(main_window.get_outline)
-        # self.cursorPositionChanged.connect(self.send_outline)
-        # self.cursorPositionChanged.connect(lambda: print("Hello"))
-
-
-
-
         # CONNECT COMPLETER - INSTANCE CONFIGURATION
         self.completer = Completer(self)
         self.completer.setWidget(self)
@@ -140,8 +129,6 @@ class TextEdit(CodeEditor):
         self.actual_text = ''
 
         self.remember_special_char = False
-
-        self.data_manager_widget = DataManagerWidget(self.main_window, self)
 
 
     def update_syntax_highlighter(self, syntax_highlighter: ISyntaxHighlighter):
