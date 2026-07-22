@@ -20,7 +20,7 @@ from text_editor.text_operations import (
     split_indentation,
     transform_indentation,
 )
-from text_editor.text_management import TextFormatter
+from text_editor.script_formatter import TextFormatter
 
 
 class TextOperationsTest(unittest.TestCase):
