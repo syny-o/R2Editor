@@ -22,6 +22,28 @@ from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighte
 
 class TextEdit(CodeEditor):
 
+    PBC_VARIABLE_COMMANDS = {
+        'MonitorVariablesCANape',
+        'MonitorVariablesCanape',
+        'VariableSequence',
+        'CANapeCommand',
+    }
+
+    SPECIAL_COMMAND_TEMPLATES = {
+        'MonitorVariablesCANape': (' = ", 100000, 10"', 13),
+        'MonitorVariablesCanape': (' = ", 100000, 10"', 13),
+        'MonitorVariables': (' = ", 100000, 10"', 13),
+        'GraphVariables': (' = ""', 1),
+        'VariableRisingInRange': (' = ""', 1),
+        'VariableDroppingInRange': (' = ""', 1),
+        'VariableRisingChanges': (' = ""', 1),
+        'VariableDroppingChanges': (' = ""', 1),
+        'VariableMaxInRange': (' = ""', 1),
+        'VariableMinInRange': (' = ""', 1),
+        'CANapeCommand': (' = "CANape_GetObjectValue()"', 2),
+        'VariableSequence': (' = ""', 1),
+    }
+
     font = font
 
     instances = WeakSet()
@@ -414,38 +436,21 @@ class TextEdit(CodeEditor):
                     + self.completer.popup().verticalScrollBar().sizeHint().width() + 20)
         self.completer.complete(cr)
 
-    # def focusInEvent(self, event):
-    #     if self.completer:
-    #         self.completer.setWidget(self)
-    #     QPlainTextEdit.focusInEvent(self, event)
-
 ########################################################################################################################
 # ACTUAL TEXT MANAGEMENT
 ########################################################################################################################
 
     def get_actual_text(self):
-        if self.textCursor().hasSelection():
+        cursor = self.textCursor()
+        if cursor.hasSelection():
             return ""
-        pos = self.textCursor().position()
-        pos_in_block = self.textCursor().positionInBlock()
-        self.moveCursor(QTextCursor.StartOfLine)
-        line_text = self.textCursor().block().text()
-        actual_text = line_text[:pos_in_block]
-        cursor = QTextCursor(self.textCursor())
-        cursor.setPosition(pos)
-        self.setTextCursor(cursor)
-        actual_text = actual_text.split('=')[0]
-        actual_text = actual_text.strip()
 
-
-        return actual_text
+        text_before_cursor = cursor.block().text()[:cursor.positionInBlock()]
+        return text_before_cursor.partition('=')[0].strip()
 
 
     def evaluate_actual_text(self):
-        if self.actual_text == 'MonitorVariablesCANape' \
-                or self.actual_text == 'MonitorVariablesCanape' \
-                or self.actual_text == 'VariableSequence' \
-                or self.actual_text == 'CANapeCommand':
+        if self.actual_text in self.PBC_VARIABLE_COMMANDS:
             self.switch_to_pbc_variables()
         elif self.actual_text == 'GraphVariables':
             self.switch_to_graph_variables()
@@ -482,84 +487,18 @@ class TextEdit(CodeEditor):
 
 
     def complete_special_command(self):
-        tc = self.textCursor()
-        line_text = tc.block().text()
+        cursor = self.textCursor()
+        line_text = cursor.block().text()
+        template = self.SPECIAL_COMMAND_TEMPLATES.get(line_text.strip())
+        if template is None:
+            return
 
-        if line_text.strip() == 'MonitorVariablesCANape' or line_text.strip() == 'MonitorVariablesCanape' or line_text.strip() == 'MonitorVariables':
-            command = line_text.strip()
-            tc.select(tc.LineUnderCursor)
-            tc.removeSelectedText()
-            self.insertPlainText(line_text + ' = ", 100000, 10"')
-            for letter in range(13):
-                tc.movePosition(QTextCursor.Left)
-            self.setTextCursor(tc)
-
-            # SHOW TOOLTIP / HINT IN CONSOLE
-            self.completer.popup().hide()
-            # self.show_tooltip(self.tooltips['MonitorVariablesCANape'])
-
-
-
-        elif line_text.strip() == 'GraphVariables':
-            command = line_text.strip()
-            tc.select(tc.LineUnderCursor)
-            tc.removeSelectedText()
-            self.insertPlainText(line_text + ' = ""')
-            for letter in range(1):
-                tc.movePosition(QTextCursor.Left)
-            self.setTextCursor(tc)
-
-            # SHOW TOOLTIP / HINT IN CONSOLE
-            self.completer.popup().hide()
-            # self.show_tooltip(self.tooltips['GraphVariables'])
-
-
-        elif line_text.strip() == 'VariableRisingInRange' \
-            or line_text.strip() == 'VariableDroppingInRange' \
-            or line_text.strip() == 'VariableRisingChanges' \
-            or line_text.strip() == 'VariableDroppingChanges' \
-            or line_text.strip() == 'VariableMaxInRange' \
-            or line_text.strip() == 'VariableMinInRange':
-            command = line_text.strip()
-            tc.select(tc.LineUnderCursor)
-            tc.removeSelectedText()
-            self.insertPlainText(line_text + ' = ""')
-            for letter in range(1):
-                tc.movePosition(QTextCursor.Left)
-            self.setTextCursor(tc)
-
-            # SHOW TOOLTIP / HINT IN CONSOLE
-            self.completer.popup().hide()
-            # self.show_tooltip(self.tooltips[command])
-
-
-
-
-        elif line_text.strip() == 'CANapeCommand':
-            command = line_text.strip()
-            tc.select(tc.LineUnderCursor)
-            tc.removeSelectedText()
-            self.insertPlainText(line_text + ' = "CANape_GetObjectValue()"')
-            for letter in range(2):
-                tc.movePosition(QTextCursor.Left)
-            self.setTextCursor(tc)
-
-            # SHOW TOOLTIP / HINT IN CONSOLE
-            self.completer.popup().hide()
-            # self.show_tooltip(self.tooltips['CANape_GetObjectValue'])
-
-
-        elif line_text.strip() == 'VariableSequence':
-            command = line_text.strip()
-            tc.select(tc.LineUnderCursor)
-            tc.removeSelectedText()
-            self.insertPlainText(line_text + ' = ""')
-            tc.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor)
-            self.setTextCursor(tc)
-
-            # SHOW TOOLTIP / HINT IN CONSOLE
-            self.completer.popup().hide()
-            # self.show_tooltip(self.tooltips['VariableSequence'])
+        suffix, cursor_offset = template
+        cursor.select(QTextCursor.LineUnderCursor)
+        cursor.insertText(line_text + suffix)
+        cursor.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, cursor_offset)
+        self.setTextCursor(cursor)
+        self.completer.popup().hide()
 
 
 
