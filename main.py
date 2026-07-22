@@ -523,10 +523,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             if answer == QMessageBox.Save:
                 backup_text_edit = self.actual_text_edit
+                backup_tabs = self.actual_tabs
+                self.actual_tabs = self.left_tabs
                 self.actual_text_edit = self.left_tabs.widget(tab_index)
-                self.file_save()
+                was_saved = self.file_save()
                 self.actual_text_edit = backup_text_edit
-                self.left_tab_close_without_saving(tab_index)
+                self.actual_tabs = backup_tabs
+                if was_saved:
+                    self.left_tab_close_without_saving(tab_index)
 
             elif answer == QMessageBox.Discard:
                 self.left_tab_close_without_saving(tab_index)
@@ -570,10 +574,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             if answer == QMessageBox.Save:
                 backup_text_edit = self.actual_text_edit
+                backup_tabs = self.actual_tabs
+                self.actual_tabs = self.right_tabs
                 self.actual_text_edit = self.right_tabs.widget(tab_index)
-                self.file_save()
+                was_saved = self.file_save()
                 self.actual_text_edit = backup_text_edit
-                self.right_tab_close_without_saving(tab_index)
+                self.actual_tabs = backup_tabs
+                if was_saved:
+                    self.right_tab_close_without_saving(tab_index)
 
             elif answer == QMessageBox.Discard:
                 self.right_tab_close_without_saving(tab_index)
@@ -716,33 +724,36 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def file_save(self):
-        if self.actual_text_edit:
-            if self.app_settings.format_code_when_save:
-                if self.actual_text_edit.file_path is not None:
-                    if Path(self.actual_text_edit.file_path).suffix.lower() in ('.par','.txt'):
-                        self.format_code()
-            if self.actual_text_edit.file_path == None:
-                self.file_save_as()
-            else:
-                try:
-                    text_to_save = self.actual_text_edit.toPlainText()
-                    with open(self.actual_text_edit.file_path, 'w') as file_to_save:
-                        file_to_save.write(text_to_save)
-                        # file_to_save.close()
+        if not self.actual_text_edit:
+            return False
 
-                        self.update_coverage(self.actual_text_edit.toPlainText(), self.actual_text_edit.original_file_content, self.actual_text_edit.file_path)
+        if (
+            self.app_settings.format_code_when_save
+            and self.actual_text_edit.file_path is not None
+            and Path(self.actual_text_edit.file_path).suffix.lower() in ('.par', '.txt')
+        ):
+            self.format_code()
 
-                        self.actual_text_edit.original_file_content = text_to_save
-                        self.actual_text_edit.document().setModified(False)
+        if self.actual_text_edit.file_path is None:
+            return self.file_save_as()
 
+        try:
+            text_to_save = self.actual_text_edit.toPlainText()
+            with open(self.actual_text_edit.file_path, 'w') as file_to_save:
+                file_to_save.write(text_to_save)
 
-
-
-
-                except Exception as exception_to_show:
-                    dialog_message(self, str(exception_to_show))
-
-        self.update_actual_information()
+            self.update_coverage(
+                text_to_save,
+                self.actual_text_edit.original_file_content,
+                self.actual_text_edit.file_path,
+            )
+            self.actual_text_edit.original_file_content = text_to_save
+            self.actual_text_edit.document().setModified(False)
+            self.update_actual_information()
+            return True
+        except Exception as exception_to_show:
+            dialog_message(self, str(exception_to_show))
+            return False
 
 
 
@@ -756,26 +767,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
 
         if not path:
-            return
-        else:
-            try:
-                text_to_save = self.actual_text_edit.toPlainText()
-                with open(path, 'w') as file_to_save:
-                    file_to_save.write(text_to_save)
-                    # file_to_save.close()
+            return False
 
-                    self.update_coverage(self.actual_text_edit.toPlainText(), self.actual_text_edit.original_file_content, path)
+        try:
+            text_to_save = self.actual_text_edit.toPlainText()
+            with open(path, 'w') as file_to_save:
+                file_to_save.write(text_to_save)
 
-                    self.actual_text_edit.original_file_content = text_to_save
-                    self.actual_text_edit.document().setModified(False)
-                    self.actual_text_edit.file_path = Path(path)
-                    current_tab_index = self.actual_tabs.indexOf(self.actual_text_edit)
-                    self.actual_tabs.setTabText(current_tab_index, path.split('/')[-1])                    
-
-            except Exception as exception_to_show:
-                dialog_message(self, str(exception_to_show))
-
-        self.update_actual_information()
+            self.update_coverage(
+                text_to_save,
+                self.actual_text_edit.original_file_content,
+                path,
+            )
+            self.actual_text_edit.original_file_content = text_to_save
+            self.actual_text_edit.document().setModified(False)
+            self.actual_text_edit.file_path = Path(path)
+            current_tab_index = self.actual_tabs.indexOf(self.actual_text_edit)
+            self.actual_tabs.setTabText(current_tab_index, Path(path).name)
+            self.update_actual_information()
+            return True
+        except Exception as exception_to_show:
+            dialog_message(self, str(exception_to_show))
+            return False
 
 
 
