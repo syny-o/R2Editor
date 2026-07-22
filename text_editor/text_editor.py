@@ -1,12 +1,12 @@
-import os, re
+import os
+from weakref import WeakSet
 from PyQt5.QtWidgets import QPlainTextEdit, QToolTip
 
-# from text_editor.code_editor import QCodeEditor
-from text_editor.test2 import QCodeEditor
+from text_editor.code_editor import CodeEditor
 import text_editor.text_management as text_management
 
-from PyQt5.QtCore import pyqtSignal, Qt, pyqtSlot
-from PyQt5.QtGui import QFont, QTextCursor, QStandardItem, QStandardItemModel, QPalette, QColor
+from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtGui import QTextCursor, QStandardItem, QStandardItemModel, QPalette, QColor
 
 
 from config.font import font
@@ -15,50 +15,48 @@ from text_editor.completer import Completer
 from text_editor.text_edit_tooltip_widget import TextEditTooltipWidget
 from text_editor.data_manager_widget import DataManagerWidget
 
-from text_editor.tooltips import tooltips
-
 from components.text_functions import get_word_under_cursor
 
 from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighter
-from importlib import reload
 
 
-class TextEdit(QCodeEditor):
-
-    ctrl_pressed = False
+class TextEdit(CodeEditor):
 
     font = font
 
-    children = []
+    instances = WeakSet()
 
     # SIGNAL FOR HANDLING PRESSING MOUSE AT TEXTEDIT
     signal_clicked_on_text_edit = pyqtSignal(object)
-    signal_modified_file_content = pyqtSignal(bool)
+    signal_modified_file_content = pyqtSignal(object, bool)
+    signal_scroll_position_changed = pyqtSignal(object, int)
     signal_send_outline = pyqtSignal(list)
 
     
     @classmethod
     def append_child(cls, child):
-        cls.children.append(child)
+        cls.instances.add(child)
 
     @classmethod
     def set_font_to_all_children(cls):
-        for ch in cls.children:
+        for ch in cls.instances:
             ch.setFont(cls.font)
 
-    @classmethod
-    def update_ctrl_pressed(cls, is_pressed):
-        cls.ctrl_pressed = is_pressed
+    def update_ctrl_pressed(self, is_pressed):
+        self.ctrl_pressed = is_pressed
 
 
     def __init__(self, main_window, text, file_path, syntax_highlighter: ISyntaxHighlighter):
         super().__init__(text)
         self.main_window = main_window
+        self.ctrl_pressed = False
 
         TextEdit.append_child(self)
 
         slider = self.verticalScrollBar()
-        slider.valueChanged.connect(self.main_window.update_selected_item_in_outline_by_scrollbar)
+        slider.valueChanged.connect(
+            lambda value: self.signal_scroll_position_changed.emit(self, value)
+        )
 
 
         palette = QPalette()
@@ -86,15 +84,17 @@ class TextEdit(QCodeEditor):
 
         # DEFINE TEXT EDIT BEHAVIOR
         self.setLineWrapMode(QPlainTextEdit.NoWrap)
-        self.setTabStopWidth(14)
+        self.setTabStopDistance(14)
         self.setMouseTracking(True)
         self.setTextInteractionFlags(Qt.TextEditorInteraction)
 
 
         # CONNECT REQUIRED SIGNALS
         self.signal_clicked_on_text_edit.connect(main_window.clicked_on_text_edit)
-        self.signal_modified_file_content.connect(main_window.set_actual_tab_icon)
-        # self.textChanged.connect(self.text_changed)
+        self.signal_modified_file_content.connect(main_window.set_tab_modified_icon)
+        self.signal_scroll_position_changed.connect(main_window.update_selected_item_in_outline_by_scrollbar)
+        self.document().modificationChanged.connect(self._on_modification_changed)
+        self.document().setModified(False)
         # self.textChanged.connect(self.main_window.update_outline)
 
         # self.signal_send_outline.connect(main_window.get_outline)
@@ -119,7 +119,6 @@ class TextEdit(QCodeEditor):
         self.tooltips = Completer.cond_tooltips
         
         self.scroll_bar = self.verticalScrollBar()
-        # QToolTip.setFont(font)
 
         self.remember_special_char = False
 
@@ -127,65 +126,17 @@ class TextEdit(QCodeEditor):
 
 
     def update_syntax_highlighter(self, syntax_highlighter: ISyntaxHighlighter):
-        # CONNECT SYNTAX HIGHLIGHTER    
-        # reload(syntax_highlighter)
         if self.main_window.app_settings.theme == 'Dark':
             self.syntax_highlighter = syntax_highlighter(self.document(), dark_mode=True)
         else:
             self.syntax_highlighter = syntax_highlighter(self.document(), dark_mode=False)
-
-        # print(self.file_path)
-
-        # from components.pyqt_find_text_widget.findReplaceTextWidget import FindReplaceTextWidget
-        # try:
-        #     w = self.main_window.ui_hLayout_findReplace.itemAt(0)
-        #     self.main_window.ui_hLayout_findReplace.removeItem(w)
-        #     self.new_find_box = FindReplaceTextWidget(self)
-        #     self.main_window.ui_hLayout_findReplace.addWidget(self.new_find_box)
-        # except Exception as e:
-        #     print(e)
-
-        # self.setReadOnly(True)
-
-        # self.timer = QTimer()
-        # self.timer.start(1000)
-        # self.timer.timeout.connect(self.check_file_content_on_disk)
-
-    # def check_file_content_on_disk(self):
-    #     if self.main_window.actual_text_edit is self and self.file_path:
-    #         # print(f"Hello from timer: {self.file_path}")
-    #         try:
-    #             with open(self.file_path, 'r') as file_to_open:
-    #                 text_on_disk = file_to_open.read()            
-    #                 if text_on_disk != self.original_file_content:
-    #                     popup = QMessageBox(self)
-    #                     popup.setIcon(QMessageBox.Question)
-    #                     popup.setWindowTitle("R2 Editor")
-    #                     popup.setText("The file has been modified from external source.")
-    #                     popup.setInformativeText("Do you want to reload file?")
-    #                     popup.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-    #                     popup.setDefaultButton(QMessageBox.Yes)
-    #                     answer = popup.exec_()
-
-    #                     if answer == QMessageBox.Yes:
-    #                         self.setPlainText(text_on_disk)
-    #                         self.original_file_content = text_on_disk
-    #                         self.file_was_modified = False
-    #                         self.signal_modified_file_content.emit(self.file_was_modified)
-
-    #                     elif answer == QMessageBox.No:
-    #                         self.timer.stop()
-                            
-
-    #         except Exception as e:
-    #             print(str(e))        
         
 
     def mouseMoveEvent(self, event):
         # CREATE INSTANCE OF TEXT CURSOR
         self.viewport().setCursor(Qt.IBeamCursor)
         tc = self.textCursor()
-        if tc.selectedText() == '' and TextEdit.ctrl_pressed:
+        if tc.selectedText() == '' and self.ctrl_pressed:
             # SAVE CURRENT SCROLLBAR POSITION
             scroll_pos = self.scroll_bar.value()
 
@@ -212,7 +163,7 @@ class TextEdit(QCodeEditor):
 
             # print(f"***{word}***")
 
-            if word in self.tooltips and TextEdit.ctrl_pressed:
+            if word in self.tooltips and self.ctrl_pressed:
                 content = ""
                 
                 values_dict = self.tooltips[word]
@@ -258,9 +209,8 @@ class TextEdit(QCodeEditor):
     def mouseReleaseEvent(self, event):
         self.signal_clicked_on_text_edit.emit(self) 
         self.completer.completer_tooltip.hide_tooltip()
-        if TextEditTooltipWidget.selected_word and TextEdit.ctrl_pressed:
+        if TextEditTooltipWidget.selected_word and self.ctrl_pressed:
             self.show_tooltip(TextEditTooltipWidget.selected_word)
-            # print(TextEdit.ctrl_pressed)
 
         return super().mouseReleaseEvent(event)        
 
@@ -279,12 +229,15 @@ class TextEdit(QCodeEditor):
 
 
     def is_modified(self):
-        return self.toPlainText() != self.original_file_content
+        return self.document().isModified()
 
 
-    def text_changed(self):
-        self.file_was_modified = self.is_modified()
-        self.signal_modified_file_content.emit(self.file_was_modified)
+    def _on_modification_changed(self, is_modified):
+        self.file_was_modified = is_modified
+        self.signal_modified_file_content.emit(self, is_modified)
+
+
+    def update_completion_context(self):
 
 
 
@@ -302,70 +255,61 @@ class TextEdit(QCodeEditor):
 
     def keyReleaseEvent(self, event):
         self.signal_clicked_on_text_edit.emit(self)
-        self.text_changed()
+        self.update_completion_context()
         if event.key() not in (Qt.Key_Up, Qt.Key_Down):
             self.completer.completer_tooltip.hide_tooltip()
         if event.key() == Qt.Key_Control:
-            TextEdit.ctrl_pressed = False
-            # QToolTip.hideText()
+            self.ctrl_pressed = False
         return super().keyReleaseEvent(event)
-    
+
+    def _handle_basic_editing_key(self, event):
+        key = event.key()
+
+        if key == Qt.Key_Control:
+            self.ctrl_pressed = True
+            return True
+
+        if key == Qt.Key_Escape:
+            cursor = self.textCursor()
+            cursor.clearSelection()
+            self.setTextCursor(cursor)
+
+        if key == Qt.Key_Return and self.completer.popup().isVisible():
+            self.completer.insert_text.emit(self.completer.get_selected())
+            return True
+
+        if key == Qt.Key_Return:
+            text_management.add_new_line_indent(self)
+            return True
+
+        if key == Qt.Key_Backtab:
+            text_management.indent_dedent_comment(self, variant='dedent')
+            return True
+
+        if key == Qt.Key_Tab:
+            text_management.indent_dedent_comment(self, variant='indent')
+            return True
+
+        if event.modifiers() & Qt.ShiftModifier and key == Qt.Key_Home:
+            text_management.key_shift_home_press(self)
+            return True
+
+        if key == Qt.Key_Home:
+            text_management.key_home_press(self)
+            return True
+
+        if key == Qt.Key_Equal and self.current_model == 'values':
+            self.textCursor().insertText('=')
+            self.show_popup('')
+            return True
+
+        return False
+
     def keyPressEvent(self, event):
         QToolTip.hideText()
 
-        if event.key() == Qt.Key_Control:
-            TextEdit.ctrl_pressed = True
+        if self._handle_basic_editing_key(event):
             return
-
-        # if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Q:
-        #     # self.show_conditions_in_tooltip()
-        #     self.data_manager_widget.show()
-        #     return
-
-        # "ESC" Cancel Selection
-        if event.key() == Qt.Key_Escape:
-            tc = self.textCursor()
-            tc.clearSelection()
-            self.setTextCursor(tc)            
-
-
-        # "ENTER" AFTER POPUP IS VISIBLE
-        if event.key() == Qt.Key_Return and self.completer.popup().isVisible():
-            self.completer.insert_text.emit(self.completer.get_selected())
-            return
-
-        # "ENTER" ONLY
-        elif event.key() == Qt.Key_Return:
-            text_management.add_new_line_indent(self)
-            return
-
-        # "SHIFT" + "TAB" --> DEDENT
-        if event.key() == Qt.Key_Backtab:
-            text_management.indent_dedent_comment(self, variant='dedent')
-            return
-
-        # "TAB" ONLY --> INDENT
-        if event.key() == Qt.Key_Tab:
-            text_management.indent_dedent_comment(self, variant='indent')
-            return
-
-        # "SHIFT" + "HOME" --> STANDARD SHIFT+HOME = SELECT TEXT BEFORE CURSOR
-        if event.modifiers() & Qt.ShiftModifier and event.key() == Qt.Key_Home:
-            text_management.key_shift_home_press(self)
-            return
-
-        # "HOME" ONLY --> MOVE TO START OF LINE OR BEFORE FIRST WORD
-        elif event.key() == Qt.Key_Home:
-            text_management.key_home_press(self)
-            return
-
-        # "=" AFTER CONDITION IS WRITTEN
-        if event.key() == Qt.Key_Equal and self.current_model == 'values':
-            tc = self.textCursor()
-            tc.insertText('=')
-            self.show_popup('')
-            return
-
 
         if self.completer.popup().isVisible() and event.key() not in (Qt.Key_Return, Qt.Key_Equal, Qt.Key_Alt):
             tc = self.textCursor()
@@ -487,57 +431,9 @@ class TextEdit(QCodeEditor):
         if event.key() not in (Qt.Key_Up, Qt.Key_Down, Qt.Key_Return):
             self.completer.popup().hide()
 
-        # # "CTRL" + "s" --> Forwar Save File to Main Window Handler but cancel CTRL Pressed
         if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_S:
             self.update_ctrl_pressed(False)
-            
 
-        # # "CTRL" + "1" --> INSERT CHAPTER
-        # if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_1:
-        #     text_management.insert_chapter(self)
-        #     return
-
-        # # "CTRL" + "2" --> INSERT TEST CASE
-        # if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_2:
-        #     text_management.insert_testcase(self)
-        #     return
-
-        # # "CTRL" + "3" --> INSERT COMMAND
-        # if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_3:
-        #     text_management.insert_command(self)
-        #     return
-
-        # # "CTRL" + "/" --> INSERT COMMENT
-        # if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Slash:
-        #     text_management.indent_dedent_comment(self, variant='comment')
-        #     return
-
-        # # "CTRL" + "r" --> REELOAD TEXT MANAGEMENT MODULE
-        # if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_R:
-        #     importlib.reload(text_management)
-        #     return
-
-        # # "CTRL" + "+" --> INCREASE FONT SIZE
-        # if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Plus:            
-        #     point_size = TextEdit.font.pointSize()
-        #     TextEdit.font.setPointSize(point_size+2)
-        #     TextEdit.set_font_to_all_children()
-        #     return
-
-        # # "CTRL" + "-" --> DECRASE FONT SIZE
-        # if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Minus:            
-        #     point_size = TextEdit.font.pointSize()
-        #     TextEdit.font.setPointSize(point_size-2)
-        #     TextEdit.set_font_to_all_children()          
-        #     return
-
-        # # "CTRL" + "0" --> RESET FONT SIZE
-        # if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_0:            
-        #     TextEdit.font.setPointSize(10)         
-        #     TextEdit.set_font_to_all_children()
-        #     return                        
-
-        # CALL PARENT KEYPRESS EVENT
         super().keyPressEvent(event)
 
 

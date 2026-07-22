@@ -120,7 +120,7 @@ class IconManager:
                                         color_disabled=COLOR_DISABLED) 
 
 
-        self.ICON_COMBO_All_ITEMS = define_icon('fa.th', scale_factor=1.2, color_off=COLOR_ON)
+        self.ICON_COMBO_All_ITEMS = define_icon('fa5s.th', scale_factor=1.2, color_off=COLOR_ON)
 
         self.ICON_STOP_FILTERING = define_icon('mdi.filter-remove', scale_factor=1.3, color_off=COLOR_ON)
 

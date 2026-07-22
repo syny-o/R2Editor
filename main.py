@@ -345,23 +345,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.uiTreeOutline.expandAll()
 
 
-    def update_selected_item_in_outline_by_scrollbar(self, scrollbar_value):
-        
-        if not self.actual_text_edit: return
+    def update_selected_item_in_outline_by_scrollbar(self, text_edit, scrollbar_value):
+        if text_edit is not self.actual_text_edit:
+            return
 
-        current_position = scrollbar_value + int(self.number_of_visible_lines()/2)
+        visible_lines = text_edit.height() / text_edit.fontMetrics().lineSpacing()
+        current_position = scrollbar_value + int(visible_lines / 2)
         temp_item = self.uiTreeOutline.topLevelItem(0)
         for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard | Qt.MatchRecursive):
-            if self.line_number_from_position(item.data(0, Qt.UserRole)) > current_position:
+            item_line = text_edit.toPlainText()[:item.data(0, Qt.UserRole)].count("\n") + 1
+            if item_line > current_position:
                 self.uiTreeOutline.setCurrentItem(temp_item)
                 break
             
             temp_item = item
             self.uiTreeOutline.setCurrentItem(item)     
-
-
-    def number_of_visible_lines(self):
-        return self.actual_text_edit.height() / self.actual_text_edit.fontMetrics().lineSpacing()           
 
 
     def update_selected_item_in_outline(self):
@@ -583,12 +581,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.update_actual_information()
 
 
-    def set_actual_tab_icon(self, file_was_modified):
-        tab_index = self.actual_tabs.indexOf(self.actual_text_edit)
+    def set_tab_modified_icon(self, text_edit, file_was_modified):
+        tabs = self.left_tabs
+        tab_index = tabs.indexOf(text_edit)
+        if tab_index == -1:
+            tabs = self.right_tabs
+            tab_index = tabs.indexOf(text_edit)
+        if tab_index == -1:
+            return
+
         if file_was_modified:
-            self.actual_tabs.setTabIcon(tab_index, QIcon(u"ui/icons/16x16/cil-description.png"))
+            tabs.setTabIcon(tab_index, QIcon(u"ui/icons/16x16/cil-description.png"))
         else:
-            self.actual_tabs.setTabIcon(tab_index, QIcon(u"ui/icons/16x16/cil-file.png"))
+            tabs.setTabIcon(tab_index, QIcon(u"ui/icons/16x16/cil-file.png"))
 
 
 ########################################################################################################################
@@ -712,8 +717,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.update_coverage(self.actual_text_edit.toPlainText(), self.actual_text_edit.original_file_content, self.actual_text_edit.file_path)
 
                         self.actual_text_edit.original_file_content = text_to_save
-                        self.actual_text_edit.file_was_modified = False
-                        self.set_actual_tab_icon(False)
+                        self.actual_text_edit.document().setModified(False)
 
 
 
@@ -747,8 +751,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.update_coverage(self.actual_text_edit.toPlainText(), self.actual_text_edit.original_file_content, path)
 
                     self.actual_text_edit.original_file_content = text_to_save
-                    self.actual_text_edit.file_was_modified = False
-                    self.set_actual_tab_icon(False)
+                    self.actual_text_edit.document().setModified(False)
                     self.actual_text_edit.file_path = Path(path)
                     current_tab_index = self.actual_tabs.indexOf(self.actual_text_edit)
                     self.actual_tabs.setTabText(current_tab_index, path.split('/')[-1])                    
@@ -1008,7 +1011,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.ui_hLayout_findReplace.addWidget(self.new_find_box)
         self.new_find_box.setFocus()
         self.actual_find_box = self.new_find_box
-        TextEdit.update_ctrl_pressed(False)
+        if self.actual_text_edit:
+            self.actual_text_edit.update_ctrl_pressed(False)
         # self.actual_text_edit.setStyleSheet("selection-background-color: red;")
 
 
