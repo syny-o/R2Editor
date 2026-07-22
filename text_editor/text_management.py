@@ -1,6 +1,8 @@
 from PyQt5.QtGui import QTextCursor
 import re
 
+from text_editor.text_operations import leading_whitespace, transform_indentation
+
 PATTERN_MONITOR_VAR =  re.compile(r'''(?<!')(?P<command>MonitorVariables(CANape)?)\s*=\s*"(?P<variables>[\d\w_.\s]+),\s*(?P<time>\d+)\s*,\s*(?P<sample_time>\d+)\s*"''', flags=re.IGNORECASE)
 PATTERN_GRAPH_VAR =  re.compile(r'''(?<!')GraphVariables\s*=\s*"(?P<variables>[\d\w_.\s]+)"''', flags=re.IGNORECASE)
 
@@ -342,16 +344,10 @@ class TextFormatter:
 
 
 
-def go_2_next_testcase(text_edit):
-    pass
-
 def add_new_line_indent(text_edit):
     tc = text_edit.textCursor()
     line_text = tc.block().text()
-    stripped_line_text = line_text.lstrip()
-    difference = len(line_text) - len(stripped_line_text)
-    whitespace = line_text[:difference]
-    # print(whitespace)
+    whitespace = leading_whitespace(line_text)
     tc.insertText('\r')
     line_text = tc.block().text()
     if line_text.strip() == '':
@@ -407,28 +403,7 @@ def indent_dedent_comment(text_edit, variant):
     selection_start = tc.selectionStart()
     text = tc.selectedText()
 
-    # text = text.replace('\u2029', '\n')
-    lines = text.split('\u2029')
-    if len(lines) == 0:
-        lines.append(text)
-
-    lines2 = []
-    for line in lines:
-        if variant == 'indent':
-            line = '\t' + line
-        elif variant == 'comment':
-            if line.strip().startswith("'"):
-                line = line.replace("'", "", 1)
-            else:
-                line = "'" + line
-        else:
-            if line.startswith('\t'):
-                line = line.replace('\t', '', 1)
-            elif line.startswith('  '):
-                line = line.replace('  ', '', 1)
-        lines2.append(line)
-
-    text2 = '\u2029'.join(lines2)
+    text2 = transform_indentation(text, variant)
 
     tc.insertText(text2)
 
