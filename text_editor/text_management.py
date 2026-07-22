@@ -1,10 +1,5 @@
 import re
 
-try:
-    from PyQt5.QtGui import QTextCursor
-except ModuleNotFoundError:
-    QTextCursor = None
-
 from text_editor.text_operations import (
     build_chapter,
     build_command,
@@ -226,6 +221,8 @@ class TextFormatter:
 
 
 def add_new_line_indent(text_edit):
+    from PyQt5.QtGui import QTextCursor
+
     tc = text_edit.textCursor()
     line_text = tc.block().text()
     whitespace = leading_whitespace(line_text)
@@ -254,6 +251,8 @@ def add_new_line_indent(text_edit):
 
 
 def key_home_press(text_edit):
+    from PyQt5.QtGui import QTextCursor
+
     tc = text_edit.textCursor()
     tc_original_pos = tc.position()
     tc.movePosition(QTextCursor.StartOfLine)
@@ -266,12 +265,16 @@ def key_home_press(text_edit):
 
 
 def key_shift_home_press(text_edit):
+    from PyQt5.QtGui import QTextCursor
+
     tc = text_edit.textCursor()
     tc.movePosition(QTextCursor.StartOfLine, QTextCursor.KeepAnchor)
     text_edit.setTextCursor(tc)
 
 
 def format_text_edit(text_edit):
+    from PyQt5.QtGui import QTextCursor
+
     scroll_bar = text_edit.verticalScrollBar()
     scroll_position = scroll_bar.sliderPosition()
     cursor = text_edit.textCursor()
@@ -288,6 +291,8 @@ def format_text_edit(text_edit):
 
 
 def indent_dedent_comment(text_edit, variant):
+    from PyQt5.QtGui import QTextCursor
+
     tc = text_edit.textCursor()
     cursor_original_pos = tc.position()
 
@@ -332,6 +337,8 @@ def insert_testcase(text_edit):
 
 
 def insert_chapter(text_edit):
+    from PyQt5.QtGui import QTextCursor
+
     tc = text_edit.textCursor()
     tc.select(tc.LineUnderCursor)
     tc.insertText(build_chapter(tc.selectedText()))
