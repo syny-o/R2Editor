@@ -305,6 +305,38 @@ class TextEdit(CodeEditor):
 
         return False
 
+    def _show_completion_for_cursor(self, cursor, empty_prefix_models):
+        selected_text = cursor.selectedText()
+        if (
+            not selected_text
+            and (
+                not cursor.block().text().strip()
+                or self.current_model in empty_prefix_models
+            )
+        ):
+            self.show_popup("")
+            return
+
+        special_prefixes = {
+            '"': (' "', 2),
+            ',': (' ,', 2),
+            ')': (' )"', 3),
+        }
+        for prefix, (replacement, move_left) in special_prefixes.items():
+            if selected_text.startswith(prefix):
+                self.remember_special_char = True
+                cursor.insertText(replacement)
+                cursor.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, move_left)
+                self.setTextCursor(cursor)
+                cursor.select(QTextCursor.WordUnderCursor)
+                self.show_popup(cursor.selectedText())
+                return
+
+        if selected_text:
+            self.show_popup(selected_text)
+        else:
+            self.completer.popup().hide()
+
     def keyPressEvent(self, event):
         QToolTip.hideText()
 
@@ -313,54 +345,10 @@ class TextEdit(CodeEditor):
 
         if self.completer.popup().isVisible() and event.key() not in (Qt.Key_Return, Qt.Key_Equal, Qt.Key_Alt):
             tc = self.textCursor()
-            # tc.select(QTextCursor.WordUnderCursor)
-            
-            # pressed_key = event.key()
-            # tc.insertText(pressed_key)
             super().keyPressEvent(event)
             get_word_under_cursor(tc)
-            if tc.selectedText() == "" and tc.block().text().strip() == "" \
-            or tc.selectedText() == "" and (self.current_model == "values" or self.current_model == "pbc_variables"):
-                self.show_popup("")
-                return
-
-            if tc.selectedText().startswith('"'):
-                self.remember_special_char = True
-                tc.insertText(' "')
-                tc.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, 2)
-                self.setTextCursor(tc)
-                tc.select(QTextCursor.WordUnderCursor)
-                self.show_popup(tc.selectedText())
-                return
-
-            elif tc.selectedText().startswith(','):
-                self.remember_special_char = True
-                tc.insertText(' ,')
-                tc.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, 2)
-                self.setTextCursor(tc)
-                tc.select(QTextCursor.WordUnderCursor)
-                self.show_popup(tc.selectedText())
-                return
-
-            elif tc.selectedText().startswith(')'):
-                self.remember_special_char = True
-                tc.insertText(' )"')
-                tc.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, 3)
-                self.setTextCursor(tc)
-                tc.select(QTextCursor.WordUnderCursor)
-                self.show_popup(tc.selectedText())
-                return
-
-
-            elif len(tc.selectedText()) > 0:
-                self.show_popup(tc.selectedText())
-                return
-            elif len(tc.selectedText()) == '':
-                self.show_popup('')
-                return
-            else:
-                self.completer.popup().hide()
-                return            
+            self._show_completion_for_cursor(tc, {"values", "pbc_variables"})
+            return
 
 
         
@@ -371,13 +359,7 @@ class TextEdit(CodeEditor):
         elif event.key() == Qt.Key_Alt:
 
             tc = self.textCursor()
-            # tc.select(QTextCursor.WordUnderCursor)
             get_word_under_cursor(tc)
-
-            if tc.selectedText() == "" and tc.block().text().strip() == "" \
-            or tc.selectedText() == "" and (self.current_model == "values" or self.current_model == "pbc_variables" or self.current_model == "dspace_variables"):
-                self.show_popup("")
-                return
 
             # elif tc.selectedText() == " " and tc.block().text().strip() == "" \
             #     or tc.selectedText() == "" and (self.current_model == "values" or self.current_model == "pbc_variables"):
@@ -390,43 +372,10 @@ class TextEdit(CodeEditor):
             #         self.show_popup("")                    
             #         return                
 
-            if tc.selectedText().startswith('"'):
-                self.remember_special_char = True
-                tc.insertText(' "')
-                tc.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, 2)
-                self.setTextCursor(tc)
-                tc.select(QTextCursor.WordUnderCursor)
-                self.show_popup(tc.selectedText())
-                return
-
-            elif tc.selectedText().startswith(','):
-                self.remember_special_char = True
-                tc.insertText(' ,')
-                tc.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, 2)
-                self.setTextCursor(tc)
-                tc.select(QTextCursor.WordUnderCursor)
-                self.show_popup(tc.selectedText())
-                return
-
-            elif tc.selectedText().startswith(')'):
-                self.remember_special_char = True
-                tc.insertText(' )"')
-                tc.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, 3)
-                self.setTextCursor(tc)
-                tc.select(QTextCursor.WordUnderCursor)
-                self.show_popup(tc.selectedText())
-                return
-
-
-            elif len(tc.selectedText()) > 0:
-                self.show_popup(tc.selectedText())
-                return
-            # elif len(tc.selectedText()) == '':
-            #     self.show_popup('')
-            #     return
-            else:
-                self.completer.popup().hide()
-                return
+            self._show_completion_for_cursor(
+                tc, {"values", "pbc_variables", "dspace_variables"}
+            )
+            return
 
         if event.key() not in (Qt.Key_Up, Qt.Key_Down, Qt.Key_Return):
             self.completer.popup().hide()
@@ -445,16 +394,12 @@ class TextEdit(CodeEditor):
 
     def insert_completion(self, completion):
         tc = self.textCursor()
-        # print(f'***{completion}***')
-        # tc.movePosition(QTextCursor.StartOfWord)
-        # tc.movePosition(QTextCursor.EndOfWord, QTextCursor.KeepAnchor)
         get_word_under_cursor(tc)
         tc.insertText(completion)
 
         if self.remember_special_char:
             self.remember_special_char = False
             tc.deleteChar()
-            # tc.movePosition(QTextCursor.Left)
         self.setTextCursor(tc)
 
         self.add_space_to_equal()
@@ -465,7 +410,6 @@ class TextEdit(CodeEditor):
 
 
     def show_popup(self, completion_prefix):
-        # print(completion_prefix)
         self.completer.setCompletionPrefix(completion_prefix)
         cr = self.cursorRect()
         self.completer.popup().setCurrentIndex(self.completer.completionModel().index(0, 0)) # automatically select first popup item
