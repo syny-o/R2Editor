@@ -20,6 +20,7 @@ from text_editor.text_operations import (
     split_indentation,
     transform_indentation,
 )
+from text_editor.text_management import TextFormatter
 
 
 class TextOperationsTest(unittest.TestCase):
@@ -99,6 +100,49 @@ class TextOperationsTest(unittest.TestCase):
     def test_normalize_variable_command_ignores_comments(self):
         line = "'MonitorVariables = \"Var_1,100,10\""
         self.assertEqual(normalize_variable_command(line), line)
+
+    def test_formatter_instances_do_not_share_block_state(self):
+        text = (
+            'TESTCASE "Example" EXPECTEDRESULT 1\n'
+            'IF Value == 1\n'
+            '$COM: "Action" $\n'
+            'ENDIF'
+        )
+        first_formatter = TextFormatter(text)
+        second_formatter = TextFormatter(text)
+
+        self.assertEqual(first_formatter.run(), second_formatter.run())
+        self.assertIsNot(first_formatter.stack_if, second_formatter.stack_if)
+        self.assertIsNot(first_formatter.stack_for, second_formatter.stack_for)
+
+    def test_formatter_chapter_output(self):
+        self.assertEqual(
+            TextFormatter('CHAPTER "One"\nEND CHAPTER').run(),
+            '\nCHAPTER "One"\n\nEND CHAPTER',
+        )
+
+    def test_formatter_if_indentation(self):
+        result = TextFormatter(
+            'TESTCASE "A" EXPECTEDRESULT 1\n'
+            'IF Value == 1\n'
+            '$COM: "Action" $\n'
+            'ENDIF'
+        ).run()
+        self.assertIn('-TESTCASE-NUMBER- 1', result)
+        self.assertTrue(result.endswith(
+            '\n\tIF Value == 1\n\n\t\t$COM: "Action" $\n\n\tENDIF'
+        ))
+
+    def test_formatter_for_indentation(self):
+        result = TextFormatter(
+            'TESTCASE "A" EXPECTEDRESULT 1\n'
+            'FOR X = A B DO\n'
+            '$COM: "Action" $\n'
+            'NEXT'
+        ).run()
+        self.assertTrue(result.endswith(
+            '\n\tFOR X = A B DO\n\n\t\t$COM: "Action" $\n\n\tNEXT'
+        ))
 
     def test_indent_multiple_lines(self):
         source = PARAGRAPH_SEPARATOR.join(('one', '  two'))

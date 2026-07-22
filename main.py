@@ -1036,7 +1036,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # reload(text_management)
         if self.actual_text_edit:
             try:
-                text_management.TextFormatter(self.actual_text_edit).run()
+                text_management.format_text_edit(self.actual_text_edit)
                 self.actual_text_edit.setFocus()
             except Exception as exc:
                 print(str(exc))

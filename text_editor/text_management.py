@@ -1,5 +1,9 @@
-from PyQt5.QtGui import QTextCursor
 import re
+
+try:
+    from PyQt5.QtGui import QTextCursor
+except ModuleNotFoundError:
+    QTextCursor = None
 
 from text_editor.text_operations import (
     build_chapter,
@@ -33,32 +37,14 @@ class TextFormatter:
     }
 
 
-    def __init__(self, text_edit) -> None:
-        self.text_edit = text_edit
+    def __init__(self, text_content: str) -> None:
         self.stack_if = []
         self.stack_for = []
-        self.scroll_bar = self.text_edit.verticalScrollBar()
-        self.scroll_bar_initial_position = self.scroll_bar.sliderPosition() 
-        self.text_cursor = self.text_edit.textCursor()
-        self.text_cursor_original_position = self.text_cursor.position()
-        self.text_content = self.text_edit.toPlainText()
-        self.lines = self.text_content.split('\n')
+        self.lines = text_content.split('\n')
 
 
     def run(self):
-        # get formated lines, merge them together and send it to text_edit object
-        formated_lines = self._format_text()
-        new_text = '\n'.join(formated_lines)
-        
-        temp_cursor = self.text_edit.textCursor()
-        temp_cursor.select(QTextCursor.Document)
-        temp_cursor.insertText(new_text)
-        # self.text_edit.setPlainText(new_text)
-        # retrieve original position of cursor
-        self.text_cursor.setPosition(self.text_cursor_original_position)
-        self.text_edit.setTextCursor(self.text_cursor)
-        # retrieve original position of scrollbar
-        self.scroll_bar.setSliderPosition(self.scroll_bar_initial_position)   
+        return '\n'.join(self._format_text())
 
     def _format_text(self):
         if_level = 0
@@ -283,6 +269,22 @@ def key_shift_home_press(text_edit):
     tc = text_edit.textCursor()
     tc.movePosition(QTextCursor.StartOfLine, QTextCursor.KeepAnchor)
     text_edit.setTextCursor(tc)
+
+
+def format_text_edit(text_edit):
+    scroll_bar = text_edit.verticalScrollBar()
+    scroll_position = scroll_bar.sliderPosition()
+    cursor = text_edit.textCursor()
+    cursor_position = cursor.position()
+
+    formatted_text = TextFormatter(text_edit.toPlainText()).run()
+    document_cursor = text_edit.textCursor()
+    document_cursor.select(QTextCursor.Document)
+    document_cursor.insertText(formatted_text)
+
+    cursor.setPosition(min(cursor_position, len(formatted_text)))
+    text_edit.setTextCursor(cursor)
+    scroll_bar.setSliderPosition(scroll_position)
 
 
 def indent_dedent_comment(text_edit, variant):
