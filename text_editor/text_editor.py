@@ -337,44 +337,41 @@ class TextEdit(CodeEditor):
         else:
             self.completer.popup().hide()
 
+    def _handle_visible_completion(self, event):
+        if not self.completer.popup().isVisible():
+            return False
+        if event.key() in (Qt.Key_Return, Qt.Key_Equal, Qt.Key_Alt):
+            return False
+
+        cursor = self.textCursor()
+        super().keyPressEvent(event)
+        get_word_under_cursor(cursor)
+        self._show_completion_for_cursor(cursor, {"values", "pbc_variables"})
+        return True
+
+    def _handle_alt_completion(self, event):
+        if event.key() != Qt.Key_Alt:
+            return False
+
+        if self.completer.popup().isVisible():
+            self.completer.popup().hide()
+            return False
+
+        cursor = self.textCursor()
+        get_word_under_cursor(cursor)
+        self._show_completion_for_cursor(
+            cursor, {"values", "pbc_variables", "dspace_variables"}
+        )
+        return True
+
     def keyPressEvent(self, event):
         QToolTip.hideText()
 
         if self._handle_basic_editing_key(event):
             return
-
-        if self.completer.popup().isVisible() and event.key() not in (Qt.Key_Return, Qt.Key_Equal, Qt.Key_Alt):
-            tc = self.textCursor()
-            super().keyPressEvent(event)
-            get_word_under_cursor(tc)
-            self._show_completion_for_cursor(tc, {"values", "pbc_variables"})
+        if self._handle_visible_completion(event):
             return
-
-
-        
-        elif event.key() == Qt.Key_Alt and self.completer.popup().isVisible():
-            self.completer.popup().hide()
-
-        # "ALT" ONLY
-        elif event.key() == Qt.Key_Alt:
-
-            tc = self.textCursor()
-            get_word_under_cursor(tc)
-
-            # elif tc.selectedText() == " " and tc.block().text().strip() == "" \
-            #     or tc.selectedText() == "" and (self.current_model == "values" or self.current_model == "pbc_variables"):
-            #         tc.movePosition(QTextCursor.Left, QTextCursor.KeepAnchor)
-            #         tc.insertText("\n")
-            #         print("tvl")
-                    
-
-            #         self.setTextCursor(tc)
-            #         self.show_popup("")                    
-            #         return                
-
-            self._show_completion_for_cursor(
-                tc, {"values", "pbc_variables", "dspace_variables"}
-            )
+        if self._handle_alt_completion(event):
             return
 
         if event.key() not in (Qt.Key_Up, Qt.Key_Down, Qt.Key_Return):
