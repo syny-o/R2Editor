@@ -13,89 +13,6 @@ from text_editor.text_operations import (
 PATTERN_MONITOR_VAR =  re.compile(r'''(?<!')(?P<command>MonitorVariables(CANape)?)\s*=\s*"(?P<variables>[\d\w_.\s]+),\s*(?P<time>\d+)\s*,\s*(?P<sample_time>\d+)\s*"''', flags=re.IGNORECASE)
 PATTERN_GRAPH_VAR =  re.compile(r'''(?<!')GraphVariables\s*=\s*"(?P<variables>[\d\w_.\s]+)"''', flags=re.IGNORECASE)
 
-PATTERN_FOR_START = re.compile(r"\bFOR\b.+=(?P<dimension>.+)DO", re.IGNORECASE)
-PATTERN_FOR_END = re.compile(r"\bNEXT\b", re.IGNORECASE)
-PATTERN_TESTCASE = re.compile(r"\bTESTCASE\b.+EXPECTEDRESULT", re.IGNORECASE)
-PATTERN_HILRESET = re.compile(r"HIL\s*=\s*Reset", re.IGNORECASE)
-
-
-class HandleTestcaseNumbers:
-
-    def __init__(
-        self, 
-        text_to_transform: str
-        ):
-
-        self.text = text_to_transform
-        self.lines = self.text.splitlines()
-
-        self.tescase_line_numbers = []
-        self.tescase_line_numbers_with_dimension = []
-        self.for_line_numbers_with_dimension = []
-        self.next_line_numbers = []  
-        self.hilreset_line_numbers = []      
-        
-        self.for_objects = []
-        self.testcase_objects = []
-
-    def run(self) -> str:
-        self.find_required_line_numbers()
-        self.handle_testcase_numbers()
-        # return self.text
-
-
-    def find_required_line_numbers(self):
-
-        for line_number in range(len(self.lines)):
-            current_line = self.lines[line_number]
-            if current_line.strip().startswith("'"):
-                continue
-
-            elif PATTERN_TESTCASE.search(current_line):
-                self.tescase_line_numbers.append(line_number+1)
-
-            elif PATTERN_HILRESET.search(current_line):
-                self.hilreset_line_numbers.append(line_number+1)                
-
-            elif for_dimension := PATTERN_FOR_START.search(current_line):                
-                for_dimension = len(for_dimension.group("dimension").split())
-                self.for_line_numbers_with_dimension.append((line_number+1, for_dimension))
-
-            elif PATTERN_FOR_END.search(current_line):
-                # self.next_line_numbers.append(line_number+1)
-                for_tuple = self.for_line_numbers_with_dimension.pop()
-                for_object = dict(start=for_tuple[0], end=line_number+1, dimension=for_tuple[1])
-                self.for_objects.append(for_object)
-
-        if len(self.tescase_line_numbers) == len(self.hilreset_line_numbers):
-            for i in range(len(self.tescase_line_numbers)):
-                self.testcase_objects.append(dict(start=self.tescase_line_numbers[i], end=self.hilreset_line_numbers[i], dimension=1))
-
-        
-        # print("TC LINE NUMBERS: ", self.tescase_line_numbers)
-        # print("HIL RESET: ", self.hilreset_line_numbers)
-        # print("FOR LINE NUMBERS WITH DIMENSION: ", self.for_line_numbers_with_dimension)
-        # print("NEXT LINE NUMBERS: ", self.next_line_numbers)
-        # print("FOR objects: ", self.for_objects)
-        # print("TC objects: ", self.testcase_objects)
-
-
-
-
-    def handle_testcase_numbers(self):
-
-        for tc_object in self.testcase_objects:
-            
-            for for_object in self.for_objects:
-
-                if tc_object["start"] > for_object["start"] and tc_object["end"] < for_object["end"]:
-                    tc_object["dimension"] *= for_object["dimension"]
-
-        # print("TC objects: ", self.testcase_objects)
-
-
-
-
 def handle_syntax(string_line):
     if not string_line.strip().startswith("'"):
         # handle MonitorVariables/CANape
@@ -138,12 +55,10 @@ class TextFormatter:
     }
 
 
-    stack_if = []
-    stack_for = []
-    
-
     def __init__(self, text_edit) -> None:
         self.text_edit = text_edit
+        self.stack_if = []
+        self.stack_for = []
         self.scroll_bar = self.text_edit.verticalScrollBar()
         self.scroll_bar_initial_position = self.scroll_bar.sliderPosition() 
         self.text_cursor = self.text_edit.textCursor()
@@ -161,8 +76,6 @@ class TextFormatter:
         temp_cursor.select(QTextCursor.Document)
         temp_cursor.insertText(new_text)
         # self.text_edit.setPlainText(new_text)
-        # TEST:
-        # HandleTestcaseNumbers(new_text).run()
         # retrieve original position of cursor
         self.text_cursor.setPosition(self.text_cursor_original_position)
         self.text_edit.setTextCursor(self.text_cursor)
@@ -186,12 +99,9 @@ class TextFormatter:
             preceding_empty_lines = 0
             upcoming_empty_lines = 0
 
-            # get previous, current and next line
+            # get previous and current line
             previous_line = ""
             current_line = self.lines[line_number].strip()
-            future_line = ""
-            if line_number < len(self.lines)-1:
-                future_line = self.lines[line_number+1]
             if line_number > 0:
                 previous_line = self.lines[line_number-1]
 
