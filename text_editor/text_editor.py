@@ -13,6 +13,7 @@ from config.font import font
 
 from text_editor.completer import Completer
 from components.text_functions import get_word_under_cursor
+from text_editor.text_operations import completion_context, format_first_assignment
 
 from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighter
 
@@ -309,11 +310,11 @@ class TextEdit(CodeEditor):
 
     def get_actual_text(self):
         cursor = self.textCursor()
-        if cursor.hasSelection():
-            return ""
-
-        text_before_cursor = cursor.block().text()[:cursor.positionInBlock()]
-        return text_before_cursor.partition('=')[0].strip()
+        return completion_context(
+            cursor.block().text(),
+            cursor.positionInBlock(),
+            cursor.hasSelection(),
+        )
 
 
     def evaluate_actual_text(self):
@@ -335,15 +336,15 @@ class TextEdit(CodeEditor):
 
     def add_space_to_equal(self):
         cursor = self.textCursor()
-        line_text = cursor.block().text().rstrip()
-        if '=' not in line_text:
-            return
-        if line_text.strip().startswith(self.EQUAL_SPACING_EXCLUDED_COMMANDS):
+        line_text = cursor.block().text()
+        formatted_line = format_first_assignment(
+            line_text, self.EQUAL_SPACING_EXCLUDED_COMMANDS
+        )
+        if formatted_line == line_text:
             return
 
-        left_side, _, right_side = line_text.partition('=')
         cursor.select(QTextCursor.LineUnderCursor)
-        cursor.insertText(f'{left_side.rstrip()} = {right_side.strip()}')
+        cursor.insertText(formatted_line)
         self.setTextCursor(cursor)
 
 

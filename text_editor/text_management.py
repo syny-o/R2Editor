@@ -1,7 +1,14 @@
 from PyQt5.QtGui import QTextCursor
 import re
 
-from text_editor.text_operations import leading_whitespace, transform_indentation
+from text_editor.text_operations import (
+    build_chapter,
+    build_command,
+    build_testcase,
+    graph_variables_before_cursor,
+    leading_whitespace,
+    transform_indentation,
+)
 
 PATTERN_MONITOR_VAR =  re.compile(r'''(?<!')(?P<command>MonitorVariables(CANape)?)\s*=\s*"(?P<variables>[\d\w_.\s]+),\s*(?P<time>\d+)\s*,\s*(?P<sample_time>\d+)\s*"''', flags=re.IGNORECASE)
 PATTERN_GRAPH_VAR =  re.compile(r'''(?<!')GraphVariables\s*=\s*"(?P<variables>[\d\w_.\s]+)"''', flags=re.IGNORECASE)
@@ -545,44 +552,22 @@ def format_text(text_edit):
 
 def insert_command(text_edit):
     tc = text_edit.textCursor()
-    command_name = tc.block().text()
-    intend_split = re.split(r'[a-zA-Z0-9$]', command_name)
-    intend = intend_split[0]
-
-    if len(intend) > 0:
-        command_name = command_name.split(intend)
-        command_name = command_name[1]
     tc.select(tc.LineUnderCursor)
-    tc.removeSelectedText()
-    text_edit.insertPlainText(intend + '$COM: "' + command_name + '" $')
+    tc.insertText(build_command(tc.selectedText()))
+    text_edit.setTextCursor(tc)
 
 
 def insert_testcase(text_edit):
     tc = text_edit.textCursor()
-    command_name = tc.block().text()
-    intend_split = re.split(r'[a-zA-Z0-9$]', command_name)
-    intend = intend_split[0]
-
-    if len(intend) > 0:
-        command_name = command_name.split(intend)
-        command_name = command_name[1]
     tc.select(tc.LineUnderCursor)
-    tc.removeSelectedText()
-    text_edit.insertPlainText(intend + 'TESTCASE "' + command_name + '" ID "" REFERENCE "" EXPECTEDRESULT 1')
+    tc.insertText(build_testcase(tc.selectedText()))
+    text_edit.setTextCursor(tc)
 
 
 def insert_chapter(text_edit):
     tc = text_edit.textCursor()
-    command_name = tc.block().text()
-    intend_split = re.split(r'[a-zA-Z0-9$]', command_name)
-    intend = intend_split[0]
-
-    if len(intend) > 0:
-        command_name = command_name.split(intend)
-        command_name = command_name[1]
     tc.select(tc.LineUnderCursor)
-    tc.removeSelectedText()
-    text_edit.insertPlainText(intend + 'CHAPTER "' + command_name + '"' + '\n' + intend + '\n' + intend + 'END CHAPTER' )
+    tc.insertText(build_chapter(tc.selectedText()))
     tc.movePosition(QTextCursor.Up)
     tc.movePosition(QTextCursor.EndOfLine)
     text_edit.setTextCursor(tc)
@@ -593,23 +578,8 @@ def insert_chapter(text_edit):
 
 
 def evaluate_data_4_GraphVariables(text_edit):
-
     tc = text_edit.textCursor()
-    cursor_pos = tc.position()
-
-    whole_text = text_edit.toPlainText()
-    text_to_evaluate = whole_text[:cursor_pos].split('TESTCASE')[-1]
-
-    matches = re.finditer(r'MonitorVariables[A-Za-z]*\s?=\s?"([^,]+)', text_to_evaluate, re.IGNORECASE)
-
-
-    # print(text_to_evaluate)
-    variables = []
-    for match in matches:
-        results_list = match.group(1).split()
-        variables.extend(results_list)
-
-    return variables
+    return graph_variables_before_cursor(text_edit.toPlainText(), tc.position())
 
 
 

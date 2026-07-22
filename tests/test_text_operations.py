@@ -9,7 +9,14 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from text_editor.text_operations import (
     PARAGRAPH_SEPARATOR,
+    build_chapter,
+    build_command,
+    build_testcase,
+    completion_context,
+    format_first_assignment,
+    graph_variables_before_cursor,
     leading_whitespace,
+    split_indentation,
     transform_indentation,
 )
 
@@ -18,6 +25,61 @@ class TextOperationsTest(unittest.TestCase):
     def test_leading_whitespace(self):
         self.assertEqual(leading_whitespace('\t  command'), '\t  ')
         self.assertEqual(leading_whitespace('command'), '')
+
+    def test_split_indentation(self):
+        self.assertEqual(split_indentation('\t  Name'), ('\t  ', 'Name'))
+
+    def test_build_command(self):
+        self.assertEqual(build_command('  Action'), '  $COM: "Action" $')
+
+    def test_build_testcase(self):
+        self.assertEqual(
+            build_testcase('\tCase name'),
+            '\tTESTCASE "Case name" ID "" REFERENCE "" EXPECTEDRESULT 1',
+        )
+
+    def test_build_chapter(self):
+        self.assertEqual(
+            build_chapter('  Chapter name'),
+            '  CHAPTER "Chapter name"\n  \n  END CHAPTER',
+        )
+
+    def test_graph_variables_use_only_current_testcase(self):
+        text = (
+            'TESTCASE "Old"\n'
+            'MonitorVariables = "OLD_1 OLD_2, 100, 10"\n'
+            'TESTCASE "Current"\n'
+            'MonitorVariablesCANape = "NEW_1 NEW_2, 100, 10"\n'
+            'GraphVariables = ""'
+        )
+        self.assertEqual(
+            graph_variables_before_cursor(text, len(text)),
+            ['NEW_1', 'NEW_2'],
+        )
+
+    def test_graph_variables_are_case_insensitive(self):
+        text = 'monitorvariables = "Var_1 Var_2, 100, 10"'
+        self.assertEqual(
+            graph_variables_before_cursor(text, len(text)),
+            ['Var_1', 'Var_2'],
+        )
+
+    def test_completion_context_uses_text_before_first_equal(self):
+        self.assertEqual(completion_context('  Condition = Value', 12), 'Condition')
+        self.assertEqual(completion_context('Condition', 9, True), '')
+
+    def test_format_first_assignment_preserves_other_equal_signs(self):
+        self.assertEqual(
+            format_first_assignment('Condition=Value==Other'),
+            'Condition = Value==Other',
+        )
+
+    def test_format_first_assignment_honors_exclusions(self):
+        line = 'GraphVariables="A B"'
+        self.assertEqual(
+            format_first_assignment(line, ('GraphVariables',)),
+            line,
+        )
 
     def test_indent_multiple_lines(self):
         source = PARAGRAPH_SEPARATOR.join(('one', '  two'))
