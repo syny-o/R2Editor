@@ -12,7 +12,6 @@ from PyQt5.QtGui import QTextCursor, QStandardItem, QStandardItemModel, QPalette
 from config.font import font
 
 from text_editor.completer import Completer
-from text_editor.text_edit_tooltip_widget import TextEditTooltipWidget
 from text_editor.data_manager_widget import DataManagerWidget
 
 from components.text_functions import get_word_under_cursor
@@ -111,7 +110,6 @@ class TextEdit(CodeEditor):
         # DEFINE TEXT EDIT BEHAVIOR
         self.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.setTabStopDistance(14)
-        self.setMouseTracking(True)
         self.setTextInteractionFlags(Qt.TextEditorInteraction)
 
 
@@ -141,11 +139,6 @@ class TextEdit(CodeEditor):
 
         self.actual_text = ''
 
-        
-        self.tooltips = Completer.cond_tooltips
-        
-        self.scroll_bar = self.verticalScrollBar()
-
         self.remember_special_char = False
 
         self.data_manager_widget = DataManagerWidget(self.main_window, self)
@@ -158,88 +151,10 @@ class TextEdit(CodeEditor):
             self.syntax_highlighter = syntax_highlighter(self.document(), dark_mode=False)
         
 
-    def mouseMoveEvent(self, event):
-        self.viewport().setCursor(Qt.IBeamCursor)
-        TextEditTooltipWidget.selected_word = None
-        tc = self.textCursor()
-        ctrl_pressed = bool(event.modifiers() & Qt.ControlModifier)
-        if tc.selectedText() == '' and ctrl_pressed:
-            scroll_pos = self.scroll_bar.value()
-
-            tc_original_pos = tc.position()
-            text_cursor = self.cursorForPosition(event.pos())
-            text_cursor.select(QTextCursor.WordUnderCursor)
-            if text_cursor.selectedText() == "":
-                return
-
-            is_end_of_word = False
-            while not is_end_of_word:
-                text_cursor.movePosition(QTextCursor.NextCharacter, QTextCursor.KeepAnchor)
-                if text_cursor.atEnd() or text_cursor.atBlockEnd():
-                    is_end_of_word = True
-                if text_cursor.selectedText().endswith((" ", "\n", "\t", "=", ",", '"')):
-                    text_cursor.movePosition(QTextCursor.PreviousCharacter, QTextCursor.KeepAnchor)
-                    is_end_of_word = True
-
-
-            self.setTextCursor(text_cursor)
-            word = text_cursor.selectedText().strip()
-
-            if word in self.tooltips:
-                content = ""
-                
-                values_dict = self.tooltips[word]
-
-                if type(values_dict) == str:
-                    TextEditTooltipWidget.selected_word = values_dict
-
-                else:
-                    
-                    for k, v in values_dict.items():
-                        ts_content = ""
-                        for ts in v:
-                            ts_content += f"""
-                                <li><font size=3 color=white>{ts}</font></li>
-                            """
-                        content += f"<font size=4 color=lightblue>{k:}</font><ol>{ts_content}</ol>"
-                    
-                    TextEditTooltipWidget.selected_word = content
-
-                self.viewport().setCursor(Qt.PointingHandCursor)
-
-            else:
-                QToolTip.hideText()
-                self.viewport().setCursor(Qt.IBeamCursor)
-                TextEditTooltipWidget.selected_word = None
-            tc.setPosition(tc_original_pos)
-            self.setTextCursor(tc)
-            self.scroll_bar.setValue(scroll_pos)
-
-        super().mouseMoveEvent(event)
-
     def mouseReleaseEvent(self, event):
         self.signal_clicked_on_text_edit.emit(self) 
         self.completer.completer_tooltip.hide_tooltip()
-        if (
-            TextEditTooltipWidget.selected_word
-            and event.modifiers() & Qt.ControlModifier
-        ):
-            self.show_tooltip(TextEditTooltipWidget.selected_word)
-
         return super().mouseReleaseEvent(event)        
-
-
-    def show_tooltip(self, tooltip_text):
-        if self.tooltips:
-            self.w = TextEditTooltipWidget(self.main_window, self, tooltip_text)
-
-
-    def show_conditions_in_tooltip(self):
-        new_list = [k for k, v in self.tooltips.items() if type(v) is dict]
-        content = '<html><body><p align="center">'
-        content += f'{"<font size=12 color=lightblue> - </font>".join(sorted(new_list))}'
-        content += '</p></body></html>'
-        self.show_tooltip(content)
 
 
     def is_modified(self):

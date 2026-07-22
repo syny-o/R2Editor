@@ -6,7 +6,6 @@ from data_manager.nodes.condition_file import ConditionFileNode, ConditionNode, 
 from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
 from data_manager.nodes.requirement_node import RequirementNode
 from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
-from text_editor.tooltips import tooltips
 
 
 
@@ -119,8 +118,6 @@ def move_node(TREE, MODEL, direction):
 
 def send_data_2_completer(ROOT):
 
-    cond_tooltips = {}
-    Completer.cond_tooltips.clear()
     cond_dict = {}
     cond_model = QStandardItemModel()
     a2l_model = QStandardItemModel()
@@ -129,9 +126,7 @@ def send_data_2_completer(ROOT):
     for root_row in range(ROOT.rowCount()):
         current_file_node = ROOT.child(root_row, 0)
         if isinstance(current_file_node, ConditionFileNode):
-            condition_dict, condition_list, cond_tooltips = current_file_node.data_4_completer()
-            if cond_tooltips:
-                Completer.cond_tooltips.update(cond_tooltips)
+            condition_dict, condition_list = current_file_node.data_4_completer()
 
             for cond, values_list in condition_dict.items():
                 if cond not in cond_dict:
@@ -153,8 +148,6 @@ def send_data_2_completer(ROOT):
         elif isinstance(current_file_node, DspaceFileNode):
             dspace_model = current_file_node.data_4_completer()
     
-    Completer.cond_tooltips.update(tooltips)
-
     Completer.cond_dict.clear()
     Completer.cond_model = QStandardItemModel()
     Completer.dspace_model = QStandardItemModel()

@@ -25,10 +25,6 @@ class Completer(QCompleter):
     a2l_model = None
     dspace_model = None
 
-    cond_tooltips = {}
-
-
-
 #################################################################
 
     # Custom signal definition

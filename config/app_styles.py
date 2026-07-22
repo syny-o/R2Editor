@@ -664,30 +664,6 @@ QListWidget::item:hover{
 }
 
 
-TextEditTooltipWidget{
-    background-color: rgb(RGB_BACKGROUND_0);
-    color: rgb(RGB_TEXT);
-}
-
-TextEditTooltipWidget QTextEdit{
-    background-color: rgb(RGB_BACKGROUND_0);
-    color: rgb(RGB_TEXT);
-    border: none;
-    font-size: 14px;
-}
-
-TextEditTooltipWidget QPushButton{
-    font-size: 14px;
-    padding: 10px;
-    background-color: rgb(RGB_MAIN);
-    color: rgb(200, 200, 200);
-}
-
-TextEditTooltipWidget QPushButton:hover{
-    background-color: rgb(RGB_HOVER);
-
-}
-
 #uiFrameFindReplace {
     background-color: rgb(RGB_BACKGROUND_0);
     border-right: 1.5px solid rgb(RGB_BACKGROUND_1);

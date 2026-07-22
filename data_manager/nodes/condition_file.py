@@ -172,18 +172,9 @@ class ConditionFileNode(QStandardItem):
 
         return new_value_node
 
-    def create_condition_tooltip_4_completer(self, cond_node):
-        values = {}
-        for vi in range(cond_node.rowCount()):
-            value_node = cond_node.child(vi)
-            test_steps = [value_node.child(ti).text() for ti in range(value_node.rowCount())]
-            values.update({value_node.text(): test_steps})
-        return {cond_node.text(): values}
-
     def data_4_completer(self):
         cond_dict = {}
         cond_list = []
-        cond_tooltips = {}
 
         for ci in range(self.rowCount()):
             cond_node = self.child(ci)
@@ -201,9 +192,7 @@ class ConditionFileNode(QStandardItem):
             new_cond_node.setData(cond_node.model().indexFromItem(cond_node), Qt.UserRole + 1)
             cond_dict.update({cond_node.text(): values_list})
 
-            cond_tooltips.update(self.create_condition_tooltip_4_completer(cond_node))
-
-        return cond_dict, cond_list, cond_tooltips
+        return cond_dict, cond_list
 
 
     # def data_4_completer(self) -> dict:
