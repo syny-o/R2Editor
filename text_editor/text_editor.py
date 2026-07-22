@@ -44,6 +44,15 @@ class TextEdit(CodeEditor):
         'VariableSequence': (' = ""', 1),
     }
 
+    EQUAL_SPACING_EXCLUDED_COMMANDS = (
+        'MonitorVariablesCANape',
+        'MonitorVariablesCanape',
+        'MonitorVariables',
+        'GraphVariables',
+        'VariableSequence',
+        'CANapeCommand',
+    )
+
     font = font
 
     instances = WeakSet()
@@ -467,23 +476,17 @@ class TextEdit(CodeEditor):
 ########################################################################################################################
 
     def add_space_to_equal(self):
-        tc = self.textCursor()
-        line_text = tc.block().text()
-        line_text = line_text.rstrip()
-        # print(line_text)
-        splitted_line_text_list = line_text.split('=')
-        # print(splitted_line_text_list)
-        if (len(splitted_line_text_list) > 1) \
-                and not (line_text.strip().startswith('MonitorVariablesCANape')) \
-                and not (line_text.strip().startswith('MonitorVariablesCanape')) \
-                and not (line_text.strip().startswith('MonitorVariables')) \
-                and not (line_text.strip().startswith('GraphVariables')) \
-                and not (line_text.strip().startswith('VariableSequence')) \
-                and not (line_text.strip().startswith('CANapeCommand')):
+        cursor = self.textCursor()
+        line_text = cursor.block().text().rstrip()
+        if '=' not in line_text:
+            return
+        if line_text.strip().startswith(self.EQUAL_SPACING_EXCLUDED_COMMANDS):
+            return
 
-            tc.select(tc.LineUnderCursor)
-            tc.removeSelectedText()
-            self.insertPlainText(splitted_line_text_list[0].rstrip() + ' = ' + splitted_line_text_list[1].strip())
+        left_side, _, right_side = line_text.partition('=')
+        cursor.select(QTextCursor.LineUnderCursor)
+        cursor.insertText(f'{left_side.rstrip()} = {right_side.strip()}')
+        self.setTextCursor(cursor)
 
 
     def complete_special_command(self):
