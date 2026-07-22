@@ -1050,13 +1050,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 
 
     def font_increase(self):
-        if self.actual_text_edit: self.actual_text_edit.font_increase()
+        self.set_editor_font_size(min(font.pointSize() + 1, 20))
 
     def font_decrease(self):
-        if self.actual_text_edit: self.actual_text_edit.font_decrease()
+        self.set_editor_font_size(max(font.pointSize() - 1, 6))
 
     def font_reset(self):
-        if self.actual_text_edit: self.actual_text_edit.font_reset()                
+        self.set_editor_font_size(10)
+
+    def set_editor_font_size(self, point_size):
+        font.setPointSize(point_size)
+        for tabs in (self.left_tabs, self.right_tabs):
+            for tab_index in range(tabs.count()):
+                tabs.widget(tab_index).setFont(font)
 
 
 

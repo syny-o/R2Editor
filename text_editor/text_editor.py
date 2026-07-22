@@ -1,5 +1,4 @@
 import os
-from weakref import WeakSet
 from PyQt5.QtWidgets import QPlainTextEdit, QToolTip
 
 from text_editor.code_editor import CodeEditor
@@ -50,29 +49,14 @@ class TextEdit(CodeEditor):
         'CANapeCommand',
     )
 
-    font = font
-
-    instances = WeakSet()
-
     # SIGNAL FOR HANDLING PRESSING MOUSE AT TEXTEDIT
     signal_clicked_on_text_edit = pyqtSignal(object)
     signal_modified_file_content = pyqtSignal(object, bool)
     signal_scroll_position_changed = pyqtSignal(object, int)
 
     
-    @classmethod
-    def append_child(cls, child):
-        cls.instances.add(child)
-
-    @classmethod
-    def set_font_to_all_children(cls):
-        for ch in cls.instances:
-            ch.setFont(cls.font)
-
     def __init__(self, text, file_path, syntax_highlighter: ISyntaxHighlighter, dark_mode=False):
         super().__init__(text)
-
-        TextEdit.append_child(self)
 
         slider = self.verticalScrollBar()
         slider.valueChanged.connect(
@@ -98,8 +82,7 @@ class TextEdit(CodeEditor):
             self.is_read_only = False
         
 
-        # self.font = font
-        self.setFont(TextEdit.font)
+        self.setFont(font)
         
 
 
@@ -406,30 +389,3 @@ class TextEdit(CodeEditor):
             item.setData(v, Qt.DisplayRole)
             variables_model.appendRow(item)
         self._set_completion_model('graph_variables', variables_model)
-
-    
-########################################################################################################################
-# ZOOMING (FONT ADJUSTING)
-########################################################################################################################
-
-
-    def font_increase(self):
-        point_size = TextEdit.font.pointSize()
-        if point_size < 20:
-            TextEdit.font.setPointSize(point_size+1)
-            TextEdit.set_font_to_all_children()
-        return
-
-    def font_decrease(self):
-        point_size = TextEdit.font.pointSize()
-        if point_size > 6:
-            TextEdit.font.setPointSize(point_size-1)
-            TextEdit.set_font_to_all_children()
-        return        
-
-
-
-    def font_reset(self):        
-        TextEdit.font.setPointSize(10)         
-        TextEdit.set_font_to_all_children()
-        return     
