@@ -507,35 +507,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def left_tab_close_request(self, tab_index):
-        if not self.left_tabs.widget(tab_index).is_modified():
-            self.left_tab_close_without_saving(tab_index)
-        else:
-            popup = QMessageBox(self)
-            popup.setIcon(QMessageBox.Question)
-            popup.setWindowTitle("R2 Editor")
-            popup.setText("The file has been modified")
-            popup.setInformativeText("Do you want to save your changes?")
-            popup.setStandardButtons(QMessageBox.Save |
-                                     QMessageBox.Cancel |
-                                     QMessageBox.Discard)
-            popup.setDefaultButton(QMessageBox.Save)
-            answer = popup.exec_()
-
-            if answer == QMessageBox.Save:
-                backup_text_edit = self.actual_text_edit
-                backup_tabs = self.actual_tabs
-                self.actual_tabs = self.left_tabs
-                self.actual_text_edit = self.left_tabs.widget(tab_index)
-                was_saved = self.file_save()
-                self.actual_text_edit = backup_text_edit
-                self.actual_tabs = backup_tabs
-                if was_saved:
-                    self.left_tab_close_without_saving(tab_index)
-
-            elif answer == QMessageBox.Discard:
-                self.left_tab_close_without_saving(tab_index)
-
-        self.update_actual_information()
+        self.tab_close_request(
+            self.left_tabs, tab_index, self.left_tab_close_without_saving
+        )
 
 
     def right_tab_was_changed(self, tab_index):
@@ -558,33 +532,37 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.actual_text_edit = None
 
     def right_tab_close_request(self, tab_index):
-        if not self.right_tabs.widget(tab_index).is_modified():
-            self.right_tab_close_without_saving(tab_index)
-        else:
-            popup = QMessageBox(self)
-            popup.setIcon(QMessageBox.Question)
-            popup.setWindowTitle("R2 Editor")
-            popup.setText("The file has been modified")
-            popup.setInformativeText("Do you want to save your changes?")
-            popup.setStandardButtons(QMessageBox.Save |
-                                     QMessageBox.Cancel |
-                                     QMessageBox.Discard)
-            popup.setDefaultButton(QMessageBox.Save)
-            answer = popup.exec_()
+        self.tab_close_request(
+            self.right_tabs, tab_index, self.right_tab_close_without_saving
+        )
 
-            if answer == QMessageBox.Save:
-                backup_text_edit = self.actual_text_edit
-                backup_tabs = self.actual_tabs
-                self.actual_tabs = self.right_tabs
-                self.actual_text_edit = self.right_tabs.widget(tab_index)
-                was_saved = self.file_save()
-                self.actual_text_edit = backup_text_edit
-                self.actual_tabs = backup_tabs
-                if was_saved:
-                    self.right_tab_close_without_saving(tab_index)
+    def tab_close_request(self, tabs, tab_index, close_tab):
+        text_edit = tabs.widget(tab_index)
+        if not text_edit.is_modified():
+            close_tab(tab_index)
+            self.update_actual_information()
+            return
 
-            elif answer == QMessageBox.Discard:
-                self.right_tab_close_without_saving(tab_index)
+        answer = QMessageBox.question(
+            self,
+            "R2 Editor",
+            "The file has been modified.\n\nDo you want to save your changes?",
+            QMessageBox.Save | QMessageBox.Cancel | QMessageBox.Discard,
+            QMessageBox.Save,
+        )
+
+        if answer == QMessageBox.Discard:
+            close_tab(tab_index)
+        elif answer == QMessageBox.Save:
+            previous_text_edit = self.actual_text_edit
+            previous_tabs = self.actual_tabs
+            self.actual_text_edit = text_edit
+            self.actual_tabs = tabs
+            was_saved = self.file_save()
+            self.actual_text_edit = previous_text_edit
+            self.actual_tabs = previous_tabs
+            if was_saved:
+                close_tab(tab_index)
 
         self.update_actual_information()
 
@@ -620,13 +598,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def get_all_opened_files(self):
         opened_files = {}
-        for tab_index in range(self.left_tabs.count()):
-            text_edit = self.left_tabs.widget(tab_index)
-            opened_files.update({text_edit.file_path: [text_edit, self.left_tabs]})
-        for tab_index in range(self.right_tabs.count()):
-            text_edit = self.right_tabs.widget(tab_index)
-            opened_files.update({text_edit.file_path: [text_edit, self.right_tabs]})
+        for text_edit, tabs in self.iter_open_text_edits():
+            if text_edit.file_path is not None:
+                opened_files[text_edit.file_path] = [text_edit, tabs]
         return opened_files
+
+    def iter_open_text_edits(self):
+        for tabs in (self.left_tabs, self.right_tabs):
+            for tab_index in range(tabs.count()):
+                yield tabs.widget(tab_index), tabs
 
 
     def create_text_edit(self, text, file_path, syntax_highlighter):
@@ -1086,31 +1066,37 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     # SAVE WINDOW SIZE, POSITION BEFORE CLOSE APP AND CHECK IF ALL SCRIPTS ARE SAVED
     def closeEvent(self, event):
-        # _show_tray_message("R2ScriptEditor", "R2ScriptEditor is running in background.")
-
         self.app_settings.save_settings_2_disk()
-        opened_files = self.get_all_opened_files()
-        for path, val in opened_files.items():
-            text_edit = val[0]
-            if text_edit.is_modified():
-                close = QMessageBox.question(self,
-                                           "R2ScriptEditor",
-                                           "Some of opened files have been modified.\n\nDo you want to discard changes?",
-                                           QMessageBox.Yes | QMessageBox.No)
-                if close == QMessageBox.Yes:
-                    event.accept()
-                else:
-                    event.ignore()
+
+        has_modified_files = any(
+            text_edit.is_modified()
+            for text_edit, _ in self.iter_open_text_edits()
+        )
+        if has_modified_files:
+            answer = QMessageBox.question(
+                self,
+                "R2ScriptEditor",
+                "Some opened files have been modified.\n\nDo you want to discard changes?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if answer != QMessageBox.Yes:
+                event.ignore()
+                return
 
         if not project_manager.is_project_saved():
-            close = QMessageBox.question(self,
-                                        "R2ScriptEditor",
-                                        "Current project is not saved.\n\nDo you want to exit (all changes will be lost)?",
-                                        QMessageBox.Yes | QMessageBox.No)
-            if close == QMessageBox.Yes:
-                event.accept()
-            else:
+            answer = QMessageBox.question(
+                self,
+                "R2ScriptEditor",
+                "Current project is not saved.\n\nDo you want to exit (all changes will be lost)?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if answer != QMessageBox.Yes:
                 event.ignore()
+                return
+
+        event.accept()
 
 
 
