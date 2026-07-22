@@ -105,5 +105,4 @@ class DataManagerWidget(QWidget):
         self.main_window.stackedWidget.addWidget(self.main_window.data_manager)
         # self.main_window.data_manager.frame_17.setVisible(True)  
         # self.main_window.data_manager.frame_2.setVisible(True) 
-        self.text_edit.update_ctrl_pressed(False)
         return super().closeEvent(e)

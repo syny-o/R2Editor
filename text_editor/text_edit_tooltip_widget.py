@@ -93,5 +93,4 @@ class TextEditTooltipWidget(QWidget):
 
     def closeEvent(self, e):
         TextEditTooltipWidget.is_visible = False
-        self.text_edit.update_ctrl_pressed(False)
         return super().closeEvent(e)

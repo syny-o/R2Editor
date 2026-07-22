@@ -1011,8 +1011,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.ui_hLayout_findReplace.addWidget(self.new_find_box)
         self.new_find_box.setFocus()
         self.actual_find_box = self.new_find_box
-        if self.actual_text_edit:
-            self.actual_text_edit.update_ctrl_pressed(False)
         # self.actual_text_edit.setStyleSheet("selection-background-color: red;")
 
 

@@ -73,14 +73,9 @@ class TextEdit(CodeEditor):
         for ch in cls.instances:
             ch.setFont(cls.font)
 
-    def update_ctrl_pressed(self, is_pressed):
-        self.ctrl_pressed = is_pressed
-
-
     def __init__(self, main_window, text, file_path, syntax_highlighter: ISyntaxHighlighter):
         super().__init__(text)
         self.main_window = main_window
-        self.ctrl_pressed = False
 
         TextEdit.append_child(self)
 
@@ -164,15 +159,13 @@ class TextEdit(CodeEditor):
         
 
     def mouseMoveEvent(self, event):
-        # CREATE INSTANCE OF TEXT CURSOR
         self.viewport().setCursor(Qt.IBeamCursor)
+        TextEditTooltipWidget.selected_word = None
         tc = self.textCursor()
-        if tc.selectedText() == '' and self.ctrl_pressed:
-            # SAVE CURRENT SCROLLBAR POSITION
+        ctrl_pressed = bool(event.modifiers() & Qt.ControlModifier)
+        if tc.selectedText() == '' and ctrl_pressed:
             scroll_pos = self.scroll_bar.value()
 
-            # IF THERE IS NO SELECTED TEXT
-            isStartOfWord = False
             tc_original_pos = tc.position()
             text_cursor = self.cursorForPosition(event.pos())
             text_cursor.select(QTextCursor.WordUnderCursor)
@@ -192,15 +185,12 @@ class TextEdit(CodeEditor):
             self.setTextCursor(text_cursor)
             word = text_cursor.selectedText().strip()
 
-            # print(f"***{word}***")
-
-            if word in self.tooltips and self.ctrl_pressed:
+            if word in self.tooltips:
                 content = ""
                 
                 values_dict = self.tooltips[word]
 
                 if type(values_dict) == str:
-                    # self.show_tooltip(values_dict)
                     TextEditTooltipWidget.selected_word = values_dict
 
                 else:
@@ -213,8 +203,6 @@ class TextEdit(CodeEditor):
                             """
                         content += f"<font size=4 color=lightblue>{k:}</font><ol>{ts_content}</ol>"
                     
-                    # self.show_tooltip(content)
-                    
                     TextEditTooltipWidget.selected_word = content
 
                 self.viewport().setCursor(Qt.PointingHandCursor)
@@ -223,24 +211,19 @@ class TextEdit(CodeEditor):
                 QToolTip.hideText()
                 self.viewport().setCursor(Qt.IBeamCursor)
                 TextEditTooltipWidget.selected_word = None
-            # SET BACK THE TEXT CURSOR POSITION AND SCROLLBAR POSITION
             tc.setPosition(tc_original_pos)
             self.setTextCursor(tc)
             self.scroll_bar.setValue(scroll_pos)
 
         super().mouseMoveEvent(event)
 
-
-
-    # def mousePressEvent(self, event):
-    #     self.signal_clicked_on_text_edit.emit(self)        
-    #     return super().mousePressEvent(event)
-
-
     def mouseReleaseEvent(self, event):
         self.signal_clicked_on_text_edit.emit(self) 
         self.completer.completer_tooltip.hide_tooltip()
-        if TextEditTooltipWidget.selected_word and self.ctrl_pressed:
+        if (
+            TextEditTooltipWidget.selected_word
+            and event.modifiers() & Qt.ControlModifier
+        ):
             self.show_tooltip(TextEditTooltipWidget.selected_word)
 
         return super().mouseReleaseEvent(event)        
@@ -289,16 +272,10 @@ class TextEdit(CodeEditor):
         self.update_completion_context()
         if event.key() not in (Qt.Key_Up, Qt.Key_Down):
             self.completer.completer_tooltip.hide_tooltip()
-        if event.key() == Qt.Key_Control:
-            self.ctrl_pressed = False
         return super().keyReleaseEvent(event)
 
     def _handle_basic_editing_key(self, event):
         key = event.key()
-
-        if key == Qt.Key_Control:
-            self.ctrl_pressed = True
-            return True
 
         if key == Qt.Key_Escape:
             cursor = self.textCursor()
@@ -407,9 +384,6 @@ class TextEdit(CodeEditor):
 
         if event.key() not in (Qt.Key_Up, Qt.Key_Down, Qt.Key_Return):
             self.completer.popup().hide()
-
-        if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_S:
-            self.update_ctrl_pressed(False)
 
         super().keyPressEvent(event)
 
