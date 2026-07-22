@@ -71,7 +71,6 @@ class TextEdit(CodeEditor):
 
         self.file_path = file_path
         self.original_file_content = text
-        self.file_was_modified = False
 
 
         self.update_syntax_highlighter(syntax_highlighter, dark_mode)
@@ -125,7 +124,6 @@ class TextEdit(CodeEditor):
 
 
     def _on_modification_changed(self, is_modified):
-        self.file_was_modified = is_modified
         self.signal_modified_file_content.emit(self, is_modified)
 
 

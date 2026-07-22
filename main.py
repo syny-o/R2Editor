@@ -507,7 +507,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def left_tab_close_request(self, tab_index):
-        if not self.left_tabs.widget(tab_index).file_was_modified:
+        if not self.left_tabs.widget(tab_index).is_modified():
             self.left_tab_close_without_saving(tab_index)
         else:
             popup = QMessageBox(self)
@@ -554,7 +554,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.actual_text_edit = None
 
     def right_tab_close_request(self, tab_index):
-        if not self.right_tabs.widget(tab_index).file_was_modified:
+        if not self.right_tabs.widget(tab_index).is_modified():
             self.right_tab_close_without_saving(tab_index)
         else:
             popup = QMessageBox(self)
@@ -581,7 +581,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.update_actual_information()
 
 
-    def set_tab_modified_icon(self, text_edit, file_was_modified):
+    def set_tab_modified_icon(self, text_edit, is_modified):
         tabs = self.left_tabs
         tab_index = tabs.indexOf(text_edit)
         if tab_index == -1:
@@ -590,7 +590,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if tab_index == -1:
             return
 
-        if file_was_modified:
+        if is_modified:
             tabs.setTabIcon(tab_index, QIcon(u"ui/icons/16x16/cil-description.png"))
         else:
             tabs.setTabIcon(tab_index, QIcon(u"ui/icons/16x16/cil-file.png"))
@@ -1079,7 +1079,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         opened_files = self.get_all_opened_files()
         for path, val in opened_files.items():
             text_edit = val[0]
-            if text_edit.file_was_modified:
+            if text_edit.is_modified():
                 close = QMessageBox.question(self,
                                            "R2ScriptEditor",
                                            "Some of opened files have been modified.\n\nDo you want to discard changes?",
@@ -1114,34 +1114,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 ########################################################################################################################
 # APP CONFIG:
 ########################################################################################################################
-
-
-
-# def _manage_events_before_close():
-#     window.app_settings.save_settings_2_disk()
-#     opened_files = window.get_all_opened_files()
-#     for path, val in opened_files.items():
-#         text_edit = val[0]
-#         if text_edit.file_was_modified:
-#             close = QMessageBox.question(window,
-#                                        "R2ScriptEditor",
-#                                        "Some of opened files have been modified.\n\nDo you want to discard changes?",
-#                                        QMessageBox.Yes | QMessageBox.No)
-#             if close != QMessageBox.Yes:
-#                 return False
-
-
-#     if not project_manager.is_project_saved():
-#         close = QMessageBox.question(window,
-#                                     "R2ScriptEditor",
-#                                     "Current project is not saved.\n\nDo you want to exit (all changes will be lost)?",
-#                                     QMessageBox.Yes | QMessageBox.No)
-#         if close != QMessageBox.Yes:
-#             return False
-        
-#     return True
-
-
 
 
 
