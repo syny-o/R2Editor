@@ -98,15 +98,17 @@ class TextFormatter:
                 future_if_level = if_level + 1
                 self.stack_if.append(indent_level)
             elif self.PATTERNS["IF_END"].search(current_line):
-                if_level -= 1
                 if not self.PATTERNS["IF_END"].search(previous_line):
                     add_blank_line_before = True
-                indent_level = self.stack_if.pop()
+                if self.stack_if:
+                    if_level = max(0, if_level - 1)
+                    indent_level = self.stack_if.pop()
             elif self.PATTERNS["ELSE"].search(current_line):
                 add_blank_line_before = True
-                if_level -= 1
-                future_if_level = if_level + 1
-                indent_level = self.stack_if[-1]
+                if self.stack_if:
+                    if_level = max(0, if_level - 1)
+                    future_if_level = if_level + 1
+                    indent_level = self.stack_if[-1]
             elif self.PATTERNS["FOR_START"].search(current_line):
                 if not self.PATTERNS["FOR_START"].search(previous_line):
                     add_blank_line_before = True
@@ -115,8 +117,9 @@ class TextFormatter:
             elif self.PATTERNS["FOR_END"].search(current_line):
                 if not self.PATTERNS["FOR_END"].search(previous_line):
                     add_blank_line_before = True
-                for_level -= 1
-                indent_level = self.stack_for.pop()
+                if self.stack_for:
+                    for_level = max(0, for_level - 1)
+                    indent_level = self.stack_for.pop()
             elif re.search(r"Hil?\s=?\sReset", current_line, re.IGNORECASE):
                 indent_level = 2
                 add_blank_line_after = True

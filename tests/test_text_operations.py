@@ -192,6 +192,22 @@ class TextOperationsTest(unittest.TestCase):
             '\n\tValue = 1'
         ))
 
+    def test_unmatched_block_commands_do_not_crash_formatter(self):
+        source = (
+            'TESTCASE "A" EXPECTEDRESULT 1\n'
+            'ENDIF\n'
+            'NEXT\n'
+            'ELSE'
+        )
+
+        result = TextFormatter(source).run()
+
+        self.assertTrue(result.endswith(
+            '\n\tENDIF'
+            '\n\n\tNEXT'
+            '\n\n\tELSE'
+        ))
+
     def test_cursor_stays_in_word_when_formatting_adds_lines_and_indentation(self):
         source = (
             'TESTCASE "A" EXPECTEDRESULT 1\n'
