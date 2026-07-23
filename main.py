@@ -2,7 +2,7 @@ import re
 import sys
 import pywinstyles
 
-from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QSettings, Qt, QTimer, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QSettings, Qt, QTimer, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QColor, QFontDatabase, QIcon, QKeySequence
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut, QSplitter, QVBoxLayout, QLabel, QFrame, QSystemTrayIcon, QMenu
 
@@ -20,6 +20,7 @@ from text_editor.outline_controller import OutlineController
 from text_editor.tab_manager import EditorTabManager
 from text_editor.tabs import Tabs
 from ui.main_ui import Ui_MainWindow
+from window_controller import WindowController
 from config.icon_manager import IconManager
 from components.widgets.widgets_pointing_hand import TreeWidgetPointingHand
 
@@ -37,6 +38,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.setupUi(self)
+        self.window_controller = WindowController(self)
         self.ICON_MANAGER = IconManager()
         self.project_actions = ProjectActions(
             self,
@@ -167,7 +169,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.frame_2.setVisible(False)
         ## TOGGLE/BURGUER MENU
         ########################################################################
-        self.btn_toggle_menu.clicked.connect(lambda: self.toggle_menu(self.uiFrameLeftMenu, 70, 210))
+        self.btn_toggle_menu.clicked.connect(
+            lambda: self.window_controller.toggle_menu(
+                self.uiFrameLeftMenu,
+                70,
+                210,
+            )
+        )
         # self.btn_show_hide_file_manager.clicked.connect(lambda: self.toggleMenu(self.frame_file_manager, 0, 350))
         self.btn_close.clicked.connect(self.close)
 
@@ -265,10 +273,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.stackedWidget.addWidget(self.dashboard)
         self.stackedWidget.setCurrentWidget(self.dashboard)
 
-        self.ui_btn_text_editor.clicked.connect(lambda: self.manage_right_menu(self.tabs_splitter, self.ui_btn_text_editor))
-        self.ui_btn_data_manager.clicked.connect(lambda: self.manage_right_menu(self.data_manager, self.ui_btn_data_manager))
-        self.ui_btn_home.clicked.connect(lambda: self.manage_right_menu(self.dashboard, self.ui_btn_home))
-        self.btn_app_settings.clicked.connect(lambda: self.manage_right_menu(self.app_settings, self.btn_app_settings))
+        self.ui_btn_text_editor.clicked.connect(
+            lambda: self.manage_right_menu(
+                self.tabs_splitter,
+                self.ui_btn_text_editor,
+            )
+        )
+        self.ui_btn_data_manager.clicked.connect(
+            lambda: self.manage_right_menu(
+                self.data_manager,
+                self.ui_btn_data_manager,
+            )
+        )
+        self.ui_btn_home.clicked.connect(
+            lambda: self.manage_right_menu(
+                self.dashboard,
+                self.ui_btn_home,
+            )
+        )
+        self.btn_app_settings.clicked.connect(
+            lambda: self.manage_right_menu(
+                self.app_settings,
+                self.btn_app_settings,
+            )
+        )
 
         ################################################################################################################
         # NOTIFICATION WIDGET CONFIGURATION
@@ -309,38 +337,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def manage_right_menu(self, widget, button):
-        self.ui_btn_home.setChecked(False)
-        self.ui_btn_text_editor.setChecked(False)
-        self.ui_btn_data_manager.setChecked(False)
-        self.btn_app_settings.setChecked(False)
-        self.stackedWidget.setCurrentWidget(widget)
-        button.setChecked(True)
-        if button is not self.ui_btn_text_editor:
-            self.uiFrameFileManager.setVisible(False)
-            self.frame_2.setVisible(False)
-        else:
-            self.uiFrameFileManager.setVisible(True)
-            self.frame_2.setVisible(True)
-            if self.actual_text_edit:
-                self.actual_text_edit.setFocus()
-
-
-    def toggle_menu(self, toggled_frame, min_width, max_width):
-        # GET ACTUAL WIDTH
-        width = toggled_frame.width()
-        # SET DESIRED WIDTH
-        extended_width = max_width if width == min_width else min_width
-        # ANIMATION
-        self.animation = QPropertyAnimation(toggled_frame, b"minimumWidth")
-        self.animation.setDuration(300)
-        self.animation.setStartValue(width)
-        self.animation.setEndValue(extended_width)
-        self.animation.setEasingCurve(QEasingCurve.InOutQuart)
-        self.animation.start()
-        if self.btn_toggle_menu.isChecked():
-            self.btn_toggle_menu.setIcon(IconManager().ICON_MENU_CLOSE)
-        else:
-            self.btn_toggle_menu.setIcon(IconManager().ICON_MENU)
+        self.window_controller.show_page(widget, button)
 
 
 
@@ -349,74 +346,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 # UPDATES:  START
 ########################################################################################################################
     def receive_parameters_from_project_manager(self, parameters: dict):
-        self.update_project_title(parameters)
-
-
-    def update_project_title(self, project_params:dict):
-        json_project_path = project_params.get("json_project_path")
-        is_project_saved = project_params.get("is_project_saved")
-        str_modified_status = "" if is_project_saved else "[*Modified]"
-        str_project_path = str(json_project_path) if json_project_path else "No Project Loaded"  
-        
-        # self.setWindowTitle(f"{str_project_path} {str_modified_status} - R2 Script Editor")
-
-        self.label_opened_project.setText(f"{str_project_path} {str_modified_status}") 
-        if is_project_saved:
-            self.label_opened_project.setStyleSheet("color: rgb(200, 200, 200)")
-        else:
-            self.label_opened_project.setStyleSheet("color: rgb(250, 50, 50);")
+        self.window_controller.update_project_title(parameters)
         
 
     def update_actual_information(self):
-        if self.left_tabs.count() == 0 and self.right_tabs.count() == 0:
-            self.actual_text_edit = None
-
-        self._update_btn_lock_unlock()
-        self._update_tabs_color()
-        self._update_script_label()
-        self.outline_controller.update_selected_item()
-
-
-    def _update_btn_lock_unlock(self):
-        if self.actual_text_edit is None:
-            self.btn_lock_unlock.setVisible(False)
-            return
-        self.btn_lock_unlock.setVisible(True)
-        if self.actual_text_edit.isReadOnly():
-            self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_LOCKED)
-        else:
-            self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_UNLOCKED)
-
-
-
-    def _update_tabs_color(self):
-        # UNDERLINE ACTUAL TAB WITH COLOR
-        if self.actual_tabs:
-            self.left_tabs.setStyleSheet('QTabBar::tab {border-bottom: 3px solid #31363b}')
-            self.right_tabs.setStyleSheet('QTabBar::tab {border-bottom: 3px solid #31363b}')
-            self.actual_tabs.setStyleSheet('QTabBar::tab:selected {border-bottom: 3px solid rgb(0, 128, 255)}')        
-
-
-    def _update_script_label(self):
-        self.setWindowTitle(f"Editor - {self.actual_text_edit.file_path}" if self.actual_text_edit else "Editor")
+        self.window_controller.update_editor_state()
    
     
     def show_notification(self, notification_text):
-        # self.notification_widget.show_text(notification_text)
-        # TEST: change this to show in status bar (cleaner from my point of view)
-        widget_with_focus = QApplication.focusWidget()
-        print(widget_with_focus)
-        self.uiLabelProgressStatus.setText(notification_text) 
-        self.uiLabelProgressStatus.setStyleSheet("color: rgb(50, 250, 50);")
-
-        # widget_with_focus.setFocus()
-        if self.actual_text_edit:
-            self.actual_text_edit.setFocus()
-
-        QTimer.singleShot(4000, lambda: self.uiLabelProgressStatus.setText("Ready"))
-        QTimer.singleShot(4000, lambda: self.uiLabelProgressStatus.setStyleSheet("color: rgb(200, 200, 200);"))
-        if self.actual_text_edit:
-            QTimer.singleShot(4100, lambda: self.actual_text_edit.setFocus())
+        self.window_controller.show_notification(notification_text)
 
 
 
