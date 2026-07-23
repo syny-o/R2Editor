@@ -39,7 +39,7 @@ class DocumentActions:
             if not is_supported_document(file_path):
                 return
 
-            opened_files = self.main_window.get_all_opened_files()
+            opened_files = self.main_window.tab_manager.opened_files()
             if file_path in opened_files:
                 text_edit, tabs = opened_files[file_path]
                 tabs.setCurrentWidget(text_edit)
@@ -54,7 +54,7 @@ class DocumentActions:
                 if file_path.suffix.lower() == '.py'
                 else rapit_two_highlighter.RapitTwoHighlighter
             )
-            text_edit = self.main_window.create_text_edit(
+            text_edit = self.main_window.tab_manager.create_text_edit(
                 text,
                 file_path,
                 syntax_highlighter,
@@ -136,7 +136,7 @@ class DocumentActions:
 
     def new(self):
         text = TemplateTestCase().generate_tc_template()
-        text_edit = self.main_window.create_text_edit(
+        text_edit = self.main_window.tab_manager.create_text_edit(
             '',
             None,
             rapit_two_highlighter.RapitTwoHighlighter,

@@ -18,14 +18,14 @@ from data_manager import project_manager
 from data_manager.data_manager import DataManager
 from data_manager.project_actions import ProjectActions
 from file_browser.tree_file_browser import FileSystemView
-from tabs import Tabs
 from text_editor import editor_actions
 from text_editor.document_actions import DocumentActions
 from text_editor.outline_parser import (
     line_number_from_position,
     parse_outline_sections,
 )
-from text_editor.text_editor import TextEdit
+from text_editor.tab_manager import EditorTabManager
+from text_editor.tabs import Tabs
 from ui.main_ui import Ui_MainWindow
 import config.app_styles
 from config.icon_manager import IconManager
@@ -227,16 +227,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # TABS CONFIGURATION
         ################################################################################################################
         self.left_tabs = Tabs(self, True, 'LEFT_TABS')
-        self.left_tabs.tabCloseRequested.connect(self.left_tab_close_request)
-        self.left_tabs.currentChanged.connect(self.left_tab_was_changed)
-        self.left_tabs.tabBarClicked.connect(self.left_tab_was_changed)
         self.left_tabs.currentChanged.connect(self.update_find_replace)
 
         self.right_tabs = Tabs(self, False, 'RIGHT_TABS')
-        self.right_tabs.tabCloseRequested.connect(self.right_tab_close_request)
-        self.right_tabs.currentChanged.connect(self.right_tab_was_changed)
-        self.right_tabs.tabBarClicked.connect(self.right_tab_was_changed)
         self.right_tabs.currentChanged.connect(self.update_find_replace)
+
+        self.tab_manager = EditorTabManager(
+            self,
+            self.left_tabs,
+            self.right_tabs,
+        )
+        self.tab_manager.connect_signals()
 
         self.tabs_splitter = QSplitter()
         self.tabs_splitter.addWidget(self.left_tabs)
@@ -456,166 +457,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 ########################################################################################################################
-# TABS MANAGEMENT METHODS:  START
-########################################################################################################################
-
-
-    def clicked_on_text_edit(self, edit_text):
-        self.actual_text_edit = edit_text
-
-        if self.left_tabs.indexOf(edit_text) == -1:
-            self.actual_tabs = self.right_tabs
-        else:
-            self.actual_tabs = self.left_tabs
-
-        self.update_actual_information()
-
-
-    def left_tab_was_changed(self, tab_index):
-        if self.left_tabs.count() > 0:
-            self.actual_tabs = self.left_tabs
-            self.actual_text_edit = self.actual_tabs.widget(tab_index)
-            self.actual_text_edit.setFocus()
-        self.update_actual_information()
-
-
-
-    def left_tab_close_without_saving(self, tab_index):
-        self.left_tabs.removeTab(tab_index)
-        if self.left_tabs.count() == 0 and not self.right_tabs.isVisible():
-            self.actual_tabs = None
-            self.actual_text_edit = None
-        elif self.left_tabs.count() == 0 and self.right_tabs.isVisible():
-            self.actual_tabs = self.right_tabs
-            self.actual_text_edit = self.right_tabs.currentWidget()
-        self.update_actual_information()
-
-
-    def left_tab_close_request(self, tab_index):
-        self.tab_close_request(
-            self.left_tabs, tab_index, self.left_tab_close_without_saving
-        )
-
-
-    def right_tab_was_changed(self, tab_index):
-        if self.right_tabs.count() > 0:
-            self.actual_tabs = self.right_tabs
-            self.actual_text_edit = self.actual_tabs.widget(tab_index)
-            self.actual_text_edit.setFocus()
-        self.update_actual_information()
-
-
-    def right_tab_close_without_saving(self, tab_index):
-        self.right_tabs.removeTab(tab_index)
-        if self.right_tabs.count() == 0:
-            self.right_tabs.setVisible(False)
-            if self.left_tabs.count() > 0:
-                self.actual_text_edit = self.left_tabs.currentWidget()
-                self.actual_tabs = self.left_tabs
-            else:
-                self.actual_tabs = None
-                self.actual_text_edit = None
-
-    def right_tab_close_request(self, tab_index):
-        self.tab_close_request(
-            self.right_tabs, tab_index, self.right_tab_close_without_saving
-        )
-
-    def tab_close_request(self, tabs, tab_index, close_tab):
-        text_edit = tabs.widget(tab_index)
-        if not text_edit.is_modified():
-            close_tab(tab_index)
-            self.update_actual_information()
-            return
-
-        answer = QMessageBox.question(
-            self,
-            "R2 Editor",
-            "The file has been modified.\n\nDo you want to save your changes?",
-            QMessageBox.Save | QMessageBox.Cancel | QMessageBox.Discard,
-            QMessageBox.Save,
-        )
-
-        if answer == QMessageBox.Discard:
-            close_tab(tab_index)
-        elif answer == QMessageBox.Save:
-            previous_text_edit = self.actual_text_edit
-            previous_tabs = self.actual_tabs
-            self.actual_text_edit = text_edit
-            self.actual_tabs = tabs
-            was_saved = self.document_actions.save()
-            self.actual_text_edit = previous_text_edit
-            self.actual_tabs = previous_tabs
-            if was_saved:
-                close_tab(tab_index)
-
-        self.update_actual_information()
-
-
-    def set_tab_modified_icon(self, text_edit, is_modified):
-        tabs = self.left_tabs
-        tab_index = tabs.indexOf(text_edit)
-        if tab_index == -1:
-            tabs = self.right_tabs
-            tab_index = tabs.indexOf(text_edit)
-        if tab_index == -1:
-            return
-
-        if is_modified:
-            tabs.setTabIcon(tab_index, QIcon(u"ui/icons/16x16/cil-description.png"))
-        else:
-            tabs.setTabIcon(tab_index, QIcon(u"ui/icons/16x16/cil-file.png"))
-
-
-########################################################################################################################
-# TABS MANAGEMENT METHODS:  END
-########################################################################################################################
-
-
-
-
-
-########################################################################################################################
-# FILE MANAGEMENT METHODS:  START
-########################################################################################################################
-
-
-
-    def get_all_opened_files(self):
-        opened_files = {}
-        for text_edit, tabs in self.iter_open_text_edits():
-            if text_edit.file_path is not None:
-                opened_files[text_edit.file_path] = [text_edit, tabs]
-        return opened_files
-
-    def iter_open_text_edits(self):
-        for tabs in (self.left_tabs, self.right_tabs):
-            for tab_index in range(tabs.count()):
-                yield tabs.widget(tab_index), tabs
-
-
-    def create_text_edit(self, text, file_path, syntax_highlighter):
-        text_edit = TextEdit(
-            text,
-            file_path,
-            syntax_highlighter,
-            dark_mode=self.app_settings.theme == 'Dark',
-        )
-        text_edit.signal_clicked_on_text_edit.connect(self.clicked_on_text_edit)
-        text_edit.signal_modified_file_content.connect(self.set_tab_modified_icon)
-        text_edit.signal_scroll_position_changed.connect(
-            self.update_selected_item_in_outline_by_scrollbar
-        )
-        return text_edit
-
-
-########################################################################################################################
-# FILE MANAGEMENT METHODS:  END
-########################################################################################################################
-
-
-
-########################################################################################################################
 # UPDATES:  START
 ########################################################################################################################
     def receive_parameters_from_project_manager(self, parameters: dict):
@@ -791,7 +632,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         has_modified_files = any(
             text_edit.is_modified()
-            for text_edit, _ in self.iter_open_text_edits()
+            for text_edit, _ in self.tab_manager.iter_text_edits()
         )
         if has_modified_files:
             answer = QMessageBox.question(

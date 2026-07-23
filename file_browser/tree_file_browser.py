@@ -275,7 +275,7 @@ class FileSystemView(QWidget, Ui_Form):
                 
 
 
-            opened_files = self.MAIN.get_all_opened_files()  # get dict {Path(str): (QTextEdit, QTabWidget)}
+            opened_files = self.MAIN.tab_manager.opened_files()  # get dict {Path(str): (QTextEdit, QTabWidget)}
             # if (key := Path(file_path)) in opened_files:
             #     my_text_edit, my_tabs = opened_files[key]
             #     tab_index = my_tabs.indexOf(my_text_edit)
@@ -337,7 +337,7 @@ class FileSystemView(QWidget, Ui_Form):
                 index = self.model.index(str(new_path))  
                 self.tree.setCurrentIndex(index)
 
-                opened_files = self.MAIN.get_all_opened_files()  # get dict {Path(str): (QTextEdit, QTabWidget)}
+                opened_files = self.MAIN.tab_manager.opened_files()  # get dict {Path(str): (QTextEdit, QTabWidget)}
 
                 if (key := Path(path)) in opened_files:
                     my_text_edit, my_tabs = opened_files[key]
