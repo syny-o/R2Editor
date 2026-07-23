@@ -1,9 +1,9 @@
 import sys
 import pywinstyles
 
-from PyQt5.QtCore import QSettings, Qt, QTimer, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QColor, QFontDatabase, QIcon, QKeySequence
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut, QSplitter, QVBoxLayout, QLabel, QFrame, QMenu
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt5.QtWidgets import QApplication, QMainWindow, QShortcut, QSplitter, QVBoxLayout, QLabel, QFrame
 
 from app_settings import AppSettings
 from application_lifecycle import ApplicationLifecycle
@@ -146,11 +146,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_format_code.setShortcut(('Ctrl+Shift+f'))
         self.btn_format_code.setToolTip(('Format Code (Ctrl+Shift+F)'))
         self.btn_lock_unlock.clicked.connect(self.document_actions.toggle_read_only)
-        # self.btn_find_replace.clicked.connect(lambda is_pressed: self.find_replace(is_pressed, only_find=False))
-        # self.btn_find_replace.setShortcut('Ctrl+h')
-        # self.btn_find_replace.setToolTip('Ctrl + "H"')
-        # self.btn_undo.clicked.connect(self.perform_undo)
-        # self.btn_redo.clicked.connect(self.perform_redo)
         self.btn_zoom_in.clicked.connect(self.editor_controller.font_increase)
         self.btn_zoom_in.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Plus))
         self.btn_zoom_in.setToolTip("Zoom In (Ctrl+Plus)")
@@ -179,7 +174,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 210,
             )
         )
-        # self.btn_show_hide_file_manager.clicked.connect(lambda: self.toggleMenu(self.frame_file_manager, 0, 350))
         self.btn_close.clicked.connect(self.close)
 
         self.VERSION = '2021-03-04'
@@ -196,7 +190,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         uiLeftPanelSplitter.setOrientation(Qt.Vertical)
         self.uiLayoutFileManager.addWidget(uiLeftPanelSplitter)
         self.tree_file_browser = FileSystemView(self, project_manager)
-        # self.uiLayoutFileManager.addWidget(self.tree_file_browser)
         uiLeftPanelSplitter.addWidget(self.tree_file_browser)
 
         ################################################################################################################
@@ -221,8 +214,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         uiFrameOutline = QFrame()
         uiFrameOutline.setObjectName("objNameFrameOutline")
         uiFrameOutline.setLayout(uiLayoutOutline)
-        # self.uiLayoutFileManager.addWidget(QPushButton("Outline"))
-        # self.uiLayoutFileManager.addWidget(self.uiTreeOutline)
         uiLeftPanelSplitter.addWidget(uiFrameOutline)
 
         ################################################################################################################
