@@ -2,6 +2,9 @@ from components.pyqt_find_text_widget.findReplaceTextWidget import (
     FindReplaceTextWidget,
 )
 from config.font import font
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import QShortcut
 from text_editor import editor_actions
 
 
@@ -9,6 +12,88 @@ class EditorController:
     def __init__(self, main_window):
         self.main_window = main_window
         self.find_box = None
+
+    def connect_actions(self, document_actions):
+        window = self.main_window
+
+        window.btn_script_new.clicked.connect(document_actions.new)
+        window.btn_script_new.setShortcut('Ctrl+n')
+        window.btn_script_open.clicked.connect(document_actions.open_from_dialog)
+        window.btn_script_save.clicked.connect(document_actions.save)
+        window.btn_script_save.setShortcut('Ctrl+s')
+        window.btn_script_save_as.clicked.connect(document_actions.save_as)
+        window.btn_lock_unlock.clicked.connect(
+            document_actions.toggle_read_only
+        )
+
+        editor_buttons = (
+            (
+                window.btn_insert_chapter,
+                self.insert_chapter,
+                'Ctrl+Shift+a',
+                'Chapter (Ctrl+Shift+A)',
+            ),
+            (
+                window.btn_insert_testcase,
+                self.insert_testcase,
+                'Ctrl+Shift+t',
+                'Testcase (Ctrl+Shift+T)',
+            ),
+            (
+                window.btn_insert_command,
+                self.insert_command,
+                'Ctrl+Shift+c',
+                'Command (Ctrl+Shift+C)',
+            ),
+            (
+                window.btn_comment_uncomment,
+                self.toggle_comment,
+                'Ctrl+/',
+                '(Un)Comment (Ctrl+"/")',
+            ),
+            (
+                window.btn_format_code,
+                self.format_code,
+                'Ctrl+Shift+f',
+                'Format Code (Ctrl+Shift+F)',
+            ),
+        )
+        for button, action, shortcut, tooltip in editor_buttons:
+            button.clicked.connect(action)
+            button.setShortcut(shortcut)
+            button.setToolTip(tooltip)
+
+        zoom_buttons = (
+            (
+                window.btn_zoom_in,
+                self.font_increase,
+                QKeySequence(Qt.CTRL + Qt.Key_Plus),
+                'Zoom In (Ctrl+Plus)',
+            ),
+            (
+                window.btn_zoom_out,
+                self.font_decrease,
+                QKeySequence(Qt.CTRL + Qt.Key_Minus),
+                'Zoom Out (Ctrl+Minus)',
+            ),
+            (
+                window.btn_zoom_default,
+                self.font_reset,
+                QKeySequence(Qt.CTRL + Qt.Key_0),
+                'Reset Zoom (Ctrl+0)',
+            ),
+        )
+        for button, action, shortcut, tooltip in zoom_buttons:
+            button.clicked.connect(action)
+            button.setShortcut(shortcut)
+            button.setToolTip(tooltip)
+
+        QShortcut('Ctrl+f', window).activated.connect(
+            lambda: self.show_find_replace(only_find=True)
+        )
+        QShortcut('Ctrl+h', window).activated.connect(
+            lambda: self.show_find_replace(only_find=False)
+        )
 
     def insert_command(self):
         self._run_editor_action(editor_actions.insert_command)

@@ -2,8 +2,8 @@ import sys
 import pywinstyles
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QIcon, QKeySequence
-from PyQt5.QtWidgets import QApplication, QMainWindow, QShortcut, QSplitter, QVBoxLayout, QLabel, QFrame
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QVBoxLayout, QLabel, QFrame
 
 from app_settings import AppSettings
 from application_lifecycle import ApplicationLifecycle
@@ -57,6 +57,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ################################################################################################################
         self.app_settings = AppSettings(self)
         self.editor_controller = EditorController(self)
+        self.editor_controller.connect_actions(self.document_actions)
 
         
         ################################################################################################################
@@ -87,55 +88,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_project_new.clicked.connect(self.project_actions.new)
         self.btn_project_save.clicked.connect(self.project_actions.save)
         self.btn_project_save_as.clicked.connect(self.project_actions.save_as)
-
-        self.btn_script_new.clicked.connect(self.document_actions.new)
-        self.btn_script_new.setShortcut('Ctrl+n')
-        self.btn_script_save.clicked.connect(self.document_actions.save)
-        self.btn_script_save.setShortcut('Ctrl+s')
-        self.btn_script_save_as.clicked.connect(self.document_actions.save_as)
-        self.btn_script_open.clicked.connect(self.document_actions.open_from_dialog)
-        self.btn_insert_chapter.clicked.connect(
-            self.editor_controller.insert_chapter
-        )
-        self.btn_insert_chapter.setShortcut('Ctrl+Shift+a')
-        self.btn_insert_chapter.setToolTip('Chapter (Ctrl+Shift+A)')
-        self.btn_insert_testcase.clicked.connect(
-            self.editor_controller.insert_testcase
-        )
-        self.btn_insert_testcase.setShortcut('Ctrl+Shift+t')
-        self.btn_insert_testcase.setToolTip('Testcase (Ctrl+Shift+T)')
-        self.btn_insert_command.clicked.connect(
-            self.editor_controller.insert_command
-        )
-        self.btn_insert_command.setShortcut('Ctrl+Shift+c')
-        self.btn_insert_command.setToolTip('Command (Ctrl+Shift+C)')
-        self.btn_comment_uncomment.clicked.connect(
-            self.editor_controller.toggle_comment
-        )
-        self.btn_comment_uncomment.setShortcut('Ctrl+/')
-        self.btn_comment_uncomment.setToolTip('(Un)Comment (Ctrl+"/")')
-        self.btn_format_code.clicked.connect(
-            self.editor_controller.format_code
-        )
-        self.btn_format_code.setShortcut(('Ctrl+Shift+f'))
-        self.btn_format_code.setToolTip(('Format Code (Ctrl+Shift+F)'))
-        self.btn_lock_unlock.clicked.connect(self.document_actions.toggle_read_only)
-        self.btn_zoom_in.clicked.connect(self.editor_controller.font_increase)
-        self.btn_zoom_in.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Plus))
-        self.btn_zoom_in.setToolTip("Zoom In (Ctrl+Plus)")
-        self.btn_zoom_out.clicked.connect(self.editor_controller.font_decrease)
-        self.btn_zoom_out.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Minus))        
-        self.btn_zoom_out.setToolTip("Zoom Out (Ctrl+Minus)")
-        self.btn_zoom_default.clicked.connect(self.editor_controller.font_reset)
-        self.btn_zoom_default.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_0))
-        self.btn_zoom_default.setToolTip("Reset Zoom (Ctrl+0)")
-
-        QShortcut('Ctrl+f', self).activated.connect(
-            lambda: self.editor_controller.show_find_replace(only_find=True)
-        )
-        QShortcut('Ctrl+h', self).activated.connect(
-            lambda: self.editor_controller.show_find_replace(only_find=False)
-        )
 
         self.uiFrameFileManager.setVisible(False)
         self.frame_2.setVisible(False)
