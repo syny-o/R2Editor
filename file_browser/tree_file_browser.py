@@ -31,7 +31,7 @@ class FileSystemView(QWidget, Ui_Form):
         self.MAIN = main_window
         self.PROJECT_MANAGER = project_manager
 
-        self.send_file_path.connect(main_window.file_open_from_tree)
+        self.send_file_path.connect(main_window.document_actions.open_path)
 
         self.is_data_manager_connected = False
         self.uiBtnDisconnectProjectFolder.setVisible(False)
@@ -436,6 +436,3 @@ class FileSystemView(QWidget, Ui_Form):
 
         self.form = file_browser.form_script_normalisation.ScriptNormReport(file_path)
         self.form.show()
-
-        
-    

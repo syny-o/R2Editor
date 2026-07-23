@@ -59,7 +59,7 @@ class DataManager(QWidget, Ui_Form):
         self.ROOT = self.MODEL.invisibleRootItem()        
         self.ROOT.setData(self, Qt.UserRole)  # add pointer to DataManager instance to be accesseble from child nodes (ReqNode, CondNode, ...)
 
-        self.send_file_path.connect(self.MAIN.file_open_from_tree)
+        self.send_file_path.connect(self.MAIN.document_actions.open_path)
 
         self.VIEW = View(self, self.MODEL)
         self.ui_layout_tree.addWidget(self.VIEW)

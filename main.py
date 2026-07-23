@@ -7,28 +7,20 @@ import pywinstyles
 
 from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QSettings, Qt, QTimer, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QColor, QFontDatabase, QIcon, QKeySequence
-from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QMessageBox, QShortcut, QSplitter, QTreeWidgetItem, QVBoxLayout, QLabel, QFrame, QSystemTrayIcon, QMenu
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut, QSplitter, QTreeWidgetItem, QVBoxLayout, QLabel, QFrame, QSystemTrayIcon, QMenu
 
 from app_settings import AppSettings
 from components.notification_widget import NotificationWidget
 from components.pyqt_find_text_widget.findReplaceTextWidget import FindReplaceTextWidget
-from components.template_test_case import TemplateTestCase
 from config.font import font
 from dashboard.dashboard import Dashboard
 from data_manager import project_manager
 from data_manager.data_manager import DataManager
 from data_manager.project_actions import ProjectActions
-from data_manager.requirement_references import changed_requirement_references
-from dialogs.dialog_message import dialog_message
 from file_browser.tree_file_browser import FileSystemView
 from tabs import Tabs
 from text_editor import editor_actions
-from text_editor.file_access import (
-    is_supported_document,
-    read_text_file,
-    set_file_read_only,
-    write_text_file,
-)
+from text_editor.document_actions import DocumentActions
 from text_editor.outline_parser import (
     line_number_from_position,
     parse_outline_sections,
@@ -36,7 +28,6 @@ from text_editor.outline_parser import (
 from text_editor.text_editor import TextEdit
 from ui.main_ui import Ui_MainWindow
 import config.app_styles
-from components.syntax_highlighter import python_highlighter, rapit_two_highlighter
 from config.icon_manager import IconManager
 from components.widgets.widgets_pointing_hand import TreeWidgetPointingHand
 from components.smooth_scrolling import SmoothScrolling
@@ -61,6 +52,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             project_manager,
             self.show_notification,
         )
+        self.document_actions = DocumentActions(self)
         
 
         self.ui_btn_home.setIcon(IconManager().ICON_DASHBOARD)
@@ -129,12 +121,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_project_save.clicked.connect(self.project_actions.save)
         self.btn_project_save_as.clicked.connect(self.project_actions.save_as)
 
-        self.btn_script_new.clicked.connect(self.file_new)
+        self.btn_script_new.clicked.connect(self.document_actions.new)
         self.btn_script_new.setShortcut('Ctrl+n')
-        self.btn_script_save.clicked.connect(self.file_save)
+        self.btn_script_save.clicked.connect(self.document_actions.save)
         self.btn_script_save.setShortcut('Ctrl+s')
-        self.btn_script_save_as.clicked.connect(self.file_save_as)
-        self.btn_script_open.clicked.connect(self.file_open_from_dialog)
+        self.btn_script_save_as.clicked.connect(self.document_actions.save_as)
+        self.btn_script_open.clicked.connect(self.document_actions.open_from_dialog)
         self.btn_insert_chapter.clicked.connect(self.insert_chapter)
         self.btn_insert_chapter.setShortcut('Ctrl+Shift+a')
         self.btn_insert_chapter.setToolTip('Chapter (Ctrl+Shift+A)')
@@ -150,7 +142,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_format_code.clicked.connect(self.format_code)
         self.btn_format_code.setShortcut(('Ctrl+Shift+f'))
         self.btn_format_code.setToolTip(('Format Code (Ctrl+Shift+F)'))
-        self.btn_lock_unlock.clicked.connect(self.file_lock_unlock)
+        self.btn_lock_unlock.clicked.connect(self.document_actions.toggle_read_only)
         # self.btn_find_replace.clicked.connect(lambda is_pressed: self.find_replace(is_pressed, only_find=False))
         # self.btn_find_replace.setShortcut('Ctrl+h')
         # self.btn_find_replace.setToolTip('Ctrl + "H"')
@@ -181,9 +173,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_close.clicked.connect(self.close)
 
         self.VERSION = '2021-03-04'
-        # FILTER FOR OPENING/SAVING SCRIPTS AND PROJECTS
-        self.filter_script = 'RapitTwo Script (*.par)'
-
         ################################################################################################################
         # POINTER TO ACTUAL TEXTEDIT, ACTUAL TABS
         ################################################################################################################
@@ -554,7 +543,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             previous_tabs = self.actual_tabs
             self.actual_text_edit = text_edit
             self.actual_tabs = tabs
-            was_saved = self.file_save()
+            was_saved = self.document_actions.save()
             self.actual_text_edit = previous_text_edit
             self.actual_tabs = previous_tabs
             if was_saved:
@@ -619,158 +608,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         return text_edit
 
-
-    def file_open_from_dialog(self):
-        path, _ = QFileDialog.getOpenFileName(
-            parent=self,
-            caption='Open Script',
-            directory=self.tree_file_browser.current_path,
-            filter=self.filter_script
-        )
-
-        if not path:
-            return
-        else:
-            try:
-                self.file_open_from_tree(Path(path))
-                # self.update_title()
-            except Exception as my_exception:
-                dialog_message(self, str(my_exception))        
-
-
-
-    @pyqtSlot(Path)
-    def file_open_from_tree(self, file_path: Path):
-        try:
-            file_suffix = file_path.suffix
-            opened_files = self.get_all_opened_files()
-            if is_supported_document(file_path):
-                if file_path not in opened_files:
-                    text = read_text_file(file_path)
-
-                    if file_suffix.lower() == '.py':
-                        syntax_highlighter = python_highlighter.PythonHighlighter
-                    else:
-                        syntax_highlighter = rapit_two_highlighter.RapitTwoHighlighter
-
-                    tab_name = file_path.name
-                    text_edit = self.create_text_edit(text, file_path, syntax_highlighter)
-                    self.left_tabs.addTab(text_edit, QIcon(u"ui/icons/16x16/cil-file.png"), tab_name)
-
-                else:
-                    opened_files[file_path][1].setCurrentWidget(opened_files[file_path][0])
-                    self.actual_tabs = opened_files[file_path][1]
-                    self.actual_text_edit = opened_files[file_path][0]
-                    self.update_actual_information()
-        except Exception as e:
-            dialog_message(self, str(e))
-
-
-    def update_coverage(self, text_to_save, original_text, file_path):
-        references = changed_requirement_references(original_text, text_to_save)
-        self.script_requirement_reference_changed.emit(references, str(Path(file_path)))
-
-
-
-
-    def file_save(self):
-        if not self.actual_text_edit:
-            return False
-
-        if (
-            self.app_settings.format_code_when_save
-            and self.actual_text_edit.file_path is not None
-            and Path(self.actual_text_edit.file_path).suffix.lower() in ('.par', '.txt')
-        ):
-            self.format_code()
-
-        if self.actual_text_edit.file_path is None:
-            return self.file_save_as()
-
-        try:
-            text_to_save = self.actual_text_edit.toPlainText()
-            write_text_file(self.actual_text_edit.file_path, text_to_save)
-
-            self.update_coverage(
-                text_to_save,
-                self.actual_text_edit.original_file_content,
-                self.actual_text_edit.file_path,
-            )
-            self.actual_text_edit.original_file_content = text_to_save
-            self.actual_text_edit.document().setModified(False)
-            self.update_actual_information()
-            return True
-        except Exception as exception_to_show:
-            dialog_message(self, str(exception_to_show))
-            return False
-
-
-
-
-    def file_save_as(self):
-        path, _ = QFileDialog.getSaveFileName(
-            parent=self,
-            caption='Save Script',
-            directory=self.tree_file_browser.current_path,
-            filter=self.filter_script
-        )
-
-        if not path:
-            return False
-
-        try:
-            text_to_save = self.actual_text_edit.toPlainText()
-            write_text_file(path, text_to_save)
-
-            self.update_coverage(
-                text_to_save,
-                self.actual_text_edit.original_file_content,
-                path,
-            )
-            self.actual_text_edit.original_file_content = text_to_save
-            self.actual_text_edit.document().setModified(False)
-            self.actual_text_edit.file_path = Path(path)
-            self.actual_text_edit.setReadOnly(False)
-            current_tab_index = self.actual_tabs.indexOf(self.actual_text_edit)
-            self.actual_tabs.setTabText(current_tab_index, Path(path).name)
-            self.update_actual_information()
-            return True
-        except Exception as exception_to_show:
-            dialog_message(self, str(exception_to_show))
-            return False
-
-
-
-    def file_new(self):
-        template = TemplateTestCase()
-        text = template.generate_tc_template()
-        file_path = None
-        tab_name = 'Untitled'
-        text_edit = self.create_text_edit(
-            "", file_path, rapit_two_highlighter.RapitTwoHighlighter
-        )
-        self.left_tabs.addTab(text_edit, QIcon(u"ui/icons/16x16/cil-description.png"), tab_name)
-        self.actual_text_edit.setFocus()
-        tc = self.actual_text_edit.textCursor()
-        tc.insertText(text)
-        self.actual_text_edit.selectAll()
-
-
-    def file_lock_unlock(self):
-        if self.actual_text_edit:
-            try:
-                if self.actual_text_edit.isReadOnly():
-                    set_file_read_only(self.actual_text_edit.file_path, False)
-                    self.actual_text_edit.setReadOnly(False)
-                    self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_UNLOCKED)
-                else: 
-                    set_file_read_only(self.actual_text_edit.file_path, True)
-                    self.actual_text_edit.setReadOnly(True)
-                    self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_LOCKED)
-            except TypeError as e:
-                dialog_message(self, f"File is not saved! Save the file first. {str(e)}.")
-                self.actual_text_edit.setFocus()
-                
 
 ########################################################################################################################
 # FILE MANAGEMENT METHODS:  END
