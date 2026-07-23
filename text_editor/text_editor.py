@@ -10,6 +10,11 @@ from PyQt5.QtGui import QTextCursor, QStandardItem, QStandardItemModel, QPalette
 from config.font import font
 
 from text_editor.completer import Completer
+from text_editor.completion_rules import (
+    EQUAL_SPACING_EXCLUDED_COMMANDS,
+    SPECIAL_COMMAND_TEMPLATES,
+    completion_model_name,
+)
 from text_editor.file_access import is_file_read_only
 from components.text_functions import get_word_under_cursor
 from text_editor.text_operations import completion_context, format_first_assignment
@@ -17,37 +22,6 @@ from text_editor.text_operations import completion_context, format_first_assignm
 from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighter
 
 class TextEdit(CodeEditor):
-
-    PBC_VARIABLE_COMMANDS = {
-        'MonitorVariablesCANape',
-        'MonitorVariablesCanape',
-        'VariableSequence',
-        'CANapeCommand',
-    }
-
-    SPECIAL_COMMAND_TEMPLATES = {
-        'MonitorVariablesCANape': (' = ", 100000, 10"', 13),
-        'MonitorVariablesCanape': (' = ", 100000, 10"', 13),
-        'MonitorVariables': (' = ", 100000, 10"', 13),
-        'GraphVariables': (' = ""', 1),
-        'VariableRisingInRange': (' = ""', 1),
-        'VariableDroppingInRange': (' = ""', 1),
-        'VariableRisingChanges': (' = ""', 1),
-        'VariableDroppingChanges': (' = ""', 1),
-        'VariableMaxInRange': (' = ""', 1),
-        'VariableMinInRange': (' = ""', 1),
-        'CANapeCommand': (' = "CANape_GetObjectValue()"', 2),
-        'VariableSequence': (' = ""', 1),
-    }
-
-    EQUAL_SPACING_EXCLUDED_COMMANDS = (
-        'MonitorVariablesCANape',
-        'MonitorVariablesCanape',
-        'MonitorVariables',
-        'GraphVariables',
-        'VariableSequence',
-        'CANapeCommand',
-    )
 
     # SIGNAL FOR HANDLING PRESSING MOUSE AT TEXTEDIT
     signal_clicked_on_text_edit = pyqtSignal(object)
@@ -304,13 +278,16 @@ class TextEdit(CodeEditor):
 
 
     def evaluate_actual_text(self):
-        if self.actual_text in self.PBC_VARIABLE_COMMANDS:
+        condition_names = self.completer.cond_dict if self.completer.cond_model else ()
+        model_name = completion_model_name(self.actual_text, condition_names)
+
+        if model_name == 'pbc_variables':
             self.switch_to_pbc_variables()
-        elif self.actual_text == 'GraphVariables':
+        elif model_name == 'graph_variables':
             self.switch_to_graph_variables()
-        elif self.actual_text == 'MonitorVariables':
+        elif model_name == 'dspace_variables':
             self.switch_to_dspace_variables()
-        elif self.completer.cond_model and (self.actual_text in self.completer.cond_dict):
+        elif model_name == 'values':
             self.switch_to_values()
         else:
             self.switch_to_conditions()
@@ -324,7 +301,7 @@ class TextEdit(CodeEditor):
         cursor = self.textCursor()
         line_text = cursor.block().text()
         formatted_line = format_first_assignment(
-            line_text, self.EQUAL_SPACING_EXCLUDED_COMMANDS
+            line_text, EQUAL_SPACING_EXCLUDED_COMMANDS
         )
         if formatted_line == line_text:
             return
@@ -337,7 +314,7 @@ class TextEdit(CodeEditor):
     def complete_special_command(self):
         cursor = self.textCursor()
         line_text = cursor.block().text()
-        template = self.SPECIAL_COMMAND_TEMPLATES.get(line_text.strip())
+        template = SPECIAL_COMMAND_TEMPLATES.get(line_text.strip())
         if template is None:
             return
 
