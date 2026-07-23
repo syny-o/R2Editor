@@ -8,6 +8,38 @@ class WindowController:
         self.main_window = main_window
         self.menu_animation = None
 
+    def configure_icons(self, icons):
+        window = self.main_window
+        icon_bindings = (
+            (window.ui_btn_home, icons.ICON_DASHBOARD),
+            (window.ui_btn_data_manager, icons.ICON_DATA_MANAGER),
+            (window.ui_btn_text_editor, icons.ICON_CODE_EDITOR),
+            (window.btn_app_settings, icons.ICON_SETTINGS),
+            (window.btn_app_exit, icons.ICON_APP_EXIT),
+            (window.btn_project_open, icons.ICON_PROJECT_OPEN),
+            (window.btn_project_new, icons.ICON_PROJECT_NEW),
+            (window.btn_project_save, icons.ICON_PROJECT_SAVE),
+            (window.btn_project_save_as, icons.ICON_PROJECT_SAVE_AS),
+            (window.btn_toggle_menu, icons.ICON_MENU),
+            (window.btn_script_new, icons.ICON_NEW_SCRIPT),
+            (window.btn_script_open, icons.ICON_OPEN_SCRIPT),
+            (window.btn_script_save, icons.ICON_SAVE_SCRIPT),
+            (window.btn_script_save_as, icons.ICON_SAVE_SCRIPT_AS),
+            (window.btn_insert_chapter, icons.ICON_INSERT_CHAPTER),
+            (window.btn_insert_testcase, icons.ICON_INSERT_TESTCASE),
+            (window.btn_insert_command, icons.ICON_INSERT_COMMAND),
+            (
+                window.btn_comment_uncomment,
+                icons.ICON_COMMENT_UNCOMMENT,
+            ),
+            (window.btn_format_code, icons.ICON_FORMAT_CODE),
+            (window.btn_zoom_in, icons.ICON_ZOOM_IN),
+            (window.btn_zoom_out, icons.ICON_ZOOM_OUT),
+            (window.btn_zoom_default, icons.ICON_ZOOM_RESET),
+        )
+        for button, icon in icon_bindings:
+            button.setIcon(icon)
+
     def show_page(self, widget, button):
         window = self.main_window
         for navigation_button in (

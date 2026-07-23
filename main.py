@@ -43,6 +43,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             project_manager,
         )
         self.ICON_MANAGER = IconManager()
+        self.window_controller.configure_icons(self.ICON_MANAGER)
         self.project_actions = ProjectActions(
             self,
             project_manager,
@@ -51,33 +52,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.document_actions = DocumentActions(self)
         
 
-        self.ui_btn_home.setIcon(IconManager().ICON_DASHBOARD)
-        self.ui_btn_data_manager.setIcon(IconManager().ICON_DATA_MANAGER)
-        self.ui_btn_text_editor.setIcon(IconManager().ICON_CODE_EDITOR)
-        self.btn_app_settings.setIcon(IconManager().ICON_SETTINGS)
-        self.btn_app_exit.setIcon(IconManager().ICON_APP_EXIT)
-        self.btn_project_open.setIcon(IconManager().ICON_PROJECT_OPEN)
-        self.btn_project_new.setIcon(IconManager().ICON_PROJECT_NEW)
-        self.btn_project_save.setIcon(IconManager().ICON_PROJECT_SAVE)
-        self.btn_project_save_as.setIcon(IconManager().ICON_PROJECT_SAVE_AS)
-        self.btn_toggle_menu.setIcon(IconManager().ICON_MENU)
-
-        self.btn_script_new.setIcon(IconManager().ICON_NEW_SCRIPT)
-        self.btn_script_open.setIcon(IconManager().ICON_OPEN_SCRIPT)
-        self.btn_script_save.setIcon(IconManager().ICON_SAVE_SCRIPT)
-        self.btn_script_save_as.setIcon(IconManager().ICON_SAVE_SCRIPT_AS)
-
-        self.btn_insert_chapter.setIcon(IconManager().ICON_INSERT_CHAPTER)
-        self.btn_insert_testcase.setIcon(IconManager().ICON_INSERT_TESTCASE)
-        self.btn_insert_command.setIcon(IconManager().ICON_INSERT_COMMAND)
-        self.btn_comment_uncomment.setIcon(IconManager().ICON_COMMENT_UNCOMMENT)        
-        self.btn_format_code.setIcon(IconManager().ICON_FORMAT_CODE)
-
-        self.btn_zoom_in.setIcon(IconManager().ICON_ZOOM_IN)
-        self.btn_zoom_out.setIcon(IconManager().ICON_ZOOM_OUT)
-        self.btn_zoom_default.setIcon(IconManager().ICON_ZOOM_RESET)
-        
-        
         ################################################################################################################
         # APP SETTINGS CONFIGURATION
         ################################################################################################################
