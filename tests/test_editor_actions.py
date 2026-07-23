@@ -29,7 +29,7 @@ class EditorActionsTest(unittest.TestCase):
         editor_actions.insert_testcase(editor)
         editor_actions.insert_chapter(editor)
         editor_actions.format_assignment_at_cursor(editor)
-        self.assertFalse(editor_actions.complete_special_command(editor))
+        editor_actions.complete_special_command(editor)
 
 
 if __name__ == "__main__":

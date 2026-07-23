@@ -182,7 +182,7 @@ def format_assignment_at_cursor(text_edit):
 
 def complete_special_command(text_edit):
     if _is_read_only(text_edit):
-        return False
+        return
 
     from PyQt5.QtGui import QTextCursor
 
@@ -190,11 +190,10 @@ def complete_special_command(text_edit):
     line_text = cursor.block().text()
     template = SPECIAL_COMMAND_TEMPLATES.get(line_text.strip())
     if template is None:
-        return False
+        return
 
     suffix, cursor_offset = template
     cursor.select(QTextCursor.LineUnderCursor)
     cursor.insertText(line_text + suffix)
     cursor.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, cursor_offset)
     text_edit.setTextCursor(cursor)
-    return True

@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QColor, QPalette, QTextCursor
-from PyQt5.QtWidgets import QPlainTextEdit, QToolTip
+from PyQt5.QtWidgets import QPlainTextEdit
 
 from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighter
 from components.text_functions import get_word_under_cursor
@@ -204,8 +204,6 @@ class TextEdit(CodeEditor):
         return True
 
     def keyPressEvent(self, event):
-        QToolTip.hideText()
-
         if self.isReadOnly():
             self.completer.popup().hide()
             super().keyPressEvent(event)
@@ -234,7 +232,5 @@ class TextEdit(CodeEditor):
         self.setTextCursor(cursor)
 
         editor_actions.format_assignment_at_cursor(self)
-        if editor_actions.complete_special_command(self):
-            self.completer.popup().hide()
-        if not QToolTip.isVisible():
-            self.completer.popup().hide()
+        editor_actions.complete_special_command(self)
+        self.completer.popup().hide()
