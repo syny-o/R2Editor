@@ -13,6 +13,7 @@ class Completer(QCompleter):
     dspace_model = None
 
     insert_text = pyqtSignal(str)
+    popup_hidden = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -101,6 +102,7 @@ class CompleterTooltipController(QObject):
         if watched == self.completer.popup():
             if event.type() == QEvent.Hide:
                 self.hide_tooltip()
+                self.completer.popup_hidden.emit()
             elif event.type() == QEvent.KeyPress and event.key() == Qt.Key_Escape:
                 self.hide_tooltip()
 

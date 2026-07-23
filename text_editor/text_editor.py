@@ -54,7 +54,11 @@ class TextEdit(CodeEditor):
         self.completer = Completer(self)
         self.completer.setWidget(self)
         self.completer.insert_text.connect(self.insert_completion)
-        self.remember_special_char = False
+        self.completer.popup_hidden.connect(self._clear_pending_special_char)
+        self.delete_special_char_after_completion = False
+
+    def _clear_pending_special_char(self):
+        self.delete_special_char_after_completion = False
 
     def update_syntax_highlighter(
         self,
@@ -109,6 +113,9 @@ class TextEdit(CodeEditor):
             cursor = self.textCursor()
             cursor.clearSelection()
             self.setTextCursor(cursor)
+            self.completer.popup().hide()
+            self._clear_pending_special_char()
+            return True
 
         if key == Qt.Key_Return and self.completer.popup().isVisible():
             selected_completion = self.completer.get_selected()
@@ -163,7 +170,7 @@ class TextEdit(CodeEditor):
         }
         for prefix, (replacement, move_left) in special_prefixes.items():
             if selected_text.startswith(prefix):
-                self.remember_special_char = True
+                self.delete_special_char_after_completion = True
                 cursor.insertText(replacement)
                 cursor.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, move_left)
                 self.setTextCursor(cursor)
@@ -226,8 +233,8 @@ class TextEdit(CodeEditor):
         get_word_under_cursor(cursor)
         cursor.insertText(completion)
 
-        if self.remember_special_char:
-            self.remember_special_char = False
+        if self.delete_special_char_after_completion:
+            self.delete_special_char_after_completion = False
             cursor.deleteChar()
         self.setTextCursor(cursor)
 
