@@ -33,6 +33,7 @@ def add_new_line_indent(text_edit):
     if cursor.block().text().strip() == "":
         cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
     cursor.insertText(whitespace)
+    text_edit.setTextCursor(cursor)
 
 
 def key_home_press(text_edit, keep_anchor=False):

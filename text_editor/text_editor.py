@@ -107,6 +107,7 @@ class TextEdit(CodeEditor):
 
     def _handle_basic_editing_key(self, event):
         key = event.key()
+        is_enter = key in (Qt.Key_Return, Qt.Key_Enter)
 
         if key == Qt.Key_Escape:
             cursor = self.textCursor()
@@ -116,14 +117,14 @@ class TextEdit(CodeEditor):
             self._clear_pending_special_char()
             return True
 
-        if key == Qt.Key_Return and self.completer.popup().isVisible():
+        if is_enter and self.completer.popup().isVisible():
             selected_completion = self.completer.get_selected()
             if selected_completion:
                 self.completer.insert_text.emit(selected_completion)
                 return True
             self.completer.popup().hide()
 
-        if key == Qt.Key_Return:
+        if is_enter:
             editor_actions.add_new_line_indent(self)
             return True
 
@@ -222,7 +223,12 @@ class TextEdit(CodeEditor):
         if self._handle_alt_completion(event):
             return
 
-        if event.key() not in (Qt.Key_Up, Qt.Key_Down, Qt.Key_Return):
+        if event.key() not in (
+            Qt.Key_Up,
+            Qt.Key_Down,
+            Qt.Key_Return,
+            Qt.Key_Enter,
+        ):
             self.completer.popup().hide()
 
         super().keyPressEvent(event)
