@@ -1,7 +1,6 @@
 import os, re
 import stat
 import sys
-import functools
 from pathlib import Path
 from importlib import reload
 import qtawesome as qta
@@ -23,6 +22,10 @@ from dialogs.dialog_message import dialog_message
 from file_browser.tree_file_browser import FileSystemView
 from tabs import Tabs
 from text_editor import editor_actions
+from text_editor.outline_parser import (
+    line_number_from_position,
+    parse_outline_sections,
+)
 from text_editor.text_editor import TextEdit
 from ui.main_ui import Ui_MainWindow
 from config import constants
@@ -300,10 +303,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     # OUTLINE MANAGEMENT METHODS START
     ################################################################################################################
 
-    def line_number_from_position(self, position):
-        return self.actual_text_edit.toPlainText()[:position].count("\n") + 1
-
-
     def update_outline(self):
 
         if not self.actual_text_edit:
@@ -321,24 +320,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if text != self.last_text_4_outline:
             self.last_text_4_outline = text
             self.uiTreeOutline.clear()
-            chapters_testcases = self.extract_chapters_testcases_from_text(text)
+            chapters_testcases = parse_outline_sections(text)
             parent = self.uiTreeOutline
             for section in chapters_testcases:
-                text = section[0]
-                if re.search(r'^\s*CHAPTER\s+".*"', text, re.IGNORECASE):
+                if section.kind == 'chapter':
                     parent = QTreeWidgetItem(self.uiTreeOutline)
-                    parent.setData(0, Qt.DisplayRole, section[0].split('"')[1])
-                    parent.setData(0, Qt.UserRole, section[1])
+                    parent.setData(0, Qt.DisplayRole, section.title)
+                    parent.setData(0, Qt.UserRole, section.position)
                     parent.setData(0, Qt.DecorationRole, qta.icon('fa5s.book-open', color='#E5A031', scale_factor=1.5))
                     continue
-                elif re.search(r'^\s*END CHAPTER\s+', text, re.IGNORECASE):
+                elif section.kind == 'end_chapter':
                     parent = self.uiTreeOutline
                     continue
 
-                elif re.search(r'^\s*TESTCASE\s+".*".*EXPECTEDRESULT', text, re.IGNORECASE):                    
+                elif section.kind == 'testcase':
                     item = QTreeWidgetItem(parent)
-                    item.setData(0, Qt.DisplayRole, section[0].split('"')[1])
-                    item.setData(0, Qt.UserRole, section[1])
+                    item.setData(0, Qt.DisplayRole, section.title)
+                    item.setData(0, Qt.UserRole, section.position)
                     item.setData(0, Qt.DecorationRole, qta.icon('ph.test-tube-fill', color='#9B59B6', scale_factor=1.5))
 
             self.update_selected_item_in_outline()
@@ -376,24 +374,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.uiTreeOutline.setCurrentItem(item)
     
 
-    @functools.cache
-    def extract_chapters_testcases_from_text(self, text):
-        results = re.finditer(r".*(?:END CHAPTER|CHAPTER|TESTCASE).*", text, re.IGNORECASE)
-        if results:
-            sections = self.extract_sections_from_matches(results)
-            return sections
-        return []
-    
-
-    @functools.cache
-    def extract_sections_from_matches(self, matches: list):
-        return [(result.group().strip(), result.start()) for result in matches if not result.group().strip().startswith("'")]
-
-
     def click_on_outline(self, item):
         self.uiTreeOutline.expandItem(item) if not item.isExpanded() else self.uiTreeOutline.collapseItem(item)
         cursor = self.actual_text_edit.textCursor()
-        line =self.line_number_from_position(item.data(0, Qt.UserRole))
+        line = line_number_from_position(
+            self.actual_text_edit.toPlainText(),
+            item.data(0, Qt.UserRole),
+        )
         self.smooth_scrolling = SmoothScrolling(self.actual_text_edit)
         self.smooth_scrolling.move_2_line(line-1)
         # cursor.setPosition(len(self.actual_text_edit.toPlainText())-1)
