@@ -998,7 +998,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def comment_uncomment(self):
         if self.actual_text_edit:
-            editor_actions.indent_dedent_comment(self.actual_text_edit, variant='comment')
+            editor_actions.toggle_comment(self.actual_text_edit)
             self.actual_text_edit.setFocus()
 
     

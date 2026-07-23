@@ -44,7 +44,6 @@ class TextEdit(CodeEditor):
         self.setFont(font)
 
         self.setLineWrapMode(QPlainTextEdit.NoWrap)
-        self.setTabStopDistance(14)
         self.setTextInteractionFlags(Qt.TextEditorInteraction)
         self.setReadOnly(is_file_read_only(self.file_path))
 
@@ -129,15 +128,15 @@ class TextEdit(CodeEditor):
             return True
 
         if key == Qt.Key_Backtab:
-            editor_actions.indent_dedent_comment(self, variant='dedent')
+            editor_actions.indent_or_dedent(self, 'dedent')
             return True
 
         if key == Qt.Key_Tab:
-            editor_actions.indent_dedent_comment(self, variant='indent')
+            editor_actions.indent_or_dedent(self, 'indent')
             return True
 
         if event.modifiers() & Qt.ShiftModifier and key == Qt.Key_Home:
-            editor_actions.key_shift_home_press(self)
+            editor_actions.key_home_press(self, keep_anchor=True)
             return True
 
         if key == Qt.Key_Home:

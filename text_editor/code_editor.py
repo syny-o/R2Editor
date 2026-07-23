@@ -3,6 +3,9 @@ from PyQt5.QtGui import QPainter, QPalette, QTextFormat
 from PyQt5.QtWidgets import QPlainTextEdit, QTextEdit, QWidget
 
 
+TAB_WIDTH_IN_SPACES = 4
+
+
 class LineNumberArea(QWidget):
     def __init__(self, editor):
         super().__init__(editor)
@@ -23,6 +26,7 @@ class CodeEditor(QPlainTextEdit):
         self.updateRequest.connect(self.update_line_number_area)
         self.cursorPositionChanged.connect(self.highlight_current_line)
         self.update_line_number_area_width()
+        self.update_tab_stop_distance()
 
     def line_number_area_width(self):
         digits = 1
@@ -34,6 +38,10 @@ class CodeEditor(QPlainTextEdit):
 
     def update_line_number_area_width(self, _=None):
         self.setViewportMargins(self.line_number_area_width(), 0, 0, 0)
+
+    def update_tab_stop_distance(self):
+        space_width = self.fontMetrics().horizontalAdvance(" ")
+        self.setTabStopDistance(space_width * TAB_WIDTH_IN_SPACES)
 
     def update_line_number_area(self, rect, dy):
         if dy:
@@ -65,6 +73,8 @@ class CodeEditor(QPlainTextEdit):
         ):
             self.update_line_number_area_width()
             self.line_number_area.update()
+            if event.type() == QEvent.FontChange:
+                self.update_tab_stop_distance()
 
     def highlight_current_line(self):
         selections = []

@@ -24,7 +24,8 @@ class EditorActionsTest(unittest.TestCase):
 
         editor_actions.add_new_line_indent(editor)
         editor_actions.format_text_edit(editor)
-        editor_actions.indent_dedent_comment(editor, "indent")
+        editor_actions.indent_or_dedent(editor, "indent")
+        editor_actions.toggle_comment(editor)
         editor_actions.insert_command(editor)
         editor_actions.insert_testcase(editor)
         editor_actions.insert_chapter(editor)

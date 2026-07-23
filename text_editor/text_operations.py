@@ -20,6 +20,29 @@ def leading_whitespace(text):
     return text[:len(text) - len(text.lstrip())]
 
 
+def smart_home_column(line_text, current_column):
+    first_text_column = len(leading_whitespace(line_text))
+    if current_column == first_text_column:
+        return 0
+    return first_text_column
+
+
+def cursor_column_after_transform(original_text, transformed_text, original_column):
+    original_column = max(0, min(original_column, len(original_text)))
+    change_column = 0
+    for original_char, transformed_char in zip(original_text, transformed_text):
+        if original_char != transformed_char:
+            break
+        change_column += 1
+
+    length_change = len(transformed_text) - len(original_text)
+    if length_change > 0 and original_column >= change_column:
+        return original_column + length_change
+    if length_change < 0 and original_column > change_column:
+        return max(change_column, original_column + length_change)
+    return original_column
+
+
 def split_indentation(text):
     indentation = leading_whitespace(text)
     return indentation, text[len(indentation):]
@@ -171,21 +194,50 @@ def cursor_position_after_format(original_text, formatted_text, original_positio
 
 
 def transform_indentation(text, operation):
+    ends_at_next_line_start = text.endswith(PARAGRAPH_SEPARATOR)
     lines = text.split(PARAGRAPH_SEPARATOR)
-    transformed_lines = [
-        transform_line_indentation(line, operation)
-        for line in lines
-    ]
-    return PARAGRAPH_SEPARATOR.join(transformed_lines)
+    if ends_at_next_line_start:
+        lines = lines[:-1]
+
+    if operation == 'comment':
+        transformed_lines = toggle_line_comments(lines)
+    else:
+        transformed_lines = [
+            transform_line_indentation(line, operation)
+            for line in lines
+        ]
+    transformed_text = PARAGRAPH_SEPARATOR.join(transformed_lines)
+    if ends_at_next_line_start:
+        transformed_text += PARAGRAPH_SEPARATOR
+    return transformed_text
+
+
+def toggle_line_comments(lines):
+    nonempty_lines = [line for line in lines if line.strip()]
+    uncomment = bool(nonempty_lines) and all(
+        line.lstrip().startswith("'")
+        for line in nonempty_lines
+    )
+
+    transformed_lines = []
+    for line in lines:
+        if not line.strip():
+            transformed_lines.append(line)
+            continue
+
+        indentation, content = split_indentation(line)
+        if uncomment:
+            content = content[1:] if content.startswith("'") else content
+        elif not content.startswith("'"):
+            content = "'" + content
+        transformed_lines.append(indentation + content)
+
+    return transformed_lines
 
 
 def transform_line_indentation(line, operation):
     if operation == 'indent':
         return '\t' + line
-    if operation == 'comment':
-        if line.strip().startswith("'"):
-            return line.replace("'", '', 1)
-        return "'" + line
     if operation == 'dedent':
         if line.startswith('\t'):
             return line[1:]

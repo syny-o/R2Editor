@@ -13,11 +13,13 @@ from text_editor.text_operations import (
     build_command,
     build_testcase,
     completion_context,
+    cursor_column_after_transform,
     cursor_position_after_format,
     format_first_assignment,
     graph_variables_before_cursor,
     leading_whitespace,
     normalize_variable_command,
+    smart_home_column,
     split_indentation,
     transform_indentation,
 )
@@ -31,6 +33,34 @@ class TextOperationsTest(unittest.TestCase):
 
     def test_split_indentation(self):
         self.assertEqual(split_indentation('\t  Name'), ('\t  ', 'Name'))
+
+    def test_smart_home_moves_to_first_text_column(self):
+        self.assertEqual(smart_home_column('\t  Name', 7), 3)
+
+    def test_smart_home_toggles_from_text_to_line_start(self):
+        self.assertEqual(smart_home_column('\t  Name', 3), 0)
+
+    def test_smart_home_stays_at_start_on_unindented_line(self):
+        self.assertEqual(smart_home_column('Name', 2), 0)
+        self.assertEqual(smart_home_column('Name', 0), 0)
+
+    def test_cursor_stays_at_line_start_when_dedenting(self):
+        self.assertEqual(cursor_column_after_transform('\tName', 'Name', 0), 0)
+
+    def test_cursor_tracks_text_when_dedenting(self):
+        self.assertEqual(cursor_column_after_transform('\tName', 'Name', 3), 2)
+
+    def test_cursor_tracks_text_when_comment_is_inserted(self):
+        self.assertEqual(
+            cursor_column_after_transform('\tName', "\t'Name", 1),
+            2,
+        )
+
+    def test_cursor_inside_indentation_stays_before_inserted_comment(self):
+        self.assertEqual(
+            cursor_column_after_transform('\t  Name', "\t  'Name", 1),
+            1,
+        )
 
     def test_build_command(self):
         self.assertEqual(build_command('  Action'), '  $COM: "Action" $')
@@ -263,14 +293,42 @@ class TextOperationsTest(unittest.TestCase):
         expected = PARAGRAPH_SEPARATOR.join(('\tone', '\t  two'))
         self.assertEqual(transform_indentation(source, 'indent'), expected)
 
+    def test_selection_ending_at_next_line_start_does_not_change_next_line(self):
+        source = f'one{PARAGRAPH_SEPARATOR}'
+
+        self.assertEqual(
+            transform_indentation(source, 'indent'),
+            f'\tone{PARAGRAPH_SEPARATOR}',
+        )
+        self.assertEqual(
+            transform_indentation(source, 'comment'),
+            f"'one{PARAGRAPH_SEPARATOR}",
+        )
+
     def test_dedent_tabs_and_two_spaces(self):
         source = PARAGRAPH_SEPARATOR.join(('\tone', '  two', 'three'))
         expected = PARAGRAPH_SEPARATOR.join(('one', 'two', 'three'))
         self.assertEqual(transform_indentation(source, 'dedent'), expected)
 
-    def test_comment_toggles_each_line(self):
+    def test_comment_comments_entire_mixed_selection(self):
         source = PARAGRAPH_SEPARATOR.join(('one', "'two"))
-        expected = PARAGRAPH_SEPARATOR.join(("'one", 'two'))
+        expected = PARAGRAPH_SEPARATOR.join(("'one", "'two"))
+        self.assertEqual(transform_indentation(source, 'comment'), expected)
+
+    def test_comment_uncomments_selection_when_all_lines_are_commented(self):
+        source = PARAGRAPH_SEPARATOR.join(("'one", "\t'two"))
+        expected = PARAGRAPH_SEPARATOR.join(('one', '\ttwo'))
+        self.assertEqual(transform_indentation(source, 'comment'), expected)
+
+    def test_comment_is_inserted_after_indentation(self):
+        self.assertEqual(
+            transform_indentation('\t  command', 'comment'),
+            "\t  'command",
+        )
+
+    def test_comment_keeps_empty_lines_unchanged(self):
+        source = PARAGRAPH_SEPARATOR.join(('one', '', 'two'))
+        expected = PARAGRAPH_SEPARATOR.join(("'one", '', "'two"))
         self.assertEqual(transform_indentation(source, 'comment'), expected)
 
     def test_unknown_operation_is_rejected(self):
