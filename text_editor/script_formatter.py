@@ -28,9 +28,9 @@ class TextFormatter:
         self.lines = text_content.split("\n")
 
     def run(self):
-        return "\n".join(self._format_text())
+        return "\n".join(self._format_lines())
 
-    def _format_text(self):
+    def _format_lines(self):
         if_level = 0
         for_level = 0
         indent_level = 0
@@ -38,7 +38,7 @@ class TextFormatter:
         skipped_header = False
         test_case_number = 0
 
-        for line_number in range(len(self.lines)):
+        for line_number, source_line in enumerate(self.lines):
             future_indent_level = None
             future_if_level = None
             future_for_level = None
@@ -46,7 +46,7 @@ class TextFormatter:
             add_blank_line_after = False
 
             previous_line = ""
-            current_line = self.lines[line_number].strip()
+            current_line = source_line.strip()
             if line_number > 0:
                 previous_line = self.lines[line_number - 1].strip()
 
@@ -76,12 +76,7 @@ class TextFormatter:
                 future_indent_level = 2
             elif self.PATTERNS["TESTCASE"].search(current_line):
                 test_case_number += 1
-                new_lines.append(
-                    f"""      \n\n'###################################################################
-        \n'=======================     {self.TESTCASE_SEPARATOR} {test_case_number}     ======================='
-        \n'###################################################################
-        """
-                )
+                new_lines.append(self._testcase_number_block(test_case_number))
                 indent_level = 0
                 future_indent_level = 1
             elif self.PATTERNS["CHAPTER_END"].search(current_line):
@@ -147,3 +142,9 @@ class TextFormatter:
                 new_lines.append("")
 
         return new_lines
+
+    def _testcase_number_block(self, test_case_number):
+        return f"""      \n\n'###################################################################
+        \n'=======================     {self.TESTCASE_SEPARATOR} {test_case_number}     ======================='
+        \n'###################################################################
+        """
