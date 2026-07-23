@@ -22,7 +22,7 @@ from data_manager.data_manager import DataManager
 from dialogs.dialog_message import dialog_message
 from file_browser.tree_file_browser import FileSystemView
 from tabs import Tabs
-from text_editor import text_management
+from text_editor import editor_actions
 from text_editor.text_editor import TextEdit
 from ui.main_ui import Ui_MainWindow
 from config import constants
@@ -983,22 +983,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def insert_command(self):
         if self.actual_text_edit:
-            text_management.insert_command(self.actual_text_edit)
+            editor_actions.insert_command(self.actual_text_edit)
             self.actual_text_edit.setFocus()
 
     def insert_testcase(self):
         if self.actual_text_edit:
-            text_management.insert_testcase(self.actual_text_edit)
+            editor_actions.insert_testcase(self.actual_text_edit)
             self.actual_text_edit.setFocus()
 
     def insert_chapter(self):
         if self.actual_text_edit:
-            text_management.insert_chapter(self.actual_text_edit)
+            editor_actions.insert_chapter(self.actual_text_edit)
             self.actual_text_edit.setFocus()
 
     def comment_uncomment(self):
         if self.actual_text_edit:
-            text_management.indent_dedent_comment(self.actual_text_edit, variant='comment')
+            editor_actions.indent_dedent_comment(self.actual_text_edit, variant='comment')
             self.actual_text_edit.setFocus()
 
     
@@ -1033,10 +1033,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def format_code(self):
         # from importlib import reload
-        # reload(text_management)
+        # reload(editor_actions)
         if self.actual_text_edit:
             try:
-                text_management.format_text_edit(self.actual_text_edit)
+                editor_actions.format_text_edit(self.actual_text_edit)
                 self.actual_text_edit.setFocus()
             except Exception as exc:
                 print(str(exc))

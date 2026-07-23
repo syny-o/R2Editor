@@ -3,7 +3,7 @@ import stat
 from PyQt5.QtWidgets import QPlainTextEdit, QToolTip
 
 from text_editor.code_editor import CodeEditor
-import text_editor.text_management as text_management
+from text_editor import editor_actions
 
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtGui import QTextCursor, QStandardItem, QStandardItemModel, QPalette, QColor
@@ -172,23 +172,23 @@ class TextEdit(CodeEditor):
             return True
 
         if key == Qt.Key_Return:
-            text_management.add_new_line_indent(self)
+            editor_actions.add_new_line_indent(self)
             return True
 
         if key == Qt.Key_Backtab:
-            text_management.indent_dedent_comment(self, variant='dedent')
+            editor_actions.indent_dedent_comment(self, variant='dedent')
             return True
 
         if key == Qt.Key_Tab:
-            text_management.indent_dedent_comment(self, variant='indent')
+            editor_actions.indent_dedent_comment(self, variant='indent')
             return True
 
         if event.modifiers() & Qt.ShiftModifier and key == Qt.Key_Home:
-            text_management.key_shift_home_press(self)
+            editor_actions.key_shift_home_press(self)
             return True
 
         if key == Qt.Key_Home:
-            text_management.key_home_press(self)
+            editor_actions.key_home_press(self)
             return True
 
         if key == Qt.Key_Equal and self.current_model == 'values':
@@ -388,7 +388,7 @@ class TextEdit(CodeEditor):
         self._set_completion_model('dspace_variables', self.completer.dspace_model)
 
     def switch_to_graph_variables(self):
-        variables = text_management.evaluate_data_4_GraphVariables(self)
+        variables = editor_actions.graph_variables_at_cursor(self)
         variables_model = QStandardItemModel()
         for v in variables:
             item = QStandardItem()
