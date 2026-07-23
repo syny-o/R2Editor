@@ -13,6 +13,7 @@ GRAPH_VARIABLES_PATTERN = re.compile(
     r'''(?<!')GraphVariables\s*=\s*"(?P<variables>[\d\w_.\s]+)"''',
     flags=re.IGNORECASE,
 )
+WORD_PATTERN = re.compile(r'[\w.]+')
 
 
 def leading_whitespace(text):
@@ -94,6 +95,79 @@ def normalize_variable_command(line_text):
         return f'GraphVariables = "{" ".join(variables)}"'
 
     return line_text
+
+
+def cursor_position_after_format(original_text, formatted_text, original_position):
+    original_position = max(0, min(original_position, len(original_text)))
+    original_lines = original_text.split('\n')
+    formatted_lines = formatted_text.split('\n')
+
+    line_start = original_text.rfind('\n', 0, original_position) + 1
+    line_index = original_text.count('\n', 0, original_position)
+    original_line = original_lines[line_index]
+    original_column = original_position - line_start
+    normalized_line = normalize_variable_command(original_line.strip())
+
+    occurrence = sum(
+        normalize_variable_command(line.strip()) == normalized_line
+        for line in original_lines[:line_index + 1]
+    )
+    matching_lines = [
+        index
+        for index, line in enumerate(formatted_lines)
+        if line.strip() == normalized_line
+    ]
+    if occurrence == 0 or occurrence > len(matching_lines):
+        return min(original_position, len(formatted_text))
+
+    formatted_line_index = matching_lines[occurrence - 1]
+    formatted_line = formatted_lines[formatted_line_index]
+    original_content = original_line.strip()
+    formatted_content = formatted_line.strip()
+    content_column = max(
+        0,
+        min(
+            original_column - len(leading_whitespace(original_line)),
+            len(original_content),
+        ),
+    )
+
+    original_words = list(WORD_PATTERN.finditer(original_content))
+    current_word = next(
+        (
+            match
+            for match in original_words
+            if match.start() <= content_column <= match.end()
+        ),
+        None,
+    )
+    if current_word is not None:
+        word_occurrence = sum(
+            match.group() == current_word.group()
+            for match in original_words
+            if match.start() <= current_word.start()
+        )
+        formatted_words = [
+            match
+            for match in WORD_PATTERN.finditer(formatted_content)
+            if match.group() == current_word.group()
+        ]
+        if word_occurrence <= len(formatted_words):
+            formatted_word = formatted_words[word_occurrence - 1]
+            offset_in_word = min(
+                content_column - current_word.start(),
+                len(formatted_word.group()),
+            )
+            content_column = formatted_word.start() + offset_in_word
+
+    formatted_column = (
+        len(leading_whitespace(formatted_line))
+        + min(content_column, len(formatted_content))
+    )
+    return (
+        sum(len(line) + 1 for line in formatted_lines[:formatted_line_index])
+        + formatted_column
+    )
 
 
 def transform_indentation(text, operation):

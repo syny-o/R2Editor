@@ -7,6 +7,7 @@ from text_editor.text_operations import (
     build_chapter,
     build_command,
     build_testcase,
+    cursor_position_after_format,
     graph_variables_before_cursor,
     format_first_assignment,
     leading_whitespace,
@@ -53,12 +54,18 @@ def format_text_edit(text_edit):
     cursor = text_edit.textCursor()
     cursor_position = cursor.position()
 
-    formatted_text = TextFormatter(text_edit.toPlainText()).run()
+    original_text = text_edit.toPlainText()
+    formatted_text = TextFormatter(original_text).run()
+    formatted_cursor_position = cursor_position_after_format(
+        original_text,
+        formatted_text,
+        cursor_position,
+    )
     document_cursor = text_edit.textCursor()
     document_cursor.select(QTextCursor.Document)
     document_cursor.insertText(formatted_text)
 
-    cursor.setPosition(min(cursor_position, len(formatted_text)))
+    cursor.setPosition(formatted_cursor_position)
     text_edit.setTextCursor(cursor)
     scroll_bar.setSliderPosition(scroll_position)
 

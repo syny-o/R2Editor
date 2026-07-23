@@ -41,8 +41,8 @@ class TextFormatter:
             future_indent_level = None
             future_if_level = None
             future_for_level = None
-            preceding_empty_lines = 0
-            upcoming_empty_lines = 0
+            add_blank_line_before = False
+            add_blank_line_after = False
 
             previous_line = ""
             current_line = self.lines[line_number].strip()
@@ -70,7 +70,7 @@ class TextFormatter:
             current_line = normalize_variable_command(current_line)
 
             if self.PATTERNS["COMMAND"].search(current_line):
-                preceding_empty_lines = 1
+                add_blank_line_before = True
                 indent_level = 1
                 future_indent_level = 2
             elif self.PATTERNS["TESTCASE"].search(current_line):
@@ -83,50 +83,47 @@ class TextFormatter:
                 )
                 indent_level = 0
                 future_indent_level = 1
-            elif self.PATTERNS["CHAPTER_START"].search(current_line):
-                preceding_empty_lines = 2
-                indent_level = 0
             elif self.PATTERNS["CHAPTER_END"].search(current_line):
-                preceding_empty_lines = 1
+                add_blank_line_before = True
                 indent_level = 0
-                upcoming_empty_lines = 2
+            elif self.PATTERNS["CHAPTER_START"].search(current_line):
+                add_blank_line_before = True
+                indent_level = 0
             elif self.PATTERNS["IF_START"].search(current_line):
-                preceding_empty_lines = 1
+                add_blank_line_before = True
                 future_if_level = if_level + 1
                 self.stack_if.append(indent_level)
             elif self.PATTERNS["IF_END"].search(current_line):
                 if_level -= 1
                 if not self.PATTERNS["IF_END"].search(previous_line):
-                    preceding_empty_lines = 1
+                    add_blank_line_before = True
                 indent_level = self.stack_if.pop()
             elif self.PATTERNS["ELSE"].search(current_line) and not self.PATTERNS[
                 "IF_START"
             ].search(current_line):
-                preceding_empty_lines = 1
+                add_blank_line_before = True
                 if_level -= 1
                 future_if_level = if_level + 1
                 indent_level = self.stack_if[-1]
             elif self.PATTERNS["ELSE"].search(current_line) and self.PATTERNS[
                 "IF"
             ].search(current_line):
-                preceding_empty_lines = 1
+                add_blank_line_before = True
                 if_level -= 1
                 future_if_level = if_level + 1
             elif self.PATTERNS["FOR_START"].search(current_line):
                 if not self.PATTERNS["FOR_START"].search(previous_line):
-                    preceding_empty_lines = 1
+                    add_blank_line_before = True
                 future_for_level = for_level + 1
-                upcoming_empty_lines = 0
                 self.stack_for.append(indent_level)
             elif self.PATTERNS["FOR_END"].search(current_line):
                 if not self.PATTERNS["FOR_END"].search(previous_line):
-                    preceding_empty_lines = 1
+                    add_blank_line_before = True
                 for_level -= 1
-                upcoming_empty_lines = 0
                 indent_level = self.stack_for.pop()
             elif re.search(r"Hil?\s=?\sReset", current_line, re.IGNORECASE):
                 indent_level = 2
-                upcoming_empty_lines = 1
+                add_blank_line_after = True
 
             current_line = (
                 "\t" * if_level
@@ -141,12 +138,12 @@ class TextFormatter:
                 if_level = future_if_level
             if future_for_level:
                 for_level = future_for_level
-            if preceding_empty_lines:
-                new_lines.append("" * preceding_empty_lines)
+            if add_blank_line_before:
+                new_lines.append("")
 
             new_lines.append(current_line)
 
-            if upcoming_empty_lines:
-                new_lines.append("" * upcoming_empty_lines)
+            if add_blank_line_after:
+                new_lines.append("")
 
         return new_lines

@@ -13,6 +13,7 @@ from text_editor.text_operations import (
     build_command,
     build_testcase,
     completion_context,
+    cursor_position_after_format,
     format_first_assignment,
     graph_variables_before_cursor,
     leading_whitespace,
@@ -143,6 +144,58 @@ class TextOperationsTest(unittest.TestCase):
         self.assertTrue(result.endswith(
             '\n\tFOR X = A B DO\n\n\t\t$COM: "Action" $\n\n\tNEXT'
         ))
+
+    def test_cursor_stays_in_word_when_formatting_adds_lines_and_indentation(self):
+        source = (
+            'TESTCASE "A" EXPECTEDRESULT 1\n'
+            '$COM: "Perform the test" $\n'
+            'Brake = Apply'
+        )
+        source_position = source.index('Perform') + 4
+        formatted = TextFormatter(source).run()
+
+        formatted_position = cursor_position_after_format(
+            source,
+            formatted,
+            source_position,
+        )
+
+        self.assertEqual(
+            formatted_position,
+            formatted.index('Perform') + 4,
+        )
+
+    def test_cursor_uses_same_occurrence_of_duplicate_line(self):
+        source = 'Wait = 100\nWait = 100'
+        formatted = '\tWait = 100\n\n\tWait = 100'
+        source_position = source.rindex('100') + 2
+
+        formatted_position = cursor_position_after_format(
+            source,
+            formatted,
+            source_position,
+        )
+
+        self.assertEqual(
+            formatted_position,
+            formatted.rindex('100') + 2,
+        )
+
+    def test_cursor_tracks_word_when_variable_command_spacing_is_normalized(self):
+        source = 'MonitorVariables = " Var_1   Var_2 , 100 , 10 "'
+        formatted = normalize_variable_command(source)
+        source_position = source.index('Var_2') + 3
+
+        formatted_position = cursor_position_after_format(
+            source,
+            formatted,
+            source_position,
+        )
+
+        self.assertEqual(
+            formatted_position,
+            formatted.index('Var_2') + 3,
+        )
 
     def test_indent_multiple_lines(self):
         source = PARAGRAPH_SEPARATOR.join(('one', '  two'))
