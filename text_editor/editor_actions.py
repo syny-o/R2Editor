@@ -53,6 +53,7 @@ def format_text_edit(text_edit):
     scroll_position = scroll_bar.sliderPosition()
     cursor = text_edit.textCursor()
     cursor_position = cursor.position()
+    cursor_anchor = cursor.anchor()
 
     original_text = text_edit.toPlainText()
     formatted_text = TextFormatter(original_text).run()
@@ -61,11 +62,18 @@ def format_text_edit(text_edit):
         formatted_text,
         cursor_position,
     )
+    formatted_cursor_anchor = cursor_position_after_format(
+        original_text,
+        formatted_text,
+        cursor_anchor,
+    )
     document_cursor = text_edit.textCursor()
     document_cursor.select(QTextCursor.Document)
     document_cursor.insertText(formatted_text)
 
-    cursor.setPosition(formatted_cursor_position)
+    cursor.setPosition(formatted_cursor_anchor)
+    if formatted_cursor_position != formatted_cursor_anchor:
+        cursor.setPosition(formatted_cursor_position, QTextCursor.KeepAnchor)
     text_edit.setTextCursor(cursor)
     scroll_bar.setSliderPosition(scroll_position)
 
