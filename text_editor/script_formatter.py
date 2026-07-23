@@ -9,15 +9,16 @@ class TextFormatter:
     TESTCASE_SEPARATOR = "-TESTCASE-NUMBER-"
 
     PATTERNS = {
-        "FOR_START": re.compile(r"\bFOR\b.+=.+DO", re.IGNORECASE),
-        "FOR_END": re.compile(r"\bNEXT\b", re.IGNORECASE),
-        "IF_START": re.compile(r"\bIF\b", re.IGNORECASE),
-        "IF_END": re.compile(r"\bENDIF\b", re.IGNORECASE),
-        "ELSE": re.compile(r"\bELSE\b", re.IGNORECASE),
-        "CHAPTER_END": re.compile(r"\bEND CHAPTER\b", re.IGNORECASE),
-        "CHAPTER_START": re.compile(r"\bCHAPTER\b", re.IGNORECASE),
-        "TESTCASE": re.compile(r"\bTESTCASE\b.+EXPECTEDRESULT", re.IGNORECASE),
-        "COMMAND": re.compile(r"\$COM:", re.IGNORECASE),
+        "FOR_START": re.compile(r"^FOR\b.+=.+DO", re.IGNORECASE),
+        "FOR_END": re.compile(r"^NEXT\b", re.IGNORECASE),
+        "ELSE_IF": re.compile(r"^ELSE\s+IF\b", re.IGNORECASE),
+        "IF_START": re.compile(r"^IF\b", re.IGNORECASE),
+        "IF_END": re.compile(r"^ENDIF\b", re.IGNORECASE),
+        "ELSE": re.compile(r"^ELSE\b", re.IGNORECASE),
+        "CHAPTER_END": re.compile(r"^END CHAPTER\b", re.IGNORECASE),
+        "CHAPTER_START": re.compile(r"^CHAPTER\b", re.IGNORECASE),
+        "TESTCASE": re.compile(r"^TESTCASE\b.+EXPECTEDRESULT", re.IGNORECASE),
+        "COMMAND": re.compile(r"^\$COM:", re.IGNORECASE),
     }
 
     def __init__(self, text_content: str) -> None:
@@ -46,7 +47,7 @@ class TextFormatter:
             previous_line = ""
             current_line = self.lines[line_number].strip()
             if line_number > 0:
-                previous_line = self.lines[line_number - 1]
+                previous_line = self.lines[line_number - 1].strip()
 
             if not skipped_header:
                 if (
@@ -88,6 +89,10 @@ class TextFormatter:
             elif self.PATTERNS["CHAPTER_START"].search(current_line):
                 add_blank_line_before = True
                 indent_level = 0
+            elif self.PATTERNS["ELSE_IF"].search(current_line):
+                add_blank_line_before = True
+                future_if_level = if_level + 1
+                self.stack_if.append(indent_level)
             elif self.PATTERNS["IF_START"].search(current_line):
                 add_blank_line_before = True
                 future_if_level = if_level + 1
@@ -97,9 +102,7 @@ class TextFormatter:
                 if not self.PATTERNS["IF_END"].search(previous_line):
                     add_blank_line_before = True
                 indent_level = self.stack_if.pop()
-            elif self.PATTERNS["ELSE"].search(current_line) and not self.PATTERNS[
-                "IF_START"
-            ].search(current_line):
+            elif self.PATTERNS["ELSE"].search(current_line):
                 add_blank_line_before = True
                 if_level -= 1
                 future_if_level = if_level + 1

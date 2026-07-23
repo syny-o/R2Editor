@@ -145,6 +145,53 @@ class TextOperationsTest(unittest.TestCase):
             '\n\tFOR X = A B DO\n\n\t\t$COM: "Action" $\n\n\tNEXT'
         ))
 
+    def test_formatter_else_if_is_a_nested_if(self):
+        source = (
+            'TESTCASE "A" EXPECTEDRESULT 1\n'
+            'IF A THEN\n'
+            'ELSE IF B THEN\n'
+            'ELSE\n'
+            'ENDIF\n'
+            'ENDIF'
+        )
+        formatted = TextFormatter(source).run()
+
+        self.assertEqual(TextFormatter(formatted).run(), formatted)
+
+    def test_control_keyword_inside_text_does_not_change_indentation(self):
+        result = TextFormatter(
+            'TESTCASE "A" EXPECTEDRESULT 1\n'
+            'Message = "IF is only text"\n'
+            '$COM: "Action" $'
+        ).run()
+
+        self.assertTrue(result.endswith(
+            '\n\tMessage = "IF is only text"\n\n\t$COM: "Action" $'
+        ))
+
+    def test_commented_control_commands_do_not_change_indentation(self):
+        source = (
+            'TESTCASE "A" EXPECTEDRESULT 1\n'
+            "'IF A THEN\n"
+            "'ELSE\n"
+            "'ENDIF\n"
+            "'FOR X = A B DO\n"
+            "'NEXT\n"
+            '\'$COM: "Commented command" $\n'
+            'Value = 1'
+        )
+        result = TextFormatter(source).run()
+
+        self.assertTrue(result.endswith(
+            "\n\t'IF A THEN"
+            "\n\t'ELSE"
+            "\n\t'ENDIF"
+            "\n\t'FOR X = A B DO"
+            "\n\t'NEXT"
+            '\n\t\'$COM: "Commented command" $'
+            '\n\tValue = 1'
+        ))
+
     def test_cursor_stays_in_word_when_formatting_adds_lines_and_indentation(self):
         source = (
             'TESTCASE "A" EXPECTEDRESULT 1\n'
