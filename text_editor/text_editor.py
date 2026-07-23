@@ -204,6 +204,11 @@ class TextEdit(CodeEditor):
     def keyPressEvent(self, event):
         QToolTip.hideText()
 
+        if self.isReadOnly():
+            self.completer.popup().hide()
+            super().keyPressEvent(event)
+            return
+
         if self._handle_basic_editing_key(event):
             return
         if self._handle_visible_completion(event):

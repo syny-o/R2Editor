@@ -15,7 +15,14 @@ from text_editor.text_operations import (
 )
 
 
+def _is_read_only(text_edit):
+    return text_edit.isReadOnly()
+
+
 def add_new_line_indent(text_edit):
+    if _is_read_only(text_edit):
+        return
+
     from PyQt5.QtGui import QTextCursor
 
     cursor = text_edit.textCursor()
@@ -47,6 +54,9 @@ def key_shift_home_press(text_edit):
 
 
 def format_text_edit(text_edit):
+    if _is_read_only(text_edit):
+        return
+
     from PyQt5.QtGui import QTextCursor
 
     scroll_bar = text_edit.verticalScrollBar()
@@ -79,6 +89,9 @@ def format_text_edit(text_edit):
 
 
 def indent_dedent_comment(text_edit, variant):
+    if _is_read_only(text_edit):
+        return
+
     from PyQt5.QtGui import QTextCursor
 
     cursor = text_edit.textCursor()
@@ -109,6 +122,9 @@ def indent_dedent_comment(text_edit, variant):
 
 
 def insert_command(text_edit):
+    if _is_read_only(text_edit):
+        return
+
     cursor = text_edit.textCursor()
     cursor.select(cursor.LineUnderCursor)
     cursor.insertText(build_command(cursor.selectedText()))
@@ -116,6 +132,9 @@ def insert_command(text_edit):
 
 
 def insert_testcase(text_edit):
+    if _is_read_only(text_edit):
+        return
+
     cursor = text_edit.textCursor()
     cursor.select(cursor.LineUnderCursor)
     cursor.insertText(build_testcase(cursor.selectedText()))
@@ -123,6 +142,9 @@ def insert_testcase(text_edit):
 
 
 def insert_chapter(text_edit):
+    if _is_read_only(text_edit):
+        return
+
     from PyQt5.QtGui import QTextCursor
 
     cursor = text_edit.textCursor()
@@ -139,6 +161,9 @@ def graph_variables_at_cursor(text_edit):
 
 
 def format_assignment_at_cursor(text_edit):
+    if _is_read_only(text_edit):
+        return
+
     from PyQt5.QtGui import QTextCursor
 
     cursor = text_edit.textCursor()
@@ -156,6 +181,9 @@ def format_assignment_at_cursor(text_edit):
 
 
 def complete_special_command(text_edit):
+    if _is_read_only(text_edit):
+        return False
+
     from PyQt5.QtGui import QTextCursor
 
     cursor = text_edit.textCursor()
