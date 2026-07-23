@@ -154,7 +154,7 @@ class TextEdit(CodeEditor):
 
         if key == Qt.Key_Equal and self.current_model == 'values':
             self.textCursor().insertText('=')
-            self.show_popup('')
+            self.completer.show_popup('')
             return True
 
         return False
@@ -168,7 +168,7 @@ class TextEdit(CodeEditor):
                 or self.current_model in empty_prefix_models
             )
         ):
-            self.show_popup("")
+            self.completer.show_popup("")
             return
 
         special_prefixes = {
@@ -183,11 +183,11 @@ class TextEdit(CodeEditor):
                 cursor.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, move_left)
                 self.setTextCursor(cursor)
                 cursor.select(QTextCursor.WordUnderCursor)
-                self.show_popup(cursor.selectedText())
+                self.completer.show_popup(cursor.selectedText())
                 return
 
         if selected_text:
-            self.show_popup(selected_text)
+            self.completer.show_popup(selected_text)
         else:
             self.completer.popup().hide()
 
@@ -255,13 +255,3 @@ class TextEdit(CodeEditor):
             self.completer.popup().hide()
         if not QToolTip.isVisible():
             self.completer.popup().hide()
-
-
-
-    def show_popup(self, completion_prefix):
-        self.completer.setCompletionPrefix(completion_prefix)
-        cr = self.cursorRect()
-        self.completer.popup().setCurrentIndex(self.completer.completionModel().index(0, 0)) # automatically select first popup item
-        cr.setWidth(self.completer.popup().sizeHintForColumn(0)
-                    + self.completer.popup().verticalScrollBar().sizeHint().width() + 20)
-        self.completer.complete(cr)

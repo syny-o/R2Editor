@@ -33,6 +33,19 @@ class Completer(QCompleter):
     def get_selected(self):
         return self.last_selected
 
+    def show_popup(self, completion_prefix):
+        self.setCompletionPrefix(completion_prefix)
+        popup = self.popup()
+        popup.setCurrentIndex(self.completionModel().index(0, 0))
+
+        popup_rect = self.widget().cursorRect()
+        popup_rect.setWidth(
+            popup.sizeHintForColumn(0)
+            + popup.verticalScrollBar().sizeHint().width()
+            + 20
+        )
+        self.complete(popup_rect)
+
     def set_context_model(self, model_name, actual_text="", graph_variables=()):
         if model_name == "values":
             model = self.cond_dict.get(actual_text) if self.cond_model else None
