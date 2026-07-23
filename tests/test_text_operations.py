@@ -178,6 +178,7 @@ class TextOperationsTest(unittest.TestCase):
             "'FOR X = A B DO\n"
             "'NEXT\n"
             '\'$COM: "Commented command" $\n'
+            "'HIL = Reset\n"
             'Value = 1'
         )
         result = TextFormatter(source).run()
@@ -189,6 +190,7 @@ class TextOperationsTest(unittest.TestCase):
             "\n\t'FOR X = A B DO"
             "\n\t'NEXT"
             '\n\t\'$COM: "Commented command" $'
+            "\n\t'HIL = Reset"
             '\n\tValue = 1'
         ))
 

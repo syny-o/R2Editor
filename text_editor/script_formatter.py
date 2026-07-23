@@ -19,6 +19,7 @@ class TextFormatter:
         "CHAPTER_START": re.compile(r"^CHAPTER\b", re.IGNORECASE),
         "TESTCASE": re.compile(r"^TESTCASE\b.+EXPECTEDRESULT", re.IGNORECASE),
         "COMMAND": re.compile(r"^\$COM:", re.IGNORECASE),
+        "HIL_RESET": re.compile(r"^HIL\s*=\s*RESET\b", re.IGNORECASE),
     }
 
     def __init__(self, text_content: str) -> None:
@@ -120,7 +121,7 @@ class TextFormatter:
                 if self.stack_for:
                     for_level = max(0, for_level - 1)
                     indent_level = self.stack_for.pop()
-            elif re.search(r"Hil?\s=?\sReset", current_line, re.IGNORECASE):
+            elif self.PATTERNS["HIL_RESET"].search(current_line):
                 indent_level = 2
                 add_blank_line_after = True
 
