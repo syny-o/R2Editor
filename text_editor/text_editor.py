@@ -1,5 +1,3 @@
-import os
-import stat
 from PyQt5.QtWidgets import QPlainTextEdit, QToolTip
 
 from text_editor.code_editor import CodeEditor
@@ -12,23 +10,11 @@ from PyQt5.QtGui import QTextCursor, QStandardItem, QStandardItemModel, QPalette
 from config.font import font
 
 from text_editor.completer import Completer
+from text_editor.file_access import is_file_read_only
 from components.text_functions import get_word_under_cursor
 from text_editor.text_operations import completion_context, format_first_assignment
 
 from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighter
-
-
-def is_file_read_only(file_path):
-    if file_path is None:
-        return False
-
-    file_status = os.stat(file_path)
-    windows_attributes = getattr(file_status, 'st_file_attributes', None)
-    if windows_attributes is not None:
-        return bool(windows_attributes & stat.FILE_ATTRIBUTE_READONLY)
-
-    return not bool(file_status.st_mode & stat.S_IWRITE)
-
 
 class TextEdit(CodeEditor):
 
