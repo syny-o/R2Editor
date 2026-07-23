@@ -1,13 +1,11 @@
 import re
 import sys
-from pathlib import Path
 from importlib import reload
-import qtawesome as qta
 import pywinstyles
 
 from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QSettings, Qt, QTimer, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QColor, QFontDatabase, QIcon, QKeySequence
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut, QSplitter, QTreeWidgetItem, QVBoxLayout, QLabel, QFrame, QSystemTrayIcon, QMenu
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut, QSplitter, QVBoxLayout, QLabel, QFrame, QSystemTrayIcon, QMenu
 
 from app_settings import AppSettings
 from components.notification_widget import NotificationWidget
@@ -20,17 +18,13 @@ from data_manager.project_actions import ProjectActions
 from file_browser.tree_file_browser import FileSystemView
 from text_editor import editor_actions
 from text_editor.document_actions import DocumentActions
-from text_editor.outline_parser import (
-    line_number_from_position,
-    parse_outline_sections,
-)
+from text_editor.outline_controller import OutlineController
 from text_editor.tab_manager import EditorTabManager
 from text_editor.tabs import Tabs
 from ui.main_ui import Ui_MainWindow
 import config.app_styles
 from config.icon_manager import IconManager
 from components.widgets.widgets_pointing_hand import TreeWidgetPointingHand
-from components.smooth_scrolling import SmoothScrolling
 
 
 
@@ -97,10 +91,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.timer_project_autosave.timeout.connect(self.project_actions.autosave)
         self.update_autosave_interval(self.app_settings.autosave)    
 
-
-        self.timer_4_updating_outline = QTimer()
-        self.timer_4_updating_outline.start(500)
-        self.timer_4_updating_outline.timeout.connect(self.update_outline)
 
         ################################################################################################################
         # GLOBAL TIMERS END
@@ -199,7 +189,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.uiTreeOutline = TreeWidgetPointingHand()
         uiLayoutOutline.addWidget(self.uiTreeOutline)
         self.uiTreeOutline.setHeaderHidden(True)
-        self.uiTreeOutline.itemClicked.connect(self.click_on_outline)
+        self.outline_controller = OutlineController(self, self.uiTreeOutline)
+        self.uiTreeOutline.itemClicked.connect(
+            self.outline_controller.click_item
+        )
+        self.timer_4_updating_outline = QTimer()
+        self.timer_4_updating_outline.timeout.connect(
+            self.outline_controller.update
+        )
+        self.timer_4_updating_outline.start(500)
         uiFrameOutline = QFrame()
         uiFrameOutline.setObjectName("objNameFrameOutline")
         uiFrameOutline.setLayout(uiLayoutOutline)
@@ -264,7 +262,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ################################################################################################################
         self.notification_widget = NotificationWidget(self)
 
-        self.last_text_4_outline = ""
         self.update_actual_information()
 
 
@@ -294,104 +291,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         reload(config.app_styles)
         styles = config.app_styles.switch_theme(theme.upper())
         app.setStyleSheet(styles)        
-
-
-
-
-    ################################################################################################################
-    # OUTLINE MANAGEMENT METHODS START
-    ################################################################################################################
-
-    def update_outline(self):
-
-        if not self.actual_text_edit:
-            self.uiTreeOutline.clear()
-            self.last_text_4_outline = ""
-            return
-        
-        if self.actual_text_edit.file_path and Path(self.actual_text_edit.file_path).suffix.lower() != '.par':
-            self.uiTreeOutline.clear()
-            self.last_text_4_outline = ""
-            return
-        
-        text = self.actual_text_edit.toPlainText()
-        
-        if text != self.last_text_4_outline:
-            self.last_text_4_outline = text
-            self.uiTreeOutline.clear()
-            chapters_testcases = parse_outline_sections(text)
-            parent = self.uiTreeOutline
-            for section in chapters_testcases:
-                if section.kind == 'chapter':
-                    parent = QTreeWidgetItem(self.uiTreeOutline)
-                    parent.setData(0, Qt.DisplayRole, section.title)
-                    parent.setData(0, Qt.UserRole, section.position)
-                    parent.setData(0, Qt.DecorationRole, qta.icon('fa5s.book-open', color='#E5A031', scale_factor=1.5))
-                    continue
-                elif section.kind == 'end_chapter':
-                    parent = self.uiTreeOutline
-                    continue
-
-                elif section.kind == 'testcase':
-                    item = QTreeWidgetItem(parent)
-                    item.setData(0, Qt.DisplayRole, section.title)
-                    item.setData(0, Qt.UserRole, section.position)
-                    item.setData(0, Qt.DecorationRole, qta.icon('ph.test-tube-fill', color='#9B59B6', scale_factor=1.5))
-
-            self.update_selected_item_in_outline()
-            self.uiTreeOutline.expandAll()
-
-
-    def update_selected_item_in_outline_by_scrollbar(self, text_edit, scrollbar_value):
-        if text_edit is not self.actual_text_edit:
-            return
-
-        visible_lines = text_edit.height() / text_edit.fontMetrics().lineSpacing()
-        current_position = scrollbar_value + int(visible_lines / 2)
-        temp_item = self.uiTreeOutline.topLevelItem(0)
-        for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard | Qt.MatchRecursive):
-            item_line = text_edit.toPlainText()[:item.data(0, Qt.UserRole)].count("\n") + 1
-            if item_line > current_position:
-                self.uiTreeOutline.setCurrentItem(temp_item)
-                break
-            
-            temp_item = item
-            self.uiTreeOutline.setCurrentItem(item)     
-
-
-    def update_selected_item_in_outline(self):
-        if not self.actual_text_edit: return
-
-        current_position = self.actual_text_edit.textCursor().position()
-        temp_item = self.uiTreeOutline.topLevelItem(0)
-        for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard | Qt.MatchRecursive):
-            if item.data(0, Qt.UserRole) > current_position:
-                self.uiTreeOutline.setCurrentItem(temp_item)
-                break
-            
-            temp_item = item
-            self.uiTreeOutline.setCurrentItem(item)
-    
-
-    def click_on_outline(self, item):
-        self.uiTreeOutline.expandItem(item) if not item.isExpanded() else self.uiTreeOutline.collapseItem(item)
-        cursor = self.actual_text_edit.textCursor()
-        line = line_number_from_position(
-            self.actual_text_edit.toPlainText(),
-            item.data(0, Qt.UserRole),
-        )
-        self.smooth_scrolling = SmoothScrolling(self.actual_text_edit)
-        self.smooth_scrolling.move_2_line(line-1)
-        # cursor.setPosition(len(self.actual_text_edit.toPlainText())-1)
-        # self.actual_text_edit.setTextCursor(cursor)
-        cursor.setPosition(item.data(0, Qt.UserRole))
-        self.actual_text_edit.setTextCursor(cursor)
-        self.actual_text_edit.setFocus()
-
-    ################################################################################################################
-    # OUTLINE MANAGEMENT METHODS END
-    ################################################################################################################
-
 
 
 
@@ -485,8 +384,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._update_btn_lock_unlock()
         self._update_tabs_color()
         self._update_script_label()
-        # self.update_outline()
-        self.update_selected_item_in_outline()
+        self.outline_controller.update_selected_item()
 
 
     def _update_btn_lock_unlock(self):

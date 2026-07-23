@@ -1,0 +1,131 @@
+from pathlib import Path
+
+import qtawesome as qta
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QTreeWidgetItem
+
+from components.smooth_scrolling import SmoothScrolling
+from text_editor.outline_parser import (
+    line_number_from_position,
+    parse_outline_sections,
+)
+
+
+class OutlineController:
+    def __init__(self, main_window, tree):
+        self.main_window = main_window
+        self.tree = tree
+        self.last_text = ''
+
+    def update(self):
+        text_edit = self.main_window.actual_text_edit
+        if not text_edit:
+            self._clear()
+            return
+
+        if (
+            text_edit.file_path
+            and Path(text_edit.file_path).suffix.lower() != '.par'
+        ):
+            self._clear()
+            return
+
+        text = text_edit.toPlainText()
+        if text == self.last_text:
+            return
+
+        self.last_text = text
+        self.tree.clear()
+        parent = self.tree
+        for section in parse_outline_sections(text):
+            if section.kind == 'chapter':
+                parent = QTreeWidgetItem(self.tree)
+                parent.setData(0, Qt.DisplayRole, section.title)
+                parent.setData(0, Qt.UserRole, section.position)
+                parent.setData(
+                    0,
+                    Qt.DecorationRole,
+                    qta.icon(
+                        'fa5s.book-open',
+                        color='#E5A031',
+                        scale_factor=1.5,
+                    ),
+                )
+            elif section.kind == 'end_chapter':
+                parent = self.tree
+            elif section.kind == 'testcase':
+                item = QTreeWidgetItem(parent)
+                item.setData(0, Qt.DisplayRole, section.title)
+                item.setData(0, Qt.UserRole, section.position)
+                item.setData(
+                    0,
+                    Qt.DecorationRole,
+                    qta.icon(
+                        'ph.test-tube-fill',
+                        color='#9B59B6',
+                        scale_factor=1.5,
+                    ),
+                )
+
+        self.update_selected_item()
+        self.tree.expandAll()
+
+    def update_selected_by_scrollbar(self, text_edit, scrollbar_value):
+        if text_edit is not self.main_window.actual_text_edit:
+            return
+
+        visible_lines = text_edit.height() / text_edit.fontMetrics().lineSpacing()
+        current_position = scrollbar_value + int(visible_lines / 2)
+        previous_item = self.tree.topLevelItem(0)
+        for item in self.tree.findItems(
+            '*',
+            Qt.MatchWildcard | Qt.MatchRecursive,
+        ):
+            item_line = (
+                text_edit.toPlainText()[:item.data(0, Qt.UserRole)].count('\n')
+                + 1
+            )
+            if item_line > current_position:
+                self.tree.setCurrentItem(previous_item)
+                break
+
+            previous_item = item
+            self.tree.setCurrentItem(item)
+
+    def update_selected_item(self):
+        text_edit = self.main_window.actual_text_edit
+        if not text_edit:
+            return
+
+        current_position = text_edit.textCursor().position()
+        previous_item = self.tree.topLevelItem(0)
+        for item in self.tree.findItems(
+            '*',
+            Qt.MatchWildcard | Qt.MatchRecursive,
+        ):
+            if item.data(0, Qt.UserRole) > current_position:
+                self.tree.setCurrentItem(previous_item)
+                break
+
+            previous_item = item
+            self.tree.setCurrentItem(item)
+
+    def click_item(self, item):
+        if item.isExpanded():
+            self.tree.collapseItem(item)
+        else:
+            self.tree.expandItem(item)
+
+        text_edit = self.main_window.actual_text_edit
+        cursor = text_edit.textCursor()
+        position = item.data(0, Qt.UserRole)
+        line = line_number_from_position(text_edit.toPlainText(), position)
+        self.smooth_scrolling = SmoothScrolling(text_edit)
+        self.smooth_scrolling.move_2_line(line - 1)
+        cursor.setPosition(position)
+        text_edit.setTextCursor(cursor)
+        text_edit.setFocus()
+
+    def _clear(self):
+        self.tree.clear()
+        self.last_text = ''

@@ -145,6 +145,6 @@ class EditorTabManager:
         text_edit.signal_clicked_on_text_edit.connect(self.clicked_on_text_edit)
         text_edit.signal_modified_file_content.connect(self.set_tab_modified_icon)
         text_edit.signal_scroll_position_changed.connect(
-            self.main_window.update_selected_item_in_outline_by_scrollbar
+            self.main_window.outline_controller.update_selected_by_scrollbar
         )
         return text_edit
