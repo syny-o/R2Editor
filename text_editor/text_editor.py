@@ -1,38 +1,36 @@
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QColor, QPalette, QTextCursor
 from PyQt5.QtWidgets import QPlainTextEdit, QToolTip
 
-from text_editor.code_editor import CodeEditor
-from text_editor import editor_actions
-
-from PyQt5.QtCore import pyqtSignal, Qt
-from PyQt5.QtGui import QTextCursor, QPalette, QColor
-
-
+from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighter
+from components.text_functions import get_word_under_cursor
 from config.font import font
-
+from text_editor import editor_actions
+from text_editor.code_editor import CodeEditor
 from text_editor.completer import Completer
 from text_editor.completion_rules import completion_model_name
 from text_editor.file_access import is_file_read_only
-from components.text_functions import get_word_under_cursor
 from text_editor.text_operations import completion_context
 
-from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighter
 
 class TextEdit(CodeEditor):
-
-    # SIGNAL FOR HANDLING PRESSING MOUSE AT TEXTEDIT
     signal_clicked_on_text_edit = pyqtSignal(object)
     signal_modified_file_content = pyqtSignal(object, bool)
     signal_scroll_position_changed = pyqtSignal(object, int)
 
-    
-    def __init__(self, text, file_path, syntax_highlighter: ISyntaxHighlighter, dark_mode=False):
+    def __init__(
+        self,
+        text,
+        file_path,
+        syntax_highlighter: ISyntaxHighlighter,
+        dark_mode=False,
+    ):
         super().__init__(text)
 
         slider = self.verticalScrollBar()
         slider.valueChanged.connect(
             lambda value: self.signal_scroll_position_changed.emit(self, value)
         )
-
 
         palette = QPalette()
         palette.setColor(QPalette.HighlightedText, QColor("white"))
@@ -42,53 +40,42 @@ class TextEdit(CodeEditor):
         self.file_path = file_path
         self.original_file_content = text
 
-
         self.update_syntax_highlighter(syntax_highlighter, dark_mode)
-
         self.setFont(font)
-        
 
-
-        # DEFINE TEXT EDIT BEHAVIOR
         self.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.setTabStopDistance(14)
         self.setTextInteractionFlags(Qt.TextEditorInteraction)
         self.setReadOnly(is_file_read_only(self.file_path))
 
-
         self.document().modificationChanged.connect(self._on_modification_changed)
         self.document().setModified(False)
-        # CONNECT COMPLETER - INSTANCE CONFIGURATION
+
         self.completer = Completer(self)
         self.completer.setWidget(self)
         self.completer.insert_text.connect(self.insert_completion)
         self.current_model = None
-
-
-
-
         self.remember_special_char = False
 
-
-    def update_syntax_highlighter(self, syntax_highlighter: ISyntaxHighlighter, dark_mode):
+    def update_syntax_highlighter(
+        self,
+        syntax_highlighter: ISyntaxHighlighter,
+        dark_mode,
+    ):
         self.syntax_highlighter = syntax_highlighter(
             self.document(), dark_mode=dark_mode
         )
-        
 
     def mouseReleaseEvent(self, event):
-        self.signal_clicked_on_text_edit.emit(self) 
+        self.signal_clicked_on_text_edit.emit(self)
         self.completer.completer_tooltip.hide_tooltip()
-        return super().mouseReleaseEvent(event)        
-
+        return super().mouseReleaseEvent(event)
 
     def is_modified(self):
         return self.document().isModified()
 
-
     def _on_modification_changed(self, is_modified):
         self.signal_modified_file_content.emit(self, is_modified)
-
 
     def update_completion_context(self):
         cursor = self.textCursor()
@@ -108,10 +95,6 @@ class TextEdit(CodeEditor):
             actual_text=actual_text,
             graph_variables=graph_variables,
         )
-
-########################################################################################################################
-# KEYS MANAGEMENT
-########################################################################################################################
 
     def keyReleaseEvent(self, event):
         self.signal_clicked_on_text_edit.emit(self)
@@ -233,22 +216,15 @@ class TextEdit(CodeEditor):
 
         super().keyPressEvent(event)
 
-
-
-########################################################################################################################
-# COMPLETION MANAGEMENT
-########################################################################################################################
-
-
     def insert_completion(self, completion):
-        tc = self.textCursor()
-        get_word_under_cursor(tc)
-        tc.insertText(completion)
+        cursor = self.textCursor()
+        get_word_under_cursor(cursor)
+        cursor.insertText(completion)
 
         if self.remember_special_char:
             self.remember_special_char = False
-            tc.deleteChar()
-        self.setTextCursor(tc)
+            cursor.deleteChar()
+        self.setTextCursor(cursor)
 
         editor_actions.format_assignment_at_cursor(self)
         if editor_actions.complete_special_command(self):
