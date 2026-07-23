@@ -18,7 +18,6 @@ class TextFormatter:
         "CHAPTER_START": re.compile(r"\bCHAPTER\b", re.IGNORECASE),
         "TESTCASE": re.compile(r"\bTESTCASE\b.+EXPECTEDRESULT", re.IGNORECASE),
         "COMMAND": re.compile(r"\$COM:", re.IGNORECASE),
-        "MONITOR_VAR_CANAPE": re.compile(r'MonitorVariablesCANape\s?=\s?"()"'),
     }
 
     def __init__(self, text_content: str) -> None:
@@ -105,12 +104,6 @@ class TextFormatter:
                 if_level -= 1
                 future_if_level = if_level + 1
                 indent_level = self.stack_if[-1]
-            elif self.PATTERNS["ELSE"].search(current_line) and self.PATTERNS[
-                "IF"
-            ].search(current_line):
-                add_blank_line_before = True
-                if_level -= 1
-                future_if_level = if_level + 1
             elif self.PATTERNS["FOR_START"].search(current_line):
                 if not self.PATTERNS["FOR_START"].search(previous_line):
                     add_blank_line_before = True
