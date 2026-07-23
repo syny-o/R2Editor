@@ -137,37 +137,37 @@ def _transform_lines(text_edit, operation):
 
 
 def insert_command(text_edit):
-    if _is_read_only(text_edit):
-        return
-
-    cursor = text_edit.textCursor()
-    cursor.select(cursor.LineUnderCursor)
-    cursor.insertText(build_command(cursor.selectedText()))
-    text_edit.setTextCursor(cursor)
+    cursor = _replace_current_line(text_edit, build_command)
+    if cursor is not None:
+        text_edit.setTextCursor(cursor)
 
 
 def insert_testcase(text_edit):
-    if _is_read_only(text_edit):
-        return
-
-    cursor = text_edit.textCursor()
-    cursor.select(cursor.LineUnderCursor)
-    cursor.insertText(build_testcase(cursor.selectedText()))
-    text_edit.setTextCursor(cursor)
+    cursor = _replace_current_line(text_edit, build_testcase)
+    if cursor is not None:
+        text_edit.setTextCursor(cursor)
 
 
 def insert_chapter(text_edit):
-    if _is_read_only(text_edit):
+    cursor = _replace_current_line(text_edit, build_chapter)
+    if cursor is None:
         return
 
     from PyQt5.QtGui import QTextCursor
 
-    cursor = text_edit.textCursor()
-    cursor.select(cursor.LineUnderCursor)
-    cursor.insertText(build_chapter(cursor.selectedText()))
     cursor.movePosition(QTextCursor.Up)
     cursor.movePosition(QTextCursor.EndOfLine)
     text_edit.setTextCursor(cursor)
+
+
+def _replace_current_line(text_edit, transform):
+    if _is_read_only(text_edit):
+        return None
+
+    cursor = text_edit.textCursor()
+    cursor.select(cursor.LineUnderCursor)
+    cursor.insertText(transform(cursor.selectedText()))
+    return cursor
 
 
 def graph_variables_at_cursor(text_edit):
