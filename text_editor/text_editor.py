@@ -4,7 +4,7 @@ from text_editor.code_editor import CodeEditor
 from text_editor import editor_actions
 
 from PyQt5.QtCore import pyqtSignal, Qt
-from PyQt5.QtGui import QTextCursor, QStandardItem, QStandardItemModel, QPalette, QColor
+from PyQt5.QtGui import QTextCursor, QPalette, QColor
 
 
 from config.font import font
@@ -280,17 +280,15 @@ class TextEdit(CodeEditor):
     def evaluate_actual_text(self):
         condition_names = self.completer.cond_dict if self.completer.cond_model else ()
         model_name = completion_model_name(self.actual_text, condition_names)
+        graph_variables = ()
+        if model_name == 'graph_variables':
+            graph_variables = editor_actions.graph_variables_at_cursor(self)
 
-        if model_name == 'pbc_variables':
-            self.switch_to_pbc_variables()
-        elif model_name == 'graph_variables':
-            self.switch_to_graph_variables()
-        elif model_name == 'dspace_variables':
-            self.switch_to_dspace_variables()
-        elif model_name == 'values':
-            self.switch_to_values()
-        else:
-            self.switch_to_conditions()
+        self.current_model = self.completer.set_context_model(
+            model_name,
+            actual_text=self.actual_text,
+            graph_variables=graph_variables,
+        )
 
 
 ########################################################################################################################
@@ -324,38 +322,3 @@ class TextEdit(CodeEditor):
         cursor.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, cursor_offset)
         self.setTextCursor(cursor)
         self.completer.popup().hide()
-
-
-
-########################################################################################################################
-# MODEL MANAGEMENT
-########################################################################################################################
-
-    def _set_completion_model(self, model_name, model=None):
-        self.current_model = model_name
-        self.completer.setModel(model if model is not None else QStandardItemModel())
-
-    def switch_to_values(self):
-        model = None
-        if self.completer.cond_model:
-            model = self.completer.cond_dict.get(self.actual_text)
-        self._set_completion_model('values', model)
-
-    def switch_to_conditions(self):
-        self._set_completion_model('conditions', self.completer.cond_model)
-
-    def switch_to_pbc_variables(self):
-        self._set_completion_model('pbc_variables', self.completer.a2l_model)
-
-    def switch_to_dspace_variables(self):
-        self._set_completion_model('dspace_variables', self.completer.dspace_model)
-
-    def switch_to_graph_variables(self):
-        variables = editor_actions.graph_variables_at_cursor(self)
-        variables_model = QStandardItemModel()
-        for v in variables:
-            item = QStandardItem()
-            item.setData(v, Qt.ToolTipRole)
-            item.setData(v, Qt.DisplayRole)
-            variables_model.appendRow(item)
-        self._set_completion_model('graph_variables', variables_model)

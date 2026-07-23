@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QEvent, QObject, QPoint, QTimer, Qt, pyqtSignal
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QStandardItem, QStandardItemModel
 from PyQt5.QtWidgets import QCompleter, QListWidget
 
 
@@ -32,6 +32,33 @@ class Completer(QCompleter):
 
     def get_selected(self):
         return self.last_selected
+
+    def set_context_model(self, model_name, actual_text="", graph_variables=()):
+        if model_name == "values":
+            model = self.cond_dict.get(actual_text) if self.cond_model else None
+        elif model_name == "conditions":
+            model = self.cond_model
+        elif model_name == "pbc_variables":
+            model = self.a2l_model
+        elif model_name == "dspace_variables":
+            model = self.dspace_model
+        elif model_name == "graph_variables":
+            model = self._model_from_values(graph_variables)
+        else:
+            raise ValueError(f"Unknown completion model: {model_name}")
+
+        self.setModel(model if model is not None else QStandardItemModel())
+        return model_name
+
+    @staticmethod
+    def _model_from_values(values):
+        model = QStandardItemModel()
+        for value in values:
+            item = QStandardItem()
+            item.setData(value, Qt.ToolTipRole)
+            item.setData(value, Qt.DisplayRole)
+            model.appendRow(item)
+        return model
 
     def eventFilter(self, watched, event):
         if event.type() == QEvent.KeyRelease:
