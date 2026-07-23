@@ -10,14 +10,10 @@ from PyQt5.QtGui import QTextCursor, QPalette, QColor
 from config.font import font
 
 from text_editor.completer import Completer
-from text_editor.completion_rules import (
-    EQUAL_SPACING_EXCLUDED_COMMANDS,
-    SPECIAL_COMMAND_TEMPLATES,
-    completion_model_name,
-)
+from text_editor.completion_rules import completion_model_name
 from text_editor.file_access import is_file_read_only
 from components.text_functions import get_word_under_cursor
-from text_editor.text_operations import completion_context, format_first_assignment
+from text_editor.text_operations import completion_context
 
 from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighter
 
@@ -71,8 +67,6 @@ class TextEdit(CodeEditor):
 
 
 
-        self.actual_text = ''
-
         self.remember_special_char = False
 
 
@@ -97,16 +91,23 @@ class TextEdit(CodeEditor):
 
 
     def update_completion_context(self):
+        cursor = self.textCursor()
+        actual_text = completion_context(
+            cursor.block().text(),
+            cursor.positionInBlock(),
+            cursor.hasSelection(),
+        )
+        condition_names = self.completer.cond_dict if self.completer.cond_model else ()
+        model_name = completion_model_name(actual_text, condition_names)
+        graph_variables = ()
+        if model_name == 'graph_variables':
+            graph_variables = editor_actions.graph_variables_at_cursor(self)
 
-
-
-
-########################################################################################################################
-# START COMPLETER
-########################################################################################################################
-
-        self.actual_text = self.get_actual_text()
-        self.evaluate_actual_text()
+        self.current_model = self.completer.set_context_model(
+            model_name,
+            actual_text=actual_text,
+            graph_variables=graph_variables,
+        )
 
 ########################################################################################################################
 # KEYS MANAGEMENT
@@ -249,8 +250,9 @@ class TextEdit(CodeEditor):
             tc.deleteChar()
         self.setTextCursor(tc)
 
-        self.add_space_to_equal()
-        self.complete_special_command()
+        editor_actions.format_assignment_at_cursor(self)
+        if editor_actions.complete_special_command(self):
+            self.completer.popup().hide()
         if not QToolTip.isVisible():
             self.completer.popup().hide()
 
@@ -263,62 +265,3 @@ class TextEdit(CodeEditor):
         cr.setWidth(self.completer.popup().sizeHintForColumn(0)
                     + self.completer.popup().verticalScrollBar().sizeHint().width() + 20)
         self.completer.complete(cr)
-
-########################################################################################################################
-# ACTUAL TEXT MANAGEMENT
-########################################################################################################################
-
-    def get_actual_text(self):
-        cursor = self.textCursor()
-        return completion_context(
-            cursor.block().text(),
-            cursor.positionInBlock(),
-            cursor.hasSelection(),
-        )
-
-
-    def evaluate_actual_text(self):
-        condition_names = self.completer.cond_dict if self.completer.cond_model else ()
-        model_name = completion_model_name(self.actual_text, condition_names)
-        graph_variables = ()
-        if model_name == 'graph_variables':
-            graph_variables = editor_actions.graph_variables_at_cursor(self)
-
-        self.current_model = self.completer.set_context_model(
-            model_name,
-            actual_text=self.actual_text,
-            graph_variables=graph_variables,
-        )
-
-
-########################################################################################################################
-# SPECIAL TEXT MANAGEMENT (" = ", MonitorVariables, CANapeCommand, VariableSequence etc.)
-########################################################################################################################
-
-    def add_space_to_equal(self):
-        cursor = self.textCursor()
-        line_text = cursor.block().text()
-        formatted_line = format_first_assignment(
-            line_text, EQUAL_SPACING_EXCLUDED_COMMANDS
-        )
-        if formatted_line == line_text:
-            return
-
-        cursor.select(QTextCursor.LineUnderCursor)
-        cursor.insertText(formatted_line)
-        self.setTextCursor(cursor)
-
-
-    def complete_special_command(self):
-        cursor = self.textCursor()
-        line_text = cursor.block().text()
-        template = SPECIAL_COMMAND_TEMPLATES.get(line_text.strip())
-        if template is None:
-            return
-
-        suffix, cursor_offset = template
-        cursor.select(QTextCursor.LineUnderCursor)
-        cursor.insertText(line_text + suffix)
-        cursor.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, cursor_offset)
-        self.setTextCursor(cursor)
-        self.completer.popup().hide()
