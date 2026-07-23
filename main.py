@@ -9,15 +9,13 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut, Q
 
 from app_settings import AppSettings
 from components.notification_widget import NotificationWidget
-from components.pyqt_find_text_widget.findReplaceTextWidget import FindReplaceTextWidget
-from config.font import font
 from dashboard.dashboard import Dashboard
 from data_manager import project_manager
 from data_manager.data_manager import DataManager
 from data_manager.project_actions import ProjectActions
 from file_browser.tree_file_browser import FileSystemView
-from text_editor import editor_actions
 from text_editor.document_actions import DocumentActions
+from text_editor.editor_controller import EditorController
 from text_editor.outline_controller import OutlineController
 from text_editor.tab_manager import EditorTabManager
 from text_editor.tabs import Tabs
@@ -81,6 +79,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ################################################################################################################
         self.app_settings = AppSettings(self)   
         self.update_theme(self.app_settings.theme)            
+        self.editor_controller = EditorController(self)
 
         
         ################################################################################################################
@@ -117,19 +116,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_script_save.setShortcut('Ctrl+s')
         self.btn_script_save_as.clicked.connect(self.document_actions.save_as)
         self.btn_script_open.clicked.connect(self.document_actions.open_from_dialog)
-        self.btn_insert_chapter.clicked.connect(self.insert_chapter)
+        self.btn_insert_chapter.clicked.connect(
+            self.editor_controller.insert_chapter
+        )
         self.btn_insert_chapter.setShortcut('Ctrl+Shift+a')
         self.btn_insert_chapter.setToolTip('Chapter (Ctrl+Shift+A)')
-        self.btn_insert_testcase.clicked.connect(self.insert_testcase)
+        self.btn_insert_testcase.clicked.connect(
+            self.editor_controller.insert_testcase
+        )
         self.btn_insert_testcase.setShortcut('Ctrl+Shift+t')
         self.btn_insert_testcase.setToolTip('Testcase (Ctrl+Shift+T)')
-        self.btn_insert_command.clicked.connect(self.insert_command)
+        self.btn_insert_command.clicked.connect(
+            self.editor_controller.insert_command
+        )
         self.btn_insert_command.setShortcut('Ctrl+Shift+c')
         self.btn_insert_command.setToolTip('Command (Ctrl+Shift+C)')
-        self.btn_comment_uncomment.clicked.connect(self.comment_uncomment)
+        self.btn_comment_uncomment.clicked.connect(
+            self.editor_controller.toggle_comment
+        )
         self.btn_comment_uncomment.setShortcut('Ctrl+/')
         self.btn_comment_uncomment.setToolTip('(Un)Comment (Ctrl+"/")')
-        self.btn_format_code.clicked.connect(self.format_code)
+        self.btn_format_code.clicked.connect(
+            self.editor_controller.format_code
+        )
         self.btn_format_code.setShortcut(('Ctrl+Shift+f'))
         self.btn_format_code.setToolTip(('Format Code (Ctrl+Shift+F)'))
         self.btn_lock_unlock.clicked.connect(self.document_actions.toggle_read_only)
@@ -138,24 +147,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.btn_find_replace.setToolTip('Ctrl + "H"')
         # self.btn_undo.clicked.connect(self.perform_undo)
         # self.btn_redo.clicked.connect(self.perform_redo)
-        self.btn_zoom_in.clicked.connect(self.font_increase)
+        self.btn_zoom_in.clicked.connect(self.editor_controller.font_increase)
         self.btn_zoom_in.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Plus))
         self.btn_zoom_in.setToolTip("Zoom In (Ctrl+Plus)")
-        self.btn_zoom_out.clicked.connect(self.font_decrease)
+        self.btn_zoom_out.clicked.connect(self.editor_controller.font_decrease)
         self.btn_zoom_out.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Minus))        
         self.btn_zoom_out.setToolTip("Zoom Out (Ctrl+Minus)")
-        self.btn_zoom_default.clicked.connect(self.font_reset)
+        self.btn_zoom_default.clicked.connect(self.editor_controller.font_reset)
         self.btn_zoom_default.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_0))
         self.btn_zoom_default.setToolTip("Reset Zoom (Ctrl+0)")
 
-        QShortcut( 'Ctrl+f', self ).activated.connect((lambda: self.find_replace(only_find=True)))            
-        QShortcut( 'Ctrl+h', self ).activated.connect((lambda: self.find_replace(only_find=False)))              
+        QShortcut('Ctrl+f', self).activated.connect(
+            lambda: self.editor_controller.show_find_replace(only_find=True)
+        )
+        QShortcut('Ctrl+h', self).activated.connect(
+            lambda: self.editor_controller.show_find_replace(only_find=False)
+        )
 
         self.uiFrameFileManager.setVisible(False)
         self.frame_2.setVisible(False)
-        self.actual_find_box = None
-
-
         ## TOGGLE/BURGUER MENU
         ########################################################################
         self.btn_toggle_menu.clicked.connect(lambda: self.toggle_menu(self.uiFrameLeftMenu, 70, 210))
@@ -225,10 +235,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # TABS CONFIGURATION
         ################################################################################################################
         self.left_tabs = Tabs(self, True, 'LEFT_TABS')
-        self.left_tabs.currentChanged.connect(self.update_find_replace)
+        self.left_tabs.currentChanged.connect(
+            self.editor_controller.update_find_replace
+        )
 
         self.right_tabs = Tabs(self, False, 'RIGHT_TABS')
-        self.right_tabs.currentChanged.connect(self.update_find_replace)
+        self.right_tabs.currentChanged.connect(
+            self.editor_controller.update_find_replace
+        )
 
         self.tab_manager = EditorTabManager(
             self,
@@ -308,12 +322,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def keyPressEvent(self, e) -> None:
         if e.key() == Qt.Key_Escape:
-            # self.find_replace(False)
-            # self.btn_find_replace.setChecked(False)
-            if self.actual_find_box:
-                self.ui_hLayout_findReplace.removeWidget(self.actual_find_box) 
-            if self.actual_text_edit:
-                self.actual_text_edit.setFocus()
+            self.editor_controller.close_find_replace()
         return super().keyPressEvent(e)
 
 
@@ -432,96 +441,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 ########################################################################################################################
 # UPDATES:  END
-########################################################################################################################
-
-########################################################################################################################
-# REST OF ACTION METHODS:  START
-########################################################################################################################
-
-
-
-
-    def insert_command(self):
-        if self.actual_text_edit:
-            editor_actions.insert_command(self.actual_text_edit)
-            self.actual_text_edit.setFocus()
-
-    def insert_testcase(self):
-        if self.actual_text_edit:
-            editor_actions.insert_testcase(self.actual_text_edit)
-            self.actual_text_edit.setFocus()
-
-    def insert_chapter(self):
-        if self.actual_text_edit:
-            editor_actions.insert_chapter(self.actual_text_edit)
-            self.actual_text_edit.setFocus()
-
-    def comment_uncomment(self):
-        if self.actual_text_edit:
-            editor_actions.toggle_comment(self.actual_text_edit)
-            self.actual_text_edit.setFocus()
-
-    
-    def update_find_replace(self):
-        if self.ui_hLayout_findReplace.count():
-            self.find_replace(self.actual_find_box.only_find_widget)
-        
-
-
-    
-    def find_replace(self, only_find):
-        if not self.actual_text_edit:
-            return
-        
-
-
-        if self.actual_find_box:
-                self.ui_hLayout_findReplace.removeWidget(self.actual_find_box) 
-
-
-        # new_find_box = FindTextWidget(self.actual_text_edit)
-        self.new_find_box = FindReplaceTextWidget(self.actual_text_edit)
-        self.ui_hLayout_findReplace.addWidget(self.new_find_box)
-        self.new_find_box.setFocus()
-        self.actual_find_box = self.new_find_box
-        # self.actual_text_edit.setStyleSheet("selection-background-color: red;")
-
-
-        self.actual_find_box.setOnlyFindTextWidget(only_find)
-        
-
-
-    def format_code(self):
-        # from importlib import reload
-        # reload(editor_actions)
-        if self.actual_text_edit:
-            try:
-                editor_actions.format_text_edit(self.actual_text_edit)
-                self.actual_text_edit.setFocus()
-            except Exception as exc:
-                print(str(exc))
-                
-
-    def font_increase(self):
-        self.set_editor_font_size(min(font.pointSize() + 1, 20))
-
-    def font_decrease(self):
-        self.set_editor_font_size(max(font.pointSize() - 1, 6))
-
-    def font_reset(self):
-        self.set_editor_font_size(10)
-
-    def set_editor_font_size(self, point_size):
-        font.setPointSize(point_size)
-        for tabs in (self.left_tabs, self.right_tabs):
-            for tab_index in range(tabs.count()):
-                tabs.widget(tab_index).setFont(font)
-
-
-
-
-########################################################################################################################
-# REST OF ACTION METHODS:  END
 ########################################################################################################################
 
     # SAVE WINDOW SIZE, POSITION BEFORE CLOSE APP AND CHECK IF ALL SCRIPTS ARE SAVED

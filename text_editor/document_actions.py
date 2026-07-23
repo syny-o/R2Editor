@@ -77,7 +77,7 @@ class DocumentActions:
             and text_edit.file_path is not None
             and Path(text_edit.file_path).suffix.lower() in ('.par', '.txt')
         ):
-            self.main_window.format_code()
+            self.main_window.editor_controller.format_code()
 
         if text_edit.file_path is None:
             return self.save_as()
