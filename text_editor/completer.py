@@ -16,7 +16,6 @@ class Completer(QCompleter):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.last_selected = ''
 
         self.setCompletionMode(QCompleter.PopupCompletion)
         self.setCaseSensitivity(Qt.CaseInsensitive)
@@ -24,14 +23,13 @@ class Completer(QCompleter):
         self.setMaxVisibleItems(15)
         self.popup().setFont(COMPLETER_FONT)
 
-        self.highlighted[str].connect(self.set_highlighted)
         self.completer_tooltip = CompleterTooltipController(self)
 
-    def set_highlighted(self, text):
-        self.last_selected = text
-
     def get_selected(self):
-        return self.last_selected
+        index = self.popup().currentIndex()
+        if not index.isValid():
+            return ""
+        return index.data(Qt.DisplayRole) or ""
 
     def show_popup(self, completion_prefix):
         self.setCompletionPrefix(completion_prefix)

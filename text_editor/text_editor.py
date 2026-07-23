@@ -112,8 +112,11 @@ class TextEdit(CodeEditor):
             self.setTextCursor(cursor)
 
         if key == Qt.Key_Return and self.completer.popup().isVisible():
-            self.completer.insert_text.emit(self.completer.get_selected())
-            return True
+            selected_completion = self.completer.get_selected()
+            if selected_completion:
+                self.completer.insert_text.emit(selected_completion)
+                return True
+            self.completer.popup().hide()
 
         if key == Qt.Key_Return:
             editor_actions.add_new_line_indent(self)
