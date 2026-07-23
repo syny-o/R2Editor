@@ -1,6 +1,5 @@
 import re
 import sys
-from importlib import reload
 import pywinstyles
 
 from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QSettings, Qt, QTimer, pyqtSignal, pyqtSlot
@@ -9,6 +8,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut, Q
 
 from app_settings import AppSettings
 from components.notification_widget import NotificationWidget
+from config.settings_controller import SettingsController
 from dashboard.dashboard import Dashboard
 from data_manager import project_manager
 from data_manager.data_manager import DataManager
@@ -20,7 +20,6 @@ from text_editor.outline_controller import OutlineController
 from text_editor.tab_manager import EditorTabManager
 from text_editor.tabs import Tabs
 from ui.main_ui import Ui_MainWindow
-import config.app_styles
 from config.icon_manager import IconManager
 from components.widgets.widgets_pointing_hand import TreeWidgetPointingHand
 
@@ -77,8 +76,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ################################################################################################################
         # APP SETTINGS CONFIGURATION
         ################################################################################################################
-        self.app_settings = AppSettings(self)   
-        self.update_theme(self.app_settings.theme)            
+        self.app_settings = AppSettings(self)
         self.editor_controller = EditorController(self)
 
         
@@ -88,7 +86,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.timer_project_autosave = QTimer()  # initialize timer - one global timer (even if it is not used - when value is Off)
         self.timer_project_autosave.timeout.connect(self.project_actions.autosave)
-        self.update_autosave_interval(self.app_settings.autosave)    
+        self.settings_controller = SettingsController(self)
+        self.settings_controller.apply()
 
 
         ################################################################################################################
@@ -286,25 +285,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @pyqtSlot()
     def settings_was_updated(self):
-        self.update_theme(self.app_settings.theme)
-        self.update_autosave_interval(self.app_settings.autosave)
-
-
-
-    def update_autosave_interval(self, autosave_interval):
-        self.timer_project_autosave.stop()
-        if autosave_interval == 'Off':
-            pass
-        else:
-            interval = int(autosave_interval)*60*1000 # minutes to milliseconds
-            self.timer_project_autosave.start(int(interval))
-
-
-
-    def update_theme(self, theme):
-        reload(config.app_styles)
-        styles = config.app_styles.switch_theme(theme.upper())
-        app.setStyleSheet(styles)        
+        self.settings_controller.apply()
 
 
 
