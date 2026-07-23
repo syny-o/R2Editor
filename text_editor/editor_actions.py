@@ -54,6 +54,11 @@ def format_text_edit(text_edit):
     if _is_read_only(text_edit):
         return
 
+    original_text = text_edit.toPlainText()
+    formatted_text = TextFormatter(original_text).run()
+    if formatted_text == original_text:
+        return
+
     from PyQt5.QtGui import QTextCursor
 
     scroll_bar = text_edit.verticalScrollBar()
@@ -62,8 +67,6 @@ def format_text_edit(text_edit):
     cursor_position = cursor.position()
     cursor_anchor = cursor.anchor()
 
-    original_text = text_edit.toPlainText()
-    formatted_text = TextFormatter(original_text).run()
     formatted_cursor_position = cursor_position_after_format(
         original_text,
         formatted_text,

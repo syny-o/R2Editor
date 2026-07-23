@@ -18,6 +18,17 @@ class ReadOnlyTextEdit:
         raise AssertionError(f"Read-only action accessed {name}")
 
 
+class AlreadyFormattedTextEdit:
+    def isReadOnly(self):
+        return False
+
+    def toPlainText(self):
+        return "Header"
+
+    def __getattr__(self, name):
+        raise AssertionError(f"Unchanged document accessed {name}")
+
+
 class EditorActionsTest(unittest.TestCase):
     def test_mutating_actions_do_nothing_for_read_only_editor(self):
         editor = ReadOnlyTextEdit()
@@ -31,6 +42,9 @@ class EditorActionsTest(unittest.TestCase):
         editor_actions.insert_chapter(editor)
         editor_actions.format_assignment_at_cursor(editor)
         editor_actions.complete_special_command(editor)
+
+    def test_format_does_not_touch_already_formatted_document(self):
+        editor_actions.format_text_edit(AlreadyFormattedTextEdit())
 
 
 if __name__ == "__main__":
