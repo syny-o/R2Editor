@@ -24,7 +24,7 @@ from components.module_locker import ModuleLocker
 from data_manager.forms.form_doors_inputs import FormDoorsInputs
 from data_manager.view.widget_view import View
 import data_manager.tree_walker as tree_walker
-from config import constants
+from data_manager.requirement_references import extract_requirement_references
 from components.widgets.chart_bar import ChartBar
 from config.icon_manager import IconManager
 from components.decorator_logging_exeptions import logged_exc
@@ -674,17 +674,9 @@ class Worker(QRunnable):
                             f.write(str(my_exception) + "\n" + full_path)
                         continue
 
-                    reference_list = constants.PATTERN_REQ_REFERENCE.findall(text)
-
-                    for ref_string in reference_list:
-                        references = ref_string.split(",")
-                        for ref in references:
-                            ref = ref.lower().strip()
-
-                            if ref in reference_dict:
-                                reference_dict[ref].add(full_path)
-                            else:
-                                reference_dict.update({ref: set([full_path,])})   
+                    references = extract_requirement_references(text)
+                    for reference in references:
+                        reference_dict.setdefault(reference, set()).add(full_path)
         
         self.signals.status.emit(False, "Updating coverage, please wait...")
         self.signals.finished.emit(reference_dict)

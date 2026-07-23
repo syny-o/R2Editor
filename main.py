@@ -18,6 +18,7 @@ from config.font import font
 from dashboard.dashboard import Dashboard
 from data_manager import project_manager
 from data_manager.data_manager import DataManager
+from data_manager.requirement_references import changed_requirement_references
 from dialogs.dialog_message import dialog_message
 from file_browser.tree_file_browser import FileSystemView
 from tabs import Tabs
@@ -28,7 +29,6 @@ from text_editor.outline_parser import (
 )
 from text_editor.text_editor import TextEdit
 from ui.main_ui import Ui_MainWindow
-from config import constants
 import config.app_styles
 from components.syntax_highlighter import python_highlighter, rapit_two_highlighter
 from config.icon_manager import IconManager
@@ -658,33 +658,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             dialog_message(self, str(e))
 
 
-    
-    def find_reference_in_string(self, string):
-        match_list = constants.PATTERN_REQ_REFERENCE.findall(string)
-        references = set()
-        for match_string in match_list:
-            matches = match_string.split(",")
-            matches = [match.strip().lower() for match in matches]
-            references.update(set(matches))
-
-        return references
-
-
-
-
     def update_coverage(self, text_to_save, original_text, file_path):
-        ################ TEST CHECK COVERAGE IN DATAMANAGER TREE:
-        references_original_text = self.find_reference_in_string(original_text)
-        references_text_to_save = self.find_reference_in_string(text_to_save)
-
-        missing_references = references_original_text.difference(references_text_to_save)
-        new_references = references_text_to_save.difference(references_original_text)
-
-        references = missing_references.union(new_references)
-
-        # print("MISSING: ", missing_references)
-        # print("NEW: ", new_references)
-
+        references = changed_requirement_references(original_text, text_to_save)
         self.script_requirement_reference_changed.emit(references, str(Path(file_path)))
 
 
