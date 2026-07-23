@@ -54,7 +54,6 @@ class TextEdit(CodeEditor):
         self.completer = Completer(self)
         self.completer.setWidget(self)
         self.completer.insert_text.connect(self.insert_completion)
-        self.current_model = None
         self.remember_special_char = False
 
     def update_syntax_highlighter(
@@ -90,7 +89,7 @@ class TextEdit(CodeEditor):
         if model_name == 'graph_variables':
             graph_variables = editor_actions.graph_variables_at_cursor(self)
 
-        self.current_model = self.completer.set_context_model(
+        self.completer.set_context_model(
             model_name,
             actual_text=actual_text,
             graph_variables=graph_variables,
@@ -138,7 +137,7 @@ class TextEdit(CodeEditor):
             editor_actions.key_home_press(self)
             return True
 
-        if key == Qt.Key_Equal and self.current_model == 'values':
+        if key == Qt.Key_Equal and self.completer.context_name == 'values':
             self.textCursor().insertText('=')
             self.completer.show_popup('')
             return True
@@ -151,7 +150,7 @@ class TextEdit(CodeEditor):
             not selected_text
             and (
                 not cursor.block().text().strip()
-                or self.current_model in empty_prefix_models
+                or self.completer.context_name in empty_prefix_models
             )
         ):
             self.completer.show_popup("")

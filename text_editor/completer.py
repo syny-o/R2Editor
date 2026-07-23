@@ -16,6 +16,7 @@ class Completer(QCompleter):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.context_name = None
 
         self.setCompletionMode(QCompleter.PopupCompletion)
         self.setCaseSensitivity(Qt.CaseInsensitive)
@@ -59,7 +60,7 @@ class Completer(QCompleter):
             raise ValueError(f"Unknown completion model: {model_name}")
 
         self.setModel(model if model is not None else QStandardItemModel())
-        return model_name
+        self.context_name = model_name
 
     @staticmethod
     def _model_from_values(values):
