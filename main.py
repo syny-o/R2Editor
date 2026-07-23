@@ -1,12 +1,12 @@
-import re
 import sys
 import pywinstyles
 
 from PyQt5.QtCore import QSettings, Qt, QTimer, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QColor, QFontDatabase, QIcon, QKeySequence
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut, QSplitter, QVBoxLayout, QLabel, QFrame, QSystemTrayIcon, QMenu
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QShortcut, QSplitter, QVBoxLayout, QLabel, QFrame, QMenu
 
 from app_settings import AppSettings
+from application_lifecycle import ApplicationLifecycle
 from components.notification_widget import NotificationWidget
 from config.settings_controller import SettingsController
 from dashboard.dashboard import Dashboard
@@ -25,7 +25,6 @@ from config.icon_manager import IconManager
 from components.widgets.widgets_pointing_hand import TreeWidgetPointingHand
 
 
-
 # pyinstaller -w --icon=R2Editor.ico --name=R2Editor main.py
 
 
@@ -39,6 +38,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QMainWindow.__init__(self)
         self.setupUi(self)
         self.window_controller = WindowController(self)
+        self.application_lifecycle = ApplicationLifecycle(
+            self,
+            project_manager,
+        )
         self.ICON_MANAGER = IconManager()
         self.project_actions = ProjectActions(
             self,
@@ -364,133 +367,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     # SAVE WINDOW SIZE, POSITION BEFORE CLOSE APP AND CHECK IF ALL SCRIPTS ARE SAVED
     def closeEvent(self, event):
-        self.app_settings.save_settings_2_disk()
-
-        has_modified_files = any(
-            text_edit.is_modified()
-            for text_edit, _ in self.tab_manager.iter_text_edits()
-        )
-        if has_modified_files:
-            answer = QMessageBox.question(
-                self,
-                "R2ScriptEditor",
-                "Some opened files have been modified.\n\nDo you want to discard changes?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No,
-            )
-            if answer != QMessageBox.Yes:
-                event.ignore()
-                return
-
-        if not project_manager.is_project_saved():
-            answer = QMessageBox.question(
-                self,
-                "R2ScriptEditor",
-                "Current project is not saved.\n\nDo you want to exit (all changes will be lost)?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No,
-            )
-            if answer != QMessageBox.Yes:
-                event.ignore()
-                return
-
-        event.accept()
+        self.application_lifecycle.close(event)
 
 
-
-
-
-        
-
-
-
-
-
-
-
-########################################################################################################################
-# APP CONFIG:
-########################################################################################################################
-
-
-
-# def _show_tray_message(title, message):
-#     system_tray.showMessage(title, message, qta.icon('mdi.information-outline', color='#4863ff', scale_factor=1), 2000)
-
-
-
-# def _show_window(reason):
-#     if reason != QSystemTrayIcon.Context:
-#         pywinstyles.apply_style(window,"dark")
-#         window.show()
-
-
-# def _exit_app():
-#     success = _manage_events_before_close()
-#     if success:
-#         app.quit()
 
 
 
 if __name__ == "__main__":
-
-    app = QApplication([])
-    
-    # app.setFont(font)
-    # QFontDatabase.addApplicationFont('ui/fonts/segoeui.ttf')p
-    # QFontDatabase.addApplicationFont('ui/fonts/segoeuib.ttf')
-    # file = QFile("ui/dark.qss")
-    # file.open(QFile.ReadOnly | QFile.Text)
-    # stream = QTextStream(file)
-    # app.setStyleSheet(stream.readAll())
-    app.setStyle('Fusion')
-    # app.setStyleSheet(config.app_styles.STYLES)
-    
-
-    
+    app = QApplication([])    
+    app.setStyle('Fusion')        
     window = MainWindow()
-
     pywinstyles.apply_style(window,"dark")
-
-
-    window.show()
-
-
-
-
-
-
-    # app.setQuitOnLastWindowClosed(False)
-
-    # system_tray = QSystemTrayIcon(QIcon('R2Editor.ico'), app)
-    # system_tray.setToolTip('R2ScriptEditor')
-    # system_tray.show()
-    # system_tray.activated.connect(_show_window)
-
-    
-    # menu = QMenu()
-    # action_show_app = menu.addAction('Show')
-    # action_exit_app = menu.addAction('Exit')
-    # action_show_app.triggered.connect(_show_window)
-    # action_exit_app.triggered.connect(_exit_app)
-    # system_tray.setContextMenu(menu)
-
-
-    # # Running the aforementioned command and saving its output
-    # output = os.popen('wmic process get description, processid').read()
-    
-    # if len(re.findall("r2editor.exe", output, re.IGNORECASE)) > 1:
-    #     input = QMessageBox.question(window,
-    #                                 "R2Editor",
-    #                                 "R2Editor is already running in background.\n\nPress OK to close this instance.",
-    #                                 QMessageBox.Ok)
-
-    #     if input == QMessageBox.Ok:
-            
-    #         sys.exit()
-
-    # else:
-    #     sys.exit(app.exec_())
-    
+    window.show()    
     sys.exit(app.exec_())
 
