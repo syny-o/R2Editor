@@ -1,5 +1,4 @@
-import os, re
-import stat
+import re
 import sys
 from pathlib import Path
 from importlib import reload
@@ -23,6 +22,12 @@ from dialogs.dialog_message import dialog_message
 from file_browser.tree_file_browser import FileSystemView
 from tabs import Tabs
 from text_editor import editor_actions
+from text_editor.file_access import (
+    is_supported_document,
+    read_text_file,
+    set_file_read_only,
+    write_text_file,
+)
 from text_editor.outline_parser import (
     line_number_from_position,
     parse_outline_sections,
@@ -635,10 +640,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         try:
             file_suffix = file_path.suffix
             opened_files = self.get_all_opened_files()
-            if file_suffix.lower() in ('.par', '.py', '.con', '.xml', '.txt', '.map'):
+            if is_supported_document(file_path):
                 if file_path not in opened_files:
-                    with open(file_path, 'r') as file_to_open:
-                        text = file_to_open.read()
+                    text = read_text_file(file_path)
 
                     if file_suffix.lower() == '.py':
                         syntax_highlighter = python_highlighter.PythonHighlighter
@@ -681,8 +685,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         try:
             text_to_save = self.actual_text_edit.toPlainText()
-            with open(self.actual_text_edit.file_path, 'w') as file_to_save:
-                file_to_save.write(text_to_save)
+            write_text_file(self.actual_text_edit.file_path, text_to_save)
 
             self.update_coverage(
                 text_to_save,
@@ -713,8 +716,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         try:
             text_to_save = self.actual_text_edit.toPlainText()
-            with open(path, 'w') as file_to_save:
-                file_to_save.write(text_to_save)
+            write_text_file(path, text_to_save)
 
             self.update_coverage(
                 text_to_save,
@@ -754,11 +756,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.actual_text_edit:
             try:
                 if self.actual_text_edit.isReadOnly():
-                    os.chmod(self.actual_text_edit.file_path, stat.S_IWRITE)
+                    set_file_read_only(self.actual_text_edit.file_path, False)
                     self.actual_text_edit.setReadOnly(False)
                     self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_UNLOCKED)
                 else: 
-                    os.chmod(self.actual_text_edit.file_path, stat.S_IREAD)
+                    set_file_read_only(self.actual_text_edit.file_path, True)
                     self.actual_text_edit.setReadOnly(True)
                     self.btn_lock_unlock.setIcon(IconManager().ICON_FILE_LOCKED)
             except TypeError as e:
