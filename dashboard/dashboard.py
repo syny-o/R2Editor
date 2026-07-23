@@ -71,7 +71,7 @@ class Dashboard(QWidget, Ui_Form):
 
 
     def new_project(self):
-        self.main_window.project_new()
+        self.main_window.project_actions.new()
         self.main_window.manage_right_menu(self.main_window.data_manager, self.main_window.ui_btn_data_manager)
 
 
@@ -114,6 +114,4 @@ class Dashboard(QWidget, Ui_Form):
 
 
     def open_from_disk(self):
-        self.main_window.project_open()
-
-        
+        self.main_window.project_actions.open()

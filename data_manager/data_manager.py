@@ -89,7 +89,9 @@ class DataManager(QWidget, Ui_Form):
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(1)  
 
-        QShortcut( 'Ctrl+S', self ).activated.connect(self.MAIN.project_save)
+        QShortcut('Ctrl+S', self).activated.connect(
+            self.MAIN.project_actions.save
+        )
         # QShortcut( 'Backspace', self ).activated.connect(self.TREE.goto_previous_index)
 
 

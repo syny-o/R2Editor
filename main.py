@@ -17,6 +17,7 @@ from config.font import font
 from dashboard.dashboard import Dashboard
 from data_manager import project_manager
 from data_manager.data_manager import DataManager
+from data_manager.project_actions import ProjectActions
 from data_manager.requirement_references import changed_requirement_references
 from dialogs.dialog_message import dialog_message
 from file_browser.tree_file_browser import FileSystemView
@@ -42,8 +43,6 @@ from components.smooth_scrolling import SmoothScrolling
 
 
 
-_FILE_FILTER = 'RapitTwo Editor Project (*.json)'
-
 # pyinstaller -w --icon=R2Editor.ico --name=R2Editor main.py
 
 
@@ -57,6 +56,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QMainWindow.__init__(self)
         self.setupUi(self)
         self.ICON_MANAGER = IconManager()
+        self.project_actions = ProjectActions(
+            self,
+            project_manager,
+            self.show_notification,
+        )
         
 
         self.ui_btn_home.setIcon(IconManager().ICON_DASHBOARD)
@@ -98,7 +102,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ################################################################################################################
 
         self.timer_project_autosave = QTimer()  # initialize timer - one global timer (even if it is not used - when value is Off)
-        self.timer_project_autosave.timeout.connect(self.project_autosave)
+        self.timer_project_autosave.timeout.connect(self.project_actions.autosave)
         self.update_autosave_interval(self.app_settings.autosave)    
 
 
@@ -120,10 +124,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ## CONNECT BUTTONS        
         self.btn_app_exit.clicked.connect(self.close)
 
-        self.btn_project_open.clicked.connect(self.project_open)
-        self.btn_project_new.clicked.connect(self.project_new)
-        self.btn_project_save.clicked.connect(self.project_save)
-        self.btn_project_save_as.clicked.connect(self.project_save_as)
+        self.btn_project_open.clicked.connect(self.project_actions.open)
+        self.btn_project_new.clicked.connect(self.project_actions.new)
+        self.btn_project_save.clicked.connect(self.project_actions.save)
+        self.btn_project_save_as.clicked.connect(self.project_actions.save_as)
 
         self.btn_script_new.clicked.connect(self.file_new)
         self.btn_script_new.setShortcut('Ctrl+n')
@@ -853,90 +857,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 ########################################################################################################################
 # UPDATES:  END
 ########################################################################################################################
-
-########################################################################################################################
-# PROJECT MANAGEMENT METHODS:  START
-########################################################################################################################
-
-
-    def project_new(self):
-        # self.window = ProjectConfig(self, is_new_project=True)
-        # self.window.show()
-        if not project_manager.is_project_saved():
-            proceed = QMessageBox.question(self,
-                            "R2ScriptEditor",
-                            "Current project is not saved.\n\nDo you want to proceed (all changes will be lost)?",
-                            QMessageBox.Yes | QMessageBox.No)
-            if proceed == QMessageBox.No:
-                return        
-        project_manager.new_project()
-
-
-    def project_save(self):        
-        success, message = project_manager.save_project()
-        if success:
-            self.show_notification(message)
-        elif message == "NO JSON PATH":
-            self.project_save_as()
-        else:
-            dialog_message(message)
-
-
-    def project_autosave(self):
-        # print("AUTOSAVE")
-        success, message = project_manager.save_project()
-        self.show_notification('autosaving... ' + message)
-        
-
-
-    def project_save_as(self):        
-        path, _ = QFileDialog.getSaveFileName(
-            parent=self,
-            caption='Save Project',
-            directory='.//Projects',
-            filter=_FILE_FILTER
-        )
-        if not path:
-            return
-        success, message = project_manager.save_project_as(path)
-        if success:
-            self.show_notification(message)
-        else:
-            dialog_message(message)            
-
-
-    def project_open(self):
-        if not project_manager.is_project_saved():
-            proceed = QMessageBox.question(self,
-                            "R2ScriptEditor",
-                            "Current project is not saved.\n\nDo you want to proceed (all changes will be lost)?",
-                            QMessageBox.Yes | QMessageBox.No)
-            if proceed == QMessageBox.No:
-                return
-
-        path, _ = QFileDialog.getOpenFileName(
-            parent=self,
-            caption='Open Project',
-            directory='.//Projects',
-            filter=_FILE_FILTER
-        )
-
-        if not path:
-            return
-        else:
-            success, error_message = project_manager.open_project(path)
-            if not success:
-                dialog_message(self, f"Failed to Open Project!\n{error_message}")
-
-
-
-
-
-########################################################################################################################
-# PROJECT MANAGEMENT METHODS:  END
-########################################################################################################################
-
-
 
 ########################################################################################################################
 # REST OF ACTION METHODS:  START
