@@ -23,8 +23,6 @@ class TextFormatter:
     }
 
     def __init__(self, text_content: str) -> None:
-        self.stack_if = []
-        self.stack_for = []
         self.lines = text_content.split("\n")
 
     def run(self):
@@ -37,6 +35,8 @@ class TextFormatter:
         new_lines = []
         skipped_header = False
         test_case_number = 0
+        stack_if = []
+        stack_for = []
 
         for line_number, source_line in enumerate(self.lines):
             future_indent_level = None
@@ -88,34 +88,34 @@ class TextFormatter:
             elif self.PATTERNS["ELSE_IF"].search(current_line):
                 add_blank_line_before = True
                 future_if_level = if_level + 1
-                self.stack_if.append(indent_level)
+                stack_if.append(indent_level)
             elif self.PATTERNS["IF_START"].search(current_line):
                 add_blank_line_before = True
                 future_if_level = if_level + 1
-                self.stack_if.append(indent_level)
+                stack_if.append(indent_level)
             elif self.PATTERNS["IF_END"].search(current_line):
                 if not self.PATTERNS["IF_END"].search(previous_line):
                     add_blank_line_before = True
-                if self.stack_if:
+                if stack_if:
                     if_level = max(0, if_level - 1)
-                    indent_level = self.stack_if.pop()
+                    indent_level = stack_if.pop()
             elif self.PATTERNS["ELSE"].search(current_line):
                 add_blank_line_before = True
-                if self.stack_if:
+                if stack_if:
                     if_level = max(0, if_level - 1)
                     future_if_level = if_level + 1
-                    indent_level = self.stack_if[-1]
+                    indent_level = stack_if[-1]
             elif self.PATTERNS["FOR_START"].search(current_line):
                 if not self.PATTERNS["FOR_START"].search(previous_line):
                     add_blank_line_before = True
                 future_for_level = for_level + 1
-                self.stack_for.append(indent_level)
+                stack_for.append(indent_level)
             elif self.PATTERNS["FOR_END"].search(current_line):
                 if not self.PATTERNS["FOR_END"].search(previous_line):
                     add_blank_line_before = True
-                if self.stack_for:
+                if stack_for:
                     for_level = max(0, for_level - 1)
-                    indent_level = self.stack_for.pop()
+                    indent_level = stack_for.pop()
             elif self.PATTERNS["HIL_RESET"].search(current_line):
                 indent_level = 2
                 add_blank_line_after = True
