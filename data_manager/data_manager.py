@@ -3,12 +3,7 @@ from ui.model_editor_ui import Ui_Form
 from PyQt5.QtWidgets import QWidget, QShortcut
 from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QThreadPool
-from data_manager.nodes.a2l_nodes import A2lFileNode
-from data_manager.nodes.requirement_module import RequirementModule
-from data_manager.forms.form_add_module import FormAddModule
-from dialogs.dialog_message import dialog_message
-import data_manager.forms.form_a2l_norm_report   
-from data_manager import model_manager
+from data_manager.completer_data import send_data_to_completer
 from components.module_locker import ModuleLocker
 from data_manager.view.widget_view import View
 from components.widgets.chart_bar import ChartBar
@@ -19,6 +14,8 @@ from data_manager.project_data_controller import ProjectDataController
 from data_manager.coverage_controller import CoverageController
 from data_manager.reference_navigator import ReferenceNavigator
 from data_manager.html_report_controller import HtmlReportController
+from data_manager.a2l_actions import A2lActions
+from data_manager.requirement_module_actions import RequirementModuleActions
 
 
 class DataManager(QWidget, Ui_Form):
@@ -52,6 +49,8 @@ class DataManager(QWidget, Ui_Form):
         self.coverage_controller = CoverageController(self)
         self.reference_navigator = ReferenceNavigator(self)
         self.html_report_controller = HtmlReportController(self)
+        self.a2l_actions = A2lActions(self)
+        self.requirement_module_actions = RequirementModuleActions(self)
 
         self.widget_chart = ChartBar()
         self.ui_layout_data_summary.addWidget(self.widget_chart)
@@ -130,13 +129,14 @@ class DataManager(QWidget, Ui_Form):
     #####################################################################################################################################################
 
     def _open_add_requirement_module_form(self):
-        self.form_add_req_module = FormAddModule(self)
-        self.form_add_req_module.show()
+        self.requirement_module_actions.open_add_form()
 
     @pyqtSlot(str, list)
     def receive_data_from_add_req_module_dialog(self, module_path, columns_names):
-        r = RequirementModule(self.ROOT, module_path, columns_names, attributes=[], baseline={}, coverage_filter=None, coverage_dict=None, update_time=None, ignore_list=None, notes=None, current_baseline=None, column_number_as_identifier=None)
-        self.ROOT.appendRow(r)
+        self.requirement_module_actions.add_module(
+            module_path,
+            columns_names,
+        )
 
     #####################################################################################################################################################
     #   CONNECTING AND DOWNLOADING DATA FROM DOORS
@@ -247,18 +247,16 @@ class DataManager(QWidget, Ui_Form):
     # A2L NORMALISATIION:
     ####################################################################################################################
     def _normalise_a2l_file(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-        if isinstance(selected_item, A2lFileNode):
-            selected_item.normalise_file()  
-            self.send_data_2_completer()  
-            self.set_project_saved(True)  
+        self.a2l_actions.normalize_selected_file()
 
 
     @pyqtSlot(dict, list, list)
     def a2l_normalisation_finished(self, data_4_report, missing_signals, duplicated_signals):
-        self.form = data_manager.forms.form_a2l_norm_report.A2lNormReport(data_4_report, missing_signals, duplicated_signals)
-        self.form.show()
+        self.a2l_actions.show_normalization_report(
+            data_4_report,
+            missing_signals,
+            duplicated_signals,
+        )
 
 
 
@@ -306,7 +304,7 @@ class DataManager(QWidget, Ui_Form):
     ####################################################################################################################
 
     def send_data_2_completer(self):
-        model_manager.send_data_2_completer(self.ROOT)
+        send_data_to_completer(self.ROOT)
         self._update_data_summary()
 
 

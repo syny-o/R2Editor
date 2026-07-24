@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFileDialog
 
-from data_manager import model_manager
+from data_manager import node_model_operations
 from data_manager.nodes import (
     a2l_nodes,
     condition_file,
@@ -79,7 +79,9 @@ class ProjectDataController:
                 isinstance(current_node, (ConditionFileNode, DspaceFileNode))
                 and current_node.is_modified
             ):
-                success, message = model_manager.export_file(current_node)
+                success, message = node_model_operations.export_file(
+                    current_node
+                )
                 if not success:
                     dialog_message(manager, message)
         return data

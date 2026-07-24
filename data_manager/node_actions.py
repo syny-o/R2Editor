@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMessageBox
 
-from data_manager import model_manager
+from data_manager import node_model_operations
 from data_manager.forms.form_edit_node import FormEditNode
 from data_manager.forms.form_export_module import FormExportModule
 from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
@@ -30,7 +30,7 @@ class NodeActions:
             manager.form_export_module.show()
             return
 
-        success, message = model_manager.export_file(selected_item)
+        success, message = node_model_operations.export_file(selected_item)
         if success:
             manager.MAIN.show_notification('File Exported.')
         else:
@@ -47,7 +47,7 @@ class NodeActions:
         if answer != QMessageBox.Yes:
             return
 
-        result = model_manager.remove_node(manager.TREE, manager.MODEL)
+        result = node_model_operations.remove_node(manager.TREE, manager.MODEL)
         message = 'Item Removed' if result else 'Item can not be Removed'
         manager.MAIN.show_notification(message)
         manager.send_data_2_completer()
@@ -56,13 +56,13 @@ class NodeActions:
 
     def duplicate(self):
         manager = self.data_manager
-        if model_manager.duplicate_node(manager.TREE, manager.MODEL):
+        if node_model_operations.duplicate_node(manager.TREE, manager.MODEL):
             manager.MAIN.show_notification('Item was duplicated.')
             manager.TREE.setFocus()
 
     def copy(self):
         manager = self.data_manager
-        self.copied_node = model_manager.copy_node(
+        self.copied_node = node_model_operations.copy_node(
             manager.TREE,
             manager.MODEL,
         )
@@ -73,7 +73,7 @@ class NodeActions:
 
     def paste(self):
         manager = self.data_manager
-        success = model_manager.paste_node(
+        success = node_model_operations.paste_node(
             manager.TREE,
             manager.MODEL,
             self.copied_node,
@@ -122,7 +122,11 @@ class NodeActions:
 
     def move(self, direction):
         manager = self.data_manager
-        model_manager.move_node(manager.TREE, manager.MODEL, direction)
+        node_model_operations.move_node(
+            manager.TREE,
+            manager.MODEL,
+            direction,
+        )
         manager.send_data_2_completer()
         manager.set_project_saved(False)
         manager.TREE.setFocus()
