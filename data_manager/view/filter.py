@@ -1,13 +1,21 @@
 from abc import ABC, abstractmethod
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QColor
+from PyQt5.QtGui import QColor
 
-from data_manager.nodes.condition_file import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
-from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
-from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
+from data_manager.nodes.condition_file import ConditionFileNode
+from data_manager.nodes.dspace_nodes import DspaceFileNode
+from data_manager.nodes.a2l_nodes import A2lFileNode
 from data_manager.nodes.requirement_module import RequirementModule
-from data_manager.nodes.requirement_node import RequirementNode
 from config import constants
+from data_manager.view.filter_specifications import (
+    AllSpecification,
+    CoveredSpecification,
+    FullTextRequirementSpecification,
+    FullTextSpecification,
+    IgnoredSpecification,
+    NotCoveredSpecification,
+    Specification,
+)
 
 
 ######################################################################################################################################
@@ -15,85 +23,16 @@ from config import constants
 ######################################################################################################################################
 ### DEFINE INTERFACES:
 
-class iSpecification(ABC):
-    @abstractmethod
-    def is_satisfied(self, requirement_node):
-        pass
-
-    def __and__(self, other):
-        return AndSpecification(self, other)
-    
-    def __or__(self, other):
-        return OrSpecification(self, other)    
-            
-
 class iFilter(ABC):
     @abstractmethod
     def filter(self, TREEVIEW, requirement_nodes, specification):
         pass
 
 ######################################################################################################################################
-### DEFINE SPECIFICATIONS:
-
-class AndSpecification(iSpecification):
-    def __init__(self, *args: iSpecification):
-        self.args = args
-
-    def is_satisfied(self, requirement_node):
-        return all(map(lambda spec: spec.is_satisfied(requirement_node), self.args))
-    
-
-class OrSpecification(iSpecification):
-    def __init__(self, *args: iSpecification):
-        self.args = args
-
-    def is_satisfied(self, requirement_node):
-        return any(map(lambda spec: spec.is_satisfied(requirement_node), self.args))
-
-#-------------------------------------------------------------------------------------------------------------------------------------#
-
-class NotCoveredSpecification(iSpecification):
-    def is_satisfied(self, node: RequirementNode):
-        return node.node_icon == "red" 
-    
-class CoveredSpecification(iSpecification):
-    def is_satisfied(self, node: RequirementNode):
-        return node.node_icon == "green"     
-
-class IgnoredSpecification(iSpecification):
-    def is_satisfied(self, node: RequirementNode):
-        return node.reference.lower() in node.MODULE.ignore_list     
-
-
-# class CoveredAndNotCoveredSpecification(iSpecification):
-#     def is_satisfied(self, node: RequirementNode):
-#         return node.node_icon is not None 
-    
-
-class AllSpecification(iSpecification):
-    def is_satisfied(self, node: RequirementNode):
-        return node is not None  # just hack to return True for all nodes  
-
-class FullTextSpecification(iSpecification):
-    def __init__(self, filtered_text):
-        self.filtered_text = filtered_text
-
-    def is_satisfied(self, node: ConditionNode|A2lNode|DspaceVariableNode):
-        return self.filtered_text.lower() in node.text().lower()          
-
-class FullTextRequirementSpecification(iSpecification):
-    def __init__(self, filtered_text):
-        self.filtered_text = filtered_text
-
-    def is_satisfied(self, node: RequirementNode):
-        data = " ".join(node.columns_data) + " " + str(node.reference)        
-        return self.filtered_text.lower() in data.lower()    
-
-######################################################################################################################################
 ### DEFINE FILTERS:
 
 class StandardFirstLevelFilter(iFilter):
-    def filter(self, TREE, node: ConditionFileNode|A2lFileNode, specification: iSpecification):
+    def filter(self, TREE, node: ConditionFileNode|A2lFileNode, specification: Specification):
         for row in range(node.rowCount()):
             subnode = node.child(row)
             if specification.is_satisfied(subnode):
@@ -104,7 +43,7 @@ class StandardFirstLevelFilter(iFilter):
 
 
 class StandardLastLevelFilter(iFilter):
-    def filter(self, TREE, node: ConditionFileNode|A2lFileNode, specification: iSpecification):
+    def filter(self, TREE, node: ConditionFileNode|A2lFileNode, specification: Specification):
         for row in range(node.rowCount()):
             subnode = node.child(row)
             if specification.is_satisfied(subnode):
@@ -119,7 +58,7 @@ class StandardLastLevelFilter(iFilter):
 
 
 class DecoratedAutoExpandingLastLevelFilter(iFilter):
-    def filter(self, TREE, node: RequirementModule|DspaceFileNode, specification: iSpecification):
+    def filter(self, TREE, node: RequirementModule|DspaceFileNode, specification: Specification):
         for row in range(node.rowCount()):
             subnode = node.child(row)
             if specification.is_satisfied(subnode):
