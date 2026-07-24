@@ -152,7 +152,8 @@ class ActionsHandler:
         activate_action(self.action_duplicate_node, menu)
         activate_action(self.action_copy_node, menu)
 
-        if self.DATA_MANAGER.node_2_paste and type(self.DATA_MANAGER.node_2_paste) == type(node):
+        copied_node = self.DATA_MANAGER.node_actions.copied_node
+        if copied_node and type(copied_node) == type(node):
             activate_action(self.action_paste_node, menu)
 
         if node.row() > 0:  activate_action(self.action_move_up_node, menu)
@@ -181,20 +182,9 @@ class ActionsHandler:
         for field in fields(self):
             action = getattr(self, field.name)
             if isinstance(action, QAction):
-                action.setEnabled(False)  
-            # action.setVisible(False)   
-            
+                action.setEnabled(False)
 
 # Helper functions:
 def activate_action(action: QAction, menu: QMenu):
-    # action.setVisible(True)
     action.setEnabled(True)
     menu.addAction(action)
-
-
-
-    
-    
-    
-
-        

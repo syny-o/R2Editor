@@ -19,7 +19,6 @@ from doors.doors_connection import DoorsConnection
 import data_manager.forms.form_a2l_norm_report   
 import data_manager.forms.form_validate_html_report
 from data_manager import model_manager
-from data_manager.forms.form_edit_node import FormEditNode
 from components.module_locker import ModuleLocker
 from data_manager.forms.form_doors_inputs import FormDoorsInputs
 from data_manager.view.widget_view import View
@@ -28,8 +27,8 @@ from data_manager.coverage_worker import CoverageWorker
 from components.widgets.chart_bar import ChartBar
 from config.icon_manager import IconManager
 from components.decorator_logging_exeptions import logged_exc
-from data_manager.forms.form_export_module import FormExportModule
 from data_manager.forms.form_req_data_comparasion import FormReqDataComparasion
+from data_manager.node_actions import NodeActions
 
 # from my_logging import logger
 # logger.debug(f"{__name__} --> Init")
@@ -50,9 +49,6 @@ class DataManager(QWidget, Ui_Form):
         self.uiBtnSetProjectPath.setIcon(IconManager().ICON_SET_PROJECT_FOLDER)
 
 
-        # node copied into memory by action COPY
-        self.node_2_paste = None        
-
         self.MAIN = main_window
         self.PROJECT_MANAGER = project_manager     
         self.MODEL = QStandardItemModel()
@@ -64,6 +60,7 @@ class DataManager(QWidget, Ui_Form):
         self.VIEW = View(self, self.MODEL)
         self.ui_layout_tree.addWidget(self.VIEW)
         self.TREE = self.VIEW.uiDataTreeView  # TODO: REFACTOR
+        self.node_actions = NodeActions(self)
 
         self.progress_bar = ModernProgressBar('rgb(0, 179, 0)', 'COVERED')
         # self.ui_layout_data_summary.addWidget(self.progress_bar)   
@@ -489,91 +486,35 @@ class DataManager(QWidget, Ui_Form):
 
 
     def tree_2_file(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-
-        if isinstance(selected_item, RequirementModule):
-            self.form_export_module = FormExportModule(selected_item, self.TREE, self.MODEL)
-            self.form_export_module.show()
-            return
-
-        success, message = model_manager.export_file(selected_item)
-        if success:
-            self.MAIN.show_notification("File Exported.")
-        else:
-            dialog_message(self, message)
+        self.node_actions.export()
         
 
     def remove_node(self):
-        remove = QMessageBox.question(self,
-                    "Remove Item",
-                    "Do you want to remove selected item?",
-                    QMessageBox.Yes | QMessageBox.No)
-        if remove == QMessageBox.Yes:        
-            result = model_manager.remove_node(self.TREE, self.MODEL)
-            message = "Item Removed" if result else "Item can not be Removed"
-            self.MAIN.show_notification(message)  
-            self.send_data_2_completer()
-            self._update_data_summary()  
-            self.TREE.setFocus()                  
+        self.node_actions.remove()
         
 
     def duplicate_node(self):
-        success = model_manager.duplicate_node(self.TREE, self.MODEL)
-        if success:
-            self.MAIN.show_notification(f"Item was duplicated.")  
-            self.TREE.setFocus()
+        self.node_actions.duplicate()
 
     def copy_node(self):
-        self.node_2_paste = model_manager.copy_node(self.TREE, self.MODEL)        
-        if self.node_2_paste: 
-            self.MAIN.show_notification(f"Item was copied to Clipboard.")  
-            self.TREE.setFocus()
-
-            # TODO: REFACTOR COUPLING
-            self.VIEW.action_paste.setEnabled(True)
+        self.node_actions.copy()
 
 
     def paste_node(self):
-        success = model_manager.paste_node(self.TREE, self.MODEL, self.node_2_paste)
-        if success:
-            self.MAIN.show_notification(f"Item {self.node_2_paste.text()} was inserted.") 
-            self.node_2_paste = None
-            self.send_data_2_completer
-            self.TREE.setFocus()
-            # TODO: REFACTOR COUPLING
-            self.VIEW.action_paste.setEnabled(False)
+        self.node_actions.paste()
 
 
     def edit_node_request(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-
-        if not selected_item or isinstance(selected_item, (ConditionFileNode, A2lFileNode, A2lNode, DspaceFileNode, DspaceDefinitionNode)):
-            self.MAIN.show_notification("Item is not Editable!")
-            return
-        
-        if isinstance(selected_item, RequirementModule) and selected_item in self._module_locker.locked_modules:
-            self.MAIN.show_notification("Module is being downloaded from Doors. Please wait...")
-            return
-        
-        self.form_edit_node = FormEditNode(selected_item, self)
+        self.node_actions.request_edit()
     
     
     @pyqtSlot()
     def edit_node_response(self):
-        self.MAIN.show_notification("Data Updated")
-        self._update_data_summary()
-        self.set_project_saved(False)
-        self.send_data_2_completer()
-        self.TREE.setFocus()
+        self.node_actions.edit_response()
 
 
     def move_node(self, direction):
-        model_manager.move_node(self.TREE, self.MODEL, direction)
-        self.send_data_2_completer()
-        self.set_project_saved(False)
-        self.TREE.setFocus()
+        self.node_actions.move(direction)
 
 
 
