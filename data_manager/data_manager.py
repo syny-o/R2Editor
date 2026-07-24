@@ -15,20 +15,18 @@ from data_manager.forms.form_add_module import FormAddModule
 from components.progress_bar.widget_modern_progress_bar import ModernProgressBar
 from components.template_test_case import TemplateTestCase
 from dialogs.dialog_message import dialog_message
-from doors.doors_connection import DoorsConnection
 import data_manager.forms.form_a2l_norm_report   
 import data_manager.forms.form_validate_html_report
 from data_manager import model_manager
 from components.module_locker import ModuleLocker
-from data_manager.forms.form_doors_inputs import FormDoorsInputs
 from data_manager.view.widget_view import View
 import data_manager.tree_walker as tree_walker
 from data_manager.coverage_worker import CoverageWorker
 from components.widgets.chart_bar import ChartBar
 from config.icon_manager import IconManager
 from components.decorator_logging_exeptions import logged_exc
-from data_manager.forms.form_req_data_comparasion import FormReqDataComparasion
 from data_manager.node_actions import NodeActions
+from data_manager.doors_actions import DoorsActions
 
 # from my_logging import logger
 # logger.debug(f"{__name__} --> Init")
@@ -61,6 +59,7 @@ class DataManager(QWidget, Ui_Form):
         self.ui_layout_tree.addWidget(self.VIEW)
         self.TREE = self.VIEW.uiDataTreeView  # TODO: REFACTOR
         self.node_actions = NodeActions(self)
+        self.doors_actions = DoorsActions(self)
 
         self.progress_bar = ModernProgressBar('rgb(0, 179, 0)', 'COVERED')
         # self.ui_layout_data_summary.addWidget(self.progress_bar)   
@@ -192,47 +191,18 @@ class DataManager(QWidget, Ui_Form):
     #####################################################################################################################################################        
 
     def _open_form_for_doors_connection_inputs(self, all_modules: bool) -> None:  # Button Update All Requirements or Update Module Context Menu
-        if self._module_locker.locked_modules:  # Dialog message when Doors is now connected  
-            dialog_message(self, "Requirements are being downloaded from Doors. Please wait...")
-            return   
-    
-        if not tree_walker.at_least_one_module_is_present(self.ROOT):
-            # dialog_message(self, "There are no Requirement Modules. Add at least one.")
-            self._open_add_requirement_module_form()
-            return
-        
-        self.form_doors_inputs = FormDoorsInputs(self, all_modules)
+        self.doors_actions.open_inputs_form(all_modules)
 
 
     @pyqtSlot(bool, str, str, str, str)
     def receive_inputs_from_doors_connection_form(self, all_modules, app_path, database_path, user_name, password):
-        if all_modules:  # if Button from Upper Menu was pushed (Update All Requirements)
-            for row in range(self.ROOT.rowCount()):
-                node = self.ROOT.child(row)
-                if isinstance(node, RequirementModule):
-                    self._module_locker.lock_module(node)
-        else:  # if Button from Context Menu was pushed (Update Module)
-            selected_item_index = self.TREE.currentIndex()
-            selected_item = self.MODEL.itemFromIndex(selected_item_index)
-            if isinstance(selected_item, RequirementModule):
-                self._module_locker.lock_module(selected_item)
-           
-        module_paths = []
-        module_columns = []
-        module_baselines = []
-        for node in self._module_locker.locked_modules:
-            module_paths.append(node.path)
-            module_columns.append(node.columns_names)
-            module_baselines.append(node.current_baseline)                
-        if module_paths and module_columns and module_baselines:
-            self._send_request_2_doors(app_path, database_path, user_name, password, module_paths, module_columns, module_baselines)
-
-
-
-    def _send_request_2_doors(self, app_path, database_path, user_name, password, module_paths, columns_names, baselines):
-        DoorsConnection(self, app_path, database_path, user_name, password, module_paths, columns_names, baselines)
-        self.update_progress_status(True, 'Initialising...')
-        self.uiBtnCheckCoverage.setEnabled(False)
+        self.doors_actions.receive_inputs(
+            all_modules,
+            app_path,
+            database_path,
+            user_name,
+            password,
+        )
 
 
     #####################################################################################################################################################
@@ -241,40 +211,7 @@ class DataManager(QWidget, Ui_Form):
 
     @pyqtSlot(str, str)
     def receive_data_from_doors(self, doors_output: str, timestamp: str):
-        data_4_form_comparasion = {}
-
-        global_success = True
-        if doors_output == "Connection Failed":
-            global_success = False
-            dialog_message(self, "Connecting to Doors Failed.\n\nPossible reasons:\n1. Invalid username/password\n2. Doors client is N/A\n3. Network issues.")
-
-        elif doors_output == "Doors Application not found":
-            global_success = False
-            dialog_message(self, "Doors Application (doors.exe) not found, check the path in the settings!")
-        
-  
-        else:
-            for module in self._module_locker.locked_modules:
-                success, message_or_data = module.receive_data_from_doors(doors_output, timestamp)
-                if not success:                     
-                    global_success = False
-                    dialog_message(self, message_or_data)
-                    break
-                self.set_project_saved(False)
-                if message_or_data:
-                    try:
-                        data_4_form_comparasion.update( { module.path : message_or_data } )  # {<module_path> : (dict_of_original_req_data, dict_of_new_req_data)}
-                    except Exception as my_exception:
-                        dialog_message(self, str(my_exception))
-                    
-
-        
-        self._module_locker.unlock_all_modules()
-        self._update_data_summary()
-        self.uiBtnCheckCoverage.setEnabled(True)
-        if global_success: 
-            # dialog_message(self, "Requirements have been updated successfully.", "Downloading from Doors finished")
-            self.form_comparasion = FormReqDataComparasion(data_4_form_comparasion)
+        self.doors_actions.receive_data(doors_output, timestamp)
 
 
     #####################################################################################################################################################
