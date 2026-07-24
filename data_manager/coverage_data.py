@@ -22,3 +22,23 @@ def apply_file_references(coverage, references_by_file):
         )
         if corrected_id in coverage:
             coverage[corrected_id] = list(script_paths)
+
+
+def covered_references(coverage):
+    return [
+        requirement_id
+        for requirement_id, script_paths in coverage.items()
+        if script_paths
+    ]
+
+
+def uncovered_references(coverage):
+    return [
+        requirement_id
+        for requirement_id, script_paths in coverage.items()
+        if not script_paths
+    ]
+
+
+def coverage_counts(coverage):
+    return len(covered_references(coverage)), len(coverage)

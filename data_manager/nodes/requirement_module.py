@@ -20,7 +20,10 @@ from data_manager.coverage_filter import (
 )
 from data_manager.coverage_data import (
     apply_file_references,
+    coverage_counts,
+    covered_references,
     toggle_script_reference,
+    uncovered_references,
 )
 from data_manager.requirement_tree_builder import append_nodes_by_level
 
@@ -73,16 +76,14 @@ class RequirementModule(QStandardItem):
 
     @property
     def number_of_covered_requirements(self):
-        count = 0
-        for v in self._coverage_dict.values():
-            if v:
-                count += 1
-        return count
+        covered_count, _ = coverage_counts(self._coverage_dict)
+        return covered_count
 
 
     @property
     def number_of_calculated_requirements(self):
-        return len(self._coverage_dict)
+        _, calculated_count = coverage_counts(self._coverage_dict)
+        return calculated_count
 
     
     @property
@@ -92,11 +93,11 @@ class RequirementModule(QStandardItem):
 
     @property
     def covered_requirements(self):
-        return [k for k, v in self._coverage_dict.items() if v]
+        return covered_references(self._coverage_dict)
     
     @property
     def not_covered_requirements(self):
-        return [k for k, v in self._coverage_dict.items() if not v]
+        return uncovered_references(self._coverage_dict)
     
     @property
     def ignored_requirements(self):
