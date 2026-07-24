@@ -1,15 +1,11 @@
 from importlib import reload
 from pathlib import Path
-from data_manager.nodes import a2l_nodes, dspace_nodes, requirement_module
 from ui.model_editor_ui import Ui_Form
 import json, re
 from PyQt5.QtWidgets import QWidget, QFileDialog, QInputDialog, QLabel, QAction, QLineEdit, QShortcut, QMessageBox, QListWidgetItem
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QStandardItemModel, QColor, QPainter
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QThreadPool, QPropertyAnimation, QEasingCurve
-from data_manager.nodes.condition_file import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
-from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
-from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
-from data_manager.nodes import condition_file
+from data_manager.nodes.a2l_nodes import A2lFileNode
 from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
 from data_manager.forms.form_add_module import FormAddModule
 from components.progress_bar.widget_modern_progress_bar import ModernProgressBar
@@ -27,6 +23,8 @@ from config.icon_manager import IconManager
 from components.decorator_logging_exeptions import logged_exc
 from data_manager.node_actions import NodeActions
 from data_manager.doors_actions import DoorsActions
+from data_manager.html_report_checker import classify_references
+from data_manager.project_data_controller import ProjectDataController
 
 # from my_logging import logger
 # logger.debug(f"{__name__} --> Init")
@@ -60,6 +58,7 @@ class DataManager(QWidget, Ui_Form):
         self.TREE = self.VIEW.uiDataTreeView  # TODO: REFACTOR
         self.node_actions = NodeActions(self)
         self.doors_actions = DoorsActions(self)
+        self.project_data_controller = ProjectDataController(self)
 
         self.progress_bar = ModernProgressBar('rgb(0, 179, 0)', 'COVERED')
         # self.ui_layout_data_summary.addWidget(self.progress_bar)   
@@ -105,12 +104,7 @@ class DataManager(QWidget, Ui_Form):
 
 
     def receive_data_from_drop_or_file_manager(self, data):
-        condition_file.initialise(data, self.ROOT)
-        dspace_nodes.initialise(data, self.ROOT)
-        a2l_nodes.initialise(data, self.ROOT)
-        self.MAIN.show_notification(f"Data Updated")   
-        self.send_data_2_completer() 
-        self.TREE.setCurrentIndex(self.MODEL.indexFromItem(self.ROOT.child(0)))
+        self.project_data_controller.import_files(data)
 
 
     ################################################################################################
@@ -118,59 +112,27 @@ class DataManager(QWidget, Ui_Form):
     ################################################################################################
 
     def _set_project_path(self):
-        folder = QFileDialog.getExistingDirectory(self, "Set Project Path", "", QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks)
-        if folder:
-            self.PROJECT_MANAGER.receive_parameters_from_listeners(dict(disk_project_path=folder))
-            return True
-        return False
+        return self.project_data_controller.choose_project_path()
     
 
     # @interface --> PROJECT MANAGER
     def set_project_saved(self, is_modified: bool) -> None:
-        self.PROJECT_MANAGER.receive_parameters_from_listeners(dict(is_project_saved=is_modified))
+        self.project_data_controller.set_project_saved(is_modified)
 
 
     @pyqtSlot(dict)
     def receive_data_from_project_manager(self, data: dict):
-
-        self.ROOT.removeRows(0, self.ROOT.rowCount())
-
-        condition_file.initialise(data, self.ROOT)
-        dspace_nodes.initialise(data, self.ROOT)
-        a2l_nodes.initialise(data, self.ROOT)
-        requirement_module.initialise(data, self.ROOT)   
-        self.TREE.setCurrentIndex(self.MODEL.indexFromItem(self.ROOT.child(0)))     
-
-        self._update_data_summary()
-        self.send_data_2_completer()  
-        self.set_project_saved(True)
+        self.project_data_controller.receive_project_data(data)
 
 
     @pyqtSlot(dict)
     def receive_parameters_from_project_manager(self, parameters: dict):
-        self.ui_lab_project_path.setText(parameters["disk_project_path"])
+        self.project_data_controller.receive_project_parameters(parameters)
 
 
     @pyqtSlot(dict)
     def provide_data_4_project_manager(self):
-        data = {
-            'Conditions Files': [],
-            'DSpace Files': [],
-            'A2L Files': [],
-            'REQUIREMENT MODULES': [],
-        }
-        for row in range(self.ROOT.rowCount()):
-            current_node = self.ROOT.child(row)  # get node object
-            received_data = current_node.data_4_project(data)
-            data.update(received_data)
-            # if con/dspace file is modified, save it
-            if isinstance(current_node, (ConditionFileNode, DspaceFileNode)):
-                if current_node.is_modified:
-                    success, message = model_manager.export_file(current_node)
-                    if not success:
-                        dialog_message(self, message)
-
-        return data
+        return self.project_data_controller.provide_project_data()
 
 
     #####################################################################################################################################################
@@ -488,16 +450,16 @@ class DataManager(QWidget, Ui_Form):
         except Exception as my_exception:
             dialog_message(self, str(my_exception))                      
                 
-        missing_requirements, covered_requirements = [], []
-
+        references = []
         for row in range(self.ROOT.rowCount()):
             file_node = self.ROOT.child(row)
             if isinstance(file_node, RequirementModule) and file_node.coverage_filter:
-                for k in file_node.coverage_dict.keys():
-                    if k.lower() in html_report_string.lower():
-                        covered_requirements.append(k)
-                    else:
-                        missing_requirements.append(k)
+                references.extend(file_node.coverage_dict.keys())
+
+        missing_requirements, _ = classify_references(
+            html_report_string,
+            references,
+        )
 
         self.form = data_manager.forms.form_validate_html_report.FormValidatedHTMLReport(self, missing_requirements)
 
