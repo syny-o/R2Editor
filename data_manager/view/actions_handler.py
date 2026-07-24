@@ -3,7 +3,8 @@ from typing import Callable
 from PyQt5.QtCore import Qt, QItemSelection
 from PyQt5.QtWidgets import QPushButton, QAction, QMenu, QLineEdit, QComboBox
 from PyQt5.QtGui import QStandardItem
-from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
+from data_manager.nodes.requirement_module import RequirementModule
+from data_manager.nodes.requirement_node import RequirementNode
 from data_manager.nodes.condition_file import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
 from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
 from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode

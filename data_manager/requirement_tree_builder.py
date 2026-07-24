@@ -1,3 +1,10 @@
+def iter_descendants(root):
+    for row in range(root.rowCount()):
+        node = root.child(row)
+        yield node
+        yield from iter_descendants(node)
+
+
 def append_nodes_by_level(root, nodes):
     last_level = 0
     parents = []

@@ -22,10 +22,17 @@ from data_manager.coverage_data import (
     apply_file_references,
     coverage_counts,
     covered_references,
+    ignored_references_outside_coverage,
+    normalize_ignored_references,
+    normalize_requirement_notes,
+    remove_ignored_references,
     toggle_script_reference,
     uncovered_references,
 )
-from data_manager.requirement_tree_builder import append_nodes_by_level
+from data_manager.requirement_tree_builder import (
+    append_nodes_by_level,
+    iter_descendants,
+)
 
 import qtawesome as qta
 
@@ -46,16 +53,11 @@ class RequirementModule(QStandardItem):
         self.columns_names = columns_names
         self.coverage_filter = coverage_filter        
         self.timestamp = update_time
-        self.ignore_list = set(ignore_list) if ignore_list else set()
-
-        # TODO: Double Check
-        self.ignore_list = [item.lower() for item in self.ignore_list]
-        self.ignore_list.sort()
+        self.ignore_list = normalize_ignored_references(ignore_list)
 
         self.attributes = attributes or []
         self.baseline = baseline or {}
-        self.notes = notes or {}
-        self.notes = {k.lower(): v for k, v in self.notes.items()}
+        self.notes = normalize_requirement_notes(notes)
         self._coverage_dict = coverage_dict or {}
         self.current_baseline = current_baseline        
         
@@ -115,12 +117,8 @@ class RequirementModule(QStandardItem):
 
     # PROJDE VSECHNY REQUIREMENTY VE STROME A UPDATUJE JEJICH IKONU DLE COVERAGE SLOVNIKU
     def update_icons_according_to_coverage(self):
-        def browse_children(parent_node):                
-            for row in range(parent_node.rowCount()):
-                requirement_node = parent_node.child(row)
-                requirement_node.update_icon()                
-                browse_children(requirement_node)                
-        browse_children(self)    
+        for requirement_node in iter_descendants(self):
+            requirement_node.update_icon()
 
 
 
@@ -206,10 +204,12 @@ class RequirementModule(QStandardItem):
 
             # HANDLE IGNORED ITEMS
             # 1a. GATHER ALL IGNORED ITEMS FROM IGNORE LIST WHICH ARE NOT IN COVERAGE DICT (so the filter is not valid anymore for them)
-            ignored_items_which_does_not_meet_filter = []
-            for ignored_item in self.ignore_list:
-                if ignored_item not in self._coverage_dict:
-                    ignored_items_which_does_not_meet_filter.append(ignored_item)
+            ignored_items_which_does_not_meet_filter = (
+                ignored_references_outside_coverage(
+                    self.ignore_list,
+                    self._coverage_dict,
+                )
+            )
 
             # 1b ASK FOR ITEM REMOVAL
             self.remove_ignored_items_which_does_not_meet_filter(ignored_items_which_does_not_meet_filter)
@@ -234,11 +234,11 @@ class RequirementModule(QStandardItem):
                                              QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         
         if remove_answer == QMessageBox.Yes:
-            for ignored_item in ignored_items_which_does_not_meet_filter:
-                if ignored_item in self.ignore_list:
-                    self.ignore_list.remove(ignored_item)
-                if ignored_item in self.notes:
-                    self.notes.pop(ignored_item)
+            remove_ignored_references(
+                self.ignore_list,
+                self.notes,
+                ignored_items_which_does_not_meet_filter,
+            )
 
 
     def remove_coverage_filter(self):

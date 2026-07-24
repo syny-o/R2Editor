@@ -1,3 +1,6 @@
+from data_manager.requirement_tree_builder import iter_descendants
+
+
 def translate_coverage_filter(filter_string, column_names):
     translated = filter_string.strip()
     indexed_names = enumerate(column_names)
@@ -16,14 +19,8 @@ def translate_coverage_filter(filter_string, column_names):
 
 def matching_references(root, translated_filter):
     references = []
-
-    def browse_children(parent):
-        for row in range(parent.rowCount()):
-            item = parent.child(row)
-            column = item.columns_data
-            if eval(translated_filter):
-                references.append(item.reference.lower())
-            browse_children(item)
-
-    browse_children(root)
+    for item in iter_descendants(root):
+        column = item.columns_data
+        if eval(translated_filter):
+            references.append(item.reference.lower())
     return references

@@ -5,7 +5,8 @@ from dialogs.dialog_message import dialog_message
 from ui.form_general_ui import Ui_Form
 
 
-from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
+from data_manager.nodes.requirement_module import RequirementModule
+from data_manager.nodes.requirement_node import RequirementNode
 from data_manager.nodes.condition_file import ConditionNode, ValueNode, TestStepNode
 from data_manager.nodes.dspace_nodes import DspaceVariableNode
 

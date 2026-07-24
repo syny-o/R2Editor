@@ -1,6 +1,9 @@
 import unittest
 
-from data_manager.requirement_tree_builder import append_nodes_by_level
+from data_manager.requirement_tree_builder import (
+    append_nodes_by_level,
+    iter_descendants,
+)
 
 
 class FakeNode:
@@ -11,6 +14,12 @@ class FakeNode:
 
     def appendRow(self, node):
         self.children.append(node)
+
+    def rowCount(self):
+        return len(self.children)
+
+    def child(self, row):
+        return self.children[row]
 
 
 class RequirementTreeBuilderTests(unittest.TestCase):
@@ -46,6 +55,19 @@ class RequirementTreeBuilderTests(unittest.TestCase):
         append_nodes_by_level(root, [])
 
         self.assertEqual(root.children, [])
+
+    def test_iterates_descendants_in_depth_first_order(self):
+        root = FakeNode('root')
+        first = FakeNode('first', 1)
+        first_child = FakeNode('first-child', 2)
+        second = FakeNode('second', 1)
+        first.appendRow(first_child)
+        root.appendRow(first)
+        root.appendRow(second)
+
+        result = [node.name for node in iter_descendants(root)]
+
+        self.assertEqual(result, ['first', 'first-child', 'second'])
 
 
 if __name__ == '__main__':
