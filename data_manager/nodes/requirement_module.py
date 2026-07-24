@@ -31,36 +31,6 @@ import qtawesome as qta
 # logger.debug(f"{__name__} --> Init")
 
 
-def initialise(data: dict, root_node):
-
-    requirement_modules = data.get('REQUIREMENT MODULES')
-
-    for requirement_module in requirement_modules:
-        path = requirement_module.get("path")
-        update_time = requirement_module.get("update_time")
-        columns_names = requirement_module.get("columns")
-        attributes = requirement_module.get("attributes")
-        baseline = requirement_module.get("baseline")
-        coverage_filter = requirement_module.get("coverage_filter")
-        coverage_dict = requirement_module.get("coverage_dict")
-        ignore_list = requirement_module.get("ignore_list")
-        notes = requirement_module.get("notes")
-        data = requirement_module.get("requirements")
-        current_baseline = requirement_module.get("current_baseline")
-        column_number_as_identifier = requirement_module.get("column_number_as_identifier")
-
-        if path and data:
-            r = RequirementModule(root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline, column_number_as_identifier)
-            r.create_tree_from_requirements_data(data, update_time)
-            root_node.appendRow(r)  # APPEND NODE AS A CHILD
-            r.update_icons_according_to_coverage()
-            
-        elif not data:
-            r = RequirementModule(root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline, column_number_as_identifier)
-            root_node.appendRow(r)  # APPEND NODE AS A CHILD     
-
-
-
 class RequirementModule(QStandardItem):
     def __init__(self, root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline, column_number_as_identifier):
         super().__init__()

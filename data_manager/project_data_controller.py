@@ -6,8 +6,8 @@ from data_manager.nodes import (
     a2l_nodes,
     condition_file,
     dspace_nodes,
-    requirement_module,
 )
+from data_manager import requirement_module_loader
 from data_manager.nodes.condition_file import ConditionFileNode
 from data_manager.nodes.dspace_nodes import DspaceFileNode
 from dialogs.dialog_message import dialog_message
@@ -53,7 +53,7 @@ class ProjectDataController:
         condition_file.initialise(data, manager.ROOT)
         dspace_nodes.initialise(data, manager.ROOT)
         a2l_nodes.initialise(data, manager.ROOT)
-        requirement_module.initialise(data, manager.ROOT)
+        requirement_module_loader.initialise(data, manager.ROOT)
         self._select_first_root_item()
         manager._update_data_summary()
         manager.send_data_2_completer()
