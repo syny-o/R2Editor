@@ -627,15 +627,6 @@ TextEdit{
 
 
 
-NotificationWidget{
-    background-color: rgb(RGB_MAIN);
-    color: rgb(200, 200, 200);
-}
-
-NotificationWidget QLabel{
-    color: rgb(200, 200, 200);
-}
-
 QDialog QPushButton{
     background-color: rgb(RGB_BACKGROUND_2);
     padding: 10px 25px;
