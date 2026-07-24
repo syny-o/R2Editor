@@ -1,15 +1,11 @@
 from pathlib import Path
-
 from PyQt5.QtWidgets import QWidget, QFileSystemModel, QShortcut
-from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal, QDir, QTimer
-from PyQt5.QtGui import QFont, QIcon
-
+from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QDir
 from ui.file_system_ui import Ui_Form
 from file_browser.context_menu import FileBrowserContextMenu
 from file_browser.form_find_replace import FindAndReplace
 from file_browser.file_browser_actions import FileBrowserActions
 from dialogs.dialog_message import dialog_message
-
 from components.widgets.widgets_pointing_hand import TreeViewPointingHand
 from config.icon_manager import IconManager
 
@@ -66,8 +62,6 @@ class FileSystemView(QWidget, Ui_Form):
 
 
 
-
-
     ########################################################################################################################################################
     # @INTERFACE WITH PROJECT MANAGER
     ########################################################################################################################################################
@@ -114,9 +108,6 @@ class FileSystemView(QWidget, Ui_Form):
 
     ########################################################################################################################################################        
     ########################################################################################################################################################   
-
-
-
 
 
     def _connect_project_folder(self, path: str):        
@@ -166,18 +157,6 @@ class FileSystemView(QWidget, Ui_Form):
         self.tree.setExpanded(index, False) if self.tree.isExpanded(index) else self.tree.setExpanded(index, True)
 
 
-    
-    
-
-
-    ########################################################################################################################################################
-    ##################################################   CONTEXT MENU START  ###################################################################
-    ########################################################################################################################################################    
-
-
-    ########################################################################################################################################################
-    ##################################################   FILE / FOLDER MANAGEMENT START  ###################################################################
-    ########################################################################################################################################################    
 
 
     def refresh_root_path(self):
@@ -188,12 +167,7 @@ class FileSystemView(QWidget, Ui_Form):
         self.model.setRootPath(self.model.rootPath())
         self.tree.setModel(self.model)
         self.tree.sortByColumn(0, Qt.AscendingOrder)
-
-
-
-    ########################################################################################################################################################
-    ##################################################   FILE / FOLDER MANAGEMENT END  #####################################################################
-    ########################################################################################################################################################                   
+             
 
 
 
