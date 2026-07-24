@@ -2,10 +2,10 @@ from importlib import reload
 from pathlib import Path
 from data_manager.nodes import a2l_nodes, dspace_nodes, requirement_module
 from ui.model_editor_ui import Ui_Form
-import json, re, os
+import json, re
 from PyQt5.QtWidgets import QWidget, QFileDialog, QInputDialog, QLabel, QAction, QLineEdit, QShortcut, QMessageBox, QListWidgetItem
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QStandardItemModel, QColor, QPainter
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QObject, QRunnable, QThreadPool, QPropertyAnimation, QEasingCurve
+from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QThreadPool, QPropertyAnimation, QEasingCurve
 from data_manager.nodes.condition_file import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
 from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
 from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
@@ -24,7 +24,7 @@ from components.module_locker import ModuleLocker
 from data_manager.forms.form_doors_inputs import FormDoorsInputs
 from data_manager.view.widget_view import View
 import data_manager.tree_walker as tree_walker
-from data_manager.requirement_references import extract_requirement_references
+from data_manager.coverage_worker import CoverageWorker
 from components.widgets.chart_bar import ChartBar
 from config.icon_manager import IconManager
 from components.decorator_logging_exeptions import logged_exc
@@ -314,7 +314,7 @@ class DataManager(QWidget, Ui_Form):
             if not succes: return
         
         self.uiBtnCheckCoverage.setEnabled(False)        
-        worker = Worker(self)
+        worker = CoverageWorker(self)
         self.threadpool.start(worker)
 
 
@@ -632,60 +632,3 @@ class DataManager(QWidget, Ui_Form):
                 if FOUND_NODE:
                     self.TREE.setCurrentIndex(FOUND_NODE.index())
                     self.TREE.scrollTo(FOUND_NODE.index())
-
-
-    
-
-
-
-
-
-   
-####################################################################################################################
-# COVERAGE CHECK --> PHYSICAL CHECK OF FILES ON DISK:
-####################################################################################################################
-
-class Worker(QRunnable):
-    def __init__(self, data_manager):
-        super().__init__()
-        self.data_manager = data_manager
-        self.signals = WorkerSignals()
-        self.signals.status.connect(data_manager.update_progress_status)
-        self.signals.finished.connect(data_manager.check_coverage)        
-
-
-    @pyqtSlot()
-    def run(self):
-        reference_dict = {}       
-        for root, dirs, files in os.walk(self.data_manager.PROJECT_MANAGER.disk_project_path()):
-            for filename in files:
-                if filename.endswith((".par", ".txt")):
-                    full_path = Path(root) / Path(filename)
-                    full_path = str(full_path)
-
-                    self.signals.status.emit(True, f"Checking: <{full_path}>")
-
-                    try:
-                        with open(full_path, 'r', encoding="utf8") as f:
-                            text = f.read()
-                    except UnicodeDecodeError:
-                        with open(full_path, 'r', encoding="latin1") as f:
-                            text = f.read()
-                    except Exception as my_exception:
-                        with open("error_log_requirement_coverage.txt", "w") as f:
-                            f.write(str(my_exception) + "\n" + full_path)
-                        continue
-
-                    references = extract_requirement_references(text)
-                    for reference in references:
-                        reference_dict.setdefault(reference, set()).add(full_path)
-        
-        self.signals.status.emit(False, "Updating coverage, please wait...")
-        self.signals.finished.emit(reference_dict)
-
-
-
-
-class WorkerSignals(QObject):
-    finished = pyqtSignal(dict)
-    status = pyqtSignal(bool, str)
