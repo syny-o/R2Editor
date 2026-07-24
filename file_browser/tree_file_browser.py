@@ -1,10 +1,11 @@
 from pathlib import Path
 
-from PyQt5.QtWidgets import QWidget, QFileSystemModel, QMenu, QShortcut
+from PyQt5.QtWidgets import QWidget, QFileSystemModel, QShortcut
 from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal, QDir, QTimer
-from PyQt5.QtGui import QFont, QIcon, QCursor
+from PyQt5.QtGui import QFont, QIcon
 
 from ui.file_system_ui import Ui_Form
+from file_browser.context_menu import FileBrowserContextMenu
 from file_browser.form_find_replace import FindAndReplace
 from file_browser.file_browser_actions import FileBrowserActions
 from dialogs.dialog_message import dialog_message
@@ -29,6 +30,7 @@ class FileSystemView(QWidget, Ui_Form):
         self.MAIN = main_window
         self.PROJECT_MANAGER = project_manager
         self.actions = FileBrowserActions(self)
+        self.context_menu = FileBrowserContextMenu(self)
 
         self.send_file_path.connect(main_window.document_actions.open_path)
 
@@ -60,7 +62,7 @@ class FileSystemView(QWidget, Ui_Form):
         
         ################## CONTEXT MENU ###########################
         self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.tree.customContextMenuRequested.connect(self._context_menu)
+        self.tree.customContextMenuRequested.connect(self.context_menu.show)
 
 
 
@@ -171,71 +173,6 @@ class FileSystemView(QWidget, Ui_Form):
     ########################################################################################################################################################
     ##################################################   CONTEXT MENU START  ###################################################################
     ########################################################################################################################################################    
-
-
-    def _context_menu(self, point):
-        index = self.tree.indexAt(point)
-        if not index.isValid():
-            return
-        file_path = index.model().filePath(index)
-        file_suffix = Path(file_path).suffix
-        is_directory = index.model().isDir(index)
-        menu = QMenu()
-        # # ACTION NEW FILE
-        if is_directory:
-            action_create_file = menu.addAction(QIcon(u"ui/icons/file-new.png"), 'New File')
-            action_create_file.triggered.connect(
-                lambda: self.actions.create_file(index)
-            )
-        # ACTION NEW FOLDER
-            action_create_folder = menu.addAction(QIcon(u"ui/icons/folder-new.png"), 'New Folder')
-            action_create_folder.triggered.connect(
-                lambda: self.actions.create_folder(index)
-            )
-            menu.addSeparator()
-        # ACTION RENAME
-        action_rename = menu.addAction(QIcon(u"ui/icons/16x16/cil-description.png"), 'Rename..')
-        action_rename.triggered.connect(self.actions.rename)
-        action_rename.setShortcut('F2')
-
- 
-
-        if is_directory:
-            menu.addSeparator()
-            action_find_replace_in_folder = menu.addAction(QIcon(u"ui/icons/16x16/cil-magnifying-glass.png"), 'Find and Replace in Folder')
-            action_find_replace_in_folder.triggered.connect(lambda: self._open_find_replace_dialog(file_path))
-            menu.addSeparator()
-            # ACTION SET PROJECT LOCATION
-            action_set_project_location = menu.addAction(QIcon(u"ui/icons/16x16/cil-layers.png"), 'Set as Project Location')
-            action_set_project_location.triggered.connect(lambda: self._user_connected_path(file_path))
-        
-
-        # ACTION CREATE COPY OF SCRIPT (DUPLICATE)
-        if file_suffix.lower() in ('.par', '.txt'):
-            action_duplicate_script = menu.addAction(QIcon(u"ui/icons/20x20/cil-copy.png"), 'Create Copy')                     
-            action_duplicate_script.triggered.connect(
-                lambda: self.actions.duplicate_script(file_path)
-            )
-
-        if (file_suffix.lower() in ('.con','.xml','.a2l')) or file_path.lower().endswith('.py'): 
-            # ACTION ADD TO MODEL
-            menu.addSeparator()
-            action_add_to_model = menu.addAction(QIcon(u"ui/icons/16x16/cil-dialpad.png"), 'Add to Model')   
-            action_add_to_model.triggered.connect(lambda: self._send_file_to_model(file_path))                        
-
-        if file_suffix.lower() in ('.par', '.txt') or is_directory:
-            # ACTION NORMALISE SCRIPT(S)
-            menu.addSeparator()
-            action_normalise_file = menu.addAction(QIcon(u"ui/icons/16x16/cil-chart-line.png"), 'Normalise Script(s)')                     
-            action_normalise_file.triggered.connect(lambda: self._normalise_script(file_path))                
-
-        # ACTION DELETE
-        menu.addSeparator()
-        action_delete = menu.addAction(QIcon(u"ui/icons/20x20/cil-trash.png"), 'Delete')
-        action_delete.triggered.connect(self.actions.delete)
-        # action_delete.setShortcut('Del')    
-
-        menu.exec_(QCursor().pos())
 
 
     ########################################################################################################################################################
