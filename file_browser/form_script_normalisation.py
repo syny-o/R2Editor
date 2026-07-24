@@ -1,14 +1,22 @@
-import os, re, stat
 from pathlib import Path
 
-from PyQt5.QtWidgets import QWidget, QLineEdit, QLabel, QCheckBox, QTextEdit, QPlainTextEdit, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtCore import Qt, QObject, pyqtSignal, pyqtSlot, QSettings, QRunnable, QThreadPool
+from PyQt5.QtWidgets import (
+    QLabel,
+    QPlainTextEdit,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QWidget,
+)
+from PyQt5.QtCore import Qt, pyqtSlot, QThreadPool
 
 from ui.form_general_ui import Ui_Form
 from components.reduce_path_string import reduce_path_string
 
-from config.pbc_patterns_scripts import patterns
 from dialogs.dialog_message import dialog_message
+from file_browser.script_normalizer import normalize_script_text
+from file_browser.script_normalization_worker import (
+    ScriptNormalizationWorker,
+)
 
 
 
@@ -69,8 +77,6 @@ class ScriptNormReport(QWidget, Ui_Form):
   
     def _normalise_one_script(self):
 
-        results = []
-
         try:
             with open(self.path, 'r') as file:
                 text = file.read()
@@ -78,20 +84,7 @@ class ScriptNormReport(QWidget, Ui_Form):
             dialog_message(self, f"Error while opening {self.path}: {e}")
             return
 
-        for key, value in patterns.items():
-            # find all matches for each variable
-            pattern = key
-            iterations = pattern.finditer(text)
-
-            for i in iterations:
-
-                string_to_replace = i.group()
-                # print(string_to_replace)
-
-                if string_to_replace != value:
-                    text = text.replace(string_to_replace, value)
-
-                    results.append( (string_to_replace, value) )
+        text, results = normalize_script_text(text)
             
         try:
             with open(self.path, 'w') as file:
@@ -143,7 +136,12 @@ class ScriptNormReport(QWidget, Ui_Form):
         self.uiLabProgressStatus = QLabel()
         self.uiMainLayout_1.addWidget(self.uiLabProgressStatus) 
 
-        worker = Worker(self)
+        worker = ScriptNormalizationWorker(self.path)
+        worker.signals.current_file.connect(self.update_progress_status)
+        worker.signals.replacements.connect(
+            self.create_ui_output_from_multiple_scripts
+        )
+        worker.signals.finished.connect(self.finished)
         self.threadpool.start(worker)
 
 
@@ -182,96 +180,4 @@ class ScriptNormReport(QWidget, Ui_Form):
             for r in replacements:
                 temp_item = QTreeWidgetItem(item)
                 temp_item.setText(0, f"{r[0]}   -->   {r[1]}")
-
-
-
-
-
-
-
-class Worker(QRunnable):
-
-    def __init__(self, form):
-        super().__init__()
-        self.form = form
-        self.signals = WorkerSignals()
-        self.signals.current_file.connect(form.update_progress_status)
-        self.signals.replacements.connect(form.create_ui_output_from_multiple_scripts)
-        self.signals.finished.connect(form.finished) 
-
-
-
-    @pyqtSlot()
-    def run(self):
-
-        for root, dirs, files in os.walk(self.form.path):
-            for filename in files:
-                if filename.endswith((".par", ".txt")):
-
-                    full_path = (root + '\\' + filename)
-
-                    self.signals.current_file.emit(full_path)
-                    
-                    # Check if the file ReadOnly and if so, unlock it:
-                    is_read_only = not(os.access(full_path, os.W_OK))
-                    if is_read_only:
-                        os.chmod(full_path, stat.S_IWRITE)
-
-                    with open(full_path, 'r') as f:
-                        text = f.read()
-
-                    
-                    l = []
-
-                    for key, value in patterns.items():
-                        # find all matches for each variable
-                        pattern = key
-                        iterations = pattern.finditer(text)
-
-                        for i in iterations:
-
-                            string_to_replace = i.group()
-                            # print(string_to_replace)
-
-                            if string_to_replace != value:
-                                text = text.replace(string_to_replace, value)
-
-                                l.append( (string_to_replace, value) )
-
-                        
-                        
-                    if l:
-                        # results[full_path] = l
-                        self.signals.replacements.emit(full_path, l) 
-
-
-
-                    with open(full_path, 'w') as f:
-                        f.write(text)
-
-                    # lock the file to be ReadOnly back again
-                    if is_read_only:
-                        os.chmod(full_path, stat.S_IREAD)
-
-
-
-                    
-                    
-
-        self.signals.finished.emit()
-        
-        # text = re.sub(r"""_?PbcOut(Debug)?\.?_?FaultStatus.?[_\[]?(?P<number>\d\d)\]?_?""", r"""PbcOutFaultStatus_\g<number>""", text)
-
-        # text = re.sub(r"""_?PbcOut(Debug)?\.?_?FaultStatus.?[_\[]?(?P<number>\d)(?!\d)\]?_?""", r"""PbcOutFaultStatus_0\g<number>""", text)
-
-
-
-
-
-
-class WorkerSignals(QObject):
-    replacements = pyqtSignal(str, list)
-    current_file = pyqtSignal(str)  
-    finished = pyqtSignal()      
-
 

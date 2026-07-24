@@ -1,16 +1,14 @@
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QColor, QPalette, QTextCursor
+from PyQt5.QtGui import QColor, QPalette
 from PyQt5.QtWidgets import QPlainTextEdit
-
 from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighter
 from components.text_functions import get_word_under_cursor
 from config.font import font
-from text_editor import editor_actions
 from text_editor.code_editor import CodeEditor
 from text_editor.completer import Completer
-from text_editor.completion_rules import completion_model_name
+from text_editor.completion_controller import CompletionController
+from text_editor.editor_key_handler import EditorKeyHandler
 from text_editor.file_access import is_file_read_only
-from text_editor.text_operations import completion_context
 
 
 class TextEdit(CodeEditor):
@@ -52,12 +50,20 @@ class TextEdit(CodeEditor):
 
         self.completer = Completer(self)
         self.completer.setWidget(self)
+        self.completion_controller = CompletionController(
+            self,
+            self.completer,
+        )
+        self.key_handler = EditorKeyHandler(
+            self,
+            self.completer,
+            self.completion_controller,
+        )
         self.completer.insert_text.connect(self.insert_completion)
         self.completer.popup_hidden.connect(self._clear_pending_special_char)
-        self.delete_special_char_after_completion = False
 
     def _clear_pending_special_char(self):
-        self.delete_special_char_after_completion = False
+        self.completion_controller.clear_pending_special_char()
 
     def update_syntax_highlighter(
         self,
@@ -80,23 +86,7 @@ class TextEdit(CodeEditor):
         self.signal_modified_file_content.emit(self, is_modified)
 
     def update_completion_context(self):
-        cursor = self.textCursor()
-        actual_text = completion_context(
-            cursor.block().text(),
-            cursor.positionInBlock(),
-            cursor.hasSelection(),
-        )
-        condition_names = self.completer.cond_dict if self.completer.cond_model else ()
-        model_name = completion_model_name(actual_text, condition_names)
-        graph_variables = ()
-        if model_name == 'graph_variables':
-            graph_variables = editor_actions.graph_variables_at_cursor(self)
-
-        self.completer.set_context_model(
-            model_name,
-            actual_text=actual_text,
-            graph_variables=graph_variables,
-        )
+        self.completion_controller.update_context()
 
     def keyReleaseEvent(self, event):
         self.signal_clicked_on_text_edit.emit(self)
@@ -106,82 +96,13 @@ class TextEdit(CodeEditor):
         return super().keyReleaseEvent(event)
 
     def _handle_basic_editing_key(self, event):
-        key = event.key()
-        is_enter = key in (Qt.Key_Return, Qt.Key_Enter)
-
-        if key == Qt.Key_Escape:
-            cursor = self.textCursor()
-            cursor.clearSelection()
-            self.setTextCursor(cursor)
-            self.completer.popup().hide()
-            self._clear_pending_special_char()
-            return True
-
-        if is_enter and self.completer.popup().isVisible():
-            selected_completion = self.completer.get_selected()
-            if selected_completion:
-                self.completer.insert_text.emit(selected_completion)
-                return True
-            self.completer.popup().hide()
-
-        if is_enter:
-            editor_actions.add_new_line_indent(self)
-            return True
-
-        if key == Qt.Key_Backtab:
-            editor_actions.indent_or_dedent(self, 'dedent')
-            return True
-
-        if key == Qt.Key_Tab:
-            editor_actions.indent_or_dedent(self, 'indent')
-            return True
-
-        if event.modifiers() & Qt.ShiftModifier and key == Qt.Key_Home:
-            editor_actions.key_home_press(self, keep_anchor=True)
-            return True
-
-        if key == Qt.Key_Home:
-            editor_actions.key_home_press(self)
-            return True
-
-        if key == Qt.Key_Equal and self.completer.context_name == 'values':
-            self.textCursor().insertText('=')
-            self.completer.show_popup('')
-            return True
-
-        return False
+        return self.key_handler.handle_basic_editing_key(event)
 
     def _show_completion_for_cursor(self, cursor, empty_prefix_models):
-        selected_text = cursor.selectedText()
-        if (
-            not selected_text
-            and (
-                not cursor.block().text().strip()
-                or self.completer.context_name in empty_prefix_models
-            )
-        ):
-            self.completer.show_popup("")
-            return
-
-        special_prefixes = {
-            '"': (' "', 2),
-            ',': (' ,', 2),
-            ')': (' )"', 3),
-        }
-        for prefix, (replacement, move_left) in special_prefixes.items():
-            if selected_text.startswith(prefix):
-                self.delete_special_char_after_completion = True
-                cursor.insertText(replacement)
-                cursor.movePosition(QTextCursor.Left, QTextCursor.MoveAnchor, move_left)
-                self.setTextCursor(cursor)
-                cursor.select(QTextCursor.WordUnderCursor)
-                self.completer.show_popup(cursor.selectedText())
-                return
-
-        if selected_text:
-            self.completer.show_popup(selected_text)
-        else:
-            self.completer.popup().hide()
+        self.completion_controller.show_for_cursor(
+            cursor,
+            empty_prefix_models,
+        )
 
     def _handle_visible_completion(self, event):
         if not self.completer.popup().isVisible():
@@ -234,15 +155,4 @@ class TextEdit(CodeEditor):
         super().keyPressEvent(event)
 
     def insert_completion(self, completion):
-        cursor = self.textCursor()
-        get_word_under_cursor(cursor)
-        cursor.insertText(completion)
-
-        if self.delete_special_char_after_completion:
-            self.delete_special_char_after_completion = False
-            cursor.deleteChar()
-        self.setTextCursor(cursor)
-
-        editor_actions.format_assignment_at_cursor(self)
-        editor_actions.complete_special_command(self)
-        self.completer.popup().hide()
+        self.completion_controller.insert(completion)
