@@ -4,7 +4,6 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from app_settings import AppSettings
 from application_lifecycle import ApplicationLifecycle
-from components.notification_widget import NotificationWidget
 from config.settings_controller import SettingsController
 from data_manager import project_manager
 from data_manager.project_actions import ProjectActions
@@ -19,8 +18,6 @@ from config.icon_manager import IconManager
 # pyinstaller -w --icon=R2Editor.ico --name=R2Editor main.py
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-    open_project = pyqtSignal(str)
-    save_project = pyqtSignal(str)
     script_requirement_reference_changed = pyqtSignal(set, str)
 
     def __init__(self):
@@ -69,8 +66,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.window_builder = MainWindowBuilder(self, project_manager)
         self.window_builder.build()
 
-        # NOTIFICATION WIDGET CONFIGURATION
-        self.notification_widget = NotificationWidget(self)
         self.update_actual_information()
 
 
