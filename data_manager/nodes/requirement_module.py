@@ -1,4 +1,3 @@
-import re
 from PyQt5.QtWidgets import QPushButton, QStyle, QMessageBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QStandardItem
@@ -6,9 +5,9 @@ from data_manager.nodes.requirement_node import RequirementNode
 from components.reduce_path_string import reduce_path_string
 from config import constants
 from data_manager.doors_output_parser import (
-    extract_attributes,
-    extract_baselines,
+    parse_module_output,
     parse_requirement,
+    validate_module_output,
 )
 from data_manager.requirement_serialization import (
     requirement_module_to_dict,
@@ -20,17 +19,9 @@ from data_manager.coverage_data import (
     apply_file_references,
     toggle_script_reference,
 )
+from data_manager.requirement_tree_builder import append_nodes_by_level
 
 import qtawesome as qta
-
-# PATTERN_REQ_REFERENCE = re.compile(r"""(?:REFERENCE|\$REF:)\s*"(?P<req_reference>[\w\d,/\s\(\)-]+)"\s*""", re.IGNORECASE)
-# PATTERN_REQ_REFERENCE = re.compile(r'(?:REFERENCE|\$REF:)\s*"(?P<req_reference>.+)"\s*\$', re.IGNORECASE)
-# PATTERN_REQ_DETERMINE = re.compile(r"the (component|safety mechanism) shall determine '(?P<keyword>[\w]+)'", re.IGNORECASE)
-# PATTERN_CONSTANT = re.compile(r"^[A-Z0-9_]+$")
-
-# from my_logging import logger
-# logger.debug(f"{__name__} --> Init")
-
 
 class RequirementModule(QStandardItem):
     def __init__(self, root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline, column_number_as_identifier):
@@ -325,21 +316,12 @@ class RequirementModule(QStandardItem):
 
 
     def validate_doors_output(self, doors_output: str) -> tuple[bool, str]:                   
-            if self.path not in doors_output:
-                return False, f"Failed to download module:\n {self.path}.\n\n Reason:\n Connection issues during downloading or invalid module path!"
-
-            modules = doors_output.split("<PATH_START>")
-            for module in modules:
-                if self.path in module:
-                    current_module_string = module
-            match = re.search(fr"{self.path}(.+?)<REQUIREMENTS_END>", current_module_string, re.DOTALL)
-            if not match:
-                # GET AT LEAST BASELINES and ATTRIBUTES 
-                self.baseline = extract_baselines(current_module_string)
-                self.attributes = extract_attributes(current_module_string)
-                return False, f"Failed to download module:\n {self.path}.\n\n Reason:\n Invalid column name!"
-            
-            return True, "OK"
+        result = validate_module_output(doors_output, self.path)
+        if result['baselines'] is not None:
+            self.baseline = result['baselines']
+        if result['attributes'] is not None:
+            self.attributes = result['attributes']
+        return result['success'], result['message']
     
     
 
@@ -355,98 +337,51 @@ class RequirementModule(QStandardItem):
     # PRI OTEVIRANI PROJEKTU
     def create_tree_from_requirements_data(self, req_list, timestamp):
         self.timestamp = timestamp
-        
-        last_level = 0
-        parents = []
-        last_item = self
 
-        for one_requirement in req_list:  # requirements => list, requirement => dict            
-            # REFERENCE
-            reference = one_requirement.get("reference")
-            # COLUMNS
-            columns_data = one_requirement.get("columns_data")                
-            # LEVEL
-            level = one_requirement.get("level")
-            level = int(level)
-            # HEADING
-            heading = one_requirement.get("heading")
+        nodes = []
+        for requirement_data in req_list:
+            reference = requirement_data.get("reference")
+            heading = requirement_data.get("heading")
+            file_references = requirement_data.get("file_references")
+            is_covered = requirement_data.get("is_covered")
 
-            # INLINKS
-            inlinks = one_requirement.get("inlinks")            
-            # OUTLINKS
-            outlinks = one_requirement.get("outlinks")
-            # FILE REFERENCES
-            file_references = one_requirement.get("file_references")              
-            # is_covered
-            is_covered = one_requirement.get("is_covered")   
-
-            # UPDATE COVERAGE DICT
             if is_covered is not None and not heading:
-                self._coverage_dict.update({reference.lower(): file_references})     
+                self._coverage_dict.update(
+                    {reference.lower(): file_references}
+                )
 
-            # CREATE REQUIREMENT NODE
-            item = RequirementNode(self, reference, heading, level, outlinks, inlinks, file_references, columns_data, is_covered)
-            # APPEND TO MODEL
-            if level == last_level:
-                parents[-1].appendRow(item)
+            nodes.append(
+                RequirementNode(
+                    self,
+                    reference,
+                    heading,
+                    int(requirement_data.get("level")),
+                    requirement_data.get("outlinks"),
+                    requirement_data.get("inlinks"),
+                    file_references,
+                    requirement_data.get("columns_data"),
+                    is_covered,
+                )
+            )
 
-            elif level > last_level:
-                parents.append(last_item)
-                parents[-1].appendRow(item)
-
-            else:
-                dif = last_level - level
-                for _ in range(dif):
-                    parents.pop()
-                parents[-1].appendRow(item)
-
-            last_level = int(level)   
-            last_item = item 
+        append_nodes_by_level(self, nodes)
 
 
 
     # PRI STAHOVANI DAT Z DOORS A NASLEDNEHO OTEVRENI TXT SOUBORU (doors_output.txt)
     def _txtfile_to_tree(self, doors_string):
-            last_level = 0
-            parents = []
-            last_item = self
+        module_data = parse_module_output(doors_string, self.path)
+        if module_data is None:
+            return
 
-            # ALL MODULES
-            modules_string = re.findall(r"<<<MODULE_START>>>(.*?)<<<MODULE_END>>>", doors_string, re.DOTALL)
+        self.baseline = module_data["baselines"]
+        self.attributes = module_data["attributes"]
 
-            # ONE MODULE
-            for one_module_string in modules_string:                
-                # MODULE PATH
-                path_match = re.search(r"<PATH_START>(?P<my_group>.*)<PATH_END>", one_module_string, re.DOTALL)
-                path = path_match.group("my_group")
-                
-                if path == self.path:
-                    # MODULE BASELINES
-                    self.baseline = extract_baselines(one_module_string)
-                    # MODULE ATTRIBUTES NAMES
-                    self.attributes = extract_attributes(one_module_string)
-                    # REQUIREMENTS DATA
-                    all_requiremets_string = re.findall(r"<REQUIREMENT_START>(.*?)<REQUIREMENT_END>", one_module_string, re.DOTALL)
-                    
-                    for one_requirement_string in all_requiremets_string:
-                        requirement_node = self._create_requirement(one_requirement_string)
-
-                        # APPEND TO MODEL
-                        if requirement_node.level == last_level:
-                            parents[-1].appendRow(requirement_node)
-
-                        elif requirement_node.level > last_level:
-                            parents.append(last_item)
-                            parents[-1].appendRow(requirement_node)
-
-                        else:
-                            dif = last_level - requirement_node.level
-                            for _ in range(dif):
-                                parents.pop()
-                            parents[-1].appendRow(requirement_node)
-
-                        last_level = int(requirement_node.level)   
-                        last_item = requirement_node
+        nodes = [
+            self._create_requirement(requirement_text)
+            for requirement_text in module_data["requirements"]
+        ]
+        append_nodes_by_level(self, nodes)
 
 
 
