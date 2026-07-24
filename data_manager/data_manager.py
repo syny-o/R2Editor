@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QWidget, QFileDialog, QInputDialog, QLabel, QAction,
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QStandardItemModel, QColor, QPainter
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QThreadPool, QPropertyAnimation, QEasingCurve
 from data_manager.nodes.a2l_nodes import A2lFileNode
-from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
+from data_manager.nodes.requirement_module import RequirementModule
 from data_manager.forms.form_add_module import FormAddModule
 from components.progress_bar.widget_modern_progress_bar import ModernProgressBar
 from components.template_test_case import TemplateTestCase
@@ -17,7 +17,6 @@ from data_manager import model_manager
 from components.module_locker import ModuleLocker
 from data_manager.view.widget_view import View
 import data_manager.tree_walker as tree_walker
-from data_manager.coverage_worker import CoverageWorker
 from components.widgets.chart_bar import ChartBar
 from config.icon_manager import IconManager
 from components.decorator_logging_exeptions import logged_exc
@@ -25,6 +24,7 @@ from data_manager.node_actions import NodeActions
 from data_manager.doors_actions import DoorsActions
 from data_manager.html_report_checker import classify_references
 from data_manager.project_data_controller import ProjectDataController
+from data_manager.coverage_controller import CoverageController
 
 # from my_logging import logger
 # logger.debug(f"{__name__} --> Init")
@@ -59,6 +59,7 @@ class DataManager(QWidget, Ui_Form):
         self.node_actions = NodeActions(self)
         self.doors_actions = DoorsActions(self)
         self.project_data_controller = ProjectDataController(self)
+        self.coverage_controller = CoverageController(self)
 
         self.progress_bar = ModernProgressBar('rgb(0, 179, 0)', 'COVERED')
         # self.ui_layout_data_summary.addWidget(self.progress_bar)   
@@ -182,49 +183,22 @@ class DataManager(QWidget, Ui_Form):
 
     @pyqtSlot(set, str)
     def script_requirement_reference_changed(self, req_references: set[str], script_path: str):
-        if self.PROJECT_MANAGER.disk_project_path():
-            for req_reference in req_references:            
-                for row in range(self.ROOT.rowCount()):
-                    current_item = self.ROOT.child(row)
-                    if isinstance(current_item, RequirementModule) and current_item.coverage_filter:
-                        change = current_item.update_script_in_coverage_dict(req_reference, script_path)
-                        # print(req_reference, script_path, change)
-                        
-                        if change:
-                            self._update_data_summary()            
-                            self.set_project_saved(False)
-                            self.MAIN.show_notification("Coverage Updated.")
-                            # self._display_values()
+        self.coverage_controller.script_references_changed(
+            req_references,
+            script_path,
+        )
 
 
     #####################################################################################################################################################
     #   PHYSICAL COVERAGE CHECK
     #####################################################################################################################################################
     def _create_dict_from_scripts_for_coverage_check(self): # PushButton Check Coverage clicked
-        if not tree_walker.at_least_one_module_with_coverage_is_present(self.ROOT):
-            dialog_message(self, "There are no Requirement Modules with Coverage Filter. Add at least one.")
-            return
-        
-        if self.PROJECT_MANAGER.disk_project_path() is None:
-            succes = self._set_project_path()
-            if not succes: return
-        
-        self.uiBtnCheckCoverage.setEnabled(False)        
-        worker = CoverageWorker(self)
-        self.threadpool.start(worker)
+        self.coverage_controller.start_physical_check()
 
 
     @pyqtSlot(dict)
     def check_coverage(self, file_content_dict: dict):
-        if self.PROJECT_MANAGER.disk_project_path():
-            for row in range(self.ROOT.rowCount()):
-                current_item = self.ROOT.child(row)
-                if isinstance(current_item, RequirementModule):
-                    change = current_item.check_coverage_with_file_pointers(file_content_dict)
-                    if change:
-                        self.set_project_saved(False)
-            self._update_data_summary()
-            self.uiBtnCheckCoverage.setEnabled(True)
+        self.coverage_controller.apply_physical_check(file_content_dict)
 
 
 
@@ -232,21 +206,7 @@ class DataManager(QWidget, Ui_Form):
     #   UPDATE DATA SUMMARY
     #####################################################################################################################################################
     def _update_data_summary(self):        
-        calculated_number, covered_number = 0, 0
-        for row in range(self.ROOT.rowCount()):
-            current_node = self.ROOT.child(row)
-            if isinstance(current_node, RequirementModule) and current_node.coverage_filter:                          
-                calculated_number += current_node.number_of_calculated_requirements
-                covered_number += current_node.number_of_covered_requirements
-                
-        # VIEW PART
-        # self.progress_bar.update_value(calculated_number, covered_number)
-        self.ui_lab_req_total.setText(str(calculated_number))
-        self.ui_lab_req_covered.setText(str(covered_number))
-        self.ui_lab_req_not_covered.setText(str(calculated_number - covered_number))
-        # self._display_values()
-        self.VIEW._update_view()
-        self.widget_chart.set_value(covered_number, calculated_number)
+        self.coverage_controller.update_summary()
     
 
 
@@ -255,24 +215,10 @@ class DataManager(QWidget, Ui_Form):
     ##############################################################################################################################
 
     def _add_to_ignore_list(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-        if isinstance(selected_item, RequirementNode):
-            selected_item.add_to_ignore_list()    
-            self._update_data_summary()              
-            self.set_project_saved(False) 
+        self.coverage_controller.add_selected_to_ignore_list()
 
     def _remove_from_ignore_list(self):
-        selected_item_index = self.TREE.currentIndex()
-        selected_item = self.MODEL.itemFromIndex(selected_item_index)
-        if isinstance(selected_item, RequirementNode):
-            if selected_item.note:
-                remove_note = QMessageBox.question(self, "Remove Note", "Do you want to remove note?", QMessageBox.Yes | QMessageBox.No)
-                selected_item.remove_from_ignore_list(remove_note == QMessageBox.Yes)
-            else:
-                selected_item.remove_from_ignore_list()    
-            self._update_data_summary()   
-            self.set_project_saved(False)      
+        self.coverage_controller.remove_selected_from_ignore_list()
 
 
     ####################################################################################################################
