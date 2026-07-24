@@ -15,6 +15,10 @@ from data_manager.requirement_serialization import (
     requirements_to_dict,
 )
 from data_manager.coverage_filter import translate_coverage_filter
+from data_manager.coverage_data import (
+    apply_file_references,
+    toggle_script_reference,
+)
 
 import qtawesome as qta
 
@@ -173,25 +177,15 @@ class RequirementModule(QStandardItem):
             v.clear()          
 
     def update_script_in_coverage_dict(self, req_id: str, path: str):
-        if req_id.lower() in self._coverage_dict:
-            paths = self._coverage_dict[req_id.lower()]
-
-            before = len(paths)
-
-            if path in paths:
-                paths.remove(path)
-            else:
-                paths.append(path)
-
-            after = len(paths)
-
-
-
-            if before != after:
-                self.update_icons_according_to_coverage()
-                self.update_title_text()
-                
-                return True
+        changed = toggle_script_reference(
+            self._coverage_dict,
+            req_id,
+            path,
+        )
+        if changed:
+            self.update_icons_according_to_coverage()
+            self.update_title_text()
+            return True
 
 
 
@@ -211,12 +205,7 @@ class RequirementModule(QStandardItem):
         # 1. odebrat vsechny skripty ze slovniku
         # self.remove_all_scripts_from_coverage_dict()
         # 2. znovu naplnit slovnik skriptama dle aktualni situace na disku
-        for req_identifier, set_of_script_paths in reference_dict.items():
-            typo = req_identifier.replace("sydesign", "-sydesign")  # TYPO = WRONGLY WRITTEN REQ IDENTIFIER IN DOORS (MISSING DASH)
-            if req_identifier in self._coverage_dict:
-                self._coverage_dict[req_identifier] = list(set_of_script_paths)
-            if typo in self._coverage_dict:
-                self._coverage_dict[typo] = list(set_of_script_paths)
+        apply_file_references(self._coverage_dict, reference_dict)
 
         
         self.update_icons_according_to_coverage()
