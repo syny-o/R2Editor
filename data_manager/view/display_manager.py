@@ -1,10 +1,9 @@
 import re
 from dataclasses import dataclass
 from typing import Callable, Type
-from abc import ABC, abstractmethod
 
-from PyQt5.QtGui import QStandardItem, QIcon, QTextCursor, QTextCharFormat, QColor, QCursor
-from PyQt5.QtWidgets import QToolButton, QListWidgetItem, QLayout, QFrame, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QTextEdit, QPushButton, QApplication, QStyle
+from PyQt5.QtGui import QStandardItem, QIcon, QTextCursor, QTextCharFormat, QColor
+from PyQt5.QtWidgets import QToolButton, QListWidgetItem, QFrame, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QTextEdit, QPushButton, QApplication, QStyle
 from PyQt5.QtCore import Qt
 
 from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
@@ -13,11 +12,19 @@ from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode
 from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
 from components.reduce_path_string import reduce_path_string
 from components.widgets.widget_req_text_edit import RequirementTextEdit
-from components.widgets.widget_baseline import WidgetBaseline
 
 from components.helper_functions import layout_generate_one_row as generate_one_row
 from components.widgets.widgets_pointing_hand import ListWidgetPointingHand
 from config.icon_manager import IconManager
+from data_manager.view.layout_base import LayoutGenerator
+from data_manager.view.simple_node_layouts import (
+    A2lNodeLayoutGenerator,
+    ConditionValueNodeLayoutGenerator,
+    DspaceDefinitionNodeLayoutGenerator,
+    DspaceVariableNodeLayoutGenerator,
+    FileNodeLayoutGenerator,
+    TestStepNodeLayoutGenerator,
+)
 
 
 @dataclass
@@ -85,19 +92,7 @@ class DisplayManager:
 
 
 
-class iLayoutGenerator(ABC):
-    @abstractmethod
-    def fill_with_data(self):
-        """Get Data from Node and display them in Widgets"""
-
-    @abstractmethod
-    def provide_layout(self):
-        """Provide Layout (Frame) for main layout in Data Manager"""
-
-
-
-
-class RequirementNodeLayoutGenerator(iLayoutGenerator):
+class RequirementNodeLayoutGenerator(LayoutGenerator):
     def __init__(self, DATA_MANAGER: Type) -> None:
         self.DATA_MANAGER = DATA_MANAGER
         
@@ -135,11 +130,7 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
     def _generate_header_layout(self):
         uiHeaderLayout = QHBoxLayout()
         self.uiLineEditIdentifier = QLineEdit()
-        # self.uiBtnCopyReqRef = QPushButton(QIcon(u"ui/icons/20x20/cil-copy.png"), "")
-        # self.uiBtnCopyReqRef.setCursor(QCursor(Qt.PointingHandCursor))
-        # self.uiBtnCopyReqRef.setToolTip("Copy Identifier")
         uiHeaderLayout.addWidget(QLabel("Id:    "))
-        # uiHeaderLayout.addWidget(self.uiBtnCopyReqRef)
         uiHeaderLayout.addWidget(self.uiLineEditIdentifier)
         self.action_copy_identifier = self.uiLineEditIdentifier.addAction(QIcon(u"ui/icons/20x20/cil-copy.png"), QLineEdit.LeadingPosition)
         self.action_copy_identifier.triggered.connect(self._copy_to_clipboard)
@@ -245,7 +236,7 @@ class RequirementNodeLayoutGenerator(iLayoutGenerator):
 
 
 
-class RequirementModuleLayoutGenerator(iLayoutGenerator):
+class RequirementModuleLayoutGenerator(LayoutGenerator):
     def __init__(self, DATA_MANAGER: Type) -> None:
         self.DATA_MANAGER = DATA_MANAGER 
         self.uiMainLayout = QVBoxLayout()
@@ -376,202 +367,6 @@ class RequirementModuleLayoutGenerator(iLayoutGenerator):
             
             self.uiListWidgetIgnoreList.insertItem(0, ignore_lw_item)   
 
-
-
-class SimpleNodeLayoutGenerator(iLayoutGenerator):
-    def __init__(self, DATA_MANAGER: Type) -> None:
-        self.DATA_MANAGER = DATA_MANAGER 
-        self.uiMainLayout = QVBoxLayout()
-        self.uiMainLayout.setSpacing(20)
-        # self.uiMainLayout.setContentsMargins(0, 50, 0, 0)
-        # self.uiMainLayout.setAlignment(Qt.AlignCenter)
-        self.uiFrame = QFrame()
-        self.uiFrame.setLayout(self.uiMainLayout)
-        self.uiFrame.setVisible(False)
-
-    def provide_layout(self) -> QFrame:
-        return self.uiFrame
-
-    def fill_with_data(self, NODE):
-        self.uiFrame.setVisible(True)
-
-
-
-class FileNodeLayoutGenerator(SimpleNodeLayoutGenerator):
-    def __init__(self, DATA_MANAGER: Type) -> None:
-        super().__init__(DATA_MANAGER)
-        self._generate_layout()  
-
-    def fill_with_data(self, NODE):
-        super().fill_with_data(NODE)
-        self._fill_layout(NODE)           
-    
-    def _generate_layout(self):
-        self.uiLineEditFilePath = generate_one_row("Path:", self.uiMainLayout, set_read_only=True)
-
-    def _fill_layout(self, NODE):
-        self.uiLineEditFilePath.setText(NODE.path)    
-
-     
-
-
-
-class A2lNodeLayoutGenerator(SimpleNodeLayoutGenerator):
-    def __init__(self, DATA_MANAGER: Type) -> None:
-        super().__init__(DATA_MANAGER)
-        self._generate_layout()  
-
-    def fill_with_data(self, NODE):
-        super().fill_with_data(NODE)
-        self._fill_layout(NODE)  
-    
-    def _generate_layout(self):
-        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout, set_read_only=True)
-        self.uiLineEditAddress = generate_one_row("Address:", self.uiMainLayout, set_read_only=True)
-
-    def _fill_layout(self, NODE):
-        self.uiLineEditName.setText(NODE.name)  
-        self.uiLineEditAddress.setText(NODE.address)  
-
-
-
-class ConditionValueNodeLayoutGenerator(SimpleNodeLayoutGenerator):
-    def __init__(self, DATA_MANAGER: Type) -> None:
-        super().__init__(DATA_MANAGER)
-        self._generate_layout()  
-
-    def fill_with_data(self, NODE):
-        super().fill_with_data(NODE)
-        self._fill_layout(NODE)  
-    
-    def _generate_layout(self):
-        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout, set_read_only=True)
-        self.uiLineEditCategory = generate_one_row("Category:", self.uiMainLayout, set_read_only=True)
-
-    def _fill_layout(self, NODE):
-        self.uiLineEditName.setText(NODE.name)
-        self.uiLineEditCategory.setText(NODE.category)
-
-
-
-class TestStepNodeLayoutGenerator(SimpleNodeLayoutGenerator):
-    def __init__(self, DATA_MANAGER: Type) -> None:
-        super().__init__(DATA_MANAGER)
-        self._generate_layout()  
-
-    def fill_with_data(self, NODE):
-        super().fill_with_data(NODE)
-        self._fill_layout(NODE)  
-
-    
-    def _generate_layout(self):
-        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout, set_read_only=True)
-        self.uiLineEditAction = generate_one_row("Action:", self.uiMainLayout, set_read_only=True)
-        self.uiLineEditComment = generate_one_row("Comment:", self.uiMainLayout, set_read_only=True)
-        self.uiLineEditNominal = generate_one_row("Nominal:", self.uiMainLayout, set_read_only=True)
-
-    def _fill_layout(self, NODE):
-        self.uiLineEditName.setText(NODE.name)
-        self.uiLineEditAction.setText(NODE.action)
-        self.uiLineEditComment.setText(NODE.comment)
-        self.uiLineEditNominal.setText(NODE.nominal)
-
-
-
-class DspaceDefinitionNodeLayoutGenerator(SimpleNodeLayoutGenerator):
-    def __init__(self, DATA_MANAGER: Type) -> None:
-        super().__init__(DATA_MANAGER)
-        self._generate_layout()  
-
-    def fill_with_data(self, NODE):
-        super().fill_with_data(NODE)
-        self._fill_layout(NODE)  
-
-    def _generate_layout(self):
-        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout, set_read_only=True)
-
-    def _fill_layout(self, NODE):
-        self.uiLineEditName.setText(NODE.name)
-
-
-class DspaceVariableNodeLayoutGenerator(SimpleNodeLayoutGenerator):
-    def __init__(self, DATA_MANAGER: Type) -> None:
-        super().__init__(DATA_MANAGER)
-        self._generate_layout()  
-
-    def fill_with_data(self, NODE):
-        super().fill_with_data(NODE)
-        self._fill_layout(NODE)  
-
-    
-    def _generate_layout(self):
-        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout, set_read_only=True)
-        self.uiLineEditValue = generate_one_row("Value:", self.uiMainLayout, set_read_only=True)
-        self.uiLineEditPath = generate_one_row("Path:", self.uiMainLayout, set_read_only=True)
-
-    def _fill_layout(self, NODE):
-        self.uiLineEditName.setText(NODE.name)
-        self.uiLineEditValue.setText(NODE.value)
-        self.uiLineEditPath.setText(NODE.path)
-    
-
-
-
-
-
-
-
-    # uiCoverageFilterLayout = QHBoxLayout()
-    # self.uiLineEditCoverageFilter = QLineEdit()
-    # uiCoverageFilterLayout.addWidget(QLabel("Coverage:"))
-    # uiCoverageFilterLayout.addWidget(self.uiLineEditCoverageFilter)        
-    
-    # self.uiMainLayout.addLayout(uiTimestampLayout)
-    # self.uiMainLayout.addLayout(uiCoverageFilterLayout)   
-
-
-    # self.uiLineEditCoverageFilter.setText(NODE.coverage_filter)
-
-
-    # def _generate_baseline_layout(self):
-    #     uiBaselineLayout = QHBoxLayout()
-    #     uiBaselineLayout.addWidget(QLabel("Baseline:"))
-    #     self.widget_baseline = WidgetBaseline()
-    #     uiBaselineLayout.addWidget(self.widget_baseline)
-    #     # self.uiMainLayout.addLayout(uiBaselineLayout)
-
-    # def _fill_baseline_layout(self, NODE):
-    #     self.widget_baseline.update(NODE)
-
-    
-    # def _generate_columns_attributes_layout(self):
-    #     uiAttributesColumnsLayout = QHBoxLayout()
-    #     uiAttributesColumnsLayout.addWidget(QLabel("All:"))
-    #     self.uiListWidgetAttributes = QListWidget() 
-    #     uiAttributesColumnsLayout.addWidget(self.uiListWidgetAttributes)
-    #     uiAttributesColumnsLayout.addWidget(QLabel("Current:"))
-    #     self.uiListWidgetColumns = QListWidget() 
-    #     uiAttributesColumnsLayout.addWidget(self.uiListWidgetColumns)        
-    #     # self.uiMainLayout.addLayout(uiAttributesColumnsLayout)  
-
-
-    # def _fill_columns_attributes_layout(self, NODE):
-    #     self.uiListWidgetColumns.clear()
-    #     self.uiListWidgetColumns.insertItems(0, NODE.columns_names)
-    #     self.uiListWidgetAttributes.clear()
-    #     self.uiListWidgetAttributes.insertItems(0, NODE.attributes) 
-
-
-
-
-
-
-
-
-
-
-
-            
 
 
 
