@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 
@@ -14,67 +13,12 @@ from data_manager.view.filter_specifications import (
     FullTextSpecification,
     IgnoredSpecification,
     NotCoveredSpecification,
-    Specification,
 )
-
-
-######################################################################################################################################
-### SPECIFICATION PATTERN:
-######################################################################################################################################
-### DEFINE INTERFACES:
-
-class iFilter(ABC):
-    @abstractmethod
-    def filter(self, TREEVIEW, requirement_nodes, specification):
-        pass
-
-######################################################################################################################################
-### DEFINE FILTERS:
-
-class StandardFirstLevelFilter(iFilter):
-    def filter(self, TREE, node: ConditionFileNode|A2lFileNode, specification: Specification):
-        for row in range(node.rowCount()):
-            subnode = node.child(row)
-            if specification.is_satisfied(subnode):
-                TREE.setRowHidden(row, node.index(), False)
-            else:
-                TREE.setRowHidden(row, node.index(), True)
-            # self.filter(TREE, subnode, specification)
-
-
-class StandardLastLevelFilter(iFilter):
-    def filter(self, TREE, node: ConditionFileNode|A2lFileNode, specification: Specification):
-        for row in range(node.rowCount()):
-            subnode = node.child(row)
-            if specification.is_satisfied(subnode):
-                TREE.setRowHidden(row, node.index(), False)
-                parent = subnode.parent()
-                while parent and parent.parent():
-                    TREE.setRowHidden(parent.row(), parent.parent().index(), False)
-                    parent = parent.parent()                
-            else:
-                TREE.setRowHidden(row, node.index(), True)
-            self.filter(TREE, subnode, specification)            
-
-
-class DecoratedAutoExpandingLastLevelFilter(iFilter):
-    def filter(self, TREE, node: RequirementModule|DspaceFileNode, specification: Specification):
-        for row in range(node.rowCount()):
-            subnode = node.child(row)
-            if specification.is_satisfied(subnode):
-                TREE.setRowHidden(row, node.index(), False)
-                subnode.setForeground(QColor(0, 150, 0))
-                parent = subnode.parent()
-                while parent and parent.parent():
-                    TREE.setRowHidden(parent.row(), parent.parent().index(), False)
-                    TREE.expand(parent.index())
-                    parent = parent.parent()
-            else:
-                TREE.setRowHidden(row, node.index(), True)
-                subnode.setForeground(QColor(90, 90, 90))
-                TREE.collapse(subnode.index())  
-            self.filter(TREE, subnode, specification)
-
+from data_manager.view.tree_filters import (
+    DecoratedAutoExpandingLastLevelFilter,
+    FirstLevelFilter,
+    LastLevelFilter,
+)
 
 
 ######################################################################################################################################
@@ -82,21 +26,25 @@ class DecoratedAutoExpandingLastLevelFilter(iFilter):
 
 
 def _show_only_items_with_coverage(TREE, NODE):
-    StandardLastLevelFilter().filter(TREE, NODE, CoveredSpecification() | NotCoveredSpecification())    
+    LastLevelFilter().filter(
+        TREE,
+        NODE,
+        CoveredSpecification() | NotCoveredSpecification(),
+    )
 
 
 def _show_only_items_not_covered(TREE, NODE):
-    StandardLastLevelFilter().filter(TREE, NODE, NotCoveredSpecification())
+    LastLevelFilter().filter(TREE, NODE, NotCoveredSpecification())
 
 def _show_only_items_covered(TREE, NODE):
-    StandardLastLevelFilter().filter(TREE, NODE, CoveredSpecification())
+    LastLevelFilter().filter(TREE, NODE, CoveredSpecification())
 
 def _show_only_items_ignored(TREE, NODE):
-    StandardLastLevelFilter().filter(TREE, NODE, IgnoredSpecification())
+    LastLevelFilter().filter(TREE, NODE, IgnoredSpecification())
 
 
 def _show_all_items(TREE, NODE):
-    StandardLastLevelFilter().filter(TREE, NODE, AllSpecification())
+    LastLevelFilter().filter(TREE, NODE, AllSpecification())
 
 def _show_only_items_with_coverage_with_text(TREE, NODE, text):
     DecoratedAutoExpandingLastLevelFilter().filter(TREE, NODE, (CoveredSpecification() | NotCoveredSpecification()) & FullTextRequirementSpecification(text))    
@@ -162,7 +110,7 @@ def _filter_dspace_file(TREE, item, text, coverage):
 
 
 def _filter_condition_or_a2l_file(TREE, item, text, coverage):
-    StandardFirstLevelFilter().filter(TREE, item, FullTextSpecification(text))
+    FirstLevelFilter().filter(TREE, item, FullTextSpecification(text))
 
 
 
