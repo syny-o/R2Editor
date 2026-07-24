@@ -1,6 +1,3 @@
-from hmac import new
-import os, stat
-import shutil
 from pathlib import Path
 
 from PyQt5.QtWidgets import QWidget, QFileSystemModel, QMenu, QInputDialog, QLineEdit, QMessageBox, QShortcut
@@ -9,6 +6,12 @@ from PyQt5.QtGui import QFont, QIcon, QCursor
 
 from ui.file_system_ui import Ui_Form
 from file_browser.form_find_replace import FindAndReplace
+from file_browser.file_operations import (
+    create_document,
+    delete_path,
+    duplicate_file,
+    rename_path,
+)
 from dialogs.dialog_message import dialog_message
 
 from components.widgets.widgets_pointing_hand import TreeViewPointingHand
@@ -238,13 +241,6 @@ class FileSystemView(QWidget, Ui_Form):
     ########################################################################################################################################################    
 
 
-    def on_rm_error( self, func, path, exc_info):
-        # path contains the path of the file that couldn't be removed
-        # let's just assume that it's read-only and unlink it.
-        os.chmod( path, stat.S_IWRITE )
-        os.unlink( path )
-
-    
     def _delete_file(self):
         index = self.tree.currentIndex()
         # file_path = index.model().filePath(index)
@@ -266,12 +262,7 @@ class FileSystemView(QWidget, Ui_Form):
     
 
         try:      
-            # self.model.remove(index)
-            if index.model().isDir(index):
-                shutil.rmtree(file_path, onerror=self.on_rm_error)
-            else:
-                os.chmod( file_path, stat.S_IWRITE )
-                os.unlink(file_path)
+            delete_path(file_path)
                 
 
 
@@ -304,15 +295,8 @@ class FileSystemView(QWidget, Ui_Form):
 
     def _duplicate_script(self, path): 
         path = Path(path)
-        suffix = path.suffix  # e.g. .par
-        name = path.name  # file name with suffix e.g. test.par
-        parent = path.parent  # all parent folders e.g. C:/temp/
-        name_wo_suffix = name.strip(suffix) # just file name e.g. test
-        # CREATE DUPLICATED FILE
-        new_file_name = name_wo_suffix + " - Copy" + suffix
-        new_full_path = parent / new_file_name
         try:
-            shutil.copyfile(path, new_full_path)
+            new_full_path = duplicate_file(path)
             # SET TREE POSITION TO THIS NEW FILE
             index = self.model.index(str(new_full_path))  
             self.tree.setCurrentIndex(index)
@@ -333,7 +317,7 @@ class FileSystemView(QWidget, Ui_Form):
             new_name = new_name.strip()
             new_path = path.with_stem(new_name)
             try:
-                os.rename(path, new_path)
+                new_path = rename_path(path, new_name)
                 index = self.model.index(str(new_path))  
                 self.tree.setCurrentIndex(index)
 
@@ -389,18 +373,19 @@ class FileSystemView(QWidget, Ui_Form):
             text, ok = QInputDialog.getText(self, 'Create File', 'Name:', QLineEdit.Normal, index.data())   
 
         if ok and text != '':
-            new_file_path = file_path + '/' + text
-            if not new_file_path.endswith( ('.par', '.txt', '.py') ):
-                new_file_path += '.par'
-            if Path(new_file_path).exists():
+            candidate_path = Path(file_path) / text
+            if (
+                not str(candidate_path).endswith(('.par', '.txt', '.py'))
+            ):
+                candidate_path = Path(f'{candidate_path}.par')
+            if candidate_path.exists():
                 dialog_message(self, "File exists!")
                 return
             try:
-                with open(new_file_path, 'w', encoding='utf8') as new_file:
-                    pass
-                index = self.model.index(new_file_path)  
+                new_file_path = create_document(file_path, text)
+                index = self.model.index(str(new_file_path))
                 self.tree.setCurrentIndex(index)                
-                self.send_file_path.emit(Path(new_file_path))
+                self.send_file_path.emit(new_file_path)
                 
                 self.refresh_root_path()
                 
