@@ -2,7 +2,7 @@ from importlib import reload
 from pathlib import Path
 from ui.model_editor_ui import Ui_Form
 import json, re
-from PyQt5.QtWidgets import QWidget, QFileDialog, QInputDialog, QLabel, QAction, QLineEdit, QShortcut, QMessageBox, QListWidgetItem
+from PyQt5.QtWidgets import QWidget, QFileDialog, QInputDialog, QLabel, QAction, QLineEdit, QShortcut
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QStandardItemModel, QColor, QPainter
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QThreadPool, QPropertyAnimation, QEasingCurve
 from data_manager.nodes.a2l_nodes import A2lFileNode
@@ -25,6 +25,7 @@ from data_manager.doors_actions import DoorsActions
 from data_manager.html_report_checker import classify_references
 from data_manager.project_data_controller import ProjectDataController
 from data_manager.coverage_controller import CoverageController
+from data_manager.reference_navigator import ReferenceNavigator
 
 # from my_logging import logger
 # logger.debug(f"{__name__} --> Init")
@@ -60,6 +61,7 @@ class DataManager(QWidget, Ui_Form):
         self.doors_actions = DoorsActions(self)
         self.project_data_controller = ProjectDataController(self)
         self.coverage_controller = CoverageController(self)
+        self.reference_navigator = ReferenceNavigator(self)
 
         self.progress_bar = ModernProgressBar('rgb(0, 179, 0)', 'COVERED')
         # self.ui_layout_data_summary.addWidget(self.progress_bar)   
@@ -226,79 +228,28 @@ class DataManager(QWidget, Ui_Form):
     ####################################################################################################################
 
     def _get_tooltip_from_link(self, link):
-        module_path = link.split(":")[0]
-        identifier = link.split(":")[1]
-
-        for row in range(self.ROOT.rowCount()):
-            node = self.ROOT.child(row)
-            if node.path == module_path:
-                if node.hasChildren():
-                    first_child_reference = node.child(0).reference
-                    prefix = first_child_reference.split("_")[:-1]
-                    full_reference = "_".join(prefix) + "_" + identifier
-                    found_node = tree_walker.find_node_by_identifier(node, full_reference)
-                    return "\n".join(found_node.columns_data) if found_node else ""
+        return self.reference_navigator.tooltip_from_link(link)
 
 
 
     def set_tooltip_2_list_widget_item(self, item):
-        identifier = item.data(Qt.UserRole)
-        module = self.MODEL.itemFromIndex(self.TREE.currentIndex())
-        found_node = tree_walker.find_node_by_identifier(module, identifier)
-        item.setToolTip("\n".join(found_node.columns_data) if found_node else "")
+        self.reference_navigator.set_item_tooltip(item)
               
 
               
 
-    def _doubleclick_on_identifier(self, item: QListWidgetItem):
-        module = self.MODEL.itemFromIndex(self.TREE.currentIndex())
-        identifier = item.data(Qt.UserRole)                
-        found_node = tree_walker.find_node_by_identifier(module, identifier)
-        if found_node:
-            self.TREE.setCurrentIndex(found_node.index())
-            self.TREE.scrollTo(found_node.index())   
+    def _doubleclick_on_identifier(self, item):
+        self.reference_navigator.go_to_identifier(item)
 
 
     def _doubleclick_on_outlink(self, outlink_item):
-        module_path = outlink_item.data(Qt.UserRole).split(":")[0]
-        reference = outlink_item.data(Qt.UserRole).split(":")[1]
-        found_node = None
-
-        if not tree_walker.is_module_present(self.ROOT, module_path):
-            add_module = QMessageBox.question(self,
-                                        f"Module is missing.",
-                                        f"Module {module_path} is N/A.\n\nDo you want to add it?",
-                                        QMessageBox.Yes | QMessageBox.No)
-            if add_module == QMessageBox.Yes:            
-                self.receive_data_from_add_req_module_dialog(module_path, [])        
-        
-            return
-
-        for row in range(self.ROOT.rowCount()):
-            node = self.ROOT.child(row)
-            if node.path == module_path:
-                if node.hasChildren():
-                    first_child_reference = node.child(0).reference
-                    if "_" in first_child_reference:  # LP3 has identifier just plain number
-                        prefix = first_child_reference.split("_")[:-1]
-                        full_reference = "_".join(prefix) + "_" + reference
-                    else:
-                        full_reference = reference
-                    found_node = tree_walker.find_node_by_identifier(node, full_reference)
-
-        if found_node:
-            self.TREE.setCurrentIndex(found_node.index())
-            self.TREE.scrollTo(found_node.index())
-        else:
-            self.MAIN.show_notification(f"{reference} is not present in {module_path}.")
+        self.reference_navigator.follow_outlink(outlink_item)
 
 
 
 
     def _doubleclick_on_tc_reference(self, list_item_text):
-        file_path_string = list_item_text.data(Qt.UserRole)
-        self.send_file_path.emit(Path(file_path_string))
-        self.MAIN.manage_right_menu(self.MAIN.tabs_splitter, self.MAIN.ui_btn_text_editor)
+        self.reference_navigator.open_script_reference(list_item_text)
 
 
 
