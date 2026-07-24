@@ -40,6 +40,28 @@ class WindowController:
         for button, icon in icon_bindings:
             button.setIcon(icon)
 
+    def connect_window_actions(self):
+        window = self.main_window
+        window.btn_app_exit.clicked.connect(window.close)
+        window.btn_close.clicked.connect(window.close)
+        window.btn_toggle_menu.clicked.connect(
+            lambda: self.toggle_menu(window.uiFrameLeftMenu, 70, 210)
+        )
+
+    def connect_navigation(self):
+        window = self.main_window
+        navigation = (
+            (window.ui_btn_text_editor, window.tabs_splitter),
+            (window.ui_btn_data_manager, window.data_manager),
+            (window.ui_btn_home, window.dashboard),
+            (window.btn_app_settings, window.app_settings),
+        )
+        for button, page in navigation:
+            button.clicked.connect(
+                lambda checked=False, page=page, button=button:
+                window.manage_right_menu(page, button)
+            )
+
     def show_page(self, widget, button):
         window = self.main_window
         for navigation_button in (

@@ -49,6 +49,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             project_manager,
             self.show_notification,
         )
+        self.project_actions.connect_actions()
         self.document_actions = DocumentActions(self)
         
 
@@ -81,26 +82,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setWindowTitle("Editor")
         self.frame_top.setVisible(False)
           
-        ## CONNECT BUTTONS        
-        self.btn_app_exit.clicked.connect(self.close)
-
-        self.btn_project_open.clicked.connect(self.project_actions.open)
-        self.btn_project_new.clicked.connect(self.project_actions.new)
-        self.btn_project_save.clicked.connect(self.project_actions.save)
-        self.btn_project_save_as.clicked.connect(self.project_actions.save_as)
-
         self.uiFrameFileManager.setVisible(False)
         self.frame_2.setVisible(False)
-        ## TOGGLE/BURGUER MENU
-        ########################################################################
-        self.btn_toggle_menu.clicked.connect(
-            lambda: self.window_controller.toggle_menu(
-                self.uiFrameLeftMenu,
-                70,
-                210,
-            )
-        )
-        self.btn_close.clicked.connect(self.close)
+        self.window_controller.connect_window_actions()
 
         self.VERSION = '2021-03-04'
         ################################################################################################################
@@ -193,30 +177,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.stackedWidget.addWidget(self.dashboard)
         self.stackedWidget.setCurrentWidget(self.dashboard)
 
-        self.ui_btn_text_editor.clicked.connect(
-            lambda: self.manage_right_menu(
-                self.tabs_splitter,
-                self.ui_btn_text_editor,
-            )
-        )
-        self.ui_btn_data_manager.clicked.connect(
-            lambda: self.manage_right_menu(
-                self.data_manager,
-                self.ui_btn_data_manager,
-            )
-        )
-        self.ui_btn_home.clicked.connect(
-            lambda: self.manage_right_menu(
-                self.dashboard,
-                self.ui_btn_home,
-            )
-        )
-        self.btn_app_settings.clicked.connect(
-            lambda: self.manage_right_menu(
-                self.app_settings,
-                self.btn_app_settings,
-            )
-        )
+        self.window_controller.connect_navigation()
 
         ################################################################################################################
         # NOTIFICATION WIDGET CONFIGURATION

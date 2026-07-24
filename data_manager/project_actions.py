@@ -13,6 +13,12 @@ class ProjectActions:
         self.project_manager = project_manager
         self.show_notification = show_notification
 
+    def connect_actions(self):
+        self.parent.btn_project_open.clicked.connect(self.open)
+        self.parent.btn_project_new.clicked.connect(self.new)
+        self.parent.btn_project_save.clicked.connect(self.save)
+        self.parent.btn_project_save_as.clicked.connect(self.save_as)
+
     def new(self):
         if not self._confirm_discard_unsaved_project():
             return
