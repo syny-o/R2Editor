@@ -14,7 +14,10 @@ from data_manager.requirement_serialization import (
     requirement_tree_to_list,
     requirements_to_dict,
 )
-from data_manager.coverage_filter import translate_coverage_filter
+from data_manager.coverage_filter import (
+    matching_references,
+    translate_coverage_filter,
+)
 from data_manager.coverage_data import (
     apply_file_references,
     toggle_script_reference,
@@ -65,9 +68,7 @@ class RequirementModule(QStandardItem):
 
         self.update_title_text()
 
-        # print(self.path + ' has this calc: ' + str(self.column_number_as_identifier))
 
- 
 
 
     @property
@@ -151,9 +152,6 @@ class RequirementModule(QStandardItem):
 
 
 
-
-
-
     ##########################################################################################################################################
     # PHYSICAL COVERAGE UPDATE ACCORDING TO HDD FILES:
 
@@ -192,27 +190,18 @@ class RequirementModule(QStandardItem):
         if self.coverage_filter:
 
             translated_filter_string = self.translate_filter(self.coverage_filter)
-
-            def browse_children(parent_node, string):                    
-                for row in range(parent_node.rowCount()):
-                    item = parent_node.child(row)
-
-                    try:
-                        column = item.columns_data
-                        evaluation = eval(string)
-                        
-                    except Exception as ex:
-                        self.coverage_filter = None
-                        raise Exception(str(ex))
-
-    
-                    if evaluation:
-                        self._coverage_dict.update({item.reference.lower() : []})  # UPDATE COVERAGE DICT
-
-                    browse_children(item, string)                
-        
             self._coverage_dict.clear()
-            browse_children(self, translated_filter_string)  
+            try:
+                references = matching_references(
+                    self,
+                    translated_filter_string,
+                )
+            except Exception as ex:
+                self.coverage_filter = None
+                raise Exception(str(ex))
+            self._coverage_dict.update(
+                {reference: [] for reference in references}
+            )
 
             # HANDLE IGNORED ITEMS
             # 1a. GATHER ALL IGNORED ITEMS FROM IGNORE LIST WHICH ARE NOT IN COVERAGE DICT (so the filter is not valid anymore for them)
@@ -249,13 +238,6 @@ class RequirementModule(QStandardItem):
                     self.ignore_list.remove(ignored_item)
                 if ignored_item in self.notes:
                     self.notes.pop(ignored_item)
-
-
-
-
-    
-  
-
 
 
     def remove_coverage_filter(self):
@@ -325,9 +307,6 @@ class RequirementModule(QStandardItem):
     
     
 
-
-    #######################################################################################################################################
-    #######################################################################################################################################
     #######################################################################################################################################
     #######################################################################################################################################
     #######################################################################################################################################

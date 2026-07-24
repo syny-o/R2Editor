@@ -1,6 +1,22 @@
 import unittest
 
-from data_manager.coverage_filter import translate_coverage_filter
+from data_manager.coverage_filter import (
+    matching_references,
+    translate_coverage_filter,
+)
+
+
+class FakeRequirement:
+    def __init__(self, reference, columns_data, children=None):
+        self.reference = reference
+        self.columns_data = columns_data
+        self.children = children or []
+
+    def rowCount(self):
+        return len(self.children)
+
+    def child(self, row):
+        return self.children[row]
 
 
 class CoverageFilterTests(unittest.TestCase):
@@ -28,6 +44,40 @@ class CoverageFilterTests(unittest.TestCase):
             translate_coverage_filter('  Status  ', ['Status']),
             'column[0]',
         )
+
+    def test_collects_matching_references_from_nested_tree(self):
+        root = FakeRequirement(
+            'root',
+            [],
+            [
+                FakeRequirement(
+                    'CHAPTER',
+                    ['Chapter', ''],
+                    [
+                        FakeRequirement('REQ-1', ['Approved', 'High']),
+                        FakeRequirement('REQ-2', ['Draft', 'High']),
+                    ],
+                ),
+                FakeRequirement('REQ-3', ['Approved', 'Low']),
+            ],
+        )
+
+        result = matching_references(
+            root,
+            'column[0] == "Approved" and column[1] == "High"',
+        )
+
+        self.assertEqual(result, ['req-1'])
+
+    def test_propagates_invalid_filter_expression(self):
+        root = FakeRequirement(
+            'root',
+            [],
+            [FakeRequirement('REQ-1', ['Approved'])],
+        )
+
+        with self.assertRaises(IndexError):
+            matching_references(root, 'column[2] == "Approved"')
 
 
 if __name__ == '__main__':
