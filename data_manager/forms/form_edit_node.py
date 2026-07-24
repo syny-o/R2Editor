@@ -1,20 +1,23 @@
-import re
-from PyQt5.QtWidgets import QWidget, QLabel, QListWidget, QLineEdit, QVBoxLayout, QHBoxLayout, QTextEdit, QShortcut, QComboBox
-from PyQt5.QtCore import Qt, pyqtSignal, QTimer
+from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QShortcut, QComboBox
+from PyQt5.QtCore import Qt, pyqtSignal
 
 from dialogs.dialog_message import dialog_message
 from ui.form_general_ui import Ui_Form
 
 
 from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
-from data_manager.nodes.condition_file import ConditionFileNode, ConditionNode, ValueNode, TestStepNode
-from data_manager.nodes.dspace_nodes import DspaceFileNode, DspaceDefinitionNode, DspaceVariableNode
-from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
+from data_manager.nodes.condition_file import ConditionNode, ValueNode, TestStepNode
+from data_manager.nodes.dspace_nodes import DspaceVariableNode
 
-from components.helper_functions import layout_generate_one_row as generate_one_row, validate_line_edits
 from components.my_list_widget import MyListWidget
 from components.widgets.widget_baseline import WidgetBaseline
 from components.widgets.widget_req_filter_text_edit import RequirementFilterTextEdit
+from data_manager.forms.simple_edit_layouts import (
+    ConditionAndValueNodeLayoutGenerator,
+    DspaceVariableNodeLayoutGenerator,
+    RequirementNodeLayoutGenerator,
+    TestStepNodeLayoutGenerator,
+)
 
 
 stylesheet ="""
@@ -102,141 +105,6 @@ class FormEditNode(QWidget, Ui_Form):
 
 
 
-class ConditionAndValueNodeLayoutGenerator:
-    def __init__(self, NODE: ConditionNode|ValueNode) -> None:
-        self.uiMainLayout = QVBoxLayout()
-        self.uiMainLayout.setContentsMargins(50, 50, 50, 50)
-        self.uiMainLayout.setSpacing(10)
-        self.NODE = NODE       
-
-
-    def _create_layout(self):
-        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout)
-        self.uiLineEditName.setText(self.NODE.name)
-        self.uiLineEditCategory = generate_one_row("Category:", self.uiMainLayout)
-        self.uiLineEditCategory.setText(self.NODE.category)
-        
-        QTimer.singleShot(100, lambda: self.uiLineEditName.setFocus())
-        QTimer.singleShot(120, lambda: self.uiLineEditName.selectAll())
-
-
-    def provide_layout(self) -> QVBoxLayout:
-        self._create_layout() 
-        return self.uiMainLayout
-
-    def update_data(self):
-        if validate_line_edits(self.uiLineEditName, self.uiLineEditCategory):
-            self.NODE.name = self.uiLineEditName.text()
-            self.NODE.category = self.uiLineEditCategory.text()
-            self.NODE.get_file_node().set_modified(True)
-            return True
-
-
-
-class TestStepNodeLayoutGenerator:
-    def __init__(self, NODE: TestStepNode) -> None:
-        self.uiMainLayout = QVBoxLayout()
-        self.uiMainLayout.setContentsMargins(50, 50, 50, 50)
-        self.uiMainLayout.setSpacing(10)
-        self.NODE = NODE       
-
-
-    def _create_layout(self):
-        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout)
-        self.uiLineEditName.setText(self.NODE.name)
-        self.uiLineEditAction = generate_one_row("Action:", self.uiMainLayout)
-        self.uiLineEditAction.setText(self.NODE.action)
-        self.uiLineEditComment = generate_one_row("Comment:", self.uiMainLayout)
-        self.uiLineEditComment.setText(self.NODE.comment)
-        self.uiLineEditNominal = generate_one_row("Nominal:", self.uiMainLayout)
-        self.uiLineEditNominal.setText(self.NODE.nominal)
-        
-        QTimer.singleShot(100, lambda: self.uiLineEditName.setFocus())
-        QTimer.singleShot(120, lambda: self.uiLineEditName.selectAll())
-
-    def provide_layout(self) -> QVBoxLayout:
-        self._create_layout() 
-        return self.uiMainLayout
-
-    def update_data(self):
-        if validate_line_edits(self.uiLineEditAction):
-            self.NODE.name = self.uiLineEditName.text()
-            self.NODE.action = self.uiLineEditAction.text()
-            self.NODE.comment = self.uiLineEditComment.text()
-            self.NODE.nominal = self.uiLineEditNominal.text()
-            self.NODE.get_file_node().set_modified(True)
-            return True   
-
-
-
-class DspaceVariableNodeLayoutGenerator:
-    def __init__(self, NODE: DspaceVariableNode) -> None:
-        self.uiMainLayout = QVBoxLayout()
-        self.uiMainLayout.setContentsMargins(50, 50, 50, 50)
-        self.uiMainLayout.setSpacing(10)
-        self.NODE = NODE       
-
-
-    def _create_layout(self):
-        self.uiLineEditName = generate_one_row("Name:", self.uiMainLayout)
-        self.uiLineEditName.setText(self.NODE.name)
-        self.uiLineEditValue = generate_one_row("Value:", self.uiMainLayout)
-        self.uiLineEditValue.setText(self.NODE.value)
-        self.uiLineEditPath = generate_one_row("Path:", self.uiMainLayout)
-        self.uiLineEditPath.setText(self.NODE.path)
-        
-        QTimer.singleShot(100, lambda: self.uiLineEditName.setFocus())
-        QTimer.singleShot(120, lambda: self.uiLineEditName.selectAll()) 
-
-    def provide_layout(self) -> QVBoxLayout:
-        self._create_layout() 
-        return self.uiMainLayout
-
-    def update_data(self):
-        if validate_line_edits(self.uiLineEditName, self.uiLineEditPath, self.uiLineEditValue):
-            self.NODE.name = self.uiLineEditName.text()
-            self.NODE.value = self.uiLineEditValue.text()
-            self.NODE.path = self.uiLineEditPath.text()
-            self.NODE.get_file_node().set_modified(True)
-            return True                      
-        
-
-
-        
-class RequirementNodeLayoutGenerator:
-    def __init__(self, NODE: RequirementNode) -> None:
-        self.uiMainLayout = QVBoxLayout()
-        self.uiMainLayout.setContentsMargins(50, 50, 50, 50)
-        self.uiMainLayout.setSpacing(10)
-        self.NODE = NODE       
-
-
-    def _create_layout(self):
-        l = QHBoxLayout()
-        self.uiTextEditNote = QTextEdit(self.NODE.note)
-        l.addWidget(QLabel("Note:    "))
-        l.addWidget(self.uiTextEditNote)
-        self.uiMainLayout.addLayout(l) 
-
-        QTimer.singleShot(100, lambda: self.uiTextEditNote.setFocus())
-
-    def provide_layout(self) -> QVBoxLayout:
-        self._create_layout() 
-        return self.uiMainLayout
-
-    def update_data(self) -> bool:
-        self.NODE.note = self.uiTextEditNote.toPlainText()
-        return True  
-
-
-
-
-
-
-
-
-
-
 ##############################################################################################################################
 # REQUIREMENT MODULE
 ##############################################################################################################################
@@ -251,8 +119,6 @@ class RequirementModuleLayoutGenerator:
 
 
     def _create_layout(self):
-        # self.uiLineEditPath = generate_one_row("Path:      ", self.uiMainLayout, extend_label_width=False)
-        # self.uiLineEditPath.setText(self.NODE.path)
         uiLayoutModuleColumns = QHBoxLayout()
         uiLayoutModuleColumns.setContentsMargins(0, 20, 0, 0)
         uiLayoutModuleColumns.addWidget(QLabel("Columns:"))
@@ -283,7 +149,6 @@ class RequirementModuleLayoutGenerator:
         self.uiLabelWarning = QLabel()
 
 
-        # QTimer.singleShot(100, lambda: self.uiLineEditPath.setFocus())    
         uiLayoutCustomIndetifier = QHBoxLayout()
         uiLayoutCustomIndetifier.setContentsMargins(0, 10, 0, 10)
         self.uiComboColumnsAsIdentifier = QComboBox()
@@ -310,7 +175,6 @@ class RequirementModuleLayoutGenerator:
 
         uiLayoutCoverageFilter = QHBoxLayout()
         uiLayoutCoverageFilter.addWidget(QLabel("Cv. Filter:"))
-        # self.uiTexEditCoverageFilter = QTextEdit()
         self.uiTexEditCoverageFilter = RequirementFilterTextEdit(self.NODE.columns_names)
         if not self.NODE.columns_names:
             self.uiTexEditCoverageFilter.setEnabled(False)        
@@ -426,35 +290,3 @@ class RequirementModuleLayoutGenerator:
         self.uiWidgetBaselines.setEnabled(True)
         self.uiLabelWarning.hide()
 
-           
-
-
-
-
-
-
-
-    ##############################################################################################################################
-    # COVERAGE FILTER - OPENING FORM AND RECEIVING BACK COVERAGE FILTER STRING:
-    ##############################################################################################################################
-
-    # @pyqtSlot(str)
-    # def receive_data_from_req_filter_form(self, filter_string):
-    #     index = self.TREE.currentIndex()
-    #     node = self.MODEL.itemFromIndex(index)
-    #     node.apply_coverage_filter(filter_string) 
-    #     self._update_data_summary()
-    #     # Remove View Filter
-    #     self._show_all_items()       
-    #     self.set_project_saved(False) 
-
-
-    # def _remove_coverage_filter(self):
-    #     index = self.TREE.currentIndex()
-    #     requirement_file_node = self.MODEL.itemFromIndex(index)   
-    #     requirement_file_node.remove_coverage_filter()
-    #     self._update_data_summary()
-    #     #  Remove View Filter
-    #     self._show_all_items()
-    #     self.set_project_saved(False)
-    
