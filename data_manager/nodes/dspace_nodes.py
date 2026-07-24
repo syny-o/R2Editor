@@ -1,9 +1,11 @@
 import os, stat
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel
-import re
-from dialogs.dialog_message import dialog_message
 from components.reduce_path_string import reduce_path_string
+from data_manager.dspace_mapping import (
+    parse_dspace_mapping,
+    serialize_dspace_mapping,
+)
 
 
 def initialise(data: dict, root_node):
@@ -45,30 +47,17 @@ class DspaceFileNode(QStandardItem):
             with open(self.path, 'r', encoding='utf8') as f:
                 dspace_file_string = f.read()
 
-            ds_definitions = re.split(r'def ', dspace_file_string)
+            self.header, self.footer, definitions = parse_dspace_mapping(
+                dspace_file_string
+            )
 
-            # save first and last part for later export
-            self.header = ds_definitions[0]
-            self.footer = ds_definitions[-1]
-
-            for definition in ds_definitions[1:-1]:  # start from second item and stop before last one
-                ds_var = re.split(r'append', definition)
-                # EXTRACT DEFINITION
-                current_definition = re.split(r'\(', ds_var[0])[0].strip()
-                definition_node = DspaceDefinitionNode(current_definition)
+            for definition_name, variables in definitions:
+                definition_node = DspaceDefinitionNode(definition_name)
                 self.appendRow(definition_node) # APPEND NODE AS A CHILD
-                for v in ds_var[1:]:
-                    try:
-                        all_variables = re.split('"', v)
-                        v_name = all_variables[1],  # name
-                        v_value = all_variables[2].strip(', '),  # default value
-                        v_path = all_variables[3],  # path
-                        variable_node = DspaceVariableNode(v_name[0], v_value[0], v_path[0])
-                        definition_node.appendRow(variable_node)  # APPEND NODE AS A CHILD
-                    except Exception as e:
-                        print('Error when loading DSpaceMapping.py: ' + str(e))
-                        print(v_name)
-
+                for variable_name, value, path in variables:
+                    definition_node.appendRow(
+                        DspaceVariableNode(variable_name, value, path)
+                    )
 
             self.root_node.appendRow(self)  # APPEND NODE AS A CHILD
 
@@ -78,26 +67,26 @@ class DspaceFileNode(QStandardItem):
 
 
     def tree_2_file(self):
-        output_text = ''
-        output_text += self.header
+        definitions = []
         for definition_row in range(self.rowCount()):
-            # Definition Level
             current_definition = self.child(definition_row, 0)
-            output_text += 'def ' + current_definition.name + '():\n'
-            output_text += '\t' + current_definition.name + 'Var = []\n'
-
+            variables = []
             for variable_row in range(current_definition.rowCount()):
-                # Variable Level
                 current_variable = current_definition.child(variable_row, 0)
-                temp = current_variable.name + '"'
-                output_text += '\t' + current_definition.name + 'Var.append(["' + f'{temp  : <70}' + ', ' + f'{current_variable.value : <5}' + ',"' + current_variable.path+ '"])\n'
+                variables.append(
+                    (
+                        current_variable.name,
+                        current_variable.value,
+                        current_variable.path,
+                    )
+                )
+            definitions.append((current_definition.name, variables))
 
-            output_text += '\treturn ' + current_definition.name + 'Var\n'
-            output_text += '\n'
-
-        # APPEND FOOTER
-        output_text += 'def '
-        output_text += self.footer
+        output_text = serialize_dspace_mapping(
+            self.header,
+            self.footer,
+            definitions,
+        )
 
         try:
             # Check if the file ReadOnly and if so, unlock it:
