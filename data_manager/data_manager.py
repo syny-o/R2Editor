@@ -2,7 +2,7 @@ from importlib import reload
 from pathlib import Path
 from ui.model_editor_ui import Ui_Form
 import json, re
-from PyQt5.QtWidgets import QWidget, QFileDialog, QInputDialog, QLabel, QAction, QLineEdit, QShortcut
+from PyQt5.QtWidgets import QWidget, QInputDialog, QLabel, QAction, QLineEdit, QShortcut
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QStandardItemModel, QColor, QPainter
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QThreadPool, QPropertyAnimation, QEasingCurve
 from data_manager.nodes.a2l_nodes import A2lFileNode
@@ -12,20 +12,18 @@ from components.progress_bar.widget_modern_progress_bar import ModernProgressBar
 from components.template_test_case import TemplateTestCase
 from dialogs.dialog_message import dialog_message
 import data_manager.forms.form_a2l_norm_report   
-import data_manager.forms.form_validate_html_report
 from data_manager import model_manager
 from components.module_locker import ModuleLocker
 from data_manager.view.widget_view import View
-import data_manager.tree_walker as tree_walker
 from components.widgets.chart_bar import ChartBar
 from config.icon_manager import IconManager
 from components.decorator_logging_exeptions import logged_exc
 from data_manager.node_actions import NodeActions
 from data_manager.doors_actions import DoorsActions
-from data_manager.html_report_checker import classify_references
 from data_manager.project_data_controller import ProjectDataController
 from data_manager.coverage_controller import CoverageController
 from data_manager.reference_navigator import ReferenceNavigator
+from data_manager.html_report_controller import HtmlReportController
 
 # from my_logging import logger
 # logger.debug(f"{__name__} --> Init")
@@ -62,6 +60,7 @@ class DataManager(QWidget, Ui_Form):
         self.project_data_controller = ProjectDataController(self)
         self.coverage_controller = CoverageController(self)
         self.reference_navigator = ReferenceNavigator(self)
+        self.html_report_controller = HtmlReportController(self)
 
         self.progress_bar = ModernProgressBar('rgb(0, 179, 0)', 'COVERED')
         # self.ui_layout_data_summary.addWidget(self.progress_bar)   
@@ -329,43 +328,8 @@ class DataManager(QWidget, Ui_Form):
     ####################################################################################################################
     
     def check_HTML_report(self):
-        # reload(data_manager.form_validate_html_report)
-        
-        path, _ = QFileDialog.getOpenFileName(
-            parent=self,
-            caption='Open HTML Report',
-            directory=self.PROJECT_MANAGER.disk_project_path(),
-            filter="*.html"
-        )
-
-        if not path: return
-
-        try:
-            with Path(path).open() as f:
-                html_report_string = f.read()
-
-        except Exception as my_exception:
-            dialog_message(self, str(my_exception))                      
-                
-        references = []
-        for row in range(self.ROOT.rowCount()):
-            file_node = self.ROOT.child(row)
-            if isinstance(file_node, RequirementModule) and file_node.coverage_filter:
-                references.extend(file_node.coverage_dict.keys())
-
-        missing_requirements, _ = classify_references(
-            html_report_string,
-            references,
-        )
-
-        self.form = data_manager.forms.form_validate_html_report.FormValidatedHTMLReport(self, missing_requirements)
+        self.html_report_controller.check_report()
 
     @pyqtSlot(str)
     def doubleclicked_on_requirement_in_HTML_report_form(self, req_identifier: str):
-        for row in range(self.ROOT.rowCount()):
-            node = self.ROOT.child(row)
-            if isinstance(node, RequirementModule) and node.coverage_filter:
-                FOUND_NODE = tree_walker.find_node_by_identifier(node, req_identifier)
-                if FOUND_NODE:
-                    self.TREE.setCurrentIndex(FOUND_NODE.index())
-                    self.TREE.scrollTo(FOUND_NODE.index())
+        self.html_report_controller.go_to_requirement(req_identifier)
