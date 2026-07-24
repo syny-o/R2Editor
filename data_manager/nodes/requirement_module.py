@@ -1,7 +1,7 @@
 import re
 from PyQt5.QtWidgets import QPushButton, QStyle, QMessageBox
-from PyQt5.QtCore import pyqtSlot, Qt
-from PyQt5.QtGui import QIcon, QColor, QStandardItem
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon, QStandardItem
 from data_manager.nodes.requirement_node import RequirementNode
 from components.reduce_path_string import reduce_path_string
 from config import constants
@@ -14,6 +14,7 @@ from data_manager.requirement_serialization import (
     requirement_tree_to_list,
     requirements_to_dict,
 )
+from data_manager.coverage_filter import translate_coverage_filter
 
 import qtawesome as qta
 
@@ -89,7 +90,6 @@ class RequirementModule(QStandardItem):
         self.setIcon(self.ICON_DOORS)
         self.setText(reduce_path_string(self.path))
         self.setEditable(False)
-        # self.setForeground(QColor(200, 200, 200)) 
         self.view_filter = constants.ViewCoverageFilter.ALL    
         self.columns_names_backup = [*columns_names] 
         self.current_baseline_backup = current_baseline
@@ -231,17 +231,7 @@ class RequirementModule(QStandardItem):
     # COVERAGE FILTER:
 
     def translate_filter(self, filter_string):
-        """ Translates columns names to column indexes"""
-        # 0. remove whitespaces at the beginning and end
-        filter_string = filter_string.strip()
-        # 1. sort columns names by length and save it to list of tuples with each index
-        columns_names_with_index = [(i, self.columns_names[i]) for i in range(len(self.columns_names))]
-        # 2. sort list of tuples by length of column name
-        sorted_columns_names_with_index = sorted(columns_names_with_index, key=lambda item: len(item[1]), reverse=True)
-        # 3. replace column names with column indexes and start with the longest column names (avoid replacing substrings --> Object Text_DXL/Object Text Issue is solved by this approach)
-        for (i, _) in sorted_columns_names_with_index: 
-            filter_string = filter_string.replace(f"{self.columns_names[i]}", f"column[{i}]")
-        return filter_string.strip()
+        return translate_coverage_filter(filter_string, self.columns_names)
 
 
     def apply_coverage_filter(self, filter_string=None):
@@ -331,7 +321,6 @@ class RequirementModule(QStandardItem):
     ##########################################################################################################################################
     # DOORS DOWNLOADING FINISHED:
 
-    # @pyqtSlot(object)
     def receive_data_from_doors(self, doors_output, timestamp):
 
         columns_changed = self.columns_names_backup != self.columns_names
