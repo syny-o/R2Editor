@@ -1,14 +1,16 @@
-import os, stat, re
+import os, stat
 
 from PyQt5.QtGui import QStandardItem, QIcon
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
 
 from data_manager.nodes.condition_node import ConditionNode
 from data_manager.nodes.value_node import ValueNode
 from data_manager.nodes.test_step_node import TestStepNode
 from components.reduce_path_string import reduce_path_string
-from utils.text.func_format import rstrip_and_add_dots
+from data_manager.condition_file_format import (
+    parse_condition_file,
+    serialize_condition_file,
+)
 
 
 
@@ -17,43 +19,6 @@ def initialise(data: dict, root_node):
     paths = data.get('Conditions Files')
     if paths:
         [ConditionFileNode(root_node, path) for path in paths]
-
-
-
-
-def extract_data(pattern, text, default=''):
-    match = re.search(pattern, text)
-    return match.group(1) if match else default
-
-def create_node(section, node_class, parent_node):
-    key = extract_data(r'Name\s*=\s*"([^"]+)', section)
-    category = extract_data(r'Type\s*=\s*"([^"]+)', section)
-    node = node_class(key, category)
-    parent_node.appendRow(node)
-    return node
-
-def process_test_steps(value_section, value_node):
-    test_step_sections = re.split('TS', value_section)
-    for test_step_section in test_step_sections[1:]:
-        ts_name = extract_data(r'Name=\s*"([^"]+)', test_step_section)
-        ts_action = extract_data(r'A\s*=\s*"([^"]+)', test_step_section)
-        ts_nominal = extract_data(r'Nominal\s*=\s*"([^"]+)', test_step_section)
-        ts_comment = extract_data(r'Comment\s*=\s*"([^"]+)', test_step_section)
-
-        test_step_node = TestStepNode(ts_name, ts_action, ts_comment, ts_nominal)
-        value_node.appendRow(test_step_node)
-
-def process_values(condition_section, condition_node):
-    value_sections = re.split('<Value ', condition_section)
-    for value_section in value_sections[1:]:
-        value_node = create_node(value_section, ValueNode, condition_node)
-        process_test_steps(value_section, value_node)
-
-
-
-
-
-
 
 class ConditionFileNode(QStandardItem):
     def __init__(self, root_node, path):
@@ -88,12 +53,28 @@ class ConditionFileNode(QStandardItem):
             with open(self.path, 'r', encoding='utf8') as f:
                 file_content = f.read()
 
-            condition_sections = re.split('<Condition ', file_content)
-            self.header = condition_sections.pop(0)
-
-            for condition_section in condition_sections:
-                condition_node = create_node(condition_section, ConditionNode, self)
-                process_values(condition_section, condition_node)
+            self.header, conditions = parse_condition_file(file_content)
+            for condition in conditions:
+                condition_node = ConditionNode(
+                    condition["name"],
+                    condition["category"],
+                )
+                self.appendRow(condition_node)
+                for value in condition["values"]:
+                    value_node = ValueNode(
+                        value["name"],
+                        value["category"],
+                    )
+                    condition_node.appendRow(value_node)
+                    for test_step in value["test_steps"]:
+                        value_node.appendRow(
+                            TestStepNode(
+                                test_step["name"],
+                                test_step["action"],
+                                test_step["comment"],
+                                test_step["nominal"],
+                            )
+                        )
 
             self.ROOT.appendRow(self)
 
@@ -121,27 +102,35 @@ class ConditionFileNode(QStandardItem):
 
 
     def build_output_text(self):
-        output_lines = [self.header]
-
+        conditions = []
         for condition_row in range(self.rowCount()):
             condition = self.child(condition_row, 0)
-            output_lines.append(f'\t<Condition Name="{condition.name}" Type="{condition.category}">')
-
+            condition_data = {
+                "name": condition.name,
+                "category": condition.category,
+                "values": [],
+            }
             for value_row in range(condition.rowCount()):
                 value = condition.child(value_row, 0)
-                output_lines.append(f'\t\t<Value Name="{value.name}" Type="{value.category}">')
-
+                value_data = {
+                    "name": value.name,
+                    "category": value.category,
+                    "test_steps": [],
+                }
                 for test_step_row in range(value.rowCount()):
                     test_step = value.child(test_step_row, 0)
-                    output_lines.append(f'\t\t\t<TS Name="{test_step.name}" A="{test_step.action}" Nominal="{test_step.nominal}" Comment="{test_step.comment}" />')
+                    value_data["test_steps"].append(
+                        {
+                            "name": test_step.name,
+                            "action": test_step.action,
+                            "nominal": test_step.nominal,
+                            "comment": test_step.comment,
+                        }
+                    )
+                condition_data["values"].append(value_data)
+            conditions.append(condition_data)
 
-                output_lines.append('\t\t</Value>')
-
-            output_lines.append('\t</Condition>')
-
-        output_lines.append('</Conditions>')
-
-        return '\n'.join(output_lines)
+        return serialize_condition_file(self.header, conditions)
     
 
     def data_4_project(self, data):
@@ -164,9 +153,7 @@ class ConditionFileNode(QStandardItem):
 
     def create_value_node_4_completer(self, value_node):
         new_value_node = self.create_node_4_completer(value_node)
-        # test_steps_string = " ".join([value_node.child(ti).text() for ti in range(value_node.rowCount())])
         test_step_list = [value_node.child(ti).text() for ti in range(value_node.rowCount())]        
-        # new_value_node.setData(str(f'{value_node.text() : <40}{rstrip_and_add_dots(test_steps_string, 50) : >50}'), Qt.DisplayRole)
         new_value_node.setData(test_step_list, Qt.UserRole)
         new_value_node.setData(value_node.model().indexFromItem(value_node), Qt.UserRole + 1)
 
@@ -187,35 +174,8 @@ class ConditionFileNode(QStandardItem):
                 new_value_node = self.create_value_node_4_completer(value_node)
                 values_list.append(new_value_node)
 
-            # new_cond_node.setData(str(f'{cond_node.text() : <40}{" | ".join([v.data(Qt.ToolTipRole) for v in values_list])[:100] : >100}'), Qt.DisplayRole)
             new_cond_node.setData([value.text() for value in values_list], Qt.UserRole)
             new_cond_node.setData(cond_node.model().indexFromItem(cond_node), Qt.UserRole + 1)
             cond_dict.update({cond_node.text(): values_list})
 
         return cond_dict, cond_list
-
-
-    # def data_4_completer(self) -> dict:
-    #     cond_dict = {}
-    #     for ci in range(self.rowCount()):
-    #         cond_node = self.child(ci)
-    #         cond_key = cond_node.text()
-    #         values = {}
-    #         for vi in range(cond_node.rowCount()):
-    #             value_node = cond_node.child(vi)
-    #             value_key = value_node.text()
-    #             test_steps = [value_node.child(ti).text() for ti in range(value_node.rowCount())]
-    #             values.update({value_key: test_steps})
-        
-    #         cond_dict.update({cond_key: values})
-
-    #     return cond_dict
-
-
-
-
-
-
-
-
-
