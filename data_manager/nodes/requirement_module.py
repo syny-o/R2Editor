@@ -11,6 +11,7 @@ from data_manager.doors_output_parser import (
     parse_requirement,
 )
 from data_manager.requirement_serialization import (
+    requirement_module_to_dict,
     requirement_tree_to_list,
     requirements_to_dict,
 )
@@ -470,22 +471,7 @@ class RequirementModule(QStandardItem):
     # PRI UKLADANI PROJEKTU
     def data_4_project(self, data_from_root):        
         requirement_modules = data_from_root.get("REQUIREMENT MODULES")
-        my_data = {
-            "path"              : self.path,
-            "columns"           : self.columns_names_backup,
-            "attributes"        : self.attributes,
-            "baseline"          : self.baseline,
-            "update_time"       : self.timestamp,  
-            "coverage_filter"   : self.coverage_filter,    
-            "coverage_dict"     : self._coverage_dict,
-            "ignore_list"       : list(self.ignore_list),
-            "notes"             : self.notes,
-            "current_baseline"  : self.current_baseline_backup,
-            "column_number_as_identifier"  : self.column_number_as_identifier,
-            "requirements"      : requirement_tree_to_list(self),
-            }
-
-        requirement_modules.append(my_data)  
+        requirement_modules.append(requirement_module_to_dict(self))
 
         return data_from_root
 

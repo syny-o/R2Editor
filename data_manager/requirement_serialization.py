@@ -11,6 +11,23 @@ def requirements_to_dict(requirements):
     }
 
 
+def requirement_module_to_dict(module):
+    return {
+        "path": module.path,
+        "columns": module.columns_names_backup,
+        "attributes": module.attributes,
+        "baseline": module.baseline,
+        "update_time": module.timestamp,
+        "coverage_filter": module.coverage_filter,
+        "coverage_dict": module.coverage_dict,
+        "ignore_list": list(module.ignore_list),
+        "notes": module.notes,
+        "current_baseline": module.current_baseline_backup,
+        "column_number_as_identifier": module.column_number_as_identifier,
+        "requirements": requirement_tree_to_list(module),
+    }
+
+
 def _append_children(parent, requirements):
     for row in range(parent.rowCount()):
         node = parent.child(row)
