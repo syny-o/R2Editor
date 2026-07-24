@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Callable, Type
 
 from PyQt5.QtGui import QStandardItem, QIcon, QTextCursor, QTextCharFormat, QColor
-from PyQt5.QtWidgets import QToolButton, QListWidgetItem, QFrame, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QTextEdit, QPushButton, QApplication, QStyle
+from PyQt5.QtWidgets import QToolButton, QListWidgetItem, QFrame, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QTextEdit, QApplication
 from PyQt5.QtCore import Qt
 
 from data_manager.nodes.requirement_module import RequirementModule, RequirementNode
@@ -13,7 +13,6 @@ from data_manager.nodes.a2l_nodes import A2lFileNode, A2lNode
 from components.reduce_path_string import reduce_path_string
 from components.widgets.widget_req_text_edit import RequirementTextEdit
 
-from components.helper_functions import layout_generate_one_row as generate_one_row
 from components.widgets.widgets_pointing_hand import ListWidgetPointingHand
 from config.icon_manager import IconManager
 from data_manager.view.layout_base import LayoutGenerator
@@ -24,6 +23,9 @@ from data_manager.view.simple_node_layouts import (
     DspaceVariableNodeLayoutGenerator,
     FileNodeLayoutGenerator,
     TestStepNodeLayoutGenerator,
+)
+from data_manager.view.requirement_module_layout import (
+    RequirementModuleLayoutGenerator,
 )
 
 
@@ -230,143 +232,5 @@ class RequirementNodeLayoutGenerator(LayoutGenerator):
         cb.clear(mode=cb.Clipboard)
         cb.setText(self.uiLineEditIdentifier.text(), mode=cb.Clipboard)
         # TODO: Reduce coupling
-        self.DATA_MANAGER.MAIN.show_notification(f"Item {self.uiLineEditIdentifier.text()} copied to Clipboard.")                  
-
-
-
-
-
-class RequirementModuleLayoutGenerator(LayoutGenerator):
-    def __init__(self, DATA_MANAGER: Type) -> None:
-        self.DATA_MANAGER = DATA_MANAGER 
-        self.uiMainLayout = QVBoxLayout()
-        self.uiMainLayout.setSpacing(20)
-        self.uiMainLayout.setContentsMargins(0, 0, 0, 0)
-        self.uiFrame = QFrame()
-        self.uiFrame.setLayout(self.uiMainLayout)
-        self.uiFrame.setVisible(False)
-        self._generate_header_layout()  
-        # self._generate_baseline_layout()
-        # self._generate_columns_attributes_layout() 
-        self._generate_covered_list_layout()
-        self._generate_not_covered_list_layout() 
-        self._generate_ignore_list_layout()
-        self._connect_signals()
-
-    def show_coverage_layout(self, show: bool):
-        self.uiListWidgetCoveredList.setVisible(show)
-        self.uiListWidgetNotCoveredList.setVisible(show)
-        self.uiListWidgetIgnoreList.setVisible(show)
-        self.uiLabelCovered.setVisible(show)
-        self.uiLabelNotCovered.setVisible(show)
-        self.uiLabelIgnored.setVisible(show)
-
-
-    def provide_layout(self) -> QFrame:
-        return self.uiFrame
-
-    def fill_with_data(self, NODE):
-        self.uiFrame.setVisible(True)
-        self._fill_header_layout(NODE) 
-        # self._fill_columns_attributes_layout(NODE)
-        # self._fill_baseline_layout(NODE)
-        self._fill_covered_list_layout(NODE)
-        self._fill_not_covered_list_layout(NODE)
-        self._fill_ignore_list_layout(NODE)
-        self.show_coverage_layout(bool(NODE.coverage_filter))
-
-
-    def _connect_signals(self):
-        self.uiListWidgetIgnoreList.itemClicked.connect(self.DATA_MANAGER._doubleclick_on_identifier)
-        self.uiListWidgetNotCoveredList.itemClicked.connect(self.DATA_MANAGER._doubleclick_on_identifier)
-        self.uiListWidgetCoveredList.itemClicked.connect(self.DATA_MANAGER._doubleclick_on_identifier)
-
-
-    def _generate_header_layout(self):
-        self.uiLineEditModulePath = generate_one_row("Path:", self.uiMainLayout, extend_label_width=True)
-        self.uiLineEditTimestamp = generate_one_row("Updated:", self.uiMainLayout, extend_label_width=True)
-
-
-    def _fill_header_layout(self, NODE):
-        self.uiLineEditModulePath.setText(NODE.path)
-        self.uiLineEditTimestamp.setText(NODE.timestamp)
-
-
-    def _generate_covered_list_layout(self):
-        self.uiAllListLayout = QHBoxLayout()
-        # self.uiAllListLayout.setSpacing(10)
-        self.uiMainLayout.addLayout(self.uiAllListLayout)
-
-        self.uiListWidgetCoveredList = ListWidgetPointingHand()
-        uiCoveredListLayout = QVBoxLayout()
-        self.uiLabelCovered = QLabel()
-        self.uiLabelCovered.setStyleSheet("QLabel {color: rgb(0, 179, 0); min-width: 120px}")
-        uiCoveredListLayout.addWidget(self.uiLabelCovered)
-        uiCoveredListLayout.addWidget(self.uiListWidgetCoveredList)
-        self.uiAllListLayout.addLayout(uiCoveredListLayout)
-
-        self.uiListWidgetCoveredList.setMouseTracking(True)
-        self.uiListWidgetCoveredList.itemEntered.connect(self.DATA_MANAGER.set_tooltip_2_list_widget_item)
-
-    def _fill_covered_list_layout(self, NODE):
-        self.uiLabelCovered.setText(f"Covered: {len(NODE.covered_requirements)}")
-        self.uiListWidgetCoveredList.clear()
-        for str_identifier in NODE.covered_requirements:    
-            covered_lw_item = QListWidgetItem(self.uiListWidgetCoveredList)    
-            covered_lw_item.setData(Qt.DisplayRole, str_identifier.split('-')[-1])
-            if len(NODE.coverage_dict) < 500:
-                covered_lw_item.setData(Qt.DecorationRole, QIcon(u"ui/icons/check.png"))
-            covered_lw_item.setData(Qt.UserRole, str_identifier)
-            # self.uiListWidgetCoveredList.insertItem(0, covered_lw_item)   
-
-    def _generate_not_covered_list_layout(self):
-        self.uiListWidgetNotCoveredList = ListWidgetPointingHand()
-        uiNotCoveredListLayout = QVBoxLayout()
-        self.uiLabelNotCovered = QLabel()
-        self.uiLabelNotCovered.setStyleSheet("QLabel {color: rgb(250,50,50); min-width: 120px}")
-        uiNotCoveredListLayout.addWidget(self.uiLabelNotCovered)
-        uiNotCoveredListLayout.addWidget(self.uiListWidgetNotCoveredList)
-        self.uiAllListLayout.addLayout(uiNotCoveredListLayout)
-
-        self.uiListWidgetNotCoveredList.setMouseTracking(True)
-        self.uiListWidgetNotCoveredList.itemEntered.connect(self.DATA_MANAGER.set_tooltip_2_list_widget_item)        
-
-    def _fill_not_covered_list_layout(self, NODE):
-        self.uiLabelNotCovered.setText(f"Not Covered: {len(NODE.not_covered_requirements)}")
-        self.uiListWidgetNotCoveredList.clear()
-        for str_identifier in NODE.not_covered_requirements:
-            
-            not_covered_lw_item = QListWidgetItem(self.uiListWidgetNotCoveredList)    
-            not_covered_lw_item.setData(Qt.DisplayRole, str_identifier.split('-')[-1])
-            if len(NODE.coverage_dict) < 500:
-                not_covered_lw_item.setData(Qt.DecorationRole, QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton))
-            not_covered_lw_item.setData(Qt.UserRole, str_identifier)
-
-
-    def _generate_ignore_list_layout(self):
-        self.uiListWidgetIgnoreList = ListWidgetPointingHand()
-        uiIgnoreListLayout = QVBoxLayout()
-        self.uiLabelIgnored = QLabel()
-        self.uiLabelIgnored.setStyleSheet("QLabel {min-width: 120px}")
-        uiIgnoreListLayout.addWidget(self.uiLabelIgnored)
-        uiIgnoreListLayout.addWidget(self.uiListWidgetIgnoreList)
-        self.uiAllListLayout.addLayout(uiIgnoreListLayout)
-
-        self.uiListWidgetIgnoreList.setMouseTracking(True)
-        self.uiListWidgetIgnoreList.itemEntered.connect(self.DATA_MANAGER.set_tooltip_2_list_widget_item) 
-
-
-    def _fill_ignore_list_layout(self, NODE):
-        self.uiLabelIgnored.setText(f"Ignored: {len(NODE.ignore_list)}")        
-        self.uiListWidgetIgnoreList.clear()
-        for str_identifier in NODE.ignore_list:
-            ignore_lw_item = QListWidgetItem()    
-            ignore_lw_item.setData(Qt.DisplayRole, str_identifier.split('-')[-1])
-            ignore_lw_item.setData(Qt.UserRole, str_identifier)
-            ignore_lw_item.setData(Qt.DecorationRole, self.DATA_MANAGER.MAIN.ICON_MANAGER.ICON_IGNORED_ITEM)
-            
-            self.uiListWidgetIgnoreList.insertItem(0, ignore_lw_item)   
-
-
-
+        self.DATA_MANAGER.MAIN.show_notification(f"Item {self.uiLineEditIdentifier.text()} copied to Clipboard.")
 
