@@ -1,15 +1,11 @@
-from importlib import reload
 from pathlib import Path
 from ui.model_editor_ui import Ui_Form
-import json, re
-from PyQt5.QtWidgets import QWidget, QInputDialog, QLabel, QAction, QLineEdit, QShortcut
-from PyQt5.QtGui import QIcon, QCursor, QKeySequence, QStandardItemModel, QColor, QPainter
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QThreadPool, QPropertyAnimation, QEasingCurve
+from PyQt5.QtWidgets import QWidget, QShortcut
+from PyQt5.QtGui import QStandardItemModel
+from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QThreadPool
 from data_manager.nodes.a2l_nodes import A2lFileNode
 from data_manager.nodes.requirement_module import RequirementModule
 from data_manager.forms.form_add_module import FormAddModule
-from components.progress_bar.widget_modern_progress_bar import ModernProgressBar
-from components.template_test_case import TemplateTestCase
 from dialogs.dialog_message import dialog_message
 import data_manager.forms.form_a2l_norm_report   
 from data_manager import model_manager
@@ -17,17 +13,12 @@ from components.module_locker import ModuleLocker
 from data_manager.view.widget_view import View
 from components.widgets.chart_bar import ChartBar
 from config.icon_manager import IconManager
-from components.decorator_logging_exeptions import logged_exc
 from data_manager.node_actions import NodeActions
 from data_manager.doors_actions import DoorsActions
 from data_manager.project_data_controller import ProjectDataController
 from data_manager.coverage_controller import CoverageController
 from data_manager.reference_navigator import ReferenceNavigator
 from data_manager.html_report_controller import HtmlReportController
-
-# from my_logging import logger
-# logger.debug(f"{__name__} --> Init")
-
 
 
 class DataManager(QWidget, Ui_Form):
@@ -62,8 +53,6 @@ class DataManager(QWidget, Ui_Form):
         self.reference_navigator = ReferenceNavigator(self)
         self.html_report_controller = HtmlReportController(self)
 
-        self.progress_bar = ModernProgressBar('rgb(0, 179, 0)', 'COVERED')
-        # self.ui_layout_data_summary.addWidget(self.progress_bar)   
         self.widget_chart = ChartBar()
         self.ui_layout_data_summary.addWidget(self.widget_chart)
 
@@ -89,7 +78,6 @@ class DataManager(QWidget, Ui_Form):
         QShortcut('Ctrl+S', self).activated.connect(
             self.MAIN.project_actions.save
         )
-        # QShortcut( 'Backspace', self ).activated.connect(self.TREE.goto_previous_index)
 
 
     def goto_index(self, index):
@@ -269,7 +257,6 @@ class DataManager(QWidget, Ui_Form):
 
     @pyqtSlot(dict, list, list)
     def a2l_normalisation_finished(self, data_4_report, missing_signals, duplicated_signals):
-        # reload(data_manager.form_a2l_norm_report)
         self.form = data_manager.forms.form_a2l_norm_report.A2lNormReport(data_4_report, missing_signals, duplicated_signals)
         self.form.show()
 
