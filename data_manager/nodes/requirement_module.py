@@ -5,6 +5,15 @@ from PyQt5.QtGui import QIcon, QColor, QStandardItem
 from data_manager.nodes.requirement_node import RequirementNode
 from components.reduce_path_string import reduce_path_string
 from config import constants
+from data_manager.doors_output_parser import (
+    extract_attributes,
+    extract_baselines,
+    parse_requirement,
+)
+from data_manager.requirement_serialization import (
+    requirement_tree_to_list,
+    requirements_to_dict,
+)
 
 import qtawesome as qta
 
@@ -44,38 +53,6 @@ def initialise(data: dict, root_node):
         elif not data:
             r = RequirementModule(root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline, column_number_as_identifier)
             root_node.appendRow(r)  # APPEND NODE AS A CHILD     
-
-
-
-# Helper functions for extracting data from doors_output.txt
-def extract_attributes(string: str) -> list[str]:
-    return re.findall(r"<ATTRIBUTE_START>(.*?)<ATTRIBUTE_END>", string, re.DOTALL)
-
-def extract_baselines(string: str) -> dict[str, list[str, str, str]]:
-    baselines = {}
-    baselines_string = re.findall(r"<BASELINE_START>(.*?)<BASELINE_END>", string, re.DOTALL)
-    for one_baseline_string in baselines_string:
-        # baseline version
-        version_match =  re.search(r"<VERSION_START>(?P<my_group>.*)<VERSION_END>", one_baseline_string)
-        version = version_match.group("my_group")
-        # baseline user
-        user_match =  re.search(r"<USER_START>(?P<my_group>.*)<USER_END>", one_baseline_string)
-        user = user_match.group("my_group")   
-        # baseline date
-        date_match =  re.search(r"<DATE_START>(?P<my_group>.*)<DATE_END>", one_baseline_string)
-        date = date_match.group("my_group")
-        # baseline annotation
-        annotation_match =  re.search(r"<ANNOTATION_START>(?P<my_group>.*)<ANNOTATION_END>", one_baseline_string, re.DOTALL)
-        if annotation_match:
-            annotation = annotation_match.group("my_group")
-        else:
-            annotation = ""
-        baselines.update({version : [user, date, annotation]})  
-    return baselines   # { "1.0" : ["user", "date", "annotation"] }
-
-
-  
-
 
 
 
@@ -267,41 +244,6 @@ class RequirementModule(QStandardItem):
         return filter_string.strip()
 
 
-
-    # def apply_coverage_filter(self, filter_string=None):
-    #     if filter_string:
-    #         self.coverage_filter = filter_string            
-
-    #     if self.coverage_filter:
-
-    #         translated_filter_string = self.translate_filter(self.coverage_filter)
-
-    #         def browse_children(parent_node, string):                    
-    #             for row in range(parent_node.rowCount()):
-    #                 item = parent_node.child(row)
-
-    #                 try:
-    #                     column = item.columns_data
-    #                     evaluation = eval(string)
-                        
-    #                 except Exception as ex:
-    #                     self.coverage_filter = None
-    #                     raise Exception(str(ex))
-
-    
-    #                 if evaluation:
-    #                     if item.reference not in self.ignore_list and item.reference.lower() not in self.ignore_list:
-    #                         self._coverage_dict.update({item.reference.lower() : []})  # UPDATE COVERAGE DICT
-
-    #                 browse_children(item, string)                
-        
-    #         self._coverage_dict.clear()
-    #         browse_children(self, translated_filter_string)   
-
-    #         self.update_icons_according_to_coverage()
-    #         self.update_title_text() 
-
-
     def apply_coverage_filter(self, filter_string=None):
         if filter_string:
             self.coverage_filter = filter_string            
@@ -400,7 +342,9 @@ class RequirementModule(QStandardItem):
             return False, message
 
         # save original data for future comparison
-        ORIGINAL_MODULE_DATA = _transform_req_list_2_req_dict(_create_list_of_requirements_from_module(self))
+        ORIGINAL_MODULE_DATA = requirements_to_dict(
+            requirement_tree_to_list(self)
+        )
 
         self.timestamp = timestamp
         # delete all children
@@ -414,7 +358,9 @@ class RequirementModule(QStandardItem):
 
         # save new data for future comparison
         if ORIGINAL_MODULE_DATA:
-            NEW_MODULE_DATA = _transform_req_list_2_req_dict(_create_list_of_requirements_from_module(self))
+            NEW_MODULE_DATA = requirements_to_dict(
+                requirement_tree_to_list(self)
+            )
         else:
             NEW_MODULE_DATA = {}
 
@@ -556,33 +502,20 @@ class RequirementModule(QStandardItem):
 
 
     def _create_requirement(self, one_requirement_string: str) -> list[dict]:
-        # requirement identifier
-        identifier_match =  re.search(r"<ID_START>(?P<my_group>.*)<ID_END>", one_requirement_string)
-        identifier = identifier_match.group("my_group")
-        # requirement level
-        level_match =  re.search(r"<LEVEL_START>(?P<my_group>.*)<LEVEL_END>", one_requirement_string)
-        level = int(level_match.group("my_group"))
-        # requirement heading
-        heading_match =  re.search(r"<HEADING_START>(?P<my_group>.*)<HEADING_END>", one_requirement_string)
-        if heading_match:
-            heading = heading_match.group("my_group")
-        else:
-            heading = "" 
-        # requirement columns values
-        columns = re.findall(r"<COLUMN_START>(.*?)<COLUMN_END>", one_requirement_string, re.DOTALL)
-        # requirement outlinks
-        outlinks = re.findall(r"<OUTLINK_START>(.*?)<OUTLINK_END>", one_requirement_string, re.DOTALL)      
-        # requirement inlinks
-        inlinks = re.findall(r"<INLINK_START>(.*?)<INLINK_END>", one_requirement_string, re.DOTALL)                          
-
-        # CREATE REQUIREMENT NODE
-
-
-        if self.column_number_as_identifier is not None:
-            identifier = columns[self.column_number_as_identifier]
-
-
-        return RequirementNode(self, identifier, heading, level, outlinks, inlinks, None, columns)                          
+        parsed = parse_requirement(
+            one_requirement_string,
+            self.column_number_as_identifier,
+        )
+        return RequirementNode(
+            self,
+            parsed['identifier'],
+            parsed['heading'],
+            parsed['level'],
+            parsed['outlinks'],
+            parsed['inlinks'],
+            None,
+            parsed['columns'],
+        )
 
 
 
@@ -601,45 +534,10 @@ class RequirementModule(QStandardItem):
             "notes"             : self.notes,
             "current_baseline"  : self.current_baseline_backup,
             "column_number_as_identifier"  : self.column_number_as_identifier,
-            "requirements"      : _create_list_of_requirements_from_module(self),
+            "requirements"      : requirement_tree_to_list(self),
             }
 
         requirement_modules.append(my_data)  
 
-        return data_from_root    
-        
-
-
-# PROJEDE VSECHNY REQUIREMENTY V MODULU (VE STROME), VYTVORI Z NEJ SLOVNIK A ULOZI JE DO SEZNAMU --> PRO UKLADANI PROJEKTU
-def _create_list_of_requirements_from_module(module: RequirementModule, my_list=None) -> list[dict]:
-    if my_list is None:
-        requirement_list = []
-    else:
-        requirement_list = my_list
-    
-    for row in range(module.rowCount()):
-        one_requirement_node = module.child(row)
-        
-        one_requirement_data = {
-            "reference": one_requirement_node.reference,
-            "heading": one_requirement_node.heading,
-            "level": one_requirement_node.level,
-            "outlinks": one_requirement_node.outlinks,
-            "inlinks": one_requirement_node.inlinks,
-            "file_references": list(one_requirement_node.file_references),
-            "is_covered" : one_requirement_node.is_covered,            
-            "columns_data": one_requirement_node.columns_data,
-        }
-
-        requirement_list.append(one_requirement_data)
-        _create_list_of_requirements_from_module(one_requirement_node, requirement_list)
-    
-    return requirement_list
-
-
-def _transform_req_list_2_req_dict(req_list: list[dict]) -> dict:
-    req_dict = {}
-    for one_req in req_list:
-        req_dict.update({one_req.get("reference"): one_req.get("columns_data")})
-    return req_dict
+        return data_from_root
 
