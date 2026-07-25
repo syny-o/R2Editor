@@ -7,7 +7,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from text_editor.completion_rules import (
+from text_editor.completion.rules import (
     SPECIAL_COMMAND_TEMPLATES,
     completion_model_name,
 )

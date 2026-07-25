@@ -4,7 +4,7 @@ from PyQt5.QtGui import QStandardItemModel
 from data_manager.nodes.a2l_nodes import A2lFileNode
 from data_manager.nodes.condition_file import ConditionFileNode
 from data_manager.nodes.dspace_nodes import DspaceFileNode
-from text_editor.completer import Completer
+from text_editor.completion.completer import Completer
 
 
 def send_data_to_completer(root):

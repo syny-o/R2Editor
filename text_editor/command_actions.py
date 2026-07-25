@@ -1,4 +1,4 @@
-from text_editor.completion_rules import (
+from text_editor.completion.rules import (
     EQUAL_SPACING_EXCLUDED_COMMANDS,
     SPECIAL_COMMAND_TEMPLATES,
 )
