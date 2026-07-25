@@ -11,7 +11,7 @@ from data_manager.requirement_comparison import compare_requirement_data
 
 
 
-class FormReqDataComparasion(QWidget, Ui_Form):
+class RequirementComparisonForm(QWidget, Ui_Form):
 
     def __init__(self, modules_data: dict[RequirementModule, tuple[dict, dict]]):
         super().__init__()

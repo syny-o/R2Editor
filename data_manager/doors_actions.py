@@ -1,5 +1,7 @@
 from data_manager.forms.form_doors_inputs import FormDoorsInputs
-from data_manager.forms.form_req_data_comparasion import FormReqDataComparasion
+from data_manager.forms.form_requirement_comparison import (
+    RequirementComparisonForm,
+)
 from data_manager.nodes.requirement_module import RequirementModule
 from data_manager import tree_walker
 from dialogs.dialog_message import dialog_message
@@ -103,7 +105,9 @@ class DoorsActions:
         manager._update_data_summary()
         manager.uiBtnCheckCoverage.setEnabled(True)
         if success:
-            manager.form_comparasion = FormReqDataComparasion(comparison_data)
+            manager.form_comparison = RequirementComparisonForm(
+                comparison_data
+            )
 
     def _send_request(
         self,
