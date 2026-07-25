@@ -7,7 +7,7 @@ import difflib
 from ui.form_general_ui import Ui_Form
 
 from data_manager.nodes.requirement_module import RequirementModule
-from dialogs.dialog_message import dialog_message
+from data_manager.requirement_comparison import compare_requirement_data
 
 
 
@@ -45,8 +45,13 @@ class FormReqDataComparasion(QWidget, Ui_Form):
                 
                 if module_data_new != module_data_old:
 
-                    items = self._get_key_diff(module_columns, module_data_old, module_data_new)
-                    items += self._get_value_diff(module_columns, module_data_old, module_data_new)
+                    items = self._create_difference_items(
+                        compare_requirement_data(
+                            module_columns,
+                            module_data_old,
+                            module_data_new,
+                        )
+                    )
 
                     if len(module_path) > 40:
                         module_path = "..." + module_path[-40:]
@@ -59,49 +64,21 @@ class FormReqDataComparasion(QWidget, Ui_Form):
 
 
 
-    def _get_key_diff(self, module_columns, module_data_old: dict, module_data_new: dict):
+    def _create_difference_items(self, differences):
         items = []
-        # get missing keys
-        missing_keys = set(module_data_old.keys()) - set(module_data_new.keys())
-        for missing_key in missing_keys:
+        for difference in differences:
             item = QListWidgetItem()
-            item.setData(Qt.DisplayRole, missing_key)
-            item.setData(Qt.UserRole, "missing")
+            item.setData(
+                Qt.DisplayRole,
+                difference['identifier'],
+            )
+            user_data = (
+                difference['status']
+                if difference['status'] in ('missing', 'new')
+                else difference['changes']
+            )
+            item.setData(Qt.UserRole, user_data)
             items.append(item)
-            
-        # get added keys
-        added_keys = set(module_data_new.keys()) - set(module_data_old.keys())
-        for added_key in added_keys:
-            item = QListWidgetItem()
-            item.setData(Qt.DisplayRole, added_key)
-            item.setData(Qt.UserRole, "new")
-            items.append(item)
-
-        return items
-
-
-
-    
-    def _get_value_diff(self, module_columns, module_data_old: dict, module_data_new: dict):
-        items = []
-        for identifier, columns_data in module_data_old.items():
-            if identifier in module_data_new:
-                if columns_data != module_data_new[identifier]:
-                    item = QListWidgetItem()
-                    item.setData(Qt.DisplayRole, identifier)
-                    items.append(item)
-                    # user_data = ""
-                    l = []
-                    for i in range(len(columns_data)):
-                        if columns_data[i] != module_data_new[identifier][i]:
-                            # user_data += f"\nORIGINAL {module_columns[i]}:\n\n{columns_data[i]} \n\nACTUAL {module_columns[i]}:\n\n{module_data_new[identifier][i]}\n"
-                            l.append((module_columns[i] ,columns_data[i], module_data_new[identifier][i]))
-                    
-                    item.setData(Qt.UserRole, l)
-                            
-                    # item.setData(Qt.UserRole, user_data)
-                        
-        
         return items
     
 
