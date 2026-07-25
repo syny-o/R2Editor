@@ -7,7 +7,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from text_editor.outline_parser import (
+from text_editor.outline.parser import (
     OutlineSection,
     line_number_from_position,
     parse_outline_sections,

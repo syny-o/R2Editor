@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QTreeWidgetItem
 
 from components.smooth_scrolling import SmoothScrolling
-from text_editor.outline_parser import (
+from text_editor.outline.parser import (
     line_number_from_position,
     parse_outline_sections,
 )
