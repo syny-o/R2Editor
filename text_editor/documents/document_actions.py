@@ -7,7 +7,7 @@ from components.template_test_case import TemplateTestCase
 from config.icon_manager import IconManager
 from data_manager.requirement_references import changed_requirement_references
 from dialogs.dialog_message import dialog_message
-from text_editor.file_access import (
+from text_editor.documents.file_access import (
     is_supported_document,
     read_text_file,
     set_file_read_only,

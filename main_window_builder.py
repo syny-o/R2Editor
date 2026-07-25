@@ -6,7 +6,7 @@ from dashboard.dashboard import Dashboard
 from data_manager.data_manager import DataManager
 from file_browser.tree_file_browser import FileSystemView
 from text_editor.outline.controller import OutlineController
-from text_editor.tab_manager import EditorTabManager
+from text_editor.documents.tab_manager import EditorTabManager
 from text_editor.tabs import Tabs
 
 

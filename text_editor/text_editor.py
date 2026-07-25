@@ -8,7 +8,7 @@ from text_editor.code_editor import CodeEditor
 from text_editor.completion.completer import Completer
 from text_editor.completion.controller import CompletionController
 from text_editor.editor_key_handler import EditorKeyHandler
-from text_editor.file_access import is_file_read_only
+from text_editor.documents.file_access import is_file_read_only
 
 
 class TextEdit(CodeEditor):

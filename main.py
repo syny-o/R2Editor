@@ -7,7 +7,7 @@ from config.settings_controller import SettingsController
 from data_manager import project_manager
 from data_manager.project_actions import ProjectActions
 from main_window_builder import MainWindowBuilder
-from text_editor.document_actions import DocumentActions
+from text_editor.documents.document_actions import DocumentActions
 from text_editor.editor_controller import EditorController
 from ui.main_ui import Ui_MainWindow
 from window_controller import WindowController
