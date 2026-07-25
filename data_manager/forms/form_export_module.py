@@ -7,6 +7,10 @@ from PyQt5.QtGui import QStandardItemModel
 from ui.form_general_ui import Ui_Form
 
 from data_manager.nodes.requirement_module import RequirementModule
+from data_manager.requirement_export import (
+    build_export_header,
+    build_export_rows,
+)
 from dialogs.dialog_message import dialog_message
 
 
@@ -85,40 +89,23 @@ class FormExportModule(QWidget, Ui_Form):
 
     
     def _prepare_header(self):
-        header = ['Identifier', ]
-        header += [self.requirement_module.columns_names_backup[i] for i in self.columns_indexes]
-        if self.include_note:
-            header += ['User note',]
-
-        return header
+        return build_export_header(
+            self.requirement_module.columns_names_backup,
+            self.columns_indexes,
+            self.include_note,
+        )
 
 
     def _prepare_data(self):
-        
-        items_2_export = []
-        data_2_export = []
-
-
-        def _browse_all_children(node):
-            for row in range(node.rowCount()):
-                node_child = node.child(row)
-                if node_child:
-                    if not self.tree.isRowHidden(row, node.index()) and not node_child.hasChildren():
-                        items_2_export.append(node_child)
-                _browse_all_children(node_child)
-        
-        _browse_all_children(self.requirement_module)
-
-        for item in items_2_export:
-            one_data = [item.reference, ]
-            for index in self.columns_indexes:
-                one_data.append(item.columns_data[index])
-            if self.include_note:
-                one_data.append(item.note)
-            
-            data_2_export.append(one_data)
-
-        return data_2_export
+        return build_export_rows(
+            self.requirement_module,
+            self.columns_indexes,
+            self.include_note,
+            is_hidden=lambda item: self.tree.isRowHidden(
+                item.row(),
+                item.parent().index(),
+            ),
+        )
             
             
 
