@@ -1,6 +1,5 @@
 import sys, pywinstyles
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from app_settings import AppSettings
 from application_lifecycle import ApplicationLifecycle
@@ -50,7 +49,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.settings_controller.apply()
 
         self.resize(1920, 1080)
-        self.setWindowIcon(QIcon('R2Editor.ico'))
+        self.setWindowIcon(self.ICON_MANAGER.application_icon())
         self.setWindowTitle("Editor")
         self.frame_top.setVisible(False)
           

@@ -1,6 +1,6 @@
-from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QStandardItem
 
+from config.icon_manager import IconManager
 
 
 class TestStepNode(QStandardItem):
@@ -8,7 +8,7 @@ class TestStepNode(QStandardItem):
         super().__init__()
 
         self.setEditable(False)
-        self.setIcon(QIcon(u"ui/icons/ts.png"))
+        self.setIcon(IconManager.data_icon("test_step"))
 
         self.name = name
         self.action = action

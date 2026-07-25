@@ -1,6 +1,7 @@
 import os, stat
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel
+from PyQt5.QtGui import QStandardItem, QStandardItemModel
+from config.icon_manager import IconManager
 from components.reduce_path_string import reduce_path_string
 from data_manager.dspace_mapping import (
     parse_dspace_mapping,
@@ -25,7 +26,7 @@ class DspaceFileNode(QStandardItem):
 
         self.setText(reduce_path_string(self.path))
 
-        self.setIcon(QIcon(u"ui/icons/python.png"))
+        self.setIcon(IconManager.data_icon("dspace_file"))
 
         self.setEditable(False)
 
@@ -36,10 +37,12 @@ class DspaceFileNode(QStandardItem):
 
     def set_modified(self, modified):
         self.is_modified = modified
-        if modified:
-            self.setIcon(QIcon(u"ui/icons/modified_file.png"))
-        else:
-            self.setIcon(QIcon(u"ui/icons/python.png"))        
+        icon = (
+            IconManager.data_icon("modified_file")
+            if modified
+            else IconManager.data_icon("dspace_file")
+        )
+        self.setIcon(icon)
 
 
     def file_2_tree(self):

@@ -1,4 +1,5 @@
 import qtawesome as qta
+from PyQt5.QtGui import QIcon
 
 COLOR_ON = '#4863ff'
 COLOR_OFF = '#ddd'
@@ -25,6 +26,61 @@ def define_icon(icon_name, *, scale_factor, color_off, color_on=COLOR_ON, color_
 
 
 class IconManager:
+    APPLICATION_ICON_PATH = "R2Editor.ico"
+
+    DATA_ICON_PATHS = {
+        "a2l": "ui/icons/a2l.png",
+        "condition_file": "ui/icons/xml.png",
+        "dspace_file": "ui/icons/python.png",
+        "modified_file": "ui/icons/modified_file.png",
+        "condition": "ui/icons/condition.png",
+        "value": "ui/icons/value.png",
+        "test_step": "ui/icons/ts.png",
+    }
+
+    FILE_BROWSER_ICON_PATHS = {
+        "rename": "ui/icons/16x16/cil-description.png",
+        "duplicate": "ui/icons/20x20/cil-copy.png",
+        "add_to_model": "ui/icons/16x16/cil-dialpad.png",
+        "normalise": "ui/icons/16x16/cil-chart-line.png",
+        "delete": "ui/icons/20x20/cil-trash.png",
+        "new_file": "ui/icons/file-new.png",
+        "new_folder": "ui/icons/folder-new.png",
+        "find_replace": "ui/icons/16x16/cil-magnifying-glass.png",
+        "project_location": "ui/icons/16x16/cil-layers.png",
+    }
+
+    EDITOR_DOCUMENT_ICON_PATHS = {
+        "saved": "ui/icons/16x16/cil-file.png",
+        "modified": "ui/icons/16x16/cil-description.png",
+    }
+
+    COMMON_ICON_PATHS = {
+        "copy": "ui/icons/20x20/cil-copy.png",
+        "recent_project": "ui/icons/16x16/cil-av-timer.png",
+        "selected": "ui/icons/check.png",
+    }
+
+    @classmethod
+    def data_icon(cls, name):
+        return QIcon(cls.DATA_ICON_PATHS[name])
+
+    @classmethod
+    def file_browser_icon(cls, name):
+        return QIcon(cls.FILE_BROWSER_ICON_PATHS[name])
+
+    @classmethod
+    def editor_document_icon(cls, name):
+        return QIcon(cls.EDITOR_DOCUMENT_ICON_PATHS[name])
+
+    @classmethod
+    def application_icon(cls):
+        return QIcon(cls.APPLICATION_ICON_PATH)
+
+    @classmethod
+    def common_icon(cls, name):
+        return QIcon(cls.COMMON_ICON_PATHS[name])
+
     def __init__(self):
 
         # MAIN WINDOW - LEFT MENU
@@ -133,7 +189,24 @@ class IconManager:
         self.ICON_SET_PROJECT_FOLDER = define_icon('fa5s.folder-open', scale_factor=SCALE_FACTOR_TITLE_BAR, color_off=COLOR_WHITE, color_on=COLOR_WHITE, color_on_active=COLOR_WHITE)
 
         # DATA MANAGER VARIOUS ICONS
-        self.ICON_IGNORED_ITEM = qta.icon('fa5s.eye-slash', scale_factor=0.7, color_off="#cc7a00")
+        self.ICON_REQUIREMENT_MODULE = QIcon("ui/icons/doors.png")
+        self.ICON_REQUIREMENT_COVERAGE = QIcon("ui/icons/xcheck.png")
+        self.ICON_REQUIREMENT_COVERED = qta.icon(
+            'fa5s.check',
+            color='green',
+            scale_factor=0.8,
+        )
+        self.ICON_REQUIREMENT_NOT_COVERED = qta.icon(
+            'fa5s.times',
+            color='red',
+            scale_factor=1.0,
+        )
+        self.ICON_REQUIREMENT_IGNORED = qta.icon(
+            'fa5s.eye-slash',
+            color='#cc7a00',
+            scale_factor=0.8,
+        )
+        self.ICON_REQUIREMENT_NONE = QIcon()
         self.ICON_INLINK = qta.icon('fa5s.arrow-left', scale_factor=0.7, color_off="red")
         self.ICON_OUTLINK = qta.icon('fa5s.arrow-right', scale_factor=0.7, color_off="green")
         self.ICON_SCRIPT_REFERENCE = qta.icon('mdi.file-check', scale_factor=1, color_off="orange")

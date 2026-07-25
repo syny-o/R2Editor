@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QPushButton, QToolBar, QVBoxLayout, QLabel, QListWidget, QLineEdit, QComboBox, QHBoxLayout, QSizePolicy, QToolButton
 from PyQt5.QtCore import Qt, pyqtSignal, QSettings, QSize
-from PyQt5.QtGui import QFont, QPalette, QIcon
+from PyQt5.QtGui import QFont, QPalette
 
 import qtawesome as qta
 

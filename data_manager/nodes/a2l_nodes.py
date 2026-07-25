@@ -1,6 +1,6 @@
 from PyQt5.Qt import QStandardItem
 from PyQt5.QtCore import Qt, QThreadPool
-from PyQt5.QtGui import QIcon
+from config.icon_manager import IconManager
 from dialogs.dialog_message import dialog_message
 from components.reduce_path_string import reduce_path_string
 from data_manager.a2l_normalization_worker import A2lNormalizationWorker
@@ -33,8 +33,7 @@ class A2lFileNode(QStandardItem):
         
         self.setText(reduce_path_string(self.path))
 
-        # self.setIcon(QIcon(u"ui/icons/16x16/cil-folder.png"))
-        self.setIcon(QIcon(u"ui/icons/a2l.png"))
+        self.setIcon(IconManager.data_icon("a2l"))
 
         self.setEditable(False)
 
@@ -122,6 +121,6 @@ class A2lNode(QStandardItem):
 
         self.setEditable(False)
 
-        self.setIcon(QIcon(u"ui/icons/a2l.png"))
+        self.setIcon(IconManager.data_icon("a2l"))
 
 

@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QPushButton, QLineEdit, QComboBox, QStyle, QToolButton
+from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QToolButton
 from PyQt5.QtCore import Qt, QModelIndex
-from PyQt5.QtGui import QIcon, QCursor
+from PyQt5.QtGui import QCursor
 
 from data_manager.nodes.requirement_module import RequirementModule
 from data_manager.nodes.condition_file import ConditionFileNode
@@ -13,7 +13,6 @@ from data_manager.view.view_actions import create_view_actions
 from data_manager.view.view_filter_controller import ViewFilterController
 from data_manager.view.view_layout import setup_view_layout
 from config import constants
-from config.icon_manager import IconManager
 
 
 class View(QWidget):
@@ -31,12 +30,13 @@ class View(QWidget):
         selection_model = self.uiDataTreeView.selectionModel()
         selection_model.selectionChanged.connect(self._update_view)  # update line edits on Up/Down Arrows          
         # FILTER - COMBO
+        icons = DATA_MANAGER.MAIN.ICON_MANAGER
         self.COMBO_ITEMS = [
-            (constants.ViewCoverageFilter.ALL.value , IconManager().ICON_COMBO_All_ITEMS), 
-            (constants.ViewCoverageFilter.COVERED_AND_NOT_COVERED.value, QIcon("ui/icons/xcheck.png")),
-            (constants.ViewCoverageFilter.NOT_COVERED.value, QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton)),
-            (constants.ViewCoverageFilter.COVERED.value, QIcon("ui/icons/check.png")),
-            (constants.ViewCoverageFilter.IGNORED.value , IconManager().ICON_IGNORED_ITEM), 
+            (constants.ViewCoverageFilter.ALL.value, icons.ICON_COMBO_All_ITEMS),
+            (constants.ViewCoverageFilter.COVERED_AND_NOT_COVERED.value, icons.ICON_REQUIREMENT_COVERAGE),
+            (constants.ViewCoverageFilter.NOT_COVERED.value, icons.ICON_REQUIREMENT_NOT_COVERED),
+            (constants.ViewCoverageFilter.COVERED.value, icons.ICON_REQUIREMENT_COVERED),
+            (constants.ViewCoverageFilter.IGNORED.value, icons.ICON_REQUIREMENT_IGNORED),
         ]        
         self.uiComboCoverageFilter = QComboBox()
         for text, icon in self.COMBO_ITEMS:
@@ -51,7 +51,10 @@ class View(QWidget):
         self.uiLineEditTextFilter.textChanged.connect(lambda: self._trigger_filtering(reset_filter=True))
         # TEXT FILTER LINE EDIT
         self.uiLineEditTextFilter.setPlaceholderText('Filter')
-        self.uiLineEditTextFilter.addAction(IconManager().ICON_SEARCH_BOX_FIND, QLineEdit.LeadingPosition)        
+        self.uiLineEditTextFilter.addAction(
+            icons.ICON_SEARCH_BOX_FIND,
+            QLineEdit.LeadingPosition,
+        )
         self.uiLineEditTextFilter.setMaximumHeight(0)        
 
         setup_view_layout(self)

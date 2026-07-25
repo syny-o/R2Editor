@@ -1,12 +1,12 @@
-from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QStandardItem
 
+from config.icon_manager import IconManager
 
 class ValueNode(QStandardItem):
     def __init__(self, name, category):
         super().__init__()
         self.setEditable(False)
-        self.setIcon(QIcon(u"ui/icons/value.png"))
+        self.setIcon(IconManager.data_icon("value"))
 
         self.name = name
         self.category = category

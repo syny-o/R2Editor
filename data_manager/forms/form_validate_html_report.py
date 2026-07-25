@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QListWidget, QListWidgetItem
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon, QColor
 
+from config.icon_manager import IconManager
 from dialogs.dialog_message import dialog_message
 from ui.form_general_ui import Ui_Form
 
@@ -12,7 +12,7 @@ class FormValidatedHTMLReport(QWidget, Ui_Form):
         super().__init__()
         self.setupUi(self)
         # self.setMinimumSize(600, 600)
-        self.setWindowIcon(QIcon('R2Editor.ico'))
+        self.setWindowIcon(IconManager.application_icon())
         # self.setWindowFlags(Qt.FramelessWindowHint)
         # self.setWindowModality(Qt.ApplicationModal)
         self.uiFrameTitleBar.setMaximumHeight(0)
@@ -27,7 +27,17 @@ class FormValidatedHTMLReport(QWidget, Ui_Form):
         
         uiListWidgetIdentifiers = QListWidget()
         uiListWidgetIdentifiers.itemDoubleClicked.connect(lambda item: data_manager.doubleclicked_on_requirement_in_HTML_report_form(item.text()))
-        _ = [QListWidgetItem(QIcon(u"ui/icons/cross.png"), item, uiListWidgetIdentifiers) for item in not_covered_requirements]
+        not_covered_icon = (
+            data_manager.MAIN.ICON_MANAGER.ICON_REQUIREMENT_NOT_COVERED
+        )
+        _ = [
+            QListWidgetItem(
+                not_covered_icon,
+                item,
+                uiListWidgetIdentifiers,
+            )
+            for item in not_covered_requirements
+        ]
 
 
 

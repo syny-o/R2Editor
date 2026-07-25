@@ -1,7 +1,7 @@
 import re
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QColor, QTextCharFormat, QTextCursor
+from PyQt5.QtGui import QColor, QTextCharFormat, QTextCursor
 from PyQt5.QtWidgets import (
     QApplication,
     QFrame,
@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import (
 from components.reduce_path_string import reduce_path_string
 from components.widgets.widget_req_text_edit import RequirementTextEdit
 from components.widgets.widgets_pointing_hand import ListWidgetPointingHand
+from config.icon_manager import IconManager
 from data_manager.view.layout_base import LayoutGenerator
 
 
@@ -60,7 +61,7 @@ class RequirementNodeLayoutGenerator(LayoutGenerator):
         layout.addWidget(QLabel('Id:    '))
         layout.addWidget(self.uiLineEditIdentifier)
         self.action_copy_identifier = self.uiLineEditIdentifier.addAction(
-            QIcon('ui/icons/20x20/cil-copy.png'),
+            IconManager.common_icon("copy"),
             QLineEdit.LeadingPosition,
         )
         self.action_copy_identifier.triggered.connect(

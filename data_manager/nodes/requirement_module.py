@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QPushButton, QStyle, QMessageBox
+from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QStandardItem
+from PyQt5.QtGui import QStandardItem
 from data_manager.nodes.requirement_node import RequirementNode
 from components.reduce_path_string import reduce_path_string
 from config import constants
@@ -34,20 +34,18 @@ from data_manager.requirement_tree_builder import (
     iter_descendants,
 )
 
-import qtawesome as qta
-
 class RequirementModule(QStandardItem):
     def __init__(self, root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline, column_number_as_identifier):
         super().__init__()
         self.root_node = root_node
         self.data_manager = self.root_node.data(Qt.UserRole)
 
-        self.ICON_DOORS = QIcon(u"ui/icons/doors.png")
-        # self.ICON_NOT_COVERED = QIcon(u"ui/icons/cross.png")
-        self.ICON_NOT_COVERED = QPushButton().style().standardIcon(QStyle.SP_DialogCancelButton)
-        self.ICON_COVERED = QIcon(u"ui/icons/check.png")
-        self.ICON_NONE = QIcon()  
-        self.ICON_IGNORED = qta.icon('fa5s.eye-slash', color='orange', scale_factor=0.8)
+        icons = self.data_manager.MAIN.ICON_MANAGER
+        self.ICON_DOORS = icons.ICON_REQUIREMENT_MODULE
+        self.ICON_NOT_COVERED = icons.ICON_REQUIREMENT_NOT_COVERED
+        self.ICON_COVERED = icons.ICON_REQUIREMENT_COVERED
+        self.ICON_NONE = icons.ICON_REQUIREMENT_NONE
+        self.ICON_IGNORED = icons.ICON_REQUIREMENT_IGNORED
 
         self.path = path
         self.columns_names = columns_names

@@ -1,6 +1,6 @@
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMessageBox
 
+from config.icon_manager import IconManager
 from text_editor.text_editor import TextEdit
 
 
@@ -116,12 +116,15 @@ class EditorTabManager:
         if tab_index == -1:
             return
 
-        icon_path = (
-            'ui/icons/16x16/cil-description.png'
+        icon_name = (
+            "modified"
             if is_modified
-            else 'ui/icons/16x16/cil-file.png'
+            else "saved"
         )
-        tabs.setTabIcon(tab_index, QIcon(icon_path))
+        tabs.setTabIcon(
+            tab_index,
+            IconManager.editor_document_icon(icon_name),
+        )
 
     def opened_files(self):
         opened_files = {}

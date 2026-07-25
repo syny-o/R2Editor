@@ -1,7 +1,9 @@
 from pathlib import Path
 
-from PyQt5.QtGui import QCursor, QIcon
+from PyQt5.QtGui import QCursor
 from PyQt5.QtWidgets import QMenu
+
+from config.icon_manager import IconManager
 
 
 class FileBrowserContextMenu:
@@ -23,7 +25,7 @@ class FileBrowserContextMenu:
             self._add_creation_actions(menu, index)
 
         rename_action = menu.addAction(
-            QIcon('ui/icons/16x16/cil-description.png'),
+            IconManager.file_browser_icon("rename"),
             'Rename..',
         )
         rename_action.triggered.connect(browser.actions.rename)
@@ -34,7 +36,7 @@ class FileBrowserContextMenu:
 
         if suffix in ('.par', '.txt'):
             duplicate_action = menu.addAction(
-                QIcon('ui/icons/20x20/cil-copy.png'),
+                IconManager.file_browser_icon("duplicate"),
                 'Create Copy',
             )
             duplicate_action.triggered.connect(
@@ -44,7 +46,7 @@ class FileBrowserContextMenu:
         if suffix in ('.con', '.xml', '.a2l', '.py'):
             menu.addSeparator()
             add_to_model_action = menu.addAction(
-                QIcon('ui/icons/16x16/cil-dialpad.png'),
+                IconManager.file_browser_icon("add_to_model"),
                 'Add to Model',
             )
             add_to_model_action.triggered.connect(
@@ -54,7 +56,7 @@ class FileBrowserContextMenu:
         if suffix in ('.par', '.txt') or is_directory:
             menu.addSeparator()
             normalise_action = menu.addAction(
-                QIcon('ui/icons/16x16/cil-chart-line.png'),
+                IconManager.file_browser_icon("normalise"),
                 'Normalise Script(s)',
             )
             normalise_action.triggered.connect(
@@ -63,7 +65,7 @@ class FileBrowserContextMenu:
 
         menu.addSeparator()
         delete_action = menu.addAction(
-            QIcon('ui/icons/20x20/cil-trash.png'),
+            IconManager.file_browser_icon("delete"),
             'Delete',
         )
         delete_action.triggered.connect(browser.actions.delete)
@@ -71,14 +73,14 @@ class FileBrowserContextMenu:
 
     def _add_creation_actions(self, menu, index):
         new_file_action = menu.addAction(
-            QIcon('ui/icons/file-new.png'),
+            IconManager.file_browser_icon("new_file"),
             'New File',
         )
         new_file_action.triggered.connect(
             lambda: self.browser.actions.create_file(index)
         )
         new_folder_action = menu.addAction(
-            QIcon('ui/icons/folder-new.png'),
+            IconManager.file_browser_icon("new_folder"),
             'New Folder',
         )
         new_folder_action.triggered.connect(
@@ -89,7 +91,7 @@ class FileBrowserContextMenu:
     def _add_directory_actions(self, menu, file_path):
         menu.addSeparator()
         find_action = menu.addAction(
-            QIcon('ui/icons/16x16/cil-magnifying-glass.png'),
+            IconManager.file_browser_icon("find_replace"),
             'Find and Replace in Folder',
         )
         find_action.triggered.connect(
@@ -97,7 +99,7 @@ class FileBrowserContextMenu:
         )
         menu.addSeparator()
         location_action = menu.addAction(
-            QIcon('ui/icons/16x16/cil-layers.png'),
+            IconManager.file_browser_icon("project_location"),
             'Set as Project Location',
         )
         location_action.triggered.connect(

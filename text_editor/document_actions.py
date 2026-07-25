@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QFileDialog
 
 from components.syntax_highlighter import python_highlighter, rapit_two_highlighter
@@ -61,7 +60,7 @@ class DocumentActions:
             )
             self.main_window.left_tabs.addTab(
                 text_edit,
-                QIcon('ui/icons/16x16/cil-file.png'),
+                IconManager.editor_document_icon("saved"),
                 file_path.name,
             )
         except Exception as exception:
@@ -143,7 +142,7 @@ class DocumentActions:
         )
         self.main_window.left_tabs.addTab(
             text_edit,
-            QIcon('ui/icons/16x16/cil-description.png'),
+            IconManager.editor_document_icon("modified"),
             'Untitled',
         )
         self.main_window.actual_text_edit.setFocus()

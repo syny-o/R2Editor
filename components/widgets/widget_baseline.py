@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import QTextEdit, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem
 from PyQt5.QtGui import QIcon
 
+from config.icon_manager import IconManager
+
 
 class WidgetBaseline(QWidget):
     def __init__(self, view_only=True):
@@ -89,7 +91,9 @@ class WidgetBaseline(QWidget):
         for row in range(self.uiListWidgetBaselines.count()):
             temp_list_widget_item = self.uiListWidgetBaselines.item(row)
             if self.module.current_baseline == temp_list_widget_item.text():
-                temp_list_widget_item.setIcon(QIcon(u"ui/icons/check.png"))
+                temp_list_widget_item.setIcon(
+                    IconManager.common_icon("selected")
+                )
                 self._update_selection(temp_list_widget_item)
             else:    
                 temp_list_widget_item.setIcon(QIcon())
@@ -97,7 +101,7 @@ class WidgetBaseline(QWidget):
         if not self.module.current_baseline:
             first_item = self.uiListWidgetBaselines.item(0)
             if first_item:
-                first_item.setIcon(QIcon(u"ui/icons/check.png"))
+                first_item.setIcon(IconManager.common_icon("selected"))
                 self._update_selection(first_item)
 
 
@@ -109,7 +113,7 @@ class WidgetBaseline(QWidget):
         item = self.uiListWidgetBaselines.currentItem()
         if item:
             self._remove_all_icons()
-            item.setIcon(QIcon(u"ui/icons/check.png"))
+            item.setIcon(IconManager.common_icon("selected"))
             self.switched_baseline = item.text()
 
 

@@ -2,8 +2,8 @@ from pathlib import Path
 
 from PyQt5.QtWidgets import QWidget, QFileDialog, QListWidget, QInputDialog, QListWidgetItem, QMessageBox, QMenu
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
-from PyQt5.QtGui import QIcon
 
+from config.icon_manager import IconManager
 from ui.dashboard_ui import Ui_Form
 from dialogs.dialog_message import dialog_message
 from components.widgets.widgets_pointing_hand import ListWidgetPointingHand
@@ -56,7 +56,10 @@ class Dashboard(QWidget, Ui_Form):
         if self.recent_projects:
             self.uiListWidgetRecentProjects.clear()
             for item in self.recent_projects:
-                item = QListWidgetItem(QIcon(u"ui/icons/16x16/cil-av-timer.png"), item)
+                item = QListWidgetItem(
+                    IconManager.common_icon("recent_project"),
+                    item,
+                )
                 self.uiListWidgetRecentProjects.addItem(item)
 
             self.uiListWidgetRecentProjects.setCurrentRow(0)

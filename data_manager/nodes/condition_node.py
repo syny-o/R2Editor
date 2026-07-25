@@ -1,13 +1,13 @@
-from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QStandardItem
 
+from config.icon_manager import IconManager
 
 
 class ConditionNode(QStandardItem):
     def __init__(self, name, category):
         super().__init__()
         self.setEditable(False)
-        self.setIcon(QIcon(u"ui/icons/condition.png"))
+        self.setIcon(IconManager.data_icon("condition"))
 
         self.name = name
         self.category = category
@@ -33,4 +33,4 @@ class ConditionNode(QStandardItem):
         new_val_nodes = [val_node.get_node_copy() for val_node in my_val_nodes]
         new_cond_node = ConditionNode(self.name, self.category)
         new_cond_node.appendRows(new_val_nodes)
-        return new_cond_node        
+        return new_cond_node

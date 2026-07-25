@@ -1,12 +1,9 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
     QListWidgetItem,
-    QPushButton,
-    QStyle,
     QVBoxLayout,
 )
 
@@ -100,7 +97,7 @@ class RequirementModuleLayoutGenerator(LayoutGenerator):
             if len(node.coverage_dict) < 500:
                 item.setData(
                     Qt.DecorationRole,
-                    QIcon('ui/icons/check.png'),
+                    self.DATA_MANAGER.MAIN.ICON_MANAGER.ICON_REQUIREMENT_COVERED,
                 )
             item.setData(Qt.UserRole, identifier)
 
@@ -122,9 +119,7 @@ class RequirementModuleLayoutGenerator(LayoutGenerator):
             if len(node.coverage_dict) < 500:
                 item.setData(
                     Qt.DecorationRole,
-                    QPushButton().style().standardIcon(
-                        QStyle.SP_DialogCancelButton
-                    ),
+                    self.DATA_MANAGER.MAIN.ICON_MANAGER.ICON_REQUIREMENT_NOT_COVERED,
                 )
             item.setData(Qt.UserRole, identifier)
 
@@ -142,7 +137,7 @@ class RequirementModuleLayoutGenerator(LayoutGenerator):
             item.setData(Qt.UserRole, identifier)
             item.setData(
                 Qt.DecorationRole,
-                self.DATA_MANAGER.MAIN.ICON_MANAGER.ICON_IGNORED_ITEM,
+                self.DATA_MANAGER.MAIN.ICON_MANAGER.ICON_REQUIREMENT_IGNORED,
             )
             self.uiListWidgetIgnoreList.insertItem(0, item)
 

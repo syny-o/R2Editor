@@ -1,8 +1,9 @@
 import os, stat
 
-from PyQt5.QtGui import QStandardItem, QIcon
+from PyQt5.QtGui import QStandardItem
 from PyQt5.QtCore import Qt
 
+from config.icon_manager import IconManager
 from data_manager.nodes.condition_node import ConditionNode
 from data_manager.nodes.value_node import ValueNode
 from data_manager.nodes.test_step_node import TestStepNode
@@ -30,7 +31,7 @@ class ConditionFileNode(QStandardItem):
         self.path = path
         
         self.setText(reduce_path_string(self.path))
-        self.setIcon(QIcon(u"ui/icons/xml.png"))
+        self.setIcon(IconManager.data_icon("condition_file"))
         self.setEditable(False)
                 
         self.header = ''
@@ -43,8 +44,12 @@ class ConditionFileNode(QStandardItem):
 
     def set_modified(self, modified):
         self.is_modified = modified
-        icon_path = "ui/icons/modified_file.png" if modified else "ui/icons/xml.png"
-        self.setIcon(QIcon(icon_path))
+        icon = (
+            IconManager.data_icon("modified_file")
+            if modified
+            else IconManager.data_icon("condition_file")
+        )
+        self.setIcon(icon)
 
 
 
