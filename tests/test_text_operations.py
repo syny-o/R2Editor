@@ -7,7 +7,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from text_editor.text_operations import (
+from text_editor.editing.text_operations import (
     PARAGRAPH_SEPARATOR,
     build_chapter,
     build_command,
@@ -23,7 +23,7 @@ from text_editor.text_operations import (
     split_indentation,
     transform_indentation,
 )
-from text_editor.script_formatter import TextFormatter
+from text_editor.editing.script_formatter import TextFormatter
 
 
 class TextOperationsTest(unittest.TestCase):

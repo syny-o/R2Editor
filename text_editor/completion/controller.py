@@ -1,9 +1,9 @@
 from PyQt5.QtGui import QTextCursor
 
 from components.text_functions import get_word_under_cursor
-from text_editor import command_actions
+from text_editor.editing import command_actions
 from text_editor.completion.rules import completion_model_name
-from text_editor.text_operations import completion_context
+from text_editor.editing.text_operations import completion_context
 
 
 class CompletionController:

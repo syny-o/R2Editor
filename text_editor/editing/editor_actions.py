@@ -1,5 +1,5 @@
-from text_editor.script_formatter import TextFormatter
-from text_editor.command_actions import (
+from text_editor.editing.script_formatter import TextFormatter
+from text_editor.editing.command_actions import (
     complete_special_command,
     format_assignment_at_cursor,
     graph_variables_at_cursor,
@@ -7,7 +7,7 @@ from text_editor.command_actions import (
     insert_command,
     insert_testcase,
 )
-from text_editor.text_operations import (
+from text_editor.editing.text_operations import (
     cursor_column_after_transform,
     cursor_position_after_format,
     leading_whitespace,

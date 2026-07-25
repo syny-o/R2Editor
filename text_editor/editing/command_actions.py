@@ -2,7 +2,7 @@ from text_editor.completion.rules import (
     EQUAL_SPACING_EXCLUDED_COMMANDS,
     SPECIAL_COMMAND_TEMPLATES,
 )
-from text_editor.text_operations import (
+from text_editor.editing.text_operations import (
     build_chapter,
     build_command,
     build_testcase,

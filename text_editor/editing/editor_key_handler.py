@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt
 
-from text_editor import editor_actions
+from text_editor.editing import editor_actions
 
 
 class EditorKeyHandler:

@@ -1,6 +1,6 @@
 import re
 
-from text_editor.text_operations import normalize_variable_command
+from text_editor.editing.text_operations import normalize_variable_command
 
 
 class TextFormatter:

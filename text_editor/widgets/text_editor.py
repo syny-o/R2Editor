@@ -4,10 +4,10 @@ from PyQt5.QtWidgets import QPlainTextEdit
 from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighter
 from components.text_functions import get_word_under_cursor
 from config.font import font
-from text_editor.code_editor import CodeEditor
+from text_editor.widgets.code_editor import CodeEditor
 from text_editor.completion.completer import Completer
 from text_editor.completion.controller import CompletionController
-from text_editor.editor_key_handler import EditorKeyHandler
+from text_editor.editing.editor_key_handler import EditorKeyHandler
 from text_editor.documents.file_access import is_file_read_only
 
 

@@ -5,7 +5,7 @@ from config.font import font
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QShortcut
-from text_editor import editor_actions
+from text_editor.editing import editor_actions
 
 
 class EditorController:

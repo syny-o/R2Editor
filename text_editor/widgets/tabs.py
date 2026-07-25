@@ -2,7 +2,7 @@ from PyQt5.QtGui import QRegion, QDrag, QPixmap, QCursor
 from PyQt5.QtWidgets import QTabWidget, QTabBar, QTextEdit
 from PyQt5.QtCore import Qt, QPoint, QMimeData
 
-from text_editor.text_editor import TextEdit
+from text_editor.widgets.text_editor import TextEdit
 
 class Tabs(QTabWidget):
 

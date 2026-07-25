@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QMessageBox
 
 from config.icon_manager import IconManager
-from text_editor.text_editor import TextEdit
+from text_editor.widgets.text_editor import TextEdit
 
 
 class EditorTabManager:
