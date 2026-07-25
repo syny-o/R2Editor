@@ -3,8 +3,8 @@ from PyQt5.QtCore import Qt, QThreadPool
 from config.icon_manager import IconManager
 from dialogs.dialog_message import dialog_message
 from components.reduce_path_string import reduce_path_string
-from data_manager.a2l_normalization_worker import A2lNormalizationWorker
-from data_manager.a2l_parser import parse_supported_signals_from_file
+from data_manager.a2l.normalization_worker import A2lNormalizationWorker
+from data_manager.a2l.parser import parse_supported_signals_from_file
 
 
 def initialise(data: dict, root_node):

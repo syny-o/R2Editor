@@ -1,7 +1,7 @@
 import re
 import unittest
 
-from data_manager.a2l_normalizer import (
+from data_manager.a2l.normalizer import (
     contains_number,
     find_missing_signals,
     normalize_a2l_text,

@@ -3,7 +3,7 @@ import stat
 
 from PyQt5.QtCore import QObject, QRunnable, pyqtSignal, pyqtSlot
 
-from data_manager.a2l_normalizer import (
+from data_manager.a2l.normalizer import (
     find_missing_signals,
     normalize_a2l_text,
 )

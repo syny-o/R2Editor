@@ -1,6 +1,6 @@
 import unittest
 
-from data_manager.a2l_parser import (
+from data_manager.a2l.parser import (
     extract_measurement_blocks,
     parse_supported_signals,
 )
