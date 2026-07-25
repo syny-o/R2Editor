@@ -13,7 +13,7 @@ from data_manager.doors_actions import DoorsActions
 from data_manager.project_data_controller import ProjectDataController
 from data_manager.coverage_controller import CoverageController
 from data_manager.reference_navigator import ReferenceNavigator
-from data_manager.html_report_controller import HtmlReportController
+from data_manager.html_report.controller import HtmlReportController
 from data_manager.a2l.actions import A2lActions
 from data_manager.requirement_module_actions import RequirementModuleActions
 

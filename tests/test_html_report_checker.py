@@ -1,6 +1,6 @@
 import unittest
 
-from data_manager.html_report_checker import classify_references
+from data_manager.html_report.checker import classify_references
 
 
 class HtmlReportCheckerTests(unittest.TestCase):

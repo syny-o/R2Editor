@@ -6,7 +6,7 @@ from data_manager import tree_walker
 from data_manager.forms.form_validate_html_report import (
     FormValidatedHTMLReport,
 )
-from data_manager.html_report_checker import classify_references
+from data_manager.html_report.checker import classify_references
 from data_manager.nodes.requirement_module import RequirementModule
 from dialogs.dialog_message import dialog_message
 
