@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from data_manager.coverage_scanner import scan_requirement_references
+from data_manager.coverage.scanner import scan_requirement_references
 
 
 class CoverageWorkerTests(unittest.TestCase):

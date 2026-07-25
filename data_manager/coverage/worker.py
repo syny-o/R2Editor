@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QObject, QRunnable, pyqtSignal, pyqtSlot
 
-from data_manager.coverage_scanner import scan_requirement_references
+from data_manager.coverage.scanner import scan_requirement_references
 
 
 class CoverageWorker(QRunnable):

@@ -11,7 +11,7 @@ from config.icon_manager import IconManager
 from data_manager.node_actions import NodeActions
 from data_manager.doors_actions import DoorsActions
 from data_manager.project_data_controller import ProjectDataController
-from data_manager.coverage_controller import CoverageController
+from data_manager.coverage.controller import CoverageController
 from data_manager.reference_navigator import ReferenceNavigator
 from data_manager.html_report.controller import HtmlReportController
 from data_manager.a2l.actions import A2lActions

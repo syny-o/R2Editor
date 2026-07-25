@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QStandardItem
 
-from data_manager.coverage_data import (
+from data_manager.coverage.data import (
     add_reference_to_ignore,
     remove_reference_from_ignore,
 )

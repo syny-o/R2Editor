@@ -1,6 +1,6 @@
 import unittest
 
-from data_manager.coverage_filter import (
+from data_manager.coverage.filter import (
     matching_references,
     translate_coverage_filter,
 )

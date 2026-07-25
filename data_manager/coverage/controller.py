@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QMessageBox
 
 from data_manager import tree_walker
-from data_manager.coverage_worker import CoverageWorker
+from data_manager.coverage.worker import CoverageWorker
 from data_manager.nodes.requirement_module import (
     RequirementModule,
     RequirementNode,

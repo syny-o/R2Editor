@@ -14,11 +14,11 @@ from data_manager.requirement_serialization import (
     requirement_tree_to_list,
     requirements_to_dict,
 )
-from data_manager.coverage_filter import (
+from data_manager.coverage.filter import (
     matching_references,
     translate_coverage_filter,
 )
-from data_manager.coverage_data import (
+from data_manager.coverage.data import (
     apply_file_references,
     coverage_counts,
     covered_references,

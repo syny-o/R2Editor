@@ -1,6 +1,6 @@
 import unittest
 
-from data_manager.coverage_data import (
+from data_manager.coverage.data import (
     add_reference_to_ignore,
     apply_file_references,
     coverage_counts,
