@@ -57,7 +57,6 @@ class IconManager:
 
     COMMON_ICON_PATHS = {
         "copy": "ui/icons/20x20/cil-copy.png",
-        "recent_project": "ui/icons/16x16/cil-av-timer.png",
         "selected": "ui/icons/check.png",
     }
 
@@ -92,6 +91,11 @@ class IconManager:
         self.ICON_APP_EXIT = define_icon('mdi.power-standby', scale_factor=SCALE_FACTOR_MENU_LEFT, color_off="#ddd", color_on="#ddd", color_on_active="#ddd")
         self.ICON_APP_ABOUT = define_icon('fa5s.info-circle', scale_factor=SCALE_FACTOR_MENU_LEFT, color_off="#ddd", color_on="#ddd", color_on_active="#ddd")
         self.ICON_APP_HELP = define_icon('fa5s.question-circle', scale_factor=SCALE_FACTOR_MENU_LEFT, color_off="#ddd", color_on="#ddd", color_on_active="#ddd")
+        self.ICON_REMOVE_RECENT_PROJECT = qta.icon(
+            'fa5s.times',
+            color=COLOR_ON,
+            scale_factor=1.0,
+        )
         self.ICON_MENU = define_icon('mdi.menu', scale_factor=2, color_off="#ddd", color_on="#ddd", color_on_active="#ddd")
         self.ICON_MENU_CLOSE = define_icon('mdi.close', scale_factor=1.8, color_off="#ddd", color_on="#ddd", color_on_active="#ddd")
 

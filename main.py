@@ -33,6 +33,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self,
             project_manager,
             self.show_notification,
+            lambda: self.manage_right_menu(
+                self.data_manager,
+                self.ui_btn_data_manager,
+            ),
         )
         self.project_actions.connect_actions()
         self.document_actions = DocumentActions(self)

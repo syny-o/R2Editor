@@ -540,6 +540,48 @@ QToolBar QToolButton{
     padding: 10px 20px;
 }
 
+#uiDashboardFrameLeft #uiTreeRecentProjects{
+    background-color: rgb(RGB_BACKGROUND_2);
+    color: rgb(RGB_TEXT);
+    border: none;
+    padding: 0;
+    alternate-background-color: rgb(RGB_BACKGROUND_1);
+}
+
+#uiDashboardFrameLeft #uiTreeRecentProjects QHeaderView::section{
+    background-color: rgb(RGB_BACKGROUND_2);
+    color: rgb(RGB_TEXT);
+    border: none;
+    padding: 7px;
+    font-weight: bold;
+}
+
+#uiDashboardFrameLeft #uiTreeRecentProjects::item{
+    color: rgb(RGB_TEXT);
+    padding: 6px;
+}
+
+#uiDashboardFrameLeft #uiTreeRecentProjects::item:hover{
+    background-color: rgb(RGB_HOVER);
+    color: rgb(20, 20, 20);
+}
+
+#uiDashboardFrameLeft #uiTreeRecentProjects::item:selected{
+    background-color: rgb(RGB_MAIN);
+    color: rgb(240, 240, 240);
+}
+
+#uiDashboardFrameLeft #uiTreeRecentProjects QToolButton{
+    background-color: transparent;
+    border: none;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+#uiDashboardFrameLeft #uiTreeRecentProjects QToolButton:hover{
+    background-color: rgb(RGB_HOVER);
+}
+
 
 #uiDashboardFrameLeft QListWidget::item{
     padding: 5px;
@@ -548,7 +590,6 @@ QToolBar QToolButton{
 #uiDashboardFrameLeft QLabel, #uiDashboardFrameRight QLabel{
 	padding: 7 17;
 }QListView
-
 
 #uiDashboardFrameRight{
 	background-color: rgb(RGB_BACKGROUND_1);

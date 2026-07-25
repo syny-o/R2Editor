@@ -8,10 +8,17 @@ PROJECT_DIRECTORY = './/Projects'
 
 
 class ProjectActions:
-    def __init__(self, parent, project_manager, show_notification):
+    def __init__(
+        self,
+        parent,
+        project_manager,
+        show_notification,
+        show_data_manager,
+    ):
         self.parent = parent
         self.project_manager = project_manager
         self.show_notification = show_notification
+        self.show_data_manager = show_data_manager
 
     def connect_actions(self):
         self.parent.btn_project_open.clicked.connect(self.open)
@@ -67,7 +74,9 @@ class ProjectActions:
             return
 
         success, error_message = self.project_manager.open_project(path)
-        if not success:
+        if success:
+            self.show_data_manager()
+        else:
             dialog_message(
                 self.parent,
                 f'Failed to Open Project!\n{error_message}',
