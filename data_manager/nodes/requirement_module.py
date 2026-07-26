@@ -1,4 +1,3 @@
-from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItem
 from components.reduce_path_string import reduce_path_string
@@ -13,20 +12,22 @@ from data_manager.requirements.module_updater import (
     update_module_from_doors,
     validate_doors_output,
 )
-from data_manager.coverage.filter import (
-    matching_references,
-    translate_coverage_filter,
-)
 from data_manager.coverage.data import (
-    apply_file_references,
     coverage_counts,
     covered_references,
-    ignored_references_outside_coverage,
     normalize_ignored_references,
     normalize_requirement_notes,
-    remove_ignored_references,
-    toggle_script_reference,
     uncovered_references,
+)
+from data_manager.requirements.module_coverage import (
+    apply_coverage_filter,
+    check_coverage_with_file_pointers,
+    clear_coverage,
+    remove_all_script_references,
+    remove_coverage_filter,
+    remove_invalid_ignored_references,
+    translate_filter,
+    update_script_reference,
 )
 from data_manager.requirements.tree_builder import iter_descendants
 
@@ -126,22 +127,13 @@ class RequirementModule(QStandardItem):
         return self._coverage_dict
 
     def clear_coverage_dict(self):
-        self._coverage_dict.clear()
+        clear_coverage(self)
 
     def remove_all_scripts_from_coverage_dict(self):
-        for v in self._coverage_dict.values():
-            v.clear()          
+        remove_all_script_references(self)
 
     def update_script_in_coverage_dict(self, req_id: str, path: str):
-        changed = toggle_script_reference(
-            self._coverage_dict,
-            req_id,
-            path,
-        )
-        if changed:
-            self.update_icons_according_to_coverage()
-            self.update_title_text()
-            return True
+        return update_script_reference(self, req_id, path)
 
 
 
@@ -150,22 +142,7 @@ class RequirementModule(QStandardItem):
 
     # UDPATUJE SVUJ COVERAGE SLOVNIK O SEZNAMY SKRIPTU VE KTERYCH JSOU ODKAZY NA REQ ID
     def check_coverage_with_file_pointers(self, reference_dict: dict[str, set]):
-        "{ 'epbi-ford-ge2_my24sydesign_7534' : { 'C:/!!! Projects/Ford_GE2_MY24/test.par', 'C:/!!! Projects/Ford_GE2_MY24/test2.par' } }"
-
-        coverage_dict_before = self.coverage_dict.copy()
-        # 0. vytvorit znovu slovnik na zaklade Coverage Filtru
-        self.apply_coverage_filter()  # !TODO Validate if it is ok
-        # 1. odebrat vsechny skripty ze slovniku
-        # self.remove_all_scripts_from_coverage_dict()
-        # 2. znovu naplnit slovnik skriptama dle aktualni situace na disku
-        apply_file_references(self._coverage_dict, reference_dict)
-
-        
-        self.update_icons_according_to_coverage()
-        self.update_title_text()
-
-        if coverage_dict_before != self._coverage_dict:
-            return True
+        return check_coverage_with_file_pointers(self, reference_dict)
     
 
 
@@ -173,74 +150,23 @@ class RequirementModule(QStandardItem):
     # COVERAGE FILTER:
 
     def translate_filter(self, filter_string):
-        return translate_coverage_filter(filter_string, self.columns_names)
+        return translate_filter(self, filter_string)
 
 
     def apply_coverage_filter(self, filter_string=None):
-        if filter_string:
-            self.coverage_filter = filter_string            
-
-        if self.coverage_filter:
-
-            translated_filter_string = self.translate_filter(self.coverage_filter)
-            self._coverage_dict.clear()
-            try:
-                references = matching_references(
-                    self,
-                    translated_filter_string,
-                )
-            except Exception as ex:
-                self.coverage_filter = None
-                raise Exception(str(ex))
-            self._coverage_dict.update(
-                {reference: [] for reference in references}
-            )
-
-            # HANDLE IGNORED ITEMS
-            # 1a. GATHER ALL IGNORED ITEMS FROM IGNORE LIST WHICH ARE NOT IN COVERAGE DICT (so the filter is not valid anymore for them)
-            ignored_items_which_does_not_meet_filter = (
-                ignored_references_outside_coverage(
-                    self.ignore_list,
-                    self._coverage_dict,
-                )
-            )
-
-            # 1b ASK FOR ITEM REMOVAL
-            self.remove_ignored_items_which_does_not_meet_filter(ignored_items_which_does_not_meet_filter)
-                    
-            # 2. REMOVE IGNORED ITEMS FROM COVERAGE DICT
-            for ignored_item in self.ignore_list:
-                if ignored_item in self._coverage_dict:
-                    self._coverage_dict.pop(ignored_item)
-
-
-            self.update_icons_according_to_coverage()
-            self.update_title_text() 
+        return apply_coverage_filter(self, filter_string)
 
 
 
     def remove_ignored_items_which_does_not_meet_filter(self, ignored_items_which_does_not_meet_filter: list[str]):
-        if not ignored_items_which_does_not_meet_filter:
-            return
-        
-        remove_answer = QMessageBox.question(self.data_manager, "Remove ignored items", f"Following items are in ignore list but does not meet coverage filter: \
-                                             \n\n{ignored_items_which_does_not_meet_filter}\n\nDo you want to remove them from ignore list?", 
-                                             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        
-        if remove_answer == QMessageBox.Yes:
-            remove_ignored_references(
-                self.ignore_list,
-                self.notes,
-                ignored_items_which_does_not_meet_filter,
-            )
+        return remove_invalid_ignored_references(
+            self,
+            ignored_items_which_does_not_meet_filter,
+        )
 
 
     def remove_coverage_filter(self):
-        self._coverage_dict.clear()
-        self.coverage_filter = None
-
-        self.update_title_text()
-        self.update_icons_according_to_coverage()
+        remove_coverage_filter(self)
         
 
 
