@@ -9,6 +9,8 @@ from text_editor.completion.completer import Completer
 from text_editor.completion.controller import CompletionController
 from text_editor.editing.editor_key_handler import EditorKeyHandler
 from text_editor.documents.file_access import is_file_read_only
+from text_editor.tooltip_controller import TooltipController
+from text_editor.tooltip_registry import tooltips
 
 
 class TextEdit(CodeEditor):
@@ -59,6 +61,7 @@ class TextEdit(CodeEditor):
             self.completer,
             self.completion_controller,
         )
+        self.tooltip_controller = TooltipController(self, tooltips)
         self.completer.insert_text.connect(self.insert_completion)
         self.completer.popup_hidden.connect(self._clear_pending_special_char)
 
