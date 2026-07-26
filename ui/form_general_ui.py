@@ -9,6 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from pathlib import Path
 
 
 class Ui_Form(object):
@@ -180,12 +181,11 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.uiBtnTitleBarClose.sizePolicy().hasHeightForWidth())
         self.uiBtnTitleBarClose.setSizePolicy(sizePolicy)
         self.uiBtnTitleBarClose.setMinimumSize(QtCore.QSize(45, 45))
-        self.uiBtnTitleBarClose.setStyleSheet("")
+        self.uiBtnTitleBarClose.setStyleSheet("padding: 0; margin: 0;")
         self.uiBtnTitleBarClose.setText("")
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/20x20/icons/20x20/cil-x.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.uiBtnTitleBarClose.setIcon(icon)
-        self.uiBtnTitleBarClose.setIconSize(QtCore.QSize(20, 20))
+        close_icon_path = Path(__file__).resolve().parent / "icons" / "24x24" / "cil-x.png"
+        self.uiBtnTitleBarClose.setIcon(QtGui.QIcon(str(close_icon_path)))
+        self.uiBtnTitleBarClose.setIconSize(QtCore.QSize(24, 24))
         self.uiBtnTitleBarClose.setObjectName("uiBtnTitleBarClose")
         self.horizontalLayout_5.addWidget(self.uiBtnTitleBarClose)
         self.horizontalLayout_3.addWidget(self.frame_close, 0, QtCore.Qt.AlignRight)

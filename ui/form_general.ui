@@ -353,19 +353,20 @@ QPushButton:pressed {
                   <string>Close</string>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true"/>
+                  <string notr="true">padding: 0;
+margin: 0;</string>
                  </property>
                  <property name="text">
                   <string/>
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>:/20x20/icons/20x20/cil-x.png</normaloff>:/20x20/icons/20x20/cil-x.png</iconset>
+                   <normaloff>icons/24x24/cil-x.png</normaloff>icons/24x24/cil-x.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
-                   <width>20</width>
-                   <height>20</height>
+                   <width>24</width>
+                   <height>24</height>
                   </size>
                  </property>
                 </widget>
