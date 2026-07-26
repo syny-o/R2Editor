@@ -1,6 +1,6 @@
 import unittest
 
-from data_manager.requirement_comparison import compare_requirement_data
+from data_manager.requirements.comparison import compare_requirement_data
 
 
 class RequirementComparisonTests(unittest.TestCase):

@@ -9,7 +9,7 @@ from data_manager.doors_output_parser import (
     parse_requirement,
     validate_module_output,
 )
-from data_manager.requirement_serialization import (
+from data_manager.requirements.serialization import (
     requirement_module_to_dict,
     requirement_tree_to_list,
     requirements_to_dict,
@@ -29,7 +29,7 @@ from data_manager.coverage.data import (
     toggle_script_reference,
     uncovered_references,
 )
-from data_manager.requirement_tree_builder import (
+from data_manager.requirements.tree_builder import (
     append_nodes_by_level,
     iter_descendants,
 )

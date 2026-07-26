@@ -1,6 +1,6 @@
 import unittest
 
-from data_manager.requirement_serialization import (
+from data_manager.requirements.serialization import (
     requirement_module_to_dict,
     requirement_tree_to_list,
     requirements_to_dict,

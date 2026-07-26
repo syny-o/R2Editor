@@ -1,6 +1,6 @@
 import unittest
 
-from data_manager.requirement_export import (
+from data_manager.requirements.export import (
     build_export_header,
     build_export_rows,
 )

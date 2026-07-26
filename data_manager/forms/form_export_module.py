@@ -7,7 +7,7 @@ from PyQt5.QtGui import QStandardItemModel
 from ui.form_general_ui import Ui_Form
 
 from data_manager.nodes.requirement_module import RequirementModule
-from data_manager.requirement_export import (
+from data_manager.requirements.export import (
     build_export_header,
     build_export_rows,
 )

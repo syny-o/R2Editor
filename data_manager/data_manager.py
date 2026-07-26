@@ -15,7 +15,7 @@ from data_manager.coverage.controller import CoverageController
 from data_manager.reference_navigator import ReferenceNavigator
 from data_manager.html_report.controller import HtmlReportController
 from data_manager.a2l.actions import A2lActions
-from data_manager.requirement_module_actions import RequirementModuleActions
+from data_manager.requirements.module_actions import RequirementModuleActions
 
 
 class DataManager(QWidget, Ui_Form):

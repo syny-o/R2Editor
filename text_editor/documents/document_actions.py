@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QFileDialog
 from components.syntax_highlighter import python_highlighter, rapit_two_highlighter
 from components.template_test_case import TemplateTestCase
 from config.icon_manager import IconManager
-from data_manager.requirement_references import changed_requirement_references
+from data_manager.requirements.references import changed_requirement_references
 from dialogs.dialog_message import dialog_message
 from text_editor.documents.file_access import (
     is_supported_document,

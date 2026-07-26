@@ -7,7 +7,7 @@ from data_manager.nodes import (
     condition_file,
     dspace_nodes,
 )
-from data_manager import requirement_module_loader
+from data_manager.requirements import module_loader as requirement_module_loader
 from data_manager.nodes.condition_file import ConditionFileNode
 from data_manager.nodes.dspace_nodes import DspaceFileNode
 from dialogs.dialog_message import dialog_message

@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from data_manager.requirement_references import extract_requirement_references
+from data_manager.requirements.references import extract_requirement_references
 
 
 def scan_requirement_references(project_path, progress=None):

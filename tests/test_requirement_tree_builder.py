@@ -1,6 +1,6 @@
 import unittest
 
-from data_manager.requirement_tree_builder import (
+from data_manager.requirements.tree_builder import (
     append_nodes_by_level,
     iter_descendants,
 )

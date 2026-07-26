@@ -7,7 +7,7 @@ import difflib
 from ui.form_general_ui import Ui_Form
 
 from data_manager.nodes.requirement_module import RequirementModule
-from data_manager.requirement_comparison import compare_requirement_data
+from data_manager.requirements.comparison import compare_requirement_data
 
 
 

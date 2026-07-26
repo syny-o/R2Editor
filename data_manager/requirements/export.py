@@ -1,4 +1,4 @@
-from data_manager.requirement_tree_builder import iter_descendants
+from data_manager.requirements.tree_builder import iter_descendants
 
 
 def build_export_header(column_names, column_indexes, include_note):
