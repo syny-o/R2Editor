@@ -4,7 +4,7 @@ from PyQt5.QtGui import QStandardItem
 from data_manager.nodes.requirement_node import RequirementNode
 from components.reduce_path_string import reduce_path_string
 from config import constants
-from data_manager.doors_output_parser import (
+from data_manager.doors.output_parser import (
     parse_module_output,
     parse_requirement,
     validate_module_output,

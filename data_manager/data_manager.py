@@ -9,7 +9,7 @@ from data_manager.view.widget_view import View
 from components.widgets.chart_bar import ChartBar
 from config.icon_manager import IconManager
 from data_manager.node_actions import NodeActions
-from data_manager.doors_actions import DoorsActions
+from data_manager.doors.actions import DoorsActions
 from data_manager.project_data_controller import ProjectDataController
 from data_manager.coverage.controller import CoverageController
 from data_manager.reference_navigator import ReferenceNavigator

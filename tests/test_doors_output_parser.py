@@ -1,6 +1,6 @@
 import unittest
 
-from data_manager.doors_output_parser import (
+from data_manager.doors.output_parser import (
     extract_attributes,
     extract_baselines,
     parse_module_output,
