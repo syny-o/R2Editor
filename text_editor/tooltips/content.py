@@ -1,3 +1,5 @@
+"""Structured tooltip content and HTML rendering."""
+
 from dataclasses import dataclass
 from html import escape
 import re
@@ -43,6 +45,8 @@ class TooltipEntry:
     parameters: tuple = ()
     values: tuple = ()
     example: str = ''
+    minimum_width: int = 0
+    structure: tuple = ()
 
 
 def _section_label(text, muted_color):
@@ -98,6 +102,17 @@ def _highlight_signature(signature, colors):
     return ''.join(rendered)
 
 
+def _highlight_structure(lines, colors):
+    rendered_lines = []
+    for line in lines:
+        indentation = len(line) - len(line.lstrip())
+        rendered_lines.append(
+            ('&nbsp;' * indentation)
+            + _highlight_signature(line.lstrip(), colors)
+        )
+    return '<br>'.join(rendered_lines)
+
+
 def render_tooltip(content, palette):
     background = palette.base().color()
     is_dark = background.lightness() < 128
@@ -119,14 +134,20 @@ def render_tooltip(content, palette):
             f'{content}</div>'
         )
 
-    parts = [
-        (
-            f'<div style="color:{text_color}; '
-            f'font-size:{TOOLTIP_FONT_SIZE_PX}px;">'
-            f'<b style="font-size:{TOOLTIP_TITLE_SIZE_PX}px;">'
-            f'{escape(content.title)}</b>'
-        )
-    ]
+    if content.minimum_width:
+        parts = [
+            f'<table width="{content.minimum_width}" cellspacing="0" '
+            f'cellpadding="0"><tr><td>'
+        ]
+    else:
+        parts = []
+
+    parts.append(
+        f'<div style="color:{text_color}; '
+        f'font-size:{TOOLTIP_FONT_SIZE_PX}px;">'
+        f'<b style="font-size:{TOOLTIP_TITLE_SIZE_PX}px;">'
+        f'{escape(content.title)}</b>'
+    )
 
     if content.description:
         parts.append(
@@ -140,9 +161,9 @@ def render_tooltip(content, palette):
         )
         parts.append(
             f'<div style="color:{text_color}; margin-top:3px; '
-            f'padding:4px;"><code>'
+            f'padding:4px;"><nobr><code>'
             f'{_highlight_signature(content.signature, syntax_colors)}'
-            f'</code></div>'
+            f'</code></nobr></div>'
         )
 
     if content.parameters:
@@ -157,6 +178,15 @@ def render_tooltip(content, palette):
         parts.append(
             '<table cellspacing="6" style="margin-top:2px;">'
             f'{rows}</table>'
+        )
+
+    if content.structure:
+        parts.append(_section_label('Structure', muted_color))
+        parts.append(
+            f'<div style="color:{text_color}; margin-top:3px; '
+            f'padding:5px;"><nobr><code>'
+            f'{_highlight_structure(content.structure, syntax_colors)}'
+            f'</code></nobr></div>'
         )
 
     if content.values:
@@ -178,10 +208,12 @@ def render_tooltip(content, palette):
         parts.append(_section_label('Example', muted_color))
         parts.append(
             f'<div style="color:{text_color}; margin-top:3px; '
-            f'padding:4px;"><code>'
+            f'padding:4px;"><nobr><code>'
             f'{_highlight_signature(content.example, syntax_colors)}'
-            f'</code></div>'
+            f'</code></nobr></div>'
         )
 
     parts.append('</div>')
+    if content.minimum_width:
+        parts.append('</td></tr></table>')
     return ''.join(parts)

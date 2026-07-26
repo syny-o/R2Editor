@@ -3,7 +3,7 @@ from PyQt5.QtGui import QTextCursor
 from PyQt5.QtWidgets import QToolTip
 from PyQt5 import sip
 
-from text_editor.tooltip_content import render_tooltip
+from text_editor.tooltips.content import render_tooltip
 
 
 HOVER_DELAY_MS = 350
@@ -16,6 +16,10 @@ class TooltipController(QObject):
         self.editor = editor
         self.viewport = editor.viewport()
         self.registry = registry
+        self.casefold_registry = {
+            key.casefold(): value
+            for key, value in registry.items()
+        }
         self.mouse_position = None
         self.last_word = None
 
@@ -63,6 +67,8 @@ class TooltipController(QObject):
         cursor.select(QTextCursor.WordUnderCursor)
         word = cursor.selectedText()
         content = self.registry.get(word)
+        if content is None:
+            content = self.casefold_registry.get(word.casefold())
 
         if content is None:
             self.last_word = word

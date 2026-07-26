@@ -1,5 +1,5 @@
-from text_editor.tooltip_content import TooltipEntry
-from text_editor.tooltips import tooltips as legacy_tooltips
+from text_editor.tooltips.content import TooltipEntry
+from text_editor.tooltips.legacy import tooltips as legacy_tooltips
 
 
 COMMAND_TOOLTIPS = {
@@ -93,13 +93,37 @@ COMMAND_TOOLTIPS = {
         title='IF statement',
         signature='IF (variable = value) AND/OR (variable = value) THEN',
         description='Conditional execution block terminated by ENDIF.',
+        minimum_width=620,
+        structure=(
+            'IF (variable = value) THEN',
+            '    PROGRAM_BODY',
+            'ELSE',
+            '    PROGRAM_BODY',
+            'ENDIF',
+        ),
     ),
     'FOR': TooltipEntry(
         title='FOR cycle',
         signature='FOR variable = value_1 value_2 ... value_N DO',
         description='Repeats the block for every value and ends with NEXT.',
+        minimum_width=620,
+        structure=(
+            'FOR variable = value_1 value_2 ... value_N DO',
+            '    PROGRAM_BODY',
+            'NEXT',
+        ),
     ),
 }
+
+COMMAND_TOOLTIPS.update({
+    'AND': COMMAND_TOOLTIPS['IF'],
+    'DO': COMMAND_TOOLTIPS['FOR'],
+    'ELSE': COMMAND_TOOLTIPS['IF'],
+    'ENDIF': COMMAND_TOOLTIPS['IF'],
+    'NEXT': COMMAND_TOOLTIPS['FOR'],
+    'OR': COMMAND_TOOLTIPS['IF'],
+    'THEN': COMMAND_TOOLTIPS['IF'],
+})
 
 
 tooltips = {

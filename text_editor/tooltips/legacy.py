@@ -1,3 +1,5 @@
+"""Legacy tooltip definitions kept during the structured-data migration."""
+
 tooltips = {
     'MonitorVariablesCANape':
         """   

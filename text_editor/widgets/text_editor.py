@@ -9,8 +9,7 @@ from text_editor.completion.completer import Completer
 from text_editor.completion.controller import CompletionController
 from text_editor.editing.editor_key_handler import EditorKeyHandler
 from text_editor.documents.file_access import is_file_read_only
-from text_editor.tooltip_controller import TooltipController
-from text_editor.tooltip_registry import tooltips
+from text_editor.tooltips import TooltipController, tooltips
 
 
 class TextEdit(CodeEditor):
