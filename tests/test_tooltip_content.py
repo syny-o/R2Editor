@@ -19,9 +19,12 @@ class TooltipContentTest(unittest.TestCase):
         self.assertIn('FOR &lt;cycle&gt;', rendered)
         self.assertIn('Value &lt; 3', rendered)
         self.assertIn('<table', rendered)
-        self.assertIn('Example', rendered)
+        self.assertIn('EXAMPLE', rendered)
+        self.assertIn('SYNTAX', rendered)
         self.assertIn('font-size:14px', rendered)
         self.assertIn('font-size:16px', rendered)
+        self.assertNotIn('FOR x = 1 2 DO', rendered)
+        self.assertIn('<span', rendered)
 
     def test_keeps_legacy_html_compatible(self):
         content = '<b>Legacy tooltip</b>'
