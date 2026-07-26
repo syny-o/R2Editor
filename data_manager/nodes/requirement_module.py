@@ -1,17 +1,8 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItem
+
 from components.reduce_path_string import reduce_path_string
 from config import constants
-from data_manager.requirements.module_tree import (
-    append_module_to_project_data,
-    create_requirement_node,
-    create_tree_from_project_data,
-    populate_tree_from_doors,
-)
-from data_manager.requirements.module_updater import (
-    update_module_from_doors,
-    validate_doors_output,
-)
 from data_manager.coverage.data import (
     coverage_counts,
     covered_references,
@@ -19,20 +10,30 @@ from data_manager.coverage.data import (
     normalize_requirement_notes,
     uncovered_references,
 )
-from data_manager.requirements.module_coverage import (
-    apply_coverage_filter,
-    check_coverage_with_file_pointers,
-    clear_coverage,
-    remove_all_script_references,
-    remove_coverage_filter,
-    remove_invalid_ignored_references,
-    translate_filter,
-    update_script_reference,
+from data_manager.requirements import (
+    module_coverage,
+    module_tree,
+    module_updater,
 )
 from data_manager.requirements.tree_builder import iter_descendants
 
+
 class RequirementModule(QStandardItem):
-    def __init__(self, root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline, column_number_as_identifier):
+    def __init__(
+        self,
+        root_node,
+        path,
+        columns_names,
+        attributes,
+        baseline,
+        coverage_filter,
+        coverage_dict,
+        update_time,
+        ignore_list,
+        notes,
+        current_baseline,
+        column_number_as_identifier,
+    ):
         super().__init__()
         self.root_node = root_node
         self.data_manager = self.root_node.data(Qt.UserRole)
@@ -127,13 +128,13 @@ class RequirementModule(QStandardItem):
         return self._coverage_dict
 
     def clear_coverage_dict(self):
-        clear_coverage(self)
+        module_coverage.clear_coverage(self)
 
     def remove_all_scripts_from_coverage_dict(self):
-        remove_all_script_references(self)
+        module_coverage.remove_all_script_references(self)
 
     def update_script_in_coverage_dict(self, req_id: str, path: str):
-        return update_script_reference(self, req_id, path)
+        return module_coverage.update_script_reference(self, req_id, path)
 
 
 
@@ -142,7 +143,10 @@ class RequirementModule(QStandardItem):
 
     # UDPATUJE SVUJ COVERAGE SLOVNIK O SEZNAMY SKRIPTU VE KTERYCH JSOU ODKAZY NA REQ ID
     def check_coverage_with_file_pointers(self, reference_dict: dict[str, set]):
-        return check_coverage_with_file_pointers(self, reference_dict)
+        return module_coverage.check_coverage_with_file_pointers(
+            self,
+            reference_dict,
+        )
     
 
 
@@ -150,23 +154,26 @@ class RequirementModule(QStandardItem):
     # COVERAGE FILTER:
 
     def translate_filter(self, filter_string):
-        return translate_filter(self, filter_string)
+        return module_coverage.translate_filter(self, filter_string)
 
 
     def apply_coverage_filter(self, filter_string=None):
-        return apply_coverage_filter(self, filter_string)
+        return module_coverage.apply_coverage_filter(self, filter_string)
 
 
 
-    def remove_ignored_items_which_does_not_meet_filter(self, ignored_items_which_does_not_meet_filter: list[str]):
-        return remove_invalid_ignored_references(
+    def remove_ignored_items_which_does_not_meet_filter(
+        self,
+        ignored_items_which_does_not_meet_filter: list[str],
+    ):
+        return module_coverage.remove_invalid_ignored_references(
             self,
             ignored_items_which_does_not_meet_filter,
         )
 
 
     def remove_coverage_filter(self):
-        remove_coverage_filter(self)
+        module_coverage.remove_coverage_filter(self)
         
 
 
@@ -176,11 +183,15 @@ class RequirementModule(QStandardItem):
     # DOORS DOWNLOADING FINISHED:
 
     def receive_data_from_doors(self, doors_output, timestamp):
-        return update_module_from_doors(self, doors_output, timestamp)
+        return module_updater.update_module_from_doors(
+            self,
+            doors_output,
+            timestamp,
+        )
 
 
     def validate_doors_output(self, doors_output: str) -> tuple[bool, str]:                   
-        return validate_doors_output(self, doors_output)
+        return module_updater.validate_doors_output(self, doors_output)
     
     
 
@@ -192,22 +203,28 @@ class RequirementModule(QStandardItem):
 
     # PRI OTEVIRANI PROJEKTU
     def create_tree_from_requirements_data(self, req_list, timestamp):
-        create_tree_from_project_data(self, req_list, timestamp)
+        module_tree.create_tree_from_project_data(self, req_list, timestamp)
 
 
 
     # PRI STAHOVANI DAT Z DOORS A NASLEDNEHO OTEVRENI TXT SOUBORU (doors_output.txt)
     def _txtfile_to_tree(self, doors_string):
-        populate_tree_from_doors(self, doors_string)
+        module_tree.populate_tree_from_doors(self, doors_string)
 
 
 
     def _create_requirement(self, one_requirement_string: str) -> list[dict]:
-        return create_requirement_node(self, one_requirement_string)
+        return module_tree.create_requirement_node(
+            self,
+            one_requirement_string,
+        )
 
 
 
     # PRI UKLADANI PROJEKTU
     def data_4_project(self, data_from_root):        
-        return append_module_to_project_data(self, data_from_root)
+        return module_tree.append_module_to_project_data(
+            self,
+            data_from_root,
+        )
 
