@@ -1,0 +1,132 @@
+@startuml
+title R2Editor — data model
+
+top to bottom direction
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam shadowing false
+hide empty members
+
+class QStandardItem <<PyQt5>>
+
+package "Requirements" {
+  class RequirementModule {
+    +path
+    +columns_names
+    +coverage_filter
+    +baseline
+    +notes
+    +coverage_dict
+    +create_tree_from_requirements_data()
+    +receive_data_from_doors()
+    +apply_coverage_filter()
+    +data_4_project()
+  }
+
+  class RequirementNode {
+    +reference
+    +heading
+    +level
+    +outlinks
+    +inlinks
+    +columns_data
+    +is_covered
+    +file_references
+    +note
+    +update_icon()
+  }
+}
+
+package "Condition tree" {
+  class ConditionFileNode {
+    +path
+    +is_modified
+    +file_2_tree()
+    +tree_2_file()
+    +data_4_project()
+  }
+
+  class ConditionNode {
+    +name
+    +category
+    +get_file_node()
+    +get_node_copy()
+  }
+
+  class ValueNode {
+    +name
+    +category
+    +my_test_step_nodes
+    +get_file_node()
+    +get_node_copy()
+  }
+
+  class TestStepNode {
+    +name
+    +action
+    +comment
+    +nominal
+    +get_file_node()
+    +get_node_copy()
+  }
+}
+
+package "DSpace tree" {
+  class DspaceFileNode {
+    +path
+    +is_modified
+    +file_2_tree()
+    +tree_2_file()
+    +data_4_project()
+  }
+
+  class DspaceDefinitionNode {
+    +name
+  }
+
+  class DspaceVariableNode {
+    +name
+    +value
+    +path
+    +get_file_node()
+  }
+}
+
+package "A2L tree" {
+  class A2lFileNode {
+    +path
+    +file_2_tree()
+    +tree_2_file()
+    +data_4_project()
+  }
+
+  class A2lNode {
+    +name
+    +address
+  }
+}
+
+QStandardItem <|-- RequirementModule
+QStandardItem <|-- RequirementNode
+QStandardItem <|-- ConditionFileNode
+QStandardItem <|-- ConditionNode
+QStandardItem <|-- ValueNode
+QStandardItem <|-- TestStepNode
+QStandardItem <|-- DspaceFileNode
+QStandardItem <|-- DspaceDefinitionNode
+QStandardItem <|-- DspaceVariableNode
+QStandardItem <|-- A2lFileNode
+QStandardItem <|-- A2lNode
+
+RequirementModule "1" *-- "0..*" RequirementNode : tree
+RequirementNode "0..1" *-- "0..*" RequirementNode : children
+
+ConditionFileNode "1" *-- "0..*" ConditionNode
+ConditionNode "1" *-- "0..*" ValueNode
+ValueNode "1" *-- "0..*" TestStepNode
+
+DspaceFileNode "1" *-- "0..*" DspaceDefinitionNode
+DspaceDefinitionNode "1" *-- "0..*" DspaceVariableNode
+
+A2lFileNode "1" *-- "0..*" A2lNode
+@enduml

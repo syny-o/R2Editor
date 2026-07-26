@@ -1,0 +1,155 @@
+@startuml
+title R2Editor — application controllers
+
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam shadowing false
+hide empty members
+
+class MainWindow {
+  +window_controller
+  +application_lifecycle
+  +project_actions
+  +document_actions
+  +editor_controller
+  +settings_controller
+  +window_builder
+  +data_manager
+  +dashboard
+  +tree_file_browser
+  +tab_manager
+  +manage_right_menu()
+  +update_actual_information()
+  +closeEvent()
+}
+
+class MainWindowBuilder {
+  -main_window
+  -project_manager
+  +build()
+  -_build_file_and_outline_panel()
+  -_build_application_pages()
+  -_build_editor_tabs()
+  -_build_page_stack()
+}
+
+class WindowController {
+  -main_window
+  +configure_icons()
+  +connect_window_actions()
+  +connect_navigation()
+  +show_page()
+  +update_editor_state()
+  +show_notification()
+}
+
+class ApplicationLifecycle {
+  -main_window
+  -project_manager
+  +close()
+}
+
+class ProjectActions {
+  -parent
+  -project_manager
+  +connect_actions()
+  +new()
+  +save()
+  +save_as()
+  +open()
+  +autosave()
+}
+
+class EditorController {
+  -main_window
+  +connect_actions()
+  +show_find_replace()
+  +format_code()
+  +set_font_size()
+}
+
+class DocumentActions {
+  -main_window
+  +new()
+  +open_from_dialog()
+  +open_path()
+  +save()
+  +save_as()
+  +toggle_read_only()
+}
+
+class EditorTabManager {
+  -main_window
+  -left_tabs
+  -right_tabs
+  +connect_signals()
+  +iter_text_edits()
+}
+
+class DataManager {
+  +MODEL
+  +ROOT
+  +VIEW
+  +TREE
+  +node_actions
+  +doors_actions
+  +project_data_controller
+  +coverage_controller
+  +reference_navigator
+  +html_report_controller
+  +a2l_actions
+  +requirement_module_actions
+}
+
+class ProjectDataController {
+  -data_manager
+  +import_files()
+  +receive_project_data()
+  +provide_project_data()
+  +choose_project_path()
+}
+
+class NodeActions
+class DoorsActions
+class CoverageController
+class ReferenceNavigator
+class HtmlReportController
+class A2lActions
+class RequirementModuleActions
+class Dashboard
+class FileSystemView
+class OutlineController
+
+MainWindow *-- MainWindowBuilder
+MainWindow *-- WindowController
+MainWindow *-- ApplicationLifecycle
+MainWindow *-- ProjectActions
+MainWindow *-- EditorController
+MainWindow *-- DocumentActions
+MainWindow *-- EditorTabManager
+MainWindow *-- DataManager
+MainWindow *-- Dashboard
+MainWindow *-- FileSystemView
+MainWindow *-- OutlineController
+
+MainWindowBuilder ..> Dashboard : creates
+MainWindowBuilder ..> FileSystemView : creates
+MainWindowBuilder ..> DataManager : creates
+MainWindowBuilder ..> EditorTabManager : creates
+MainWindowBuilder ..> OutlineController : creates
+
+EditorController --> DocumentActions : binds UI actions
+DataManager --> DocumentActions : opens paths
+
+DataManager *-- ProjectDataController
+DataManager *-- NodeActions
+DataManager *-- DoorsActions
+DataManager *-- CoverageController
+DataManager *-- ReferenceNavigator
+DataManager *-- HtmlReportController
+DataManager *-- A2lActions
+DataManager *-- RequirementModuleActions
+
+ProjectActions --> DataManager : switches page after open
+@enduml
