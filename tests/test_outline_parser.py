@@ -61,6 +61,39 @@ class OutlineParserTest(unittest.TestCase):
             ),
         )
 
+    def test_keeps_for_variables_in_composed_testcase_title(self):
+        text = (
+            'FOR thres = valid invalid DO\n'
+            '\tFOR i = Off On DO\n'
+            '\t\tFOR brakes = Release Apply DO\n'
+            '\t\t\tTESTCASE "Basic AutoAdjust, km change "thres'
+            '" threshold, ignition "i", brakes "brakes EXPECTEDRESULT 1'
+        )
+
+        self.assertEqual(
+            parse_outline_sections(text),
+            (
+                OutlineSection(
+                    'testcase',
+                    (
+                        'Basic AutoAdjust, km change "thres" threshold, '
+                        'ignition "i", brakes "brakes'
+                    ),
+                    text.index('\t\t\tTESTCASE'),
+                    ('thres', 'i', 'brakes'),
+                    8,
+                ),
+            ),
+        )
+
+    def test_excludes_testcase_metadata_from_title(self):
+        text = 'TESTCASE "Case name" ID "" REFERENCE "" EXPECTEDRESULT 1'
+
+        self.assertEqual(
+            parse_outline_sections(text),
+            (OutlineSection('testcase', 'Case name', 0),),
+        )
+
     def test_parsing_is_case_insensitive_and_keeps_indented_position(self):
         text = '\tchapter "Lower"\n\t testcase "Case" expectedresult 1'
 
