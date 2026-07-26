@@ -2,10 +2,8 @@ from PyQt5.QtWidgets import QMessageBox
 
 from data_manager import tree_walker
 from data_manager.coverage.worker import CoverageWorker
-from data_manager.nodes.requirement_module import (
-    RequirementModule,
-    RequirementNode,
-)
+from data_manager.nodes.requirement_module import RequirementModule
+from data_manager.nodes.requirement_node import RequirementNode
 from dialogs.dialog_message import dialog_message
 
 

@@ -1,18 +1,17 @@
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItem
-from data_manager.nodes.requirement_node import RequirementNode
 from components.reduce_path_string import reduce_path_string
 from config import constants
-from data_manager.doors.output_parser import (
-    parse_module_output,
-    parse_requirement,
-    validate_module_output,
+from data_manager.requirements.module_tree import (
+    append_module_to_project_data,
+    create_requirement_node,
+    create_tree_from_project_data,
+    populate_tree_from_doors,
 )
-from data_manager.requirements.serialization import (
-    requirement_module_to_dict,
-    requirement_tree_to_list,
-    requirements_to_dict,
+from data_manager.requirements.module_updater import (
+    update_module_from_doors,
+    validate_doors_output,
 )
 from data_manager.coverage.filter import (
     matching_references,
@@ -29,10 +28,7 @@ from data_manager.coverage.data import (
     toggle_script_reference,
     uncovered_references,
 )
-from data_manager.requirements.tree_builder import (
-    append_nodes_by_level,
-    iter_descendants,
-)
+from data_manager.requirements.tree_builder import iter_descendants
 
 class RequirementModule(QStandardItem):
     def __init__(self, root_node, path, columns_names, attributes, baseline, coverage_filter, coverage_dict, update_time, ignore_list, notes, current_baseline, column_number_as_identifier):
@@ -254,55 +250,11 @@ class RequirementModule(QStandardItem):
     # DOORS DOWNLOADING FINISHED:
 
     def receive_data_from_doors(self, doors_output, timestamp):
-
-        columns_changed = self.columns_names_backup != self.columns_names
-            
-        success, message = self.validate_doors_output(doors_output)
-
-        if not success: 
-            return False, message
-
-        # save original data for future comparison
-        ORIGINAL_MODULE_DATA = requirements_to_dict(
-            requirement_tree_to_list(self)
-        )
-
-        self.timestamp = timestamp
-        # delete all children
-        self.removeRows(0, self.rowCount())
-        # create new children from received data
-        self._txtfile_to_tree(doors_output)
-        # once succefull update is performed, update backup columns / baseline
-        self.columns_names_backup = [*self.columns_names] 
-        self.current_baseline_backup = self.current_baseline 
-        
-
-        # save new data for future comparison
-        if ORIGINAL_MODULE_DATA:
-            NEW_MODULE_DATA = requirements_to_dict(
-                requirement_tree_to_list(self)
-            )
-        else:
-            NEW_MODULE_DATA = {}
-
-
-        # APPLY FILTER WHICH HAS BEEN APPLIED BEFORE DOWNLOADING
-        self.apply_coverage_filter()
-        
-        if not columns_changed and ORIGINAL_MODULE_DATA and (ORIGINAL_MODULE_DATA != NEW_MODULE_DATA):
-
-            return True, (self.columns_names, ORIGINAL_MODULE_DATA, NEW_MODULE_DATA)
-        
-        return True, None
+        return update_module_from_doors(self, doors_output, timestamp)
 
 
     def validate_doors_output(self, doors_output: str) -> tuple[bool, str]:                   
-        result = validate_module_output(doors_output, self.path)
-        if result['baselines'] is not None:
-            self.baseline = result['baselines']
-        if result['attributes'] is not None:
-            self.attributes = result['attributes']
-        return result['success'], result['message']
+        return validate_doors_output(self, doors_output)
     
     
 
@@ -314,77 +266,22 @@ class RequirementModule(QStandardItem):
 
     # PRI OTEVIRANI PROJEKTU
     def create_tree_from_requirements_data(self, req_list, timestamp):
-        self.timestamp = timestamp
-
-        nodes = []
-        for requirement_data in req_list:
-            reference = requirement_data.get("reference")
-            heading = requirement_data.get("heading")
-            file_references = requirement_data.get("file_references")
-            is_covered = requirement_data.get("is_covered")
-
-            if is_covered is not None and not heading:
-                self._coverage_dict.update(
-                    {reference.lower(): file_references}
-                )
-
-            nodes.append(
-                RequirementNode(
-                    self,
-                    reference,
-                    heading,
-                    int(requirement_data.get("level")),
-                    requirement_data.get("outlinks"),
-                    requirement_data.get("inlinks"),
-                    file_references,
-                    requirement_data.get("columns_data"),
-                    is_covered,
-                )
-            )
-
-        append_nodes_by_level(self, nodes)
+        create_tree_from_project_data(self, req_list, timestamp)
 
 
 
     # PRI STAHOVANI DAT Z DOORS A NASLEDNEHO OTEVRENI TXT SOUBORU (doors_output.txt)
     def _txtfile_to_tree(self, doors_string):
-        module_data = parse_module_output(doors_string, self.path)
-        if module_data is None:
-            return
-
-        self.baseline = module_data["baselines"]
-        self.attributes = module_data["attributes"]
-
-        nodes = [
-            self._create_requirement(requirement_text)
-            for requirement_text in module_data["requirements"]
-        ]
-        append_nodes_by_level(self, nodes)
+        populate_tree_from_doors(self, doors_string)
 
 
 
     def _create_requirement(self, one_requirement_string: str) -> list[dict]:
-        parsed = parse_requirement(
-            one_requirement_string,
-            self.column_number_as_identifier,
-        )
-        return RequirementNode(
-            self,
-            parsed['identifier'],
-            parsed['heading'],
-            parsed['level'],
-            parsed['outlinks'],
-            parsed['inlinks'],
-            None,
-            parsed['columns'],
-        )
+        return create_requirement_node(self, one_requirement_string)
 
 
 
     # PRI UKLADANI PROJEKTU
     def data_4_project(self, data_from_root):        
-        requirement_modules = data_from_root.get("REQUIREMENT MODULES")
-        requirement_modules.append(requirement_module_to_dict(self))
-
-        return data_from_root
+        return append_module_to_project_data(self, data_from_root)
 
