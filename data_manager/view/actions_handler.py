@@ -125,6 +125,7 @@ class ActionsHandler:
     def _context_menu_requirement_node(self, node) -> QMenu:
         menu = self._create_menu()
         activate_action(self.action_edit_node, menu)
+        activate_action(self.action_remove_node, menu)
         menu.addSeparator()
         if not node.hasChildren():
             if node.reference in node.MODULE.ignore_list or node.reference.lower() in node.MODULE.ignore_list:                

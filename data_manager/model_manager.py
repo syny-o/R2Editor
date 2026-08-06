@@ -26,7 +26,7 @@ def remove_node(TREE, MODEL):
     selected_item_row = selected_item_index.row()
     parent_item_index = selected_item_index.parent()
 
-    if isinstance(selected_item, (RequirementNode, A2lNode)):
+    if isinstance(selected_item, (A2lNode)):
         return False
 
     if MODEL.rowCount(parent_item_index) > 1:        

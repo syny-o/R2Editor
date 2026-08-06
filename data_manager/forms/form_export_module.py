@@ -102,8 +102,8 @@ class FormExportModule(QWidget, Ui_Form):
         def _browse_all_children(node):
             for row in range(node.rowCount()):
                 node_child = node.child(row)
-                if node_child:
-                    if not self.tree.isRowHidden(row, node.index()) and not node_child.hasChildren():
+                if node_child and node_child.note:
+                    if not self.tree.isRowHidden(row, node.index()):
                         items_2_export.append(node_child)
                 _browse_all_children(node_child)
         

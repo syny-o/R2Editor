@@ -23,7 +23,7 @@ from components.syntax_highlighter.i_syntax_highlighter import ISyntaxHighlighte
 from importlib import reload
 
 
-class TextEdit(QCodeEditor):
+class TextEdit(QPlainTextEdit):
 
     ctrl_pressed = False
 

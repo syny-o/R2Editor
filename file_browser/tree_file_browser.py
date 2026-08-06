@@ -38,7 +38,7 @@ class FileSystemView(QWidget, Ui_Form):
         self.uiBtnDisconnectProjectFolder.clicked.connect(self._user_disconnected_path)
     
         # self._dir_path = QDir.rootPath()
-        self._dir_path = r'c:/!!! Projects'
+        self._dir_path = r'c:/SILTEST'
         self.current_path = self._dir_path
 
         # ################### MODEL #############################

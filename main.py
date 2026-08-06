@@ -344,18 +344,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def update_selected_item_in_outline_by_scrollbar(self, scrollbar_value):
-        
-        if not self.actual_text_edit: return
-
-        current_position = scrollbar_value + int(self.number_of_visible_lines()/2)
-        temp_item = self.uiTreeOutline.topLevelItem(0)
-        for item in self.uiTreeOutline.findItems("*", Qt.MatchWildcard | Qt.MatchRecursive):
-            if self.line_number_from_position(item.data(0, Qt.UserRole)) > current_position:
-                self.uiTreeOutline.setCurrentItem(temp_item)
-                break
-            
-            temp_item = item
-            self.uiTreeOutline.setCurrentItem(item)     
+        pass
 
 
     def number_of_visible_lines(self):
@@ -643,7 +632,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             opened_files = self.get_all_opened_files()
             if file_suffix.lower() in ('.par', '.py', '.con', '.xml', '.txt', '.map', '.tst'):
                 if file_path not in opened_files:
-                    with open(file_path, 'r') as file_to_open:
+                    with open(file_path, 'r', encoding='utf8') as file_to_open:
                         text = file_to_open.read()
 
                     if file_suffix.lower() == '.py':
@@ -706,7 +695,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             else:
                 try:
                     text_to_save = self.actual_text_edit.toPlainText()
-                    with open(self.actual_text_edit.file_path, 'w') as file_to_save:
+                    with open(self.actual_text_edit.file_path, 'w', encoding='utf') as file_to_save:
                         file_to_save.write(text_to_save)
                         # file_to_save.close()
 
@@ -866,8 +855,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         QTimer.singleShot(4000, lambda: self.uiLabelProgressStatus.setText("Ready"))
         QTimer.singleShot(4000, lambda: self.uiLabelProgressStatus.setStyleSheet("color: rgb(200, 200, 200);"))
-        if self.actual_text_edit:
-            QTimer.singleShot(4100, lambda: self.actual_text_edit.setFocus())
+        try:
+            if self.actual_text_edit:
+                QTimer.singleShot(4100, lambda: self.actual_text_edit.setFocus())
+        except AttributeError:
+            print("Atribute Error")
 
 
 

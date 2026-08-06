@@ -117,12 +117,13 @@ class RequirementNode(QStandardItem):
 
 
     def add_to_ignore_list(self):
-        if not self.hasChildren():  # if it is not Heading
+        # if not self.hasChildren():  # if it is not Heading
             if not self.reference.lower() in self.MODULE.ignore_list and not self.reference in self.MODULE.ignore_list:            
                 # self.update_coverage(None)
                 self.MODULE._coverage_dict.pop(self.reference.lower())
                 # self.MODULE.ignore_list.add(self.reference.lower())
                 self.MODULE.ignore_list.append(self.reference.lower())
+                # self.MODULE.ignore_list.sort(reverse=True)
                 self.update_icon()
                 self.MODULE.update_title_text()
 
